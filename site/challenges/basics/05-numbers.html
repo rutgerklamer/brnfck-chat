@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 5, building numbers</title>
+<meta name="description" content="Lesson 5 of Brainfuck basics: build a large number with a loop that multiplies, print Hi, and then print a word of your own choice.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Building numbers</h1>
+    <p class="lead">By the end of this lesson you can make any number with a short program, and print a word of your own choice.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>5</b> of 10</p>
+    <a class="prev" href="04-loops.html" rel="prev"><span>Previous</span>Loops</a>
+    <a class="next" href="06-input.html" rel="next"><span>Next</span>Reading input</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Eight times nine</h2>
+    <p>A letter needs a number like 72 or 105, and typing that many plus signs is long. This program of 24 commands prints the letter H, number 72. Press <em>Play</em>, or drag the slider through the steps, and watch cell 0 and cell 1 while the loop runs:</p>
+    <figure class="fig col" id="f1" aria-label="A loop that counts down in cell 0 and builds a number in cell 1, then prints it">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that every round took 1 off cell 0 and put 9 onto cell 1, and that the loop stopped when cell 0 reached 0. Eight rounds of 9 make 72, the number of the letter H. Typing 72 plus signs needs 73 commands with the full stop; this program needs 24.</p>
+      <p>This is a loop that <b>multiplies</b>. A counter sits in one cell, the loop adds a fixed number to the next cell every round, and a step to the right then reaches the result. If your number is not a neat product, add or take off the rest after the loop.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Sixty-five</h2>
+    <p>Now you build the number. Write a program that prints the letter A, which is number 65, with at most 30 commands:</p>
+    <figure class="fig col" id="f2" aria-label="A box for your program, and the tape and printed text it leaves">
+      <div id="m2"></div>
+      <div class="callout hint" id="h2a" hidden><h3>Hint</h3><p>65 is not a product of two handy numbers. But 64 is.</p></div>
+      <div class="callout hint" id="h2b" hidden><h3>Hint</h3><p>8 × 8 = 64. One more plus after the loop makes 65.</p></div>
+      <div class="row"><button class="quiet" id="h2">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>For example <code>++++++++[&gt;++++++++&lt;−]&gt;+.</code>: eight eights, and one more. There are many right answers; 5 × 13 works too.</p>
+      <p>Looking for the shortest program is a sport called <b>code golf</b>. The <a href="../">Challenges</a> keep score for you, if you like that.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Hi</h2>
+    <p>The box holds the program of the first figure, which prints H. Add to it so that it prints Hi. The small letter i is number 105:</p>
+    <figure class="fig col" id="f3" aria-label="The program that prints H, in a box for you to add to">
+      <div id="m3"></div>
+      <div class="callout hint" id="h3a" hidden><h3>Hint</h3><p>After printing, cell 1 still holds 72. How far is 105 from 72?</p></div>
+      <div class="callout hint" id="h3b" hidden><h3>Hint</h3><p>33 more. Thirty-three plus signs are fine here.</p></div>
+      <div class="row"><button class="quiet" id="h3">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>From 72 to 105 is 33 up. You can walk there with 33 plus signs, or run a second loop that adds to the same cell. What you should not do is start again from zero: the cell already holds a number near the one you need.</p>
+      <p>That is the whole art of printing text in brainfuck: go from each character to the next by a short way.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">Your own word</h2>
+    <p>Type a word in the first box, then write a program that prints exactly that word. The chart of <a href="03-letters.html">Lesson 3</a> gives the numbers:</p>
+    <figure class="fig col" id="f4" aria-label="A box for your word, a box for your program, and the tape and printed text it leaves">
+      <div class="row ask"><label class="stacked">Your word (2 to 12 letters, digits or signs)<input type="text" id="word" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false"></label></div>
+      <div id="m4"></div>
+      <div class="callout hint" id="h4a" hidden><h3>Hint</h3><p>For each next letter, look up its number in the chart of <a href="03-letters.html">Lesson 3</a> and work out how far it is from the letter before.</p></div>
+      <div class="callout hint" id="h4b" hidden><h3>Hint</h3><p>A capital and a small letter are far apart. For a big jump use a loop again: count rounds in the empty cell on the left, and add to the letter cell.</p></div>
+      <div class="row"><button class="quiet" id="h4">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>You have written a program that says something nobody told you to say. Every text a brainfuck program prints is made like this: a cell that holds a number near the next letter, and a walk from letter to letter.</p>
+      <p>The last hint writes a program for your word by itself. It is not the shortest possible; can you beat it? The classic first program in any language prints &ldquo;Hello, World!&rdquo;, and it is one of the Challenges: <a href="../play.html?c=hello">Hello, World!</a></p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Print your word with an exclamation mark (number 33) after it. Or print two words with a space (number 32) between them. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can build a number with a loop that multiplies, and print a text by walking from each character to the next. No new command came in this lesson: it was the loop of <a href="04-loops.html">Lesson 4</a> put to work.</p>
+    <p class="next-q">So far your programs always say the same thing. <a href="06-input.html">Lesson 6</a> lets them listen.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>5</b> of 10</p>
+    <a class="prev" href="04-loops.html" rel="prev"><span>Previous</span>Loops</a>
+    <a class="next" href="06-input.html" rel="next"><span>Next</span>Reading input</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const { $ } = Learn, P = BasicsPrograms;
+  const L = Basics.lesson(5);
+  // ---- 1. eight times nine
+  Basics.demo(L, 1, 'm1', 'd5s1', { text: (m) => 'It printed ' + Basics.outOf(m) + '. Cell 1 holds ' + m.tape[1] + ', made by a program of ' + m.code.length + ' commands.' });
+  // ---- 2. sixty-five
+  Basics.task(L, 2, 'm2', 't5s2', { button: 'h2', hints: ['h2a', 'h2b'], said: (r) => 'It prints A, with ' + r.n + ' commands.' });
+  // ---- 3. Hi
+  Basics.task(L, 3, 'm3', 't5s3', { button: 'h3', hints: ['h3a', 'h3b'], said: (r) => 'It prints Hi, with ' + r.n + ' commands.' });
+  // ---- 4. your own word
+  (function () {
+    const word = () => $('word').value.trim();
+    const fine = (w) => /^[\x21-\x7e][\x20-\x7e]{0,10}[\x21-\x7e]$/.test(w);
+    const judge = (code) => {
+      const w = word();
+      if (!fine(w)) return L.note(4, w ? 'Use 2 to 12 plain letters, digits or signs for your word.' : 'First type your word in the box above the program.');
+      const r = P.check({ cases: [{ out: w }] }, code, Learn.core);
+      if (r.ok) L.done(4, 'It prints ' + w + ', with ' + r.n + ' commands.'); else L.note(4, r.text);
+    };
+    const m = Learn.machine($('m4'), { code: '', bits: 8, cells: 6, editable: true, at: 'end', max: 2e5, onEdit: judge });
+    BFStudy.keys($('m4').querySelector('textarea'));
+    $('word').addEventListener('input', () => judge(m.code));
+    Learn.hints($('h4'), ['h4a', 'h4b'], () => { if (!fine(word())) $('word').value = 'Hi!'; m.type(P.wordProgram(word())); });
+  })();
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(5, 'quiz', "What does +++[>++++<−] leave in cell 1?", [["7",false,"The loop does not add 3 and 4. It adds 4, three times."],["12",true,"Three rounds, four each round: 3 × 4."],["4",false,"The loop goes round three times, not once."]]);
+  Basics.free('mf', {});
+})();
+</script>
+</body>
+</html>

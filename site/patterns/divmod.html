@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Divide, with remainder</title>
+<meta name="description" content="Divides one cell by another, or by a constant, and gives the quotient and the remainder. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#arithmetic">Arithmetic</a><span>Divide, with remainder</span></p>
+    <h1>Divide, with remainder</h1>
+    <p class="lead">Divides one cell by another, or by a constant, and gives the quotient and the remainder.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>18</b> of 38</p>
+    <a class="prev" href="mul-cells.html" rel="prev"><span>Previous</span>Multiply two cells</a>
+    <a class="next" href="square.html" rel="next"><span>Next</span>Square</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “By a cell” works on 6 cells; the named ones are “n”, “d”, “remainder”, “quotient” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or change n and d with the sliders:</p>
+
+    <figure class="fig col" id="fig-divmod-cell" data-p="divmod" data-v="cell" aria-label="The form By a cell of divide, with remainder, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>Division is counting: take 1 from n and 1 from the divisor, again and again. Every time the divisor reaches zero, one more "whole" has been taken out: add 1 to the quotient and fill the divisor up again.</p>
+    <p>To fill it up again the loop keeps a second count that goes up while the divisor goes down. That count is also the remainder when n runs out.</p>
+    <p>The clever part is the pointer. <code class="bf">[&gt;+&gt;&gt;]</code> and the loop after it are an <a href="if-else.html">if and else</a> on the divisor that end on the same cell both ways.</p>
+    <p><b>Why this is costly.</b> One round per unit of n, and the loop is not flat. Dividing 1,000,000 takes about 7 million optimised steps. For a divisor that is a power of two there is a much faster way: <a href="shift-round-clamp.html">shift, round and clamp</a>.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-divmod-cell">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;+&lt;&lt;[-&gt;-[&gt;+&gt;&gt;]&gt;[[-&lt;+&gt;]+&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;[-]&gt;-&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%2B%3C%3C%5B-%3E-%5B%3E%2B%3E%3E%5D%3E%5B%5B-%3C%2B%3E%5D%2B%3E%2B%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%5B-%5D%3E-%3C%3C&amp;names=0:n,1:d,2:remainder,3:quotient,4:zero,5:zero">Open in the playground</a><span class="count" data-len>43 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Main form: the six cells n, d, 1, 0, 0, 0. The pattern puts the 1 there itself.</li>
+      <li>The divisor must be at least 1. A divisor of 0 acts as "cell size" (256 on 8-bit cells).</li>
+      <li>Any cell size. n and d are used up.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Using the well-known shorter loop with a divisor of 1. It fails: see the note <a href="#wrong">"Wrong as often given"</a> under this list.</li>
+      <li>Reading the raw result: before the tidy-up the cells hold d − remainder and remainder + 1, not d and the remainder.</li>
+      </ul>
+      <div class="callout warn" id="wrong"><h3>Wrong as often given</h3><p>The shorter loop that is usually quoted, <code class="bf">[-&gt;-[&gt;+&gt;&gt;]&gt;[+[-&lt;+&gt;]&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]</code>, is correct for a divisor of 2 or more. With a divisor of 1 the pointer walks off to the left. The wiki says so; many copies of the snippet do not. The main form of this page (<a href="#pattern">the first figure</a>) is the wiki's "fixed version", which starts the remainder cell at 1.</p><p>Each wrong form is run, and it fails in exactly this way.</p></div>
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-divmod-cell-cost" data-p="divmod" data-v="cell" data-cost-fig aria-label="Steps taken by the form By a cell, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>By a cell</td><td>about 22 per unit of n</td><td>about 7 per unit of n; 9 when d is 1</td></tr>
+<tr><td>By a constant</td><td>about 22 per unit of n</td><td>about 7 per unit of n</td></tr>
+<tr><td>The short loop (divisor 2 or more)</td><td>about 22 per unit of n</td><td>about 7 per unit of n</td></tr>
+<tr><td>Remainder only</td><td>about 27 per unit of n</td><td>about 11 per unit of n</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>By a cell</td><td>n = 17; d = 5</td><td class="n">8</td><td class="n">43</td><td class="n">388</td><td class="n">130</td></tr>
+<tr><td>By a cell</td><td>n = 255; d = 10</td><td class="n">8</td><td class="n">43</td><td class="n">5,657</td><td class="n">1,840</td></tr>
+<tr><td>By a cell</td><td>n = 255; d = 1</td><td class="n">8</td><td class="n">43</td><td class="n">6,134</td><td class="n">2,300</td></tr>
+<tr><td>By a constant</td><td>d = 10; n = 173</td><td class="n">8</td><td class="n">53</td><td class="n">3,861</td><td class="n">1,251</td></tr>
+<tr><td>The short loop (divisor 2 or more)</td><td>n = 17; d = 5</td><td class="n">8</td><td class="n">30</td><td class="n">371</td><td class="n">126</td></tr>
+<tr><td>Remainder only</td><td>n = 17; d = 5</td><td class="n">8</td><td class="n">24</td><td class="n">460</td><td class="n">193</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-const" aria-labelledby="v-const-h">
+      <h3 id="v-const-h">By a constant</h3>
+      <p>The divisor is written into the program.</p>
+      <div class="code" data-fig="fig-divmod-const">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;++++++++++&gt;+&lt;&lt;[-&gt;-[&gt;+&gt;&gt;]&gt;[[-&lt;+&gt;]+&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;[-]&gt;-&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%2B%3C%3C%5B-%3E-%5B%3E%2B%3E%3E%5D%3E%5B%5B-%3C%2B%3E%5D%2B%3E%2B%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%5B-%5D%3E-%3C%3C&amp;names=0:n,1:d,2:remainder,3:quotient,4:zero,5:zero">Open in the playground</a><span class="count" data-len>53 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-const"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “By a constant” works on 6 cells; the named ones are “n”, “d”, “remainder”, “quotient” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or change d and n with the sliders:</p>
+        <figure class="fig col" id="fig-divmod-const" data-p="divmod" data-v="const" aria-label="The form By a constant of divide, with remainder, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-short" aria-labelledby="v-short-h">
+      <h3 id="v-short-h">The short loop (divisor 2 or more)</h3>
+      <p>One character shorter per round and no 1 to set up. The result is raw: d − remainder, remainder, quotient.</p>
+      <div class="code" data-fig="fig-divmod-short">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;-[&gt;+&gt;&gt;]&gt;[+[-&lt;+&gt;]&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E-%5B%3E%2B%3E%3E%5D%3E%5B%2B%5B-%3C%2B%3E%5D%3E%2B%3E%3E%5D%3C%3C%3C%3C%3C%5D&amp;names=0:n,1:d-rem,2:remainder,3:quotient,4:zero,5:zero">Open in the playground</a><span class="count" data-len>30 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-short"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The short loop (divisor 2 or more)” works on 6 cells; the named ones are “n”, “d − rem”, “remainder”, “quotient” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or change n and d with the sliders:</p>
+        <figure class="fig col" id="fig-divmod-short" data-p="divmod" data-v="short" aria-label="The form The short loop (divisor 2 or more) of divide, with remainder, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-mod" aria-labelledby="v-mod-h">
+      <h3 id="v-mod-h">Remainder only</h3>
+      <p>Layout: zero, n, d, remainder, two zero cells. The pointer starts on n. d ends as d − remainder.</p>
+      <div class="code" data-fig="fig-divmod-mod">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;-&gt;+&lt;[&gt;]&gt;[&lt;+&gt;-]&lt;&lt;[&lt;]&gt;-]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E-%3E%2B%3C%5B%3E%5D%3E%5B%3C%2B%3E-%5D%3C%3C%5B%3C%5D%3E-%5D&amp;names=0:zero,1:n,2:d-rem,3:remainder,4:zero,5:zero">Open in the playground</a><span class="count" data-len>24 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-mod"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Remainder only” works on 6 cells; the named ones are “zero”, “n”, “d − rem” and “remainder”. Press <em>Play</em>, drag the step slider forwards and back, or change n and d with the sliders:</p>
+        <figure class="fig col" id="fig-divmod-mod" data-p="divmod" data-v="mod" aria-label="The form Remainder only of divide, with remainder, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="print-number.html">Print a number in decimal</a> divides by 10 once per digit.</li>
+      <li><a href="../learn/04-zero.html">Build toward a chatbot, lesson 4, "Only one question"</a>, measures how slow dividing by counting is.</li>
+      <li>The chat program never divides this way: it multiplies by a reciprocal from a table (see <a href="table-lookup.html">table lookup as a decision tree</a>) and shifts (see <a href="shift-round-clamp.html">shift, round and clamp</a>).</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: sections "Divmod" (the short loop and the "Fixed Version") and "Modulo".</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>18</b> of 38</p>
+    <a class="prev" href="mul-cells.html" rel="prev"><span>Previous</span>Multiply two cells</a>
+    <a class="next" href="square.html" rel="next"><span>Next</span>Square</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

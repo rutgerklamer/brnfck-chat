@@ -1,0 +1,41 @@
+/* Tool pages (the playground, the map) and the tool parts of the challenge pages. */
+
+/* ---- the compact head ---- */
+main.tool > header.compact { padding: var(--s2) 0; border-top: var(--edge) solid var(--ink); border-bottom: 1px solid var(--line); }
+main.tool > header.compact .kicker { color: var(--muted); font: var(--kick); letter-spacing: var(--ls-kick); text-transform: uppercase; }
+main.tool > header.compact h1 { font-family: var(--display); font-weight: 700; letter-spacing: -.035em; }
+main.tool > header.compact a { color: var(--ink); }
+
+/* ---- the tape ---- */
+main.tool .tape.joined > .cell.hit > b { background: var(--hot); color: var(--ink); font-weight: 700; }
+
+/* ---- the controls ---- */
+main.tool kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0 .3em; border: var(--edge) solid var(--ink); font-size: .9em; line-height: 1.5; }
+main.tool input[type="range"] { min-height: max(44px, var(--target)); }
+main.tool input[type="range"]:focus-visible { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+main.tool label.speed { display: flex; align-items: center; gap: var(--s2); min-width: 0; margin: 0; }
+main.tool label.speed > span { flex: 0 0 auto; font: var(--ctl); }
+main.tool label.speed > output { flex: 0 0 auto; min-width: 5.5em; font: var(--ctl); font-variant-numeric: tabular-nums; }
+main.tool label.speed > input { flex: 1 1 5rem; min-width: 4rem; max-width: none; }
+:root[data-theme="dark"] main.tool :is(.keypad, .chips) button,
+:root[data-theme="dark"] main.tool .seg > button:not([aria-pressed="true"]) { color: var(--ink); }
+
+/* ---- the verdict line ---- */
+main.tool .verdict { min-height: 1.5em; margin: var(--s2) 0 0; padding: var(--s2) var(--s3); border-left: 6px solid transparent; color: var(--ink); font: var(--fs-ui)/1.5 var(--sans); }
+main.tool .verdict:empty { padding-top: 0; padding-bottom: 0; }
+main.tool .verdict.ok { border-left-style: solid; border-left-color: var(--good); background: var(--goodbg); color: var(--good); font-weight: 600; }
+main.tool .verdict.no { border-left-style: dashed; border-left-color: var(--ink); background: var(--sunk); color: var(--ink); }
+main.tool .verdict.ok:not(:empty)::before { content: "\2713\2002Right.\2002"; }
+main.tool .verdict.no:not(:empty)::before { content: "\2715\2002Not yet.\2002"; font-weight: 700; }
+main.tool .verdict.plain.ok:not(:empty)::before { content: "\2713\2002"; }
+main.tool .verdict.plain.no:not(:empty)::before { content: "\2715\2002"; }
+
+/* ---- a tool in a reading column: the challenge pages ---- */
+main.article textarea.code { width: 100%; max-width: none; }
+main.article nav.lesson:empty { display: none; }        /* empty until its script has filled it */
+main.article .verdict.plain.ok:not(:empty)::before { content: "\2713\2002"; }
+main.article .verdict.plain.no:not(:empty)::before { content: "\2715\2002"; }
+
+/* ---- print and reduced motion ---- */
+@media print { main.tool > header.compact { border-top-width: 1px; } }
+@media (prefers-reduced-motion: reduce) { main.tool *, main.tool *::before, main.tool *::after { transition: none !important; animation: none !important; } }

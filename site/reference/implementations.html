@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, implementations</title>
+<meta name="description" content="How brainfuck interpreters and compilers work: the naive loop, precomputed jumps, run-length merging, clear loops, multiply loops, scan loops, offset folding, compiling to C, machine code and WebAssembly. With measurements and an annotated list.">
+<meta property="og:title" content="Brainfuck implementations: interpreters, optimisers and compilers">
+<meta property="og:description" content="How brainfuck interpreters and compilers work: the naive loop, precomputed jumps, run-length merging, clear loops, multiply loops, scan loops, offset folding, compiling to C, machine code and WebAssembly. With measurements and an annotated list.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Implementations</span></p>
+    <h1>Implementations</h1>
+    <p class="lead">The simplest brainfuck interpreter is a loop of a dozen lines, and the language's author says you can write one in half an hour <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. A fast one is a different thing. It reads the program first, merges runs of the same command, recognises loops that clear, copy or multiply, and may then translate the result to machine code. Each of these steps has been measured: together they made six test programs between 2.4 and 130 times faster in one study <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#naive">One command at a time</a></li>
+          <li><a href="#jumps">Step 1: find the brackets once</a></li>
+          <li><a href="#runs">Step 2: merge runs</a></li>
+          <li><a href="#clear">Step 3: recognise simple loops</a></li>
+          <li><a href="#offsets">Step 4: fold the moves away</a></li>
+          <li><a href="#compile">Compiling</a></li>
+          <li><a href="#further">How far it can go</a></li>
+          <li><a href="#small">The smallest</a></li>
+          <li><a href="#list">Well-known implementations</a></li>
+          <li><a href="#testing">Testing an implementation</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="naive" aria-labelledby="naive-h">
+    <h2 id="naive-h">One command at a time</h2>
+    <p>An interpreter needs a tape, a pointer, a position in the program, and one action for each of the eight commands. Written in JavaScript:</p>
+    <pre tabindex="0">function run(program, input) {
+  const tape = new Uint8Array(30000);
+  let p = 0, out = '';
+  for (let i = 0; i &lt; program.length; i++) {
+    const c = program[i];
+    if (c === '+') tape[p]++;
+    else if (c === '-') tape[p]--;
+    else if (c === '&gt;') p++;
+    else if (c === '&lt;') p--;
+    else if (c === '.') out += String.fromCharCode(tape[p]);
+    else if (c === ',') tape[p] = input.length ? input.shift() : 0;
+    else if (c === '[' &amp;&amp; tape[p] === 0) i = match(program, i);
+    else if (c === ']' &amp;&amp; tape[p] !== 0) i = match(program, i);
+  }
+  return out;
+}</pre>
+    <p>The helper <code>match</code> walks through the program to find the partner of a bracket, counting brackets it passes on the way. This interpreter is correct. (It makes the usual choices: 8-bit cells that wrap, 0 at the end of the input, no check at the ends of the tape. See <a href="portability.html">Where implementations differ</a>.)</p>
+    <p>Müller's own interpreter of 1993 is of this kind, about a thousand characters of C. It handles a loop by calling itself for the body&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</p>
+    <p>It is also slow, for two reasons. It searches for the matching bracket again every time a loop goes round. And it does each <code>+</code> of a row of fifty as a separate piece of work. The steps below remove such waste, one kind at a time.</p>
+  </section>
+
+  <section id="jumps" aria-labelledby="jumps-h">
+    <h2 id="jumps-h">Step 1: find the brackets once</h2>
+    <p>Before running, go through the program once and write down for every bracket where its partner is. During the run a jump is then a single look-up. Eli Bendersky measured this on the Mandelbrot program: 38.6 seconds became 18.4&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</p>
+  </section>
+
+  <section id="runs" aria-labelledby="runs-h">
+    <h2 id="runs-h">Step 2: merge runs</h2>
+    <p>Brainfuck programs are full of rows of the same command. <span class="bf">+++++</span> can be one operation, "add 5"; <span class="bf">&lt;&lt;&lt;</span> one "move 3 left". A <code>+</code> next to a <code>-</code> cancels out. So the interpreter first translates the program into a list of operations with a count, and runs that list. This is called run-length merging or contraction.</p>
+    <p>Mats Linander counted how much of real programs can be merged this way: about three quarters of the commands in the Mandelbrot program and two others, 40 to 60 per cent in three more&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. In Bendersky's series this step took the Mandelbrot run from 18.4 to 11.9 seconds&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</p>
+  </section>
+
+  <section id="clear" aria-labelledby="clear-h">
+    <h2 id="clear-h">Step 3: recognise simple loops</h2>
+    <p>The big gains come from loops whose whole effect can be worked out without running them.</p>
+    <dl class="glossary">
+      <dt>Clear loops</dt>
+      <dd><span class="bf">[-]</span> counts a cell down to 0. That is "set the cell to 0": one operation in place of up to 255 rounds, or up to four billion with 32-bit cells. On cells that wrap, <span class="bf">[+]</span> does the same&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</dd>
+      <dt>Copy and multiply loops</dt>
+      <dd><span class="bf">[-&gt;+++&gt;+&lt;&lt;]</span> takes one off the starting cell each round, adds 3 to the next cell and 1 to the one after, and comes back. After the loop the starting cell is 0 and the others have grown by 3 times and 1 times its old value. That is two multiplications and a clear, at a fixed cost. The loop qualifies when its body has only <code>+ - &lt; &gt;</code>, ends on the cell where it began, and changes that cell by exactly one per round&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</dd>
+      <dt>Scan loops</dt>
+      <dd><span class="bf">[&gt;]</span> and <span class="bf">[&lt;]</span> walk to the next cell that holds 0. A processor can search memory for a zero much faster than one cell per step. Linander found this made the self-interpreter dbfi more than three times faster and did little for the other programs&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</dd>
+    </dl>
+    <p>The program below has a loop inside a loop, and adds 4 to cell 2 each time the inner loop goes round. The sliders set how often each loop goes round. The two counts under the cells are the number of steps of the same run, counted two ways. Press <em>Play</em>, and then put <em>a print</em> inside the inner loop:</p>
+
+    <figure class="fig col" id="fig-steps" aria-label="A loop inside a loop, with the number of steps counted in two ways"></figure>
+    <p>Both counts describe the same run with the same result: with the sliders as they were, 64 in cell 2. The merged count replaces the inner loop by one multiplication, so the inner loop is one step and the outer loop, which holds another loop, still goes round four times. When you put a print command inside the inner loop, it no longer has the simple shape: a loop that prints must really go round, because each round has an effect outside the tape. The merged count went up accordingly. The counts are those of the interpreter that Brainfuck basics and Build toward a chatbot use.</p>
+    <p>In Bendersky's series, recognising such loops was the largest single step: the Mandelbrot run went from 11.9 to 3.9 seconds&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</p>
+  </section>
+
+  <section id="offsets" aria-labelledby="offsets-h">
+    <h2 id="offsets-h">Step 4: fold the moves away</h2>
+    <p>In <span class="bf">&gt;+&gt;++&lt;&lt;</span> the pointer goes out and comes back. Nothing needs to move: the piece means "add 1 at one cell to the right, add 2 at two cells to the right". An implementation can give every operation an offset from the current position and move the pointer only once, at the end of a stretch without loops. Linander calls this "operation offsets" and found the gain real but modest&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>; bfc calls it "reorder with offsets"&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>The program below has twelve commands. Show its run one command at a time, and then with runs and simple loops merged, and step through both:</p>
+    <figure class="fig col" id="fig-collapse" aria-label="Twelve commands, run one at a time and as three merged operations"></figure>
+
+    <p>One command at a time the program takes 24 steps; merged, 3. The program prints a character with code 6 either way. Look at the middle step: a whole loop became one line of arithmetic, and the moves are folded into the steps around it.</p>
+    <p><a href="#tab-opts">The table</a> below puts the optimisations of steps 2, 3 and 4 side by side.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="The standard optimisations; scrolls sideways on a narrow screen">
+    <table id="tab-opts" class="cmp">
+      <caption>The standard optimisations. Names differ between authors; the first column gives the common ones&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">Brainfuck</th><th scope="col">Becomes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Run-length merging, contraction</th><td><span class="bf">+++++</span> &nbsp; <span class="bf">&lt;&lt;&lt;</span></td><td>add 5 &nbsp; move 3 left</td></tr>
+        <tr><th scope="row">Clear loop</th><td><span class="bf">[-]</span></td><td>set the cell to 0</td></tr>
+        <tr><th scope="row">Copy loop</th><td><span class="bf">[-&gt;+&gt;+&lt;&lt;]</span></td><td>add the cell to two others; set it to 0</td></tr>
+        <tr><th scope="row">Multiply loop</th><td><span class="bf">[-&gt;+++&lt;]</span></td><td>add 3 times the cell to the next; set it to 0</td></tr>
+        <tr><th scope="row">Scan loop</th><td><span class="bf">[&gt;]</span></td><td>search right for a cell that holds 0</td></tr>
+        <tr><th scope="row">Offsets</th><td><span class="bf">&gt;+&gt;++&lt;&lt;</span></td><td>add 1 at offset 1; add 2 at offset 2; do not move</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>All of them keep the result exactly the same. Applied together to six real programs, they gave speed-ups from 2.4 times (the compiler awib) to about 130 times (a Towers of Hanoi program) in Linander's measurements&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</p>
+  </section>
+
+  <section id="compile" aria-labelledby="compile-h">
+    <h2 id="compile-h">Compiling</h2>
+    <p>An interpreter looks at each operation, decides what it is, and does it. A compiler translates the program once into something a machine runs directly, so the deciding is done before the run.</p>
+    <dl class="glossary">
+      <dt>To C</dt>
+      <dd>The easy way: each command becomes a line of C, exactly as in the table of the 1993 README (the last column of <a href="language.html#tab-commands">table of the eight commands on the page The language</a>)&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>, and a C compiler does the rest. Linander's measurements were made this way&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>, and awib and esotope-bfc write C&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>.</dd>
+      <dt>To machine code</dt>
+      <dd>The original implementation was a compiler of this kind. For each command it copies a few bytes of ready-made machine code to the output. To reach 240 bytes Müller let some bytes of the compiler do three jobs at once: as instructions the compiler itself runs, as the code it copies out, and as part of a table&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. Brian Raiter's compiler for Linux works in the same spirit in 166 bytes&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>.</dd>
+      <dt>While running (JIT)</dt>
+      <dd>A just-in-time compiler makes the machine code in memory and jumps into it. In Bendersky's series a simple one ran the Mandelbrot program in 2.89 seconds and one with the optimisations described here in 0.93 seconds, against 38.6 for the first interpreter&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</dd>
+      <dt>To WebAssembly</dt>
+      <dd>WebAssembly is the machine code of web browsers. Small compilers from brainfuck to it exist, with and without optimisation&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. The chat pages of this site work this way: they translate a program to WebAssembly, merging runs and doing simple loops in one operation, and that is what makes programs of billions of commands usable&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</dd>
+    </dl>
+    <div class="scroll" tabindex="0" role="group" aria-label="One program, six implementations: the run time of the Mandelbrot viewer in Eli; scrolls sideways on a narrow screen">
+    <table id="tab-times" class="cmp">
+      <caption>One program, six implementations: the run time of the Mandelbrot viewer in Eli Bendersky's series, on his computer in 2017&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. Read down the last column.</caption>
+      <thead><tr><th scope="col">Implementation</th><th scope="col">What it adds</th><th scope="col" class="n">Seconds</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Simple interpreter</th><td>nothing</td><td class="n">38.6</td></tr>
+        <tr><th scope="row">Interpreter, take 1</th><td>brackets found once</td><td class="n">18.4</td></tr>
+        <tr><th scope="row">Interpreter, take 2</th><td>runs merged</td><td class="n">11.9</td></tr>
+        <tr><th scope="row">Interpreter, take 3</th><td>simple loops recognised</td><td class="n">3.9</td></tr>
+        <tr><th scope="row">Simple JIT</th><td>machine code, no optimisation</td><td class="n">2.89</td></tr>
+        <tr><th scope="row">Optimising JIT</th><td>machine code, plus what takes 1 to 3 add</td><td class="n">0.93</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The same six run times as bars, to scale from zero:</p>
+    <figure class="fig col" id="fig-times">
+      <div class="bars scale lin" role="img" aria-label="Bar chart of the six run times of Table 2, in seconds, bars to scale from zero. Simple interpreter 38.6. Interpreter take 1, brackets found once, 18.4. Interpreter take 2, runs merged, 11.9. Interpreter take 3, simple loops recognised, 3.9. Simple JIT 2.89. Optimising JIT 0.93.">
+        <span class="lab">Simple interpreter</span><div><div class="bar ink" style="width:100%"></div></div><span>38.6 s</span>
+        <span class="lab">Take 1: brackets found once</span><div><div class="bar ink" style="width:47.67%"></div></div><span>18.4 s</span>
+        <span class="lab">Take 2: runs merged</span><div><div class="bar ink" style="width:30.83%"></div></div><span>11.9 s</span>
+        <span class="lab">Take 3: simple loops recognised</span><div><div class="bar ink" style="width:10.1%"></div></div><span>3.9 s</span>
+        <span class="lab">Simple JIT</span><div><div class="bar ink" style="width:7.49%"></div></div><span>2.89 s</span>
+        <span class="lab">Optimising JIT</span><div><div class="bar ink" style="width:2.41%"></div></div><span>0.93 s</span>
+      </div>
+      <p class="measured">Run times of the Mandelbrot viewer in Eli Bendersky's series, on his computer in 2017. <span class="ev">measured</span></p>
+    </figure>
+    <p>Notice how the bars shrink from the first to the last: the run time falls from 38.6 seconds to 0.93.</p>
+  </section>
+
+  <section id="further" aria-labelledby="further-h">
+    <h2 id="further-h">How far it can go</h2>
+    <p>A compiler knows the tape starts empty. If a program reads no input, the compiler can simply run it while compiling and keep only what it prints. Kang Seonghoon's Esotope compiler was made to do this: its README shows a "Hello World!" program that compiles to a single statement that prints the text, and says it was the first compiler to manage that&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>. Wilfred Hughes's bfc does the same under the name "speculative execution", next to dead code removal and an analysis of how many cells a program can reach&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>For programs that read input, part of the work can still be done ahead. The chat programs of this site use the idea by hand: the first billion commands of brnfck-135m read no input, so the tape they leave is the same for every question, and the page keeps a copy of it&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</p>
+  </section>
+
+  <section id="small" aria-labelledby="small-h">
+    <h2 id="small-h">The smallest</h2>
+    <p>Brainfuck was made to have a small compiler, and making it smaller became a sport.</p>
+    <dl class="kv">
+      <dt>Amiga compiler, Urban Müller, 1993&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></dt><dd>240 bytes</dd>
+      <dt>Linux compiler, Brian Raiter, 1999&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a></dt><dd>166 bytes</dd>
+      <dt>DOS interpreter, INT-E, Hugi competition 6, 1999&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a></dt><dd>98 bytes</dd>
+    </dl>
+    <p>Smaller ones are reported. Müller mentions an interpreter of 57 bytes for Intel processors that he could not find again in time for his talk&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, and the Esolang wiki lists others&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>. We did not check any of those.</p>
+  </section>
+
+  <section id="list" aria-labelledby="list-h">
+    <h2 id="list-h">Well-known implementations</h2>
+    <div class="scroll" tabindex="0" role="group" aria-label="A selection of implementations, each with what it is known for; scrolls sideways on a narrow screen">
+    <table id="tab-list" class="cmp">
+      <caption>A selection of implementations, each with what it is known for. The descriptions follow the authors' own pages.</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">By</th><th scope="col">What it is</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><a href="https://aminet.net/package/dev/lang/brainfuck-2">bfc and bfi</a></th><td>Urban Müller, 1993</td><td>The original compiler for the Amiga and the portable interpreter in C that came with it&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></td></tr>
+        <tr><th scope="row"><a href="https://muppetlabs.com/~breadbox/bf/">bf.asm</a></th><td>Brian Raiter, 1999</td><td>A compiler in 166 bytes for Linux, with commented source&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a></td></tr>
+        <tr><th scope="row"><a href="https://brainfuck.org/">qdb, sbi, bcci, dbc</a></th><td>Daniel Cristofani</td><td>Small interpreters and a compiler in C: one quick, one "clean and simple, but slow", one strict for contests&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a></td></tr>
+        <tr><th scope="row"><a href="https://github.com/rdebath/Brainfuck">Tritium</a></th><td>rdebath</td><td>Interpreter, compiler and JIT in one. Its README claims it is "simply the fastest BF interpreter you'll find"; supports any cell size. The repository also holds translators from brainfuck to many languages&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a></td></tr>
+        <tr><th scope="row"><a href="https://bfc.wilfred.me.uk/">bfc</a></th><td>Wilfred Hughes</td><td>"An industrial grade compiler", with documented optimisations and helpful error messages&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>. (Not Müller's bfc: only the name is the same.)</td></tr>
+        <tr><th scope="row"><a href="https://github.com/lifthrasiir/esotope-bfc">Esotope Brainfuck Compiler</a></th><td>Kang Seonghoon</td><td>Translates brainfuck to short, readable C; runs as much as it can at compile time&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a></td></tr>
+        <tr><th scope="row"><a href="https://github.com/matslina/awib">awib</a></th><td>Mats Linander</td><td>An optimising compiler written in brainfuck itself&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a></td></tr>
+        <tr><th scope="row"><a href="https://github.com/mrjameshamilton/bf">bf</a></th><td>mrjameshamilton</td><td>One optimising compiler with many outputs: JVM, C, LLVM IR, ARM assembly, WebAssembly, JavaScript&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a></td></tr>
+        <tr><th scope="row"><a href="https://github.com/surma/bfwasm">bfwasm</a></th><td>Surma</td><td>A small compiler to WebAssembly that does not optimise, by its own description&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a></td></tr>
+        <tr><th scope="row"><a href="../playground/">This site's playground</a></th><td>this site</td><td>Runs in the browser, with stepping and a view of the tape</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>There are far more. The Esolang wiki keeps a long list that also has implementations in hardware: processors and small computers whose machine language is brainfuck&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>. And a brainfuck interpreter is one of the test programs in a well-known comparison of programming languages, written once in each of them&nbsp;<a class="cite" href="#ref-18" aria-label="Source 18">[18]</a>.</p>
+  </section>
+
+  <section id="testing" aria-labelledby="testing-h">
+    <h2 id="testing-h">Testing an implementation</h2>
+    <p>If you write one, test it on more than "Hello World".</p>
+    <ul>
+      <li><b>Cristofani's tests</b> report how new lines and the end of the input are handled, whether the tape has 30,000 cells, and what happens at its ends&nbsp;<a class="cite" href="#ref-19" aria-label="Source 19">[19]</a>. His "Epistle to the Implementors" explains what he hopes to find&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>.</li>
+      <li><b>bitwidth.b</b> in rdebath's repository is described as a torture test and reports the cell size it finds&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a>.</li>
+      <li><b>Large real programs</b>: the Mandelbrot viewer, dbfi running itself, and the other programs Linander used&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</li>
+      <li><b>Compare with a slow, simple interpreter.</b> An optimiser is right only if it gives the same output and the same tape. This site checks its fast executor that way on small programs&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</li>
+    </ul>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>The timings (<a href="#tab-times">table</a> and <a href="#fig-times">bars</a>) are one author's, on one computer, in 2017. They show proportions, not what you will measure.</li>
+      <li>We did not run the implementations in the <a href="#tab-list">list</a>, except this site's own. "Fastest" and similar words are the authors'.</li>
+      <li>The step counts in <a href="#fig-steps">the figure of the two counts</a> are those of the interpreter that <a href="../challenges/basics/">Brainfuck basics</a> and <a href="../learn/">Build toward a chatbot</a> use, which merges runs, folds a move into the next step and turns clear and multiply loops into one step. Other implementations count differently.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="portability.html"><b>Where implementations differ</b><span>Cell size, tape ends, end of input: the choices every implementation makes.</span></a></li>
+      <li><a href="programs.html"><b>Notable programs and feats</b><span>The programs that implementations are tested and timed on.</span></a></li>
+      <li><a href="../inside/"><b>Inside the program</b><span>What an optimising executor finds in a program of a billion commands.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Eli Bendersky, "Adventures in JIT compilation: Part 1, an interpreter"</b>, 20 March 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-1-an-interpreter/">part 1 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Wilfred Hughes, <i>bfc</i></b>: <a href="https://bfc.wilfred.me.uk/">the bfc site</a>, its page <a href="https://bfc.wilfred.me.uk/docs/optimisations/">"Optimisations"</a> and <a href="https://github.com/Wilfred/bfc">the repository</a>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Mats Linander, <i>awib</i></b>, README dated 14 September 2014: <a href="https://github.com/matslina/awib">matslina/awib on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Kang Seonghoon, <i>Esotope Brainfuck Compiler</i></b>, README: <a href="https://github.com/lifthrasiir/esotope-bfc">lifthrasiir/esotope-bfc on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Brian Raiter, "Brainfuck: An Eight-Instruction Turing-Complete Programming Language"</b>: <a href="https://muppetlabs.com/~breadbox/bf/">the brainfuck page on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Brian Raiter, <i>bf.asm</i></b>, copyright 1999: <a href="https://www.muppetlabs.com/~breadbox/software/tiny/bf.asm.txt">the assembly source on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Eli Bendersky, "Adventures in JIT compilation: Part 2, an x64 JIT"</b>, 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-2-an-x64-jit/">part 2 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>Surma, <i>bfwasm</i></b>: <a href="https://github.com/surma/bfwasm">surma/bfwasm on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>mrjameshamilton, <i>bf</i></b>: <a href="https://github.com/mrjameshamilton/bf">mrjameshamilton/bf on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>This site's own project.</b> Counts and measurements are on <a href="../how/#numbers">How it works: the numbers</a> and <a href="../how/#real">How do I know it is real?</a>; the earlier work we know of is under <a href="../how/#prior">Has this been done before?</a>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>Hugi Size Coding Competition</b>, list of past competitions: <a href="https://www.hugi.scene.org/compo/compoold.htm">the competition archive on hugi.scene.org</a>. Competition 6 (1999) asked for a brainfuck interpreter. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>Esolang wiki, "Brainfuck implementations"</b>: <a href="https://esolangs.org/wiki/Brainfuck_implementations">the wiki's list of implementations</a>. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>rdebath, <i>Brainfuck</i> repository</b>: <a href="https://github.com/rdebath/Brainfuck">rdebath/Brainfuck on GitHub</a>. Holds the Tritium interpreter, translators to many languages, test programs and a copy of Müller's 1993 compiler. Opened 11 October 2026.</li>
+      <li id="ref-18"><b>kostya, <i>benchmarks</i></b>: <a href="https://github.com/kostya/benchmarks">kostya/benchmarks on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-19"><b>Daniel B Cristofani, <i>tests.b</i></b>: <a href="https://brainfuck.org/tests.b">test programs for implementations on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-20"><b>Daniel B Cristofani, "The Epistle to the Implementors"</b>: <a href="https://brainfuck.org/epistle.html">the epistle on brainfuck.org</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html" aria-current="page"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>8</b> of 13</p>
+    <a class="prev" href="programs.html" rel="prev"><span>Previous</span>Notable programs</a>
+    <a class="next" href="relatives.html" rel="next"><span>Next</span>Relatives</a>
+  </nav>
+</main>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ref.js?v=r7"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  // the two counts of a loop inside a loop
+  var pSeg = Ref.seg('Inside the inner loop', [['', 'nothing'], ['.', 'a print']], '', function () { st.reload(); });
+  var st = Ref.compare($('fig-steps'), {
+    rate: 20, printed: true,
+    values: [{ name: 'Outer loop: rounds', min: 1, max: 8, value: 4 }, { name: 'Inner loop: rounds', min: 1, max: 8, value: 4 }],
+    build: function (v) {
+      return { code: '+'.repeat(v[0]) + '[>' + '+'.repeat(v[1]) + '[>++++' + pSeg.get() + '<-]<-]', size: 3, cells: 3,
+        end: function (m) { return 'Finished. Cell 2 holds ' + m.tape[2] + (m.out.length ? ' and it printed ' + m.out.length + ' characters' : '') + '.'; } };
+    }
+  });
+  Ref.addControl($('fig-steps'), pSeg);
+
+  // twelve commands, as three operations
+  Ref.compare($('fig-collapse'), {
+    rate: 4, printed: true,
+    build: function () { return { code: '+++[->++<]>.', size: 3, cells: 3 }; }
+  });
+})();
+</script>
+</body>
+</html>

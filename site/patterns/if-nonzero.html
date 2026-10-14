@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: If non-zero</title>
+<meta name="description" content="Runs a piece of program once when a cell is not zero. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#control">Control</a><span>If non-zero</span></p>
+    <h1>If non-zero</h1>
+    <p class="lead">Runs a piece of program once when a cell is not zero.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>7</b> of 38</p>
+    <a class="prev" href="swap.html" rel="prev"><span>Previous</span>Swap two cells</a>
+    <a class="next" href="if-zero.html" rel="next"><span>Next</span>If zero</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Using up x” works on 2 cells, named “x” and “out”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+
+    <figure class="fig col" id="fig-if-nonzero-destroy" data-p="if-nonzero" data-v="destroy" aria-label="The form Using up x of if non-zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>A loop is the only thing in brainfuck that looks at a cell. So an "if" is a loop that is made to run at most once.</p>
+    <p>The simplest way to stop it after one round is to clear the cell at the end of the body. That destroys the value.</p>
+    <p>To keep the value, either test a copy (see <a href="copy.html">copy a value</a>), or leave the loop by stepping onto a cell that is known to be zero and then find the way back.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-if-nonzero-destroy">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;+&lt;[-]]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%2B%3C%5B-%5D%5D&amp;names=0:x,1:out">Open in the playground</a><span class="count" data-len>8 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Destroying form: nothing. Copy form: two scratch cells. No-copy form: a zero cell on each side of x.</li>
+      <li>The body must come back to the cell it started on.</li>
+      <li>Any cell size.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Leaving the loop on another cell than the one you entered on, and then moving as if you knew where you are. See the note <a href="#wrong">"Wrong as often given"</a> under this list.</li>
+      <li>A body that changes the tested cell and forgets that the closing bracket tests it again.</li>
+      </ul>
+      <div class="callout warn" id="wrong"><h3>Wrong as often given</h3><p>A short form that is often given is "x[ code temp ]x": leave the loop by walking to an empty cell, then walk back to x. Written with fixed moves this is wrong when x is zero: the loop is skipped, the pointer is still on x, and the walk back goes one cell too far. The form <a href="#v-nocopy">Keeping x, without a copy</a> on this page repairs it with <code class="bf">[&lt;]</code>, which stops on the zero cell left of x in both cases.</p><p>Each wrong form is run, and it fails in exactly this way.</p></div>
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-if-nonzero-destroy-cost" data-p="if-nonzero" data-v="destroy" data-cost-fig aria-label="Steps taken by the form Using up x, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Using up x</td><td>6 + 2x when x is not 0, else 1</td><td>4 when x is not 0, else 1</td></tr>
+<tr><td>Keeping x, by testing a copy</td><td>14 + 21x when x is not 0, else 9</td><td>7 when x is not 0, else 4</td></tr>
+<tr><td>Keeping x, without a copy</td><td>11 when x is not 0, else 4</td><td>6 when x is not 0, else 3</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Using up x</td><td>x = 0</td><td class="n">8</td><td class="n">8</td><td class="n">1</td><td class="n">1</td></tr>
+<tr><td>Using up x</td><td>x = 5</td><td class="n">8</td><td class="n">8</td><td class="n">16</td><td class="n">4</td></tr>
+<tr><td>Keeping x, by testing a copy</td><td>x = 5</td><td class="n">8</td><td class="n">35</td><td class="n">119</td><td class="n">7</td></tr>
+<tr><td>Keeping x, without a copy</td><td>x = 5</td><td class="n">8</td><td class="n">11</td><td class="n">11</td><td class="n">6</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-copy" aria-labelledby="v-copy-h">
+      <h3 id="v-copy-h">Keeping x, by testing a copy</h3>
+      <p>Layout: x, out, two scratch cells.</p>
+      <div class="code" data-fig="fig-if-nonzero-copy">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;+&gt;+&lt;&lt;&lt;]&gt;&gt;&gt;[-&lt;&lt;&lt;+&gt;&gt;&gt;]&lt;[&lt;+&gt;[-]]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%2B%3E%2B%3C%3C%3C%5D%3E%3E%3E%5B-%3C%3C%3C%2B%3E%3E%3E%5D%3C%5B%3C%2B%3E%5B-%5D%5D%3C%3C&amp;names=0:x,1:out,2:scratch,3:scratch">Open in the playground</a><span class="count" data-len>35 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-copy"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Keeping x, by testing a copy” works on 4 cells; the named ones are “x”, “out” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-if-nonzero-copy" data-p="if-nonzero" data-v="copy" aria-label="The form Keeping x, by testing a copy of if non-zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-nocopy" aria-labelledby="v-nocopy-h">
+      <h3 id="v-nocopy-h">Keeping x, without a copy</h3>
+      <p>Layout: zero, x, zero, out. The pointer starts on x. Leaving the loop on the zero cell costs nothing; <code class="bf">&lt;[&lt;]&gt;</code> finds x again.</p>
+      <div class="code" data-fig="fig-if-nonzero-nocopy">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;&gt;+&lt;]&lt;[&lt;]&gt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%3E%2B%3C%5D%3C%5B%3C%5D%3E&amp;names=0:zero,1:x,2:zero,3:out">Open in the playground</a><span class="count" data-len>11 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-nocopy"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Keeping x, without a copy” works on 4 cells; the named ones are “zero”, “x” and “out”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-if-nonzero-nocopy" data-p="if-nonzero" data-v="nocopy" aria-label="The form Keeping x, without a copy of if non-zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li>In the project: <code>ifNonZero</code> (destroying) and <code>whenNonZero</code> (copy) in emit.js.</li>
+      <li><a href="../challenges/basics/08-deciding.html">Brainfuck basics, lesson 8, "Making a decision"</a>, teaches it. <a href="../learn/04-zero.html">Build toward a chatbot, lesson 4, "Only one question"</a>, is about the only question brainfuck can ask.</li>
+      <li><a href="if-else.html">If and else</a> builds on the no-copy idea.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: section "if (x) { code }": three forms; the second needs the repair described here.</li>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: ifNonZero, whenNonZero.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>7</b> of 38</p>
+    <a class="prev" href="swap.html" rel="prev"><span>Previous</span>Swap two cells</a>
+    <a class="next" href="if-zero.html" rel="next"><span>Next</span>If zero</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

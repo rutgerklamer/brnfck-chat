@@ -1,0 +1,43 @@
+/* The layout of the course pages that the Challenges pages share. */
+
+/* ---- the frame of a lesson ---------------------------------------------------------------- */
+.lesson h2 > .label { display: block; }
+.lesson figure p { max-width: none; }
+.lesson figure > .verdict:empty { display: none; }
+.lesson p.skip { margin: calc(-1 * var(--s2)) 0 0; text-align: right; max-width: none; }
+.lesson p.skip button.link { min-height: var(--target); }
+.lesson section.now { margin-top: var(--s6); }
+
+.lesson .goal { margin-top: var(--s3); max-width: none; }
+.lesson .goal .stepbar > li > span { display: block; padding: var(--s2) var(--s3); text-align: center; white-space: normal; overflow-wrap: anywhere; }
+.lesson .goal .stepbar small { display: block; }
+
+/* ---- the machine ---- */
+.lesson figure > .machine, figure.lesson > .machine { margin: 0 0 var(--s3); }
+.machine .prog { min-height: 2.4em; max-height: 8.2em; overflow-y: auto; margin-bottom: var(--s3); }
+.machine .tape { margin: 0; }
+.machine .status { min-height: 5.2em; margin: 0; align-content: start; }
+.lesson .cell.end { border-style: dashed; }
+.lesson .tape > .gap { align-self: center; }
+.lesson details.code { margin: var(--s2) 0; }
+.lesson .line { min-height: 1.6em; }
+
+/* ---- the front page of a course ---- */
+.lesson .grouphead { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); margin: var(--s6) 0 var(--s2); max-width: none; }
+.lesson .grouphead h2 { margin: 0; }
+.lesson .grouphead .cnt { margin-left: auto; }
+.lesson ol.toc.lessons { columns: 1; margin-top: 0; max-width: none; }
+.lesson ol.toc.lessons a { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); column-gap: var(--s2); align-items: start; padding: var(--s3) 0; }
+.lesson ol.toc.lessons a::before { grid-row: 1 / span 3; }
+.lesson ol.toc.lessons a > * { grid-column: 2; }
+
+/* ---- narrow screens (breakpoints in em, like ../site.css) ------------------------------- */
+@media (max-width: 38.75em) {
+  .machine .status { min-height: 7.5em; }      /* the lines wrap more: keep what follows from jumping */
+}
+
+/* ---- print ---- */
+@media print {
+  .lesson p.skip, .lesson .verdict, .machine .status .next, .machine .status .last, .machine .status dt:has(+ .next), .machine .status dt:has(+ .last) { display: none !important; }
+  .machine .prog, .lesson details.code .listing { max-height: 9em; overflow: hidden; }
+}

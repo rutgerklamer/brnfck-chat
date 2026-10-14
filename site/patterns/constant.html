@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Set a constant</title>
+<meta name="description" content="Puts a fixed number in a cell, in as few characters as possible. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#basics">First moves</a><span>Set a constant</span></p>
+    <h1>Set a constant</h1>
+    <p class="lead">Puts a fixed number in a cell, in as few characters as possible.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>2</b> of 38</p>
+    <a class="prev" href="clear.html" rel="prev"><span>Previous</span>Set a cell to zero</a>
+    <a class="next" href="move.html" rel="next"><span>Next</span>Move a value</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “A product and a rest” works on 2 cells, named “n” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change n with the slider:</p>
+
+    <figure class="fig col" id="fig-constant-product" data-p="constant" data-v="product" aria-label="The form A product and a rest of set a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>One <code class="bf">+</code> adds one. For a large number that is a long text, so we let a loop do the adding: a rounds of b make a × b, and a few more <code class="bf">+</code> or <code class="bf">−</code> fix the rest.</p>
+    <p>The loop needs a counter, so it costs one scratch cell. The text is then about 2 × √n characters long instead of n.</p>
+    <p>For really large numbers (wide cells) the number is written in base 256: each byte is made small and shifted up by a loop that multiplies by 256.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran, written for these values. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-constant-product">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;++++++++[-&lt;++++++++&gt;]&lt;+</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C%2B&amp;names=0:n,1:scratch">Open in the playground</a><span class="count" data-len>24 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>The target cell must be zero before, or the constant is added to what is there.</li>
+      <li>The loop forms need one scratch cell that is zero, and leave it zero.</li>
+      <li>The "wrap" form needs 8-bit wrapping cells. It gives a different number on any other size.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Using a short form from a table of constants without checking the cell size it was made for.</li>
+      <li>Counting characters only. On an optimising interpreter every form here is one to three steps; in plain steps the loop form is slower than the long row of plus signs.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-constant-product-cost" data-p="constant" data-v="product" data-cost-fig aria-label="Steps taken by the form A product and a rest, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>A product and a rest</td><td>about 2 × √n characters; plain steps grow with n</td><td>3 with a loop, 1 without</td></tr>
+<tr><td>One plus per unit</td><td>n</td><td>1</td></tr>
+<tr><td>By wrapping (8-bit cells only)</td><td>465</td><td>156</td></tr>
+<tr><td>Base 256, for wide cells</td><td>grows with n</td><td>1 for the lowest byte, 2 for each further byte</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>A product and a rest</td><td>n = 10</td><td class="n">8</td><td class="n">10</td><td class="n">10</td><td class="n">1</td></tr>
+<tr><td>A product and a rest</td><td>n = 65</td><td class="n">8</td><td class="n">24</td><td class="n">108</td><td class="n">3</td></tr>
+<tr><td>A product and a rest</td><td>n = 100</td><td class="n">8</td><td class="n">27</td><td class="n">153</td><td class="n">3</td></tr>
+<tr><td>A product and a rest</td><td>n = 255</td><td class="n">8</td><td class="n">39</td><td class="n">333</td><td class="n">3</td></tr>
+<tr><td>One plus per unit</td><td>n = 65</td><td class="n">8</td><td class="n">65</td><td class="n">65</td><td class="n">1</td></tr>
+<tr><td>By wrapping (8-bit cells only)</td><td>no values to choose</td><td class="n">8</td><td class="n">15</td><td class="n">465</td><td class="n">156</td></tr>
+<tr><td>Base 256, for wide cells</td><td>n = 1,000</td><td class="n">32</td><td class="n">497</td><td class="n">1,017</td><td class="n">3</td></tr>
+<tr><td>Base 256, for wide cells</td><td>n = 50,000</td><td class="n">32</td><td class="n">537</td><td class="n">50,977</td><td class="n">3</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-plain" aria-labelledby="v-plain-h">
+      <h3 id="v-plain-h">One plus per unit</h3>
+      <p>The longest text, and the fewest plain steps.</p>
+      <div class="code" data-fig="fig-constant-plain">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B&amp;names=0:n">Open in the playground</a><span class="count" data-len>65 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-plain"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “One plus per unit” works on one cell, named “n”. Press <em>Play</em>, drag the step slider forwards and back, or change n with the slider:</p>
+        <figure class="fig col" id="fig-constant-plain" data-p="constant" data-v="plain" aria-label="The form One plus per unit of set a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-wrap" aria-labelledby="v-wrap-h">
+      <h3 id="v-wrap-h">By wrapping (8-bit cells only)</h3>
+      <p>Makes 48, the code of the digit 0. It starts at 255, and 255 ÷ 5 is 51. The result is in cell 1.</p>
+      <div class="code" data-fig="fig-constant-wrap">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">-[&gt;+&lt;-----]&gt;---</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=-%5B%3E%2B%3C-----%5D%3E---&amp;names=0:counter,1:48">Open in the playground</a><span class="count" data-len>15 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-wrap"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “By wrapping (8-bit cells only)” works on 2 cells, named “counter” and “48”. Press <em>Play</em>, drag the step slider forwards and back:</p>
+        <figure class="fig col" id="fig-constant-wrap" data-p="constant" data-v="wrap" aria-label="The form By wrapping (8-bit cells only) of set a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-big" aria-labelledby="v-big-h">
+      <h3 id="v-big-h">Base 256, for wide cells</h3>
+      <p>One short piece per byte of the number. Cells 1 and 2 are scratch cells.</p>
+      <div class="code" data-fig="fig-constant-big">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[-&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D&amp;names=0:n,1:scratch,2:scratch">Open in the playground</a><span class="count" data-len>537 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-big"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Base 256, for wide cells” works on 3 cells; the named ones are “n” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change n with the slider:</p>
+        <figure class="fig col" id="fig-constant-big" data-p="constant" data-v="big" aria-label="The form Base 256, for wide cells of set a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="print-string.html">Print a constant string</a> is this pattern, once per letter.</li>
+      <li><a href="../challenges/basics/05-numbers.html">Brainfuck basics, lesson 5, "Building numbers"</a>, builds a number as a product. <a href="../learn/03-multiply.html">Build toward a chatbot, lesson 3, "Multiplying by a fixed number"</a>, does it for a big number, and <a href="../learn/08-size.html">Build toward a chatbot, lesson 8, "Size"</a>, shows why the length of the text matters for the chat program.</li>
+      <li>In the project: <code>addConst</code> in emit.js and <code>addBig</code> in patterns.js.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_constants">Esolang wiki: Brainfuck constants</a>: a table of the shortest known program for every number from 0 to 255; the wrap form here is checked against that idea, not copied.</li>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: the base-256 form is addBig.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>2</b> of 38</p>
+    <a class="prev" href="clear.html" rel="prev"><span>Previous</span>Set a cell to zero</a>
+    <a class="next" href="move.html" rel="next"><span>Next</span>Move a value</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

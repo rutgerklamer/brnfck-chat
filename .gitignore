@@ -1,0 +1,17 @@
+# Built programs, build output and model files (README.md, steps 2 and 3)
+*.bf
+*.dat
+*.bin
+out/
+/site/programs/
+/compiler/downloads/
+
+# Made for the site by tools/make-chunks.js and tools/map-data/
+/site/dist/
+/site/inside/data/
+
+# Logs, packages and system files
+*.log
+node_modules/
+.DS_Store
+Thumbs.db

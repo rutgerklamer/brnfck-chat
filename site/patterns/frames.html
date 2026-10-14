@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: One copy of code over many frames</title>
+<meta name="description" content="Runs one piece of program at many places on the tape, so the program text holds it once instead of many times. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#advanced">Advanced: wrapping cells of a known width</a><span>One copy of code over many frames</span></p>
+    <h1>One copy of code over many frames</h1>
+    <p class="lead">Runs one piece of program at many places on the tape, so the program text holds it once instead of many times.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>36</b> of 38</p>
+    <a class="prev" href="table-lookup.html" rel="prev"><span>Previous</span>Table lookup as a decision tree</a>
+    <a class="next" href="argmax.html" rel="next"><span>Next</span>Pick the largest by a race</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “y = 3 × x in every frame” works on 19 cells; the named ones are “scratch”, “marker”, “x”, “y” and “tmp”. Press <em>Play</em>, drag the step slider forwards and back, or change frames and first x with the sliders:</p>
+
+    <figure class="fig col" id="fig-frames-loop" data-p="frames" data-v="loop" aria-label="The form y = 3 × x in every frame of one copy of code over many frames, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>A program that is written out for 512 places is 512 times as long. Length is a real cost here: the chat program is a file you have to load.</p>
+    <p>Moves in brainfuck are relative, so a piece written for the first place works at every place. The tape is cut into equal stretches, <b>frames</b>, and a loop does the piece and then steps one frame on.</p>
+    <p>One flat loop first puts a marker in every frame. The walking loop takes the marker away as it goes and stops at the first frame without one. That costs 2 steps more per frame than writing the piece out.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran, written by the generators for these values and this cell size. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-frames-loop">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">+[-&gt;&gt;+&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;[-&gt;[-&gt;+++&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;&lt;&lt;&gt;&gt;&gt;&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%2B%5B-%3E%3E%2B%3E%3E%3E%3E%2B%3E%3E%3E%3E%2B%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%5B-%3E%5B-%3E%2B%2B%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%3C%3C%3E%3E%3E%3E%5D&amp;names=0:scratch,2:marker,3:x,4:y,5:tmp,6:marker,7:x,8:y,9:tmp,10:marker,11:x,12:y">Open in the playground</a><span class="count" data-len>70 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Frames of equal length; the piece may use only cells of its own frame, scratch cells included.</li>
+      <li>One marker cell per frame, zero outside the call, and a zero cell where the next frame would start. One scratch cell for laying the markers.</li>
+      <li>Any cell size: this pattern does not need wrapping.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>A piece that reaches into the next frame for scratch space.</li>
+      <li>Forgetting that results must leave the frame by being carried: see the form <a href="records.html#v-carry">A running total that travels along</a> of <a href="records.html">walk an array of records</a>.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-frames-loop-cost" data-p="frames" data-v="loop" data-cost-fig aria-label="Steps taken by the form y = 3 × x in every frame, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>y = 3 × x in every frame</td><td>grows with the values</td><td>3 + 4 per frame</td></tr>
+<tr><td>The naive way: written out per frame</td><td>grows with the values</td><td>2 per frame</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>y = 3 × x in every frame</td><td>frames = 4; first x = 2</td><td class="n">8</td><td class="n">70</td><td class="n">333</td><td class="n">19</td></tr>
+<tr><td>y = 3 × x in every frame</td><td>frames = 8; first x = 2</td><td class="n">8</td><td class="n">106</td><td class="n">935</td><td class="n">35</td></tr>
+<tr><td>y = 3 × x in every frame</td><td>frames = 64; first x = 2</td><td class="n">8</td><td class="n">610</td><td class="n">37,923</td><td class="n">259</td></tr>
+<tr><td>The naive way: written out per frame</td><td>frames = 4; first x = 2</td><td class="n">8</td><td class="n">93</td><td class="n">263</td><td class="n">8</td></tr>
+<tr><td>The naive way: written out per frame</td><td>frames = 8; first x = 2</td><td class="n">8</td><td class="n">185</td><td class="n">797</td><td class="n">16</td></tr>
+<tr><td>The naive way: written out per frame</td><td>frames = 64; first x = 2</td><td class="n">8</td><td class="n">1,473</td><td class="n">36,833</td><td class="n">128</td></tr></tbody></table></div>
+    </div></details>
+    <h3>Against the naive way</h3>
+    <p>The same job written out once per frame. The steps are nearly the same; look at the length of the text.</p>
+    <details class="q fold" id="compare"><summary>The numbers, row by row</summary><div class="a">
+      <div class="bars"><span class="lab">this pattern, characters</span><div><div class="bar b2" style="width:41.41%"></div></div><span>610</span><span class="lab">the naive way, characters</span><div><div class="bar ink" style="width:100.00%"></div></div><span>1,473</span></div>
+      <p class="measured">This pattern against the naive way, on 8-bit cells, measured when this page was written. The bars show the last row: the length of the two program texts.</p>
+      <div class="scroll" tabindex="0" role="region" aria-label="This pattern against the naive way"><table>
+        <thead><tr><th rowspan="2">Values</th><th colspan="2">Optimised steps</th><th colspan="2">Plain steps</th><th colspan="2">Characters</th></tr>
+        <tr><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th></tr></thead>
+        <tbody><tr><td>frames = 8; first x = 2</td><td class="n">35</td><td class="n">16</td><td class="n">935</td><td class="n">797</td><td class="n">106</td><td class="n">185</td></tr>
+<tr><td>frames = 64; first x = 2</td><td class="n">259</td><td class="n">128</td><td class="n">37,923</td><td class="n">36,833</td><td class="n">610</td><td class="n">1,473</td></tr></tbody></table></div>
+    </div></details>
+    <p>Measured in the project: one clamped rounding step looped over 64 cells is one copy of the text (about 6,000 characters) and a few extra steps per cell, instead of 64 copies. <span class="ev">measured in the project</span></p>
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-unrolled" aria-labelledby="v-unrolled-h">
+      <h3 id="v-unrolled-h"><span class="badge">to measure against</span> The naive way: written out per frame</h3>
+      <p>The same piece, n times in the text.</p>
+      <div class="code" data-fig="fig-frames-unrolled">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;&gt;[-&gt;+++&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&gt;&gt;[-&gt;+++&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&gt;&gt;[-&gt;+++&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&gt;&gt;[-&gt;+++&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%3E%5B-%3E%2B%2B%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3E%3E%5B-%3E%2B%2B%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3E%3E%5B-%3E%2B%2B%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3E%3E%5B-%3E%2B%2B%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D&amp;names=0:scratch,2:marker,3:x,4:y,5:tmp,6:marker,7:x,8:y,9:tmp,10:marker,11:x,12:y">Open in the playground</a><span class="count" data-len>93 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-unrolled"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The naive way: written out per frame” works on 18 cells; the named ones are “scratch”, “marker”, “x”, “y” and “tmp”. Press <em>Play</em>, drag the step slider forwards and back, or change frames and first x with the sliders:</p>
+        <figure class="fig col" id="fig-frames-unrolled" data-p="frames" data-v="unrolled" aria-label="The form The naive way: written out per frame of one copy of code over many frames, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../learn/07-walking.html">Build toward a chatbot, lesson 7, "No addresses"</a>, does one job at 512 places with it.</li>
+      <li>In the project: <code>eachFrame</code> in patterns.js. One rounding step is 5,000 to 13,000 characters; the model needs it at hundreds of places per layer.</li>
+      <li><a href="../inside/">Inside the program</a> and <a href="../map/">the map</a> show the frames on the real tape of the chat model.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: eachFrame.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>36</b> of 38</p>
+    <a class="prev" href="table-lookup.html" rel="prev"><span>Previous</span>Table lookup as a decision tree</a>
+    <a class="next" href="argmax.html" rel="next"><span>Next</span>Pick the largest by a race</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

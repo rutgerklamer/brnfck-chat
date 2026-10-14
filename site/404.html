@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Page not found · brnfck.chat</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<style>
+  :where(body) { margin: 0; font-family: var(--sans, sans-serif); }
+  :where(main) { max-width: 47.5rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+</style>
+</head>
+<body>
+<main class="doc article" id="main">
+  <header class="plain">
+    <p class="kicker">Error 404</p>
+    <h1>This page does not exist</h1>
+    <p class="lead">The address may be mistyped, or the page has moved.</p>
+  </header>
+  <p>In brainfuck terms: the pointer walked off the tape. <span class="bf">&lt;</span> takes you back.</p>
+  <ul class="linklist" id="go" hidden>
+    <li><a data-to=""><b>Chatbot</b><span>A chat model that runs as one brainfuck program.</span></a></li>
+    <li><a data-to="how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word.</span></a></li>
+    <li><a data-to="brainfuck/"><b>Start here</b><span>Learn brainfuck: the lessons, in order.</span></a></li>
+    <li><a data-to="playground/"><b>Playground</b><span>Write a program and run it.</span></a></li>
+    <li><a data-to="sitemap/"><b>Sitemap</b><span>The pages of the site.</span></a></li>
+  </ul>
+  <noscript><p>Go back with your browser, or remove the last part of the address until a page appears.</p></noscript>
+</main>
+<script>
+(function () {
+  var V = { 'site.js': '?v=r13', 'site.css': '?v=r9', 'ui/article.css': '?v=r6' };
+  var parts = location.pathname.split('/'); parts.pop();
+  var tries = [];
+  for (var i = 1; i <= parts.length; i++) tries.push(location.origin + parts.slice(0, i).join('/') + '/');      // shortest first
+  function next() {
+    var root = tries.shift();
+    if (!root) return;
+    fetch(root + 'site.js' + V['site.js']).then(function (r) { return r.ok ? r.text() : ''; }).then(function (text) {
+      if (text.indexOf('brnfck.theme') < 0) return next();
+      ['site.css', 'ui/article.css'].forEach(function (f) { var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = root + f + V[f]; document.head.append(css); });
+      var s = document.createElement('script'); s.src = root + 'site.js' + V['site.js']; s.setAttribute('data-page', 'none'); document.body.insertBefore(s, document.body.firstChild);
+      var go = document.getElementById('go');
+      Array.prototype.forEach.call(go.querySelectorAll('a'), function (a) { a.href = root + a.getAttribute('data-to'); });
+      go.hidden = false;
+    }, next);
+  }
+  next();
+})();
+</script>
+</body>
+</html>

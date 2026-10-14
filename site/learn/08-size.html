@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 8: size · brnfck.chat</title>
+<meta name="description" content="Lesson 8, the fourth obstacle: 135 million weights. You write weights by counting, then with digits, walk along a row of them, and break the walk once.">
+<meta property="og:title" content="Lesson 8: size">
+<meta property="og:description" content="Lesson 8, the fourth obstacle: 135 million weights. You write weights by counting, then with digits, walk along a row of them, and break the walk once.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Obstacle 4: size</span></p>
+    <h1>Obstacle 4: size</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson you know where 135 million weights go, why the program is a billion characters long and not 43 trillion, and how the program finds the end of a row of weights.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>8</b> of 11</p>
+    <a class="prev" href="07-walking.html" rel="prev"><span>Previous</span>Obstacle 3: no addresses</a>
+    <a class="next" href="09-neuron.html" rel="next"><span>Next</span>One number of the model</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>Every piece of arithmetic works, anywhere on the tape. What is missing is the model itself: a very long list of numbers, the weights. In <a href="03-multiply.html">lesson 3</a> a weight was a row of plus signs in the program.</p>
+  </section>
+
+  <h2 id="s1">Eight weights, written by counting</h2>
+  <p class="try"><b>Try it:</b> go to the last step. The program writes eight weights onto the tape. Then look at how long it is:</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+    <p class="tell">This program is <b class="val" id="len1"></b> characters long: <span id="per1"></span> for each weight.</p>
+    <div class="ctl"><button class="quiet" id="other">Other weights</button></div>
+  <figcaption id="c1"><b>Figure 1.</b> Eight weights written by counting. Look at the program text: one plus sign for every unit. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>A number costs as many plus signs as it is large. That was <a href="01-machine.html#s3">step 3 of lesson 1</a>. Eight weights already take more than a thousand characters.</p>
+    <p>The chat model has 135 million weights, and the tape needs more numbers besides. Written by counting, the chat program would be about 43 trillion characters long.</p>
+  </section>
+
+  <h2 id="s2">The same weights, written with digits</h2>
+  <p class="try"><b>Try it:</b> press Play. Each cell gets a small number. Then one loop multiplies the whole row by five. Watch that happen three times:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div id="m2"></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="Characters of program, by counting and with digits; scrolls sideways on a narrow screen"><table>
+      <tr><th>Characters of program</th><th class="n">By counting</th><th class="n">With digits</th></tr>
+      <tr><td>These 8 weights</td><td class="n" id="p8"></td><td class="n"><b id="d8"></b></td></tr>
+      <tr><td>A row of 8,192 weights</td><td class="n" id="pBig"></td><td class="n"><b id="dBig"></b></td></tr>
+    </table></div>
+  <figcaption id="c2"><b>Figure 2.</b> The same eight weights written with digits. Watch the row move one cell to the left with each pass. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>We write 93 with two digits, not with ninety-three tally marks: 9 tens and 3. The program does the same with fives: a small digit, times five, the next digit, times five, the last digit.</p>
+    <p>"Times five" for the whole row is one small loop: <code>[[−&lt;+++++&gt;]&gt;]</code>. It is written once, however long the row is. Each pass also moves the row one cell to the left, which is why the row starts three cells too far to the right.</p>
+    <p>The chat program writes its tape like this, in rows of up to 8,192 cells, with about six characters for each number. That is why it is 1 billion characters long and not 43 trillion.</p>
+  </section>
+
+  <h2 id="s3">Walk along the weights</h2>
+  <p class="try"><b>Try it:</b> press Play. Four weights lie on the tape and the input is 5. Watch the pointer walk along the weights and back, twice:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div id="m3"></div>
+    <p class="measured">The weights are 100, −60, 30 and 14. To keep the example short they come in as typed input.</p>
+  <figcaption id="c3"><b>Figure 3.</b> The engine walking along four weights. Watch the pointer cross the row once for each bit of the input that is on. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>The weights are on the tape now, not in the program. So weight × input is a product of two numbers from the tape (<a href="06-product.html">lesson 6</a>). The input 5 has two bits on: 4 and 1. For each of them the pointer walked along the row once and added "weight × that worth" to every result.</p>
+    <p>Look for the walk in the program: <code>[</code> … <code>&gt;]</code>. It says: as long as this cell is not zero, do the work and step right. The program does not count the weights. It walks until it meets an empty cell.</p>
+    <p>This program never changes when the weights change. Such a part is called the <b>engine</b>. It runs any weights, the way a music player plays any song.</p>
+  </section>
+
+  <h2 id="s4">Break the walk</h2>
+  <p class="try"><b>Try it:</b> every weight takes a number from −128 to 127. One of those numbers makes the engine go wrong. Find it:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div class="ctl vals" id="ws">
+      <label><span>Weight 1</span><input type="range" min="-128" max="127" value="100" aria-label="weight 1"><output></output></label>
+      <label><span>Weight 2</span><input type="range" min="-128" max="127" value="-60" aria-label="weight 2"><output></output></label>
+      <label><span>Weight 3</span><input type="range" min="-128" max="127" value="30" aria-label="weight 3"><output></output></label>
+      <label><span>Weight 4</span><input type="range" min="-128" max="127" value="14" aria-label="weight 4"><output></output></label>
+    </div>
+    <div class="ctl vals"><label><span>Input</span><input type="range" id="x" min="0" max="15" value="5"><output id="xo"></output></label></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="Your weights as they stand on the tape, and what the engine makes of them; scrolls sideways on a narrow screen"><table id="res"></table></div>
+    <div class="callout hint" id="h4" hidden><h3>Hint</h3><p>The walk stops at an empty cell. Look at the column "On the tape". Which weight would be put on the tape as 0?</p></div>
+    <div class="ctl"><button class="quiet" id="h4b">Give me a hint</button></div>
+  <figcaption id="c4"><b>Figure 4.</b> Your weights, as they stand on the tape, and what the engine makes of them. A cross marks a wrong result. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>A weight can be zero or below zero. But an empty cell means "end of the row". So every weight is put on the tape with 128 added. Then −127 to 127 become 1 to 255, and no cell of the row is ever empty.</p>
+    <p>You found the one number that lands on 0. The walk stopped there, the pointer was not where the program expected it, and everything after that went wrong. The model's weights simply never have that value.</p>
+    <p>The added 128 makes every result too large. So at the end the program takes 128 × the input off every result, with one multiplying loop. That is also why the eight weights of steps 1 and 2 were all above zero: they were already written with the 128 added.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Put a long row of weights on the tape for a few characters each, and walk along it without knowing how long it is. The whole sum now works with weights from the tape. The fourth obstacle is gone.</p>
+    <p class="next-q">All four obstacles are behind you. How do the parts go together into one number of the model?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p><b>Step 2 is simplified.</b> The real writer also uses digits below zero and other steps than five, and picks them for every row so that the text is as short as it can be. It reaches about six characters for each number. The loop that multiplies the row tests the cell it stands on, so no cell may be empty during the passes. Every cell therefore starts at 1 before the first digit is added.</p>
+    <p id="note-parts"><b>Two parts.</b> The chat program is 1,030,902,380 characters. The first 1,004,387,443 only write numbers onto the tape and read nothing. The engine after that is 26.5 million characters. Drawn to scale:</p>
+    <figure id="parts" aria-labelledby="parts-c">
+      <div role="img" aria-label="One bar for the 1,030,902,380 characters of the chat program, cut in two parts to scale. The part that writes numbers onto the tape is 1,004,387,443 characters, about 97 in every 100. The engine is 26.5 million characters, the thin slice at the right end.">
+        <div class="meter split"><i style="width:97.43%"></i><i style="width:2.57%;background:var(--d2)"></i></div>
+        <ul class="legend"><li><i class="sw d1"></i>writes numbers onto the tape: 1,004,387,443</li><li><i class="sw d2"></i>the engine: 26.5 million</li></ul>
+      </div>
+      <figcaption id="parts-c"><b>The two parts.</b> The characters of the chat program of brnfck-135m, to scale.</figcaption>
+    </figure>
+    <p>Nearly all of the program only writes numbers. An earlier version had only the engine and read its weights as typed input, as step 3 does here: 355,761,802 bytes before your question.</p>
+    <p><b>The real walk.</b> In the engine a walk costs two steps for each weight, and the row is not carried back each time: it goes to and fro between two places. The weights of the chat model are a little wider than those of this example, so they are put on the tape with 512 added, not 128.</p>
+    <p>What the first billion characters look like from the outside is shown in <a href="../how/#weights">"A billion characters of numbers" in How it works</a>.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>8</b> of 11</p>
+    <a class="prev" href="07-walking.html" rel="prev"><span>Previous</span>Obstacle 3: no addresses</a>
+    <a class="next" href="09-neuron.html" rel="next"><span>Next</span>One number of the model</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('#ws input'), function (i) { Article.bind(i, function (v) { return Article.minus(v); }); });
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(8);
+
+  // ---- 1 and 2. writing eight weights (as the tape holds them: with 128 added)
+  let vals = [100, -60, 30, 14, 60, -14, -30, 100].map((w) => w + 128);
+  const wLabel = (a) => (a >= 1 && a <= 8 ? 'weight ' + a : '');
+  const m1 = Learn.machine($('m1'), { code: '', bits: 32, cells: 9, labels: wLabel, fast: true, delay: 300,
+    result: () => 'Eight weights stand on the tape.',
+    onEnd: (m) => L.done(1, 'Eight weights written with ' + fmt(m.code.length) + ' characters of program.') });
+  const m2 = Learn.machine($('m2'), { code: '', bits: 32, cells: 12, labels: wLabel, fast: true, delay: 130,
+    result: () => 'The same eight weights stand on the tape.',
+    onEnd: (m) => {
+      const good = vals.every((v, i) => m.tape[1 + i] === v);
+      if (good) L.done(2, 'The same eight weights, written with ' + fmt(m.code.length) + ' characters in place of ' + fmt(D.writePlain(vals).code.length) + '.');
+    } });
+  function setWeights() {
+    const a = D.writePlain(vals).code, b = D.writeDigits(vals).code;
+    m1.set({ code: a }); m2.set({ code: b });
+    $('len1').textContent = fmt(a.length); $('per1').textContent = 'about ' + fmt(a.length / 8);
+    $('p8').textContent = fmt(a.length); $('d8').textContent = fmt(b.length);
+  }
+  $('other').addEventListener('click', () => { vals = vals.map(() => 28 + Math.floor(Math.random() * 201)); setWeights(); });
+  setWeights();
+  {
+    let seed = 7; const big = Array.from({ length: 8192 }, () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return 28 + (seed % 201); });
+    $('pBig').textContent = fmt(D.writePlain(big).code.length); $('dBig').textContent = fmt(D.writeDigits(big).code.length);
+  }
+
+  // ---- 3. the engine walks along the weights
+  const B = D.columnData(4);
+  const label = (a) => (a === 0 ? 'input' : a === 1 ? 'input kept' : a >= 9 && a <= 12 ? 'bit ' + (1 << (a - 9)) : a >= B.SRC && a < B.SRC + 4 ? 'weight ' + (a - B.SRC + 1)
+    : a >= B.DST && a < B.DST + 4 ? 'set down ' + (a - B.DST + 1) : a >= B.SUM && a < B.SUM + 4 ? 'result ' + (a - B.SUM + 1) : a === B.SRC + 4 || a === B.DST + 4 || a === B.SRC - 1 ? 'empty' : 'scratch');
+  const results = (m) => [0, 1, 2, 3].map((r) => fmt(m.signed(m.tape[B.SUM + r]))).join(', ');
+  Learn.machine($('m3'), { code: B.code, bits: 32, size: 64, cells: 30, labels: label, signed: true, fast: true, delay: 160,
+    input: [100, -60, 30, 14].map((w) => w + 128).concat(5),
+    result: (m) => 'Results: ' + results(m) + '.',
+    onEnd: (m) => L.done(3, 'Four results in one go: ' + results(m) + '. That is 5 times each weight.') });
+
+  // ---- 4. the value that breaks it
+  const boxes = [...document.querySelectorAll('#ws input')];
+  function refresh() {
+    const ws = boxes.map(num), x = num($('x')), input = [...ws.map((w) => w + 128), x];
+    $('xo').textContent = x;
+    const rb = core.run(B.code, { input, size: 64 });
+    const tb = $('res'); tb.textContent = '';
+    const head = el('tr');
+    for (const h of ['Weight', 'On the tape', 'The engine says', 'Should be', '']) head.append(el('th', 'n', h));
+    tb.append(head);
+    let allOk = rb.finished;
+    ws.forEach((w, r) => {
+      const b = rb.machine.signed(rb.tape[B.SUM + r]), good = !rb.error && b === w * x, tr = el('tr');
+      if (!good) allOk = false;
+      for (const c of [fmt(w), fmt(w + 128), rb.error ? 'lost' : fmt(b), fmt(w * x)]) tr.append(el('td', 'n', c));
+      tr.append(el('td', 'n ' + (good ? 'ok' : 'no'), good ? '✓' : '✗'));
+      tb.append(tr);
+    });
+    const zero = ws.includes(-128);
+    if (!allOk && zero) L.done(4, 'Found it: −128 is put on the tape as 0, and the engine loses its way.');
+    else if (zero) L.note(4, 'That is the right weight. But with the input at 0 the engine never walks along the row. Raise the input.');
+    else if (!L.isDone(4)) L.note(4, allOk ? 'All four results are right. Keep looking.' : 'Something is wrong, but not because of the weight we are looking for.');
+  }
+  for (const b of [...boxes, $('x')]) b.addEventListener('input', refresh);
+  Learn.hints($('h4b'), ['h4']);
+  refresh();
+  if (!L.isDone(4)) $('v4').textContent = '';
+});
+</script>
+</body>
+</html>

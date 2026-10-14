@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 7: no addresses · brnfck.chat</title>
+<meta name="description" content="Lesson 7, the third obstacle: brainfuck cannot say &quot;go to cell 5,000&quot;. You watch a program grow to millions of characters, then make it walk, carry a total along and take long hops.">
+<meta property="og:title" content="Lesson 7: no addresses">
+<meta property="og:description" content="Lesson 7, the third obstacle: brainfuck cannot say &quot;go to cell 5,000&quot;. You watch a program grow to millions of characters, then make it walk, carry a total along and take long hops.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Obstacle 3: no addresses</span></p>
+    <h1>Obstacle 3: no addresses</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson one piece of program does its job at 512 places on the tape, a total travels along with the pointer, and you can fetch a number from far away.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>7</b> of 11</p>
+    <a class="prev" href="06-product.html" rel="prev"><span>Previous</span>Obstacle 2: two numbers from the tape</a>
+    <a class="next" href="08-size.html" rel="next"><span>Next</span>Obstacle 4: size</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>Multiplying, adding, dividing, rounding and clamping all work now, but only in a handful of cells at the start of the tape. A model has to do it for a great many numbers, lying all along the tape.</p>
+  </section>
+
+  <h2 id="s1">The same job at many places</h2>
+  <p class="try"><b>Try it:</b> the job is the rounding of <a href="05-peel.html#s5">step 5 of lesson 5</a>, written out once for every number. Drag the slider to 512 numbers and watch the length of the program:</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div class="ctl vals"><label><span>Numbers to round</span><input type="range" id="n1" min="1" max="512" value="1"><output id="n1o"></output></label></div>
+    <p class="tell">The program is <b class="val" id="len1"></b> characters long.</p>
+    <div class="bf listing wall" id="wall" aria-hidden="true"></div>
+    <div class="bars"><span class="lab">length</span><div><div class="bar" id="bar1"></div></div><span></span></div>
+    <p class="measured" id="ok1"></p>
+  <figcaption id="c1"><b>Figure 1.</b> The length of a program that rounds every number with its own copy of the text. The grey box shows the start of that text. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>The rounding takes about 11,000 characters. For 512 numbers the program is 5.7 million characters long, and it does nothing new: the same text 512 times.</p>
+    <p>A normal program would say "do this for number 1 to 512". For that it needs to say where a number is: its house number on the tape, called its <b>address</b>. Brainfuck has no addresses. The pointer moves one cell at a time, and every move is a character in the program.</p>
+    <p>A model rounds every number it works out. Written out like this, the program would be far too long.</p>
+  </section>
+
+  <h2 id="s2">One copy that walks</h2>
+  <p class="try"><b>Try it:</b> three sums lie on the tape: 11,868, 5,290 and −6,330. Press Play, or go to the last step, and watch where the pointer is:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="map" id="map2" aria-hidden="true" style="grid-template-columns:repeat(5,1fr)"></div>
+    <div id="m2"></div>
+  <figcaption id="c2"><b>Figure 2.</b> One copy of the rounding in a loop that walks. The strip on top shows which frame the pointer is in. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>One copy of the rounding did all three sums: 93, 41 and −49.</p>
+    <p>Remember <a href="01-machine.html#s5">step 5 of lesson 1</a>: a program never says where it is, only left and right. So the text written for the first sum works on any sum, as long as the pointer stands at the start of it. The loop ends 14 cells to the right of where it began, and the next round does the same work one place further on.</p>
+    <p>Such a place, a group of cells laid out the same way each time, is called a <b>frame</b>. The first cell of every frame holds a 1, a <b>marker</b>. Each round wipes its own marker, and after the last frame the loop finds a 0 and stops. <a href="#t1">Table 1</a> shows what that saves.</p>
+    <div class="scroll" id="t1" tabindex="0" role="group" aria-label="Length of the program that rounds 512 numbers; scrolls sideways on a narrow screen"><table>
+      <caption><b>Table 1.</b> Length of the program that rounds 512 numbers (both built and counted in your browser).</caption>
+      <tr><th>Rounding 512 numbers</th><th class="n">Characters</th></tr>
+      <tr><td>Written out 512 times</td><td class="n" id="cFlat"></td></tr>
+      <tr><td>One copy that walks</td><td class="n"><b id="cLoop"></b></td></tr>
+    </table></div>
+  </section>
+
+  <h2 id="s3">Carry a total along</h2>
+  <p class="try"><b>Try it:</b> press Play and follow the cell called "total". Change the four numbers if you like:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div class="ctl vals" id="xs">
+      <label><span>Number 1</span><input type="range" min="0" max="99" value="5" aria-label="number 1"><output></output></label>
+      <label><span>Number 2</span><input type="range" min="0" max="99" value="12" aria-label="number 2"><output></output></label>
+      <label><span>Number 3</span><input type="range" min="0" max="99" value="3" aria-label="number 3"><output></output></label>
+      <label><span>Number 4</span><input type="range" min="0" max="99" value="20" aria-label="number 4"><output></output></label>
+    </div>
+    <div id="m3"></div>
+  <figcaption id="c3"><b>Figure 3.</b> A total that travels. Watch the cell called "total" move one frame to the right each round. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>A total cannot stay behind in a fixed cell. From the third frame the program has no idea how far away that cell is. So the total travels: each round adds the number of this frame and moves the total one frame on.</p>
+    <p>Think of a waiter going down a row of tables with one tray. This is how the chat program looks back at the earlier word pieces: they lie side by side on the tape, and the totals walk past all of them. You build that in <a href="10-attention.html#s3">step 3 of lesson 10</a>.</p>
+  </section>
+
+  <h2 id="s4">Fetch a number from far away</h2>
+  <p class="try"><b>Try it:</b> fetch record 60 with short hops only: go to the last step and read how many steps it took. Then switch to "long and short hops" and fetch it again:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div class="ctl vals">
+      <label><span>Record to fetch</span><input type="range" id="idx" min="1" max="63" value="60"><output id="idxo"></output></label>
+      <span class="seg" id="hop" role="group" aria-label="How the pointer travels"><button type="button" data-long="0" aria-pressed="true">short hops only</button><button type="button" data-long="1" aria-pressed="false">long and short hops</button></span>
+    </div>
+    <div class="map" id="map" aria-hidden="true"></div>
+    <p class="measured">Each square is one record of 6 cells. Filled: where the pointer is. Green border: every eighth record, where a long hop lands. The table has 64 records; the real one has 65,664.</p>
+    <div id="m4"></div>
+  <figcaption id="c4"><b>Figure 4.</b> A table of 64 records. The map shows where the pointer is; the step counter shows what the trip costs. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>With short hops the pointer walks past every record on the way, and a counter walks with it. With long hops it first jumps eight records at a time, then finishes with short ones.</p>
+    <p>The record number is split in two with a peel (<a href="05-peel.html#s3">step 3 of lesson 5</a>): "how many eights" and "what is left". A long hop is nothing special in the program: 48 times <code>&gt;</code> in a row.</p>
+    <p>The way back needs no counting. The pointer walks left until it meets a marker that says "home".</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Do one job at every place of the tape with one copy of the program, carry values along, and fetch a number from far away. The rounding of the sum now works for every sum, wherever it lies. The third obstacle is gone.</p>
+    <p class="next-q">The last obstacle is the sheer size. The model has 135 million weights. Where do they go?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p><b>The cost of walking.</b> About three extra steps per frame. The program for 512 frames is still longer than for 3, because planting 512 markers takes some text, but it hardly grows.</p>
+    <p><b>The scratch cells travel too.</b> Every frame of step 2 has its own ten scratch cells. In the real program a gap of empty cells moves through the data instead: the program takes the frame next to the gap, works on it with the gap as scratch paper, and puts it down on the other side.</p>
+    <p><b>The real table.</b> To turn your typed question into word pieces, the chat program looks up pairs of pieces in a table of 65,664 records on the tape. It hops 128 records at a time, not 8. One lookup costs about 2,600 steps. The table of step 4 is a small version of it. For nearby records the long hops cost more than they save, because splitting the record number takes steps too.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>7</b> of 11</p>
+    <a class="prev" href="06-product.html" rel="prev"><span>Previous</span>Obstacle 2: two numbers from the tape</a>
+    <a class="next" href="08-size.html" rel="next"><span>Next</span>Obstacle 4: size</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('#xs input'), function (i) { Article.bind(i, String); });
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(7);
+  const SUMS = [11868, 5290, -6330];
+
+  // ---- 1. written out once per number
+  const one = D.framesRound(1, false).code, more = D.framesRound(2, false).code.length - one.length;
+  $('wall').textContent = one.slice(0, 900).replace(/-/g, '−') + ' …';
+  function wall() {
+    const n = num($('n1')), len = one.length + (n - 1) * more;
+    $('n1o').textContent = fmt(n);
+    $('len1').textContent = fmt(len);
+    $('bar1').style.width = Math.max(0.3, (100 * n) / 512) + '%';
+    $('ok1').textContent = '';
+    if (n >= 500) L.done(1, fmt(n) + ' numbers: ' + fmt(len) + ' characters of program.');
+  }
+  // When the slider is let go: really build that program and run it.
+  function runWall() {
+    const n = num($('n1')), d = D.framesRound(n, false), init = {};
+    for (let i = 0; i < n; i++) init[d.base + d.stride * i + 1] = SUMS[i % 3] >>> 0;
+    const r = core.run(d.code, { init, size: d.size });
+    let good = r.finished;
+    for (let i = 0; i < n && good; i++) good = r.machine.signed(r.tape[d.base + d.stride * i + 2]) === core.ref.rq(SUMS[i % 3], 7, 8);
+    $('len1').textContent = fmt(d.code.length);
+    $('ok1').textContent = 'Built and run just now: ' + (good ? (n === 1 ? 'the result is right' : 'all ' + fmt(n) + ' results are right') : 'something went wrong') + ', in ' + fmt(r.steps) + ' steps.';
+  }
+  $('n1').addEventListener('input', wall); $('n1').addEventListener('change', runWall); wall(); runWall();
+
+  // ---- 2. one copy that walks
+  const fr = D.framesRound(3, true), init2 = {};
+  SUMS.forEach((s, i) => { init2[fr.base + fr.stride * i + 1] = s >>> 0; });
+  const fNames = ['marker', 'sum', 'result'];
+  const fLabel = (a) => { if (a < fr.base) return a === 0 ? 'scratch' : ''; const f = (a - fr.base) % fr.stride, i = Math.floor((a - fr.base) / fr.stride) + 1; return (fNames[f] || 'scratch') + ' ' + (i <= 3 ? i : 'end'); };
+  const map2 = $('map2');
+  ['start', 'frame 1', 'frame 2', 'frame 3', 'end'].forEach((t) => map2.append(el('div', '', t)));
+  Learn.machine($('m2'), { code: fr.code, bits: 32, size: fr.size, init: init2, cells: 12, follow: true, labels: fLabel, signed: true, fast: true, delay: 60,
+    onDraw: (m) => { const here = m.p < fr.base ? 0 : Math.min(4, Math.floor((m.p - fr.base) / fr.stride) + 1); [...map2.children].forEach((d, i) => { d.className = i === here ? 'here' : ''; }); },
+    result: (m) => 'Results: ' + [0, 1, 2].map((i) => fmt(m.signed(m.tape[fr.base + fr.stride * i + 2]))).join(', ') + '.',
+    onEnd: (m) => L.done(2, 'Three sums rounded by one copy of the program: ' + [0, 1, 2].map((i) => fmt(m.signed(m.tape[fr.base + fr.stride * i + 2]))).join(', ') + '.') });
+  $('cFlat').textContent = fmt(D.framesRound(512, false).code.length); $('cLoop').textContent = fmt(D.framesRound(512, true).code.length);
+
+  // ---- 3. carry
+  const cd = D.carry(4);
+  const cLabel = (a) => (a < 2 ? (a === 0 ? 'scratch' : '') : ['marker', 'number', 'total', 'scratch'][(a - 2) % 4] + ' ' + (Math.floor((a - 2) / 4) < 4 ? Math.floor((a - 2) / 4) + 1 : 'end'));
+  const carry = Learn.machine($('m3'), { code: cd.code, bits: 32, cells: 22, labels: cLabel, fast: true, delay: 300,
+    result: (m) => 'The total arrived just past the last frame: ' + fmt(m.tape[cd.total]) + '.',
+    onEnd: (m) => L.done(3, 'The total walked along with the pointer and arrived as ' + fmt(m.tape[cd.total]) + '.') });
+  const boxes = [...document.querySelectorAll('#xs input')];
+  function setCarry() { const init = {}; boxes.forEach((b, i) => { init[cd.base + 4 * i + 1] = num(b); }); carry.set({ init }); }
+  boxes.forEach((b) => b.addEventListener('input', setCarry)); setCarry();
+
+  // ---- 4. the table
+  const data = Array.from({ length: 64 }, (_, r) => 100 + ((r * 37) % 64));
+  const T = { 1: D.table(true), 0: D.table(false) };
+  let long = 0, shortRun = null;
+  const map = $('map');
+  for (let r = 0; r < 64; r++) map.append(el('div', '', r === 0 ? 'home' : String(r)));
+  const tLabel = (a) => (a === 0 ? 'record wanted' : a === 1 ? 'answer' : a < 16 ? 'scratch' : ['long marker', 'short marker', 'long hops left', 'short hops left', 'carried', 'data'][(a - 16) % 6] + ' ' + Math.floor((a - 16) / 6));
+  const drawMap = (m) => {
+    const i = num($('idx')), here = m.p >= 16 ? Math.floor((m.p - 16) / 6) : -1;
+    [...map.children].forEach((d, r) => { d.className = (r % 8 === 0 && r ? 'lane' : '') + (r === i ? ' target' : '') + (r === here ? ' here' : ''); });
+  };
+  const table = Learn.machine($('m4'), { code: T[0].code, bits: 32, size: T[0].size, cells: 12, follow: true, labels: tLabel, fast: true, delay: 110, onDraw: drawMap,
+    result: (m) => 'The answer cell holds ' + fmt(m.tape[1]) + ', the number stored in record ' + num($('idx')) + '.',
+    onEnd: (m) => {
+      const i = num($('idx'));
+      if (m.tape[1] !== data[i]) return;
+      if (i < 40) { L.note(4, 'Record ' + i + ' fetched in ' + fmt(m.steps) + ' steps. Now a far one: record 60.'); return; }
+      if (!long) { shortRun = { i, steps: m.steps }; L.note(4, 'Short hops only: ' + fmt(m.steps) + ' steps for record ' + i + '. Now switch to "long and short hops" and fetch it again.'); }
+      else if (shortRun) L.done(4, 'Record ' + i + ': ' + fmt(m.steps) + ' steps with long hops, against ' + fmt(shortRun.steps) + ' with short hops only.');
+      else L.note(4, 'Long hops: ' + fmt(m.steps) + ' steps. Switch to "short hops only" and run that too, to compare.');
+    } });
+  function setTable() {
+    const i = num($('idx'));
+    $('idxo').textContent = i;
+    table.set({ code: T[long].code, init: { ...T[long].init(data), 0: i } });
+  }
+  $('idx').addEventListener('input', setTable);
+  for (const b of document.querySelectorAll('#hop button')) b.addEventListener('click', () => {
+    long = Number(b.dataset.long);
+    for (const c of document.querySelectorAll('#hop button')) c.setAttribute('aria-pressed', String(c === b));
+    setTable();
+  });
+  setTable();
+});
+</script>
+</body>
+</html>

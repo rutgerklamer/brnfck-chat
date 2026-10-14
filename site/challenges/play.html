@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A brainfuck challenge · brnfck.chat</title>
+<meta name="description" content="One brainfuck challenge: a task, an editor, a machine that shows your program running, and automatic checking against several test cases.">
+<meta property="og:title" content="A brainfuck challenge">
+<meta property="og:description" content="A task, an editor, a machine that shows your program running, and automatic checking against several test cases.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/tools.css?v=r6">
+<link rel="stylesheet" href="../learn/learn.css?v=r6">
+<link rel="stylesheet" href="challenges.css?v=r6">
+<script src="../learn/core.js?v=r6"></script>
+<script src="../learn/ui.js?v=r6"></script>
+<script src="engine.js?v=r6"></script>
+<script src="data.js?v=r6"></script>
+<script src="common.js?v=r5"></script>
+</head>
+<body>
+<script src="../site.js?v=r13"></script>
+<main class="doc article lesson study challenge" id="main">
+  <header class="plain">
+    <p class="kicker crumbs" id="kicker"><span>Play</span><a href="./">Challenges</a></p>
+    <h1 id="title">Challenge</h1>
+  </header>
+  <nav class="lesson" id="prevnext" aria-label="Challenge"></nav>
+  <div class="card statement" id="statement"></div>
+
+  <section id="examples" aria-labelledby="examples-h">
+    <h2 id="examples-h">Examples and rules</h2>
+    <div class="scroll" tabindex="0" role="region" aria-label="Examples"><table class="io" id="iotable"></table></div>
+    <p class="muted small" id="legend" hidden>In these tables <span class="inv">␣</span> stands for a space, <span class="inv">↵</span> for a line break, and <span class="inv">\x01</span> for the character with that number (in sixteens).</p>
+    <dl class="kv settings" id="settings"></dl>
+  </section>
+
+  <section id="checksec" aria-labelledby="check-h">
+    <h2 id="check-h">Checklist</h2>
+    <fieldset class="picklist checklist" id="checklist" aria-labelledby="check-h"></fieldset>
+    <p class="muted small" id="checkcount" aria-live="polite"></p>
+    <h3>Tips</h3>
+    <ul id="tips"></ul>
+    <p class="lesson-links">Useful: <span id="projlinks"></span></p>
+  </section>
+
+  <section id="write" aria-labelledby="write-h">
+    <h2 id="write-h">Your program</h2>
+    <label for="code">Type your program here. Anything that is not one of the eight commands is a comment. <span class="muted small">The Tab key leaves the box.</span></label>
+    <textarea id="code" class="code" rows="7" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-describedby="count"></textarea>
+    <p class="muted small count" id="count"></p>
+    <div class="ctl" id="runrow">
+      <button type="button" id="run" class="primary">Check my program</button>
+      <button type="button" id="stop" class="quiet" hidden>Stop</button>
+      <span class="muted small">or press Ctrl + Enter in the box</span>
+    </div>
+    <p class="verdict summary" id="summary" role="status" aria-live="polite"></p>
+    <div class="chips caseblocks" id="blocks" role="group" aria-label="The test cases. Press one to open it."></div>
+    <div id="detail"></div>
+  </section>
+
+  <section id="watchsec" aria-labelledby="watch-h">
+    <h2 id="watch-h">Watch it run</h2>
+    <figure id="f1" aria-labelledby="c1">
+      <div class="pickrow watch-pick">
+        <div class="row ask">
+          <label class="stacked">Run it on<select id="watchcase"></select></label>
+          <label class="stacked" id="ownrow" hidden>Your input<textarea id="owninput" rows="2" cols="24" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></label>
+        </div>
+        <p class="muted small" id="watchsay" style="margin:0 0 8px"></p>
+      </div>
+      <div id="machine"></div>
+    <figcaption id="c1"><b>Figure 1.</b> Your program on one input. Press Play, or Step. <span class="fig-i">(interactive)</span></figcaption>
+    </figure>
+  </section>
+
+  <section id="hints" aria-labelledby="hints-h">
+    <h2 id="hints-h">Stuck?</h2>
+    <p class="muted small" id="hintsay" aria-live="polite"></p>
+    <div class="hintlist" id="hintlist"></div>
+    <div class="row">
+      <button type="button" class="quiet" id="hintbtn">Give me a hint</button>
+      <button type="button" class="quiet" id="giveup" hidden>Show me a solution</button>
+    </div>
+    <p class="lesson-links">What helps here: <span id="learnlinks"></span></p>
+  </section>
+
+  <section id="after" aria-labelledby="after-h" hidden>
+    <h2 id="after-h">Solved</h2>
+    <p class="solvedflag" id="solvedflag"><span class="badge solid">✓ Solved</span></p>
+    <dl class="facts targets" id="targets" aria-label="Your best and the lengths to beat"></dl>
+    <p class="muted small" id="beat"></p>
+    <div id="solutions"></div>
+    <h3>How this solution works</h3>
+    <p id="explain"></p>
+  </section>
+
+  <nav class="lesson end" id="prevnext-end" aria-label="Challenge, end of page"></nav>
+</main>
+<script src="app.js?v=r7"></script>
+</body>
+</html>

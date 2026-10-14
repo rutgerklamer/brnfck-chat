@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics</title>
+<meta name="description" content="A first course in the brainfuck programming language for complete beginners: the eight commands, on a machine you can watch, with every step checked for you.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><span>Brainfuck basics</span></p>
+    <h1>Brainfuck basics</h1>
+    <p class="lead">The eight commands of brainfuck, one or two at a time, on a machine you can watch. You try something, the page sees that you did it, and then it explains. You need no programming.</p>
+  </header>
+
+  <section id="startbox" aria-labelledby="startbox-h">
+    <h2 id="startbox-h">Your progress</h2>
+    <nav class="full" aria-label="The lessons of Brainfuck basics"><ol class="stepbar" id="blocks"></ol></nav>
+    <p class="row start">
+      <a class="btn primary go" id="go" href="01-machine.html">Start: Lesson 1</a>
+      <span id="count" class="muted"></span>
+    </p>
+    <p class="measured" id="mem"></p>
+  </section>
+
+  <section id="machine" aria-labelledby="machine-h">
+    <h2 id="machine-h">The machine of every lesson</h2>
+    <p>This program prints "Hi". Press <em>Play</em>, or drag the <em>Step</em> slider back and forth, and watch which cell is outlined:</p>
+    <figure class="fig col" id="f1" aria-label="A program that prints Hi, on a tape of five cells">
+      <div id="m1"></div>
+    </figure>
+    <p>The line on top is the program, and the marked command is the one that runs next. The row under it holds the numbers the program works on, and the outline shows which of them it is working on right now. Every lesson uses this same machine.</p>
+  </section>
+
+  <section id="lessons" aria-label="The lessons">
+    <div id="lists"></div>
+  </section>
+
+  <section id="after" aria-labelledby="after-h">
+    <h2 id="after-h">After the last lesson</h2>
+    <p>After <a href="10-reading.html">Lesson 10</a> you can write and read small programs. <a href="../../learn/">Build toward a chatbot</a> is the next course: the tricks that turn this small language into <a href="../../">a chat model</a>. If you want practice first, the <a href="../">Challenges</a> give you something to write.</p>
+    <p class="row"><a class="btn quiet" href="../../brainfuck/">Start here</a> <a class="btn" id="go2" href="01-machine.html">Lesson 1: the machine</a></p>
+  </section>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const { $, el } = Learn, LESSONS = Basics.LESSONS, store = BFStudy.store;
+  Learn.machine($('m1'), { code: '++++++++[>+++++++++<-]>.' + new Array(34).join('+') + '.', bits: 8, cells: 5, delay: 60 });
+  const NOTES = { 'The eight commands': 'What the machine can do.', 'Putting them to work': 'The habits every program is made of.', 'On your own': 'Write a whole program, and read one.' };
+  function draw() {
+    const o = Learn.overview({ lessons: LESSONS, notes: NOTES, unit: 'Lesson', stepsDone: store.stepsDone, isSolved: Basics.isSolved }), next = o.next;
+    const go = $('go'), go2 = $('go2');
+    if (!next) { go.textContent = 'All done. Next: Build toward a chatbot'; go.href = '../../learn/'; go2.textContent = 'Build toward a chatbot'; go2.href = '../../learn/'; }
+    else {
+      go.href = go2.href = next.file;
+      go.textContent = (o.started ? 'Continue: Lesson ' : 'Start: Lesson ') + next.n;
+      go2.textContent = 'Lesson ' + next.n + ': ' + next.title.charAt(0).toLowerCase() + next.title.slice(1);
+    }
+    $('count').textContent = o.lessonsDone + ' of ' + LESSONS.length + ' lessons done, ' + o.stepsDone + ' of ' + o.stepsAll + ' steps.';
+    $('startbox').classList.toggle('complete', !next);
+    $('mem').textContent = (store.remembers() ? 'Your progress is kept in this browser, on this device only.' : 'This browser does not let the page save anything. Your progress is kept only as long as this tab stays open.') + ' You can save it as a file, or wipe it, on the ';
+    const a = el('a', '', 'Challenges page, under Your progress'); a.href = '../#progress'; $('mem').append(a, '.');
+  }
+  draw();
+  window.addEventListener('pageshow', draw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start here · Learn · brnfck.chat</title>
+<meta name="description" content="Learn brainfuck, a programming language with eight commands, by running small programs and changing them. Then build toward a chatbot.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/learn-hub.css?v=r5">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article learnhub" id="main">
+
+  <header class="title">
+    <p class="kicker">Learn</p>
+    <h1>Start here <span class="g" aria-hidden="true"><i class="mv">&gt;</i><i class="mv">&lt;</i><i class="pl">+</i><i class="mi">&minus;</i><i class="br">[</i><i class="br">]</i><i class="in">,</i><i class="ou">.</i></span></h1>
+    <p class="lead">Brainfuck is a programming language with only eight commands. You learn them by running small programs and changing them.</p>
+  </header>
+
+  <div class="begin">
+    <a class="btn primary go" id="go" href="../challenges/basics/01-machine.html">Start learning</a>
+    <p class="skip-ahead">Already know brainfuck? Go straight to <a href="../learn/">Build toward a chatbot</a>.</p>
+    <p class="note muted small">Your progress is saved in this browser only.</p>
+  </div>
+
+  <section id="courses" aria-labelledby="coursesHead">
+    <span id="path"></span>
+    <h2 id="coursesHead">Two courses, in this order</h2>
+    <div class="courses">
+
+      <article class="course" id="course-basics" aria-labelledby="basicsHead">
+        <p class="label">Course 1 &middot; 10 lessons</p>
+        <h3 id="basicsHead"><a href="../challenges/basics/">Brainfuck basics</a></h3>
+        <p>The eight commands, one or two at a time. A program works on a row of cells, boxes that each hold one number, and a pointer marks the cell it is working on. You watch both while a program runs.</p>
+        <p class="start">Start here if the eight commands are new to you.</p>
+        <p class="count" id="count-basics" role="status">0 of 10 done</p>
+        <ol class="lessons" id="lessons-basics">
+          <li data-n="1" data-steps="4"><a href="../challenges/basics/01-machine.html"><span class="n" aria-hidden="true">1</span><span class="t">The machine</span><span class="s"></span></a></li>
+          <li data-n="2" data-steps="4"><a href="../challenges/basics/02-moving.html"><span class="n" aria-hidden="true">2</span><span class="t">Moving</span><span class="s"></span></a></li>
+          <li data-n="3" data-steps="4"><a href="../challenges/basics/03-letters.html"><span class="n" aria-hidden="true">3</span><span class="t">Numbers are letters</span><span class="s"></span></a></li>
+          <li data-n="4" data-steps="4"><a href="../challenges/basics/04-loops.html"><span class="n" aria-hidden="true">4</span><span class="t">Loops</span><span class="s"></span></a></li>
+          <li data-n="5" data-steps="5"><a href="../challenges/basics/05-numbers.html"><span class="n" aria-hidden="true">5</span><span class="t">Building numbers</span><span class="s"></span></a></li>
+          <li data-n="6" data-steps="4"><a href="../challenges/basics/06-input.html"><span class="n" aria-hidden="true">6</span><span class="t">Reading input</span><span class="s"></span></a></li>
+          <li data-n="7" data-steps="4"><a href="../challenges/basics/07-copy.html"><span class="n" aria-hidden="true">7</span><span class="t">Moving and copying</span><span class="s"></span></a></li>
+          <li data-n="8" data-steps="4"><a href="../challenges/basics/08-deciding.html"><span class="n" aria-hidden="true">8</span><span class="t">Making a decision</span><span class="s"></span></a></li>
+          <li data-n="9" data-steps="4"><a href="../challenges/basics/09-program.html"><span class="n" aria-hidden="true">9</span><span class="t">A small program</span><span class="s"></span></a></li>
+          <li data-n="10" data-steps="4"><a href="../challenges/basics/10-reading.html"><span class="n" aria-hidden="true">10</span><span class="t">Reading brainfuck</span><span class="s"></span></a></li>
+        </ol>
+      </article>
+
+      <article class="course" id="course-learn" aria-labelledby="learnHead">
+        <p class="label">Course 2 &middot; 11 lessons</p>
+        <h3 id="learnHead"><a href="../learn/">Build toward a chatbot</a></h3>
+        <p>The techniques a language model needs, from multiplying by a fixed number to choosing the next word piece (a word or part of a word). You build a small version of each and run it. The chatbot on the home page is a far larger program.</p>
+        <p class="start">Take this after Brainfuck basics.</p>
+        <p class="count" id="count-learn" role="status">0 of 11 done</p>
+        <ol class="lessons" id="lessons-learn">
+          <li data-n="1" data-steps="7"><a href="../learn/01-machine.html"><span class="n" aria-hidden="true">1</span><span class="t">The machine</span><span class="s"></span></a></li>
+          <li data-n="2" data-steps="3"><a href="../learn/02-copy.html"><span class="n" aria-hidden="true">2</span><span class="t">Moving and copying</span><span class="s"></span></a></li>
+          <li data-n="3" data-steps="5"><a href="../learn/03-multiply.html"><span class="n" aria-hidden="true">3</span><span class="t">Multiplying by a fixed number</span><span class="s"></span></a></li>
+          <li data-n="4" data-steps="4"><a href="../learn/04-zero.html"><span class="n" aria-hidden="true">4</span><span class="t">Obstacle 1: only one question</span><span class="s"></span></a></li>
+          <li data-n="5" data-steps="5"><a href="../learn/05-peel.html"><span class="n" aria-hidden="true">5</span><span class="t">The way through: peeling off bits</span><span class="s"></span></a></li>
+          <li data-n="6" data-steps="4"><a href="../learn/06-product.html"><span class="n" aria-hidden="true">6</span><span class="t">Obstacle 2: two numbers from the tape</span><span class="s"></span></a></li>
+          <li data-n="7" data-steps="4"><a href="../learn/07-walking.html"><span class="n" aria-hidden="true">7</span><span class="t">Obstacle 3: no addresses</span><span class="s"></span></a></li>
+          <li data-n="8" data-steps="4"><a href="../learn/08-size.html"><span class="n" aria-hidden="true">8</span><span class="t">Obstacle 4: size</span><span class="s"></span></a></li>
+          <li data-n="9" data-steps="3"><a href="../learn/09-neuron.html"><span class="n" aria-hidden="true">9</span><span class="t">One number of the model</span><span class="s"></span></a></li>
+          <li data-n="10" data-steps="3"><a href="../learn/10-attention.html"><span class="n" aria-hidden="true">10</span><span class="t">Looking back</span><span class="s"></span></a></li>
+          <li data-n="11" data-steps="4"><a href="../learn/11-together.html"><span class="n" aria-hidden="true">11</span><span class="t">Choosing the word</span><span class="s"></span></a></li>
+        </ol>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="more" aria-labelledby="moreHead">
+    <h2 id="moreHead">Look things up, or try it yourself</h2>
+    <ol class="dest">
+      <li style="--c: var(--c-plus)"><a href="../reference/"><i aria-hidden="true">+</i><b>Reference</b><small>Look things up</small><span>The language stated exactly, where interpreters differ, its history and a glossary.</span></a></li>
+      <li style="--c: var(--c-out)"><a href="../playground/"><i aria-hidden="true">.</i><b>Playground</b><small>Blank editor</small><span>Write a program, run it step by step, and watch the cells change.</span></a></li>
+      <li style="--c: var(--c-out)"><a href="../challenges/"><i aria-hidden="true">.</i><b>Challenges</b><small>51 exercises</small><span>Write a program for a task. It is run on test cases and checked.</span></a></li>
+      <li style="--c: var(--c-out)"><a href="../patterns/"><i aria-hidden="true">.</i><b>Code patterns</b><small>Ready-made pieces</small><span>The small programs that come back again and again, each with a stepper.</span></a></li>
+    </ol>
+  </section>
+</main>
+<script>
+(function () {
+  'use strict';
+  var TAB = 'bfLearnSteps=';
+  function parse(text) { try { var o = JSON.parse(text || '{}'); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
+  function local(key) { try { return localStorage.getItem(key) || ''; } catch (e) { return null; } }     // null: not readable
+  function tab() { try { var w = String(window.name || ''); return w.indexOf(TAB) === 0 ? parse(w.slice(TAB.length)) : {}; } catch (e) { return {}; } }
+  function stepsOf(course, n, max) {
+    var list;
+    if (course === 'basics') {
+      var raw = local('bfStudyProgress'), all = raw === null ? (tab().study || {}) : parse(raw), b = all.basics && all.basics[n];
+      list = b && Array.isArray(b.steps) ? b.steps : [];
+    } else {
+      var rawL = local('bfLearnSteps'), allL = rawL === null ? tab() : parse(rawL), a = allL[n];
+      list = Array.isArray(a) ? a : [];
+    }
+    var seen = {};
+    list.forEach(function (i) { if (Number.isInteger(i) && i >= 1 && i <= max) seen[i] = true; });
+    return Object.keys(seen).length;
+  }
+
+  function draw() {
+    var courses = {}, any = false;
+    ['basics', 'learn'].forEach(function (name) {
+      var ol = document.getElementById('lessons-' + name), items = Array.prototype.slice.call(ol.children), done = 0, started = 0, next = null;
+      items.forEach(function (li) {
+        var max = +li.getAttribute('data-steps'), got = stepsOf(name, li.getAttribute('data-n'), max), s = li.querySelector('.s');
+        var isDone = got >= max;
+        li.classList.remove('done', 'next', 'part');
+        if (isDone) { done++; li.classList.add('done'); s.textContent = '✓ Done'; }
+        else if (got) { li.classList.add('part'); s.textContent = got + ' of ' + max + ' steps'; }
+        else s.textContent = '';
+        if (got) started++;
+        if (!isDone && !next) next = li;
+      });
+      courses[name] = { items: items, done: done, started: started, next: next };
+      if (started) any = true;
+      document.getElementById('count-' + name).textContent = done + ' of ' + items.length + ' done';
+    });
+
+    var go = document.getElementById('go'), B = courses.basics, L = courses.learn, target = null, course = '';
+    if (any) {
+      if (B.next && B.started) { target = B.next; course = 'basics'; }
+      else if (L.next && (L.started || !B.next)) { target = L.next; course = 'learn'; }
+      else if (B.next) { target = B.next; course = 'basics'; }
+    }
+    if (!any) { go.href = '../challenges/basics/01-machine.html'; go.textContent = 'Start learning'; }
+    else if (target) {
+      target.classList.add('next');
+      var s = target.querySelector('.s'); if (!target.classList.contains('part')) s.textContent = 'Next';
+      go.href = target.querySelector('a').getAttribute('href');
+      go.textContent = 'Continue: ' + target.querySelector('.t').textContent;
+    } else { go.href = '../inside/'; go.textContent = 'Next: look inside the program'; }
+  }
+  draw();
+  window.addEventListener('pageshow', draw);
+})();
+</script>
+</body>
+</html>

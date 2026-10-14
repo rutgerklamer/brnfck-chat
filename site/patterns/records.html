@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Walk an array of records</title>
+<meta name="description" content="Does the same job on every record of a row, with one copy of the program. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#data">Data</a><span>Walk an array of records</span></p>
+    <h1>Walk an array of records</h1>
+    <p class="lead">Does the same job on every record of a row, with one copy of the program.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>22</b> of 38</p>
+    <a class="prev" href="satsub.html" rel="prev"><span>Previous</span>Saturating subtract</a>
+    <a class="next" href="array-index.html" rel="next"><span>Next</span>Store and fetch by index</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “A job on every record” works on 13 cells; the named ones are “zero”, “flag”, “a”, “b” and “end”. Press <em>Play</em>, drag the step slider forwards and back, or edit the a of each record:</p>
+
+    <figure class="fig col" id="fig-records-each" data-p="records" data-v="each" aria-label="The form A job on every record of walk an array of records, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>Brainfuck moves are relative: "two cells to the right of here". So a piece of program written for one record works on any record, if the pointer stands on that record's first cell.</p>
+    <p>Every record starts with a flag that is 1. The loop does the job, steps one record to the right and tests the next flag. The first empty flag ends the walk.</p>
+    <p>A zero cell before the first record lets <code class="bf">[&lt;&lt;&lt;]</code> walk home again.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. The pointer starts on “flag” (cell 3). It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-records-each">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;[-&gt;++&lt;]&gt;&gt;]&lt;&lt;&lt;[&lt;&lt;&lt;]&gt;&gt;&gt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%5B-%3E%2B%2B%3C%5D%3E%3E%5D%3C%3C%3C%5B%3C%3C%3C%5D%3E%3E%3E&amp;names=0:zero,3:flag,4:a,5:b,6:flag,7:a,8:b,9:flag,10:a,11:b,12:end">Open in the playground</a><span class="count" data-len>23 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>All records the same length; here 3 cells: flag, a, b.</li>
+      <li>A zero flag after the last record and a zero cell one record length before the first.</li>
+      <li>Any cell size.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>A job that ends on another cell of the record than it started on. The step to the next record then lands in the wrong column.</li>
+      <li>A zero in the flag column inside the row: the walk stops there.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-records-each-cost" data-p="records" data-v="each" data-cost-fig aria-label="Steps taken by the form A job on every record, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>A job on every record</td><td>grows with the values</td><td>3 + 3 per record</td></tr>
+<tr><td>A running total that travels along</td><td>grows with the values</td><td>1 + 3 per record</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>A job on every record</td><td>a = 3, 1, 4</td><td class="n">8</td><td class="n">23</td><td class="n">83</td><td class="n">12</td></tr>
+<tr><td>A job on every record</td><td>a = 9, 9, 9, 9, 9</td><td class="n">8</td><td class="n">23</td><td class="n">323</td><td class="n">18</td></tr>
+<tr><td>A running total that travels along</td><td>a = 3, 1, 4</td><td class="n">8</td><td class="n">21</td><td class="n">194</td><td class="n">10</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-carry" aria-labelledby="v-carry-h">
+      <h3 id="v-carry-h">A running total that travels along</h3>
+      <p>Adds up the a of every record. The total moves from record to record in the third cell and ends just past the last record.</p>
+      <div class="code" data-fig="fig-records-carry">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;[-&gt;+&lt;]&gt;[-&gt;&gt;&gt;+&lt;&lt;&lt;]&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%5B-%3E%2B%3C%5D%3E%5B-%3E%3E%3E%2B%3C%3C%3C%5D%3E%5D&amp;names=0:zero,3:flag,4:a,5:carry,6:flag,7:a,8:carry,9:flag,10:a,11:carry,12:end,14:total">Open in the playground</a><span class="count" data-len>21 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-carry"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “A running total that travels along” works on 15 cells; the named ones are “zero”, “flag”, “a”, “carry”, “end” and “total”. Press <em>Play</em>, drag the step slider forwards and back, or edit the a of each record:</p>
+        <figure class="fig col" id="fig-records-carry" data-p="records" data-v="carry" aria-label="The form A running total that travels along of walk an array of records, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../learn/07-walking.html">Build toward a chatbot, lesson 7, "No addresses"</a>, walks a job over 512 places.</li>
+      <li>The chat program does every job this way: one piece of program, walked over hundreds of places. Its version lays the flags itself: <a href="frames.html">one copy of code over many frames</a>.</li>
+      <li><a href="array-index.html">Store and fetch by index</a> is a walk that counts.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: eachFrame in patterns.js is the grown-up form.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>22</b> of 38</p>
+    <a class="prev" href="satsub.html" rel="prev"><span>Previous</span>Saturating subtract</a>
+    <a class="next" href="array-index.html" rel="next"><span>Next</span>Store and fetch by index</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Not, and, or on flags</title>
+<meta name="description" content="Combines yes-or-no values, where 0 means no and 1 means yes. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#control">Control</a><span>Not, and, or on flags</span></p>
+    <h1>Not, and, or on flags</h1>
+    <p class="lead">Combines yes-or-no values, where 0 means no and 1 means yes.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>12</b> of 38</p>
+    <a class="prev" href="counted-loop.html" rel="prev"><span>Previous</span>A counted loop</a>
+    <a class="next" href="compare-equal.html" rel="next"><span>Next</span>Equal</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Not (flag)” works on 2 cells, named “x” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+
+    <figure class="fig col" id="fig-logic-not" data-p="logic" data-v="not" aria-label="The form Not (flag) of not, and, or on flags, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p><b>Not</b>: start a helper at 1 and take x off it. <b>And</b>: only if x is set does y get moved into the answer. <b>Or</b>: add the two and turn "anything but zero" into 1.</p>
+    <p>The short forms trust that the cells hold 0 or 1 only. The "any value" forms first turn every non-zero value into a clean 1; they cost a little more.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-logic-not">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;+&lt;[-&gt;-&lt;]&gt;[-&lt;+&gt;]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%3C%5B-%3E-%3C%5D%3E%5B-%3C%2B%3E%5D%3C&amp;names=0:x,1:scratch">Open in the playground</a><span class="count" data-len>17 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Short forms: the inputs must be 0 or 1.</li>
+      <li>One scratch cell (not) or an answer cell that is zero (and).</li>
+      <li>Any cell size. The inputs are used up.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Feeding a number such as 2 to a short form: "not 2" gives 255 on 8-bit cells, not 0.</li>
+      <li>The short "or" adds the two inputs. With arbitrary numbers the sum can wrap to exactly zero (128 + 128 on 8-bit cells) and the answer is wrong. Use the "any value" form.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-logic-not-cost" data-p="logic" data-v="not" data-cost-fig aria-label="Steps taken by the form Not (flag), for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Not (flag)</td><td>12</td><td>4</td></tr>
+<tr><td>Not (any value)</td><td>12 + 2x</td><td>7 when x is not 0, else 4</td></tr>
+<tr><td>And (flags)</td><td>at most 14</td><td>at most 6</td></tr>
+<tr><td>And (any values)</td><td>grows with x + y (2 per unit)</td><td>at most 11</td></tr>
+<tr><td>Or (flags)</td><td>at most 16</td><td>at most 6</td></tr>
+<tr><td>Or (any values)</td><td>grows with x + y (2 per unit)</td><td>at most 15</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Not (flag)</td><td>x = 0</td><td class="n">8</td><td class="n">17</td><td class="n">12</td><td class="n">4</td></tr>
+<tr><td>Not (flag)</td><td>x = 1</td><td class="n">8</td><td class="n">17</td><td class="n">12</td><td class="n">4</td></tr>
+<tr><td>Not (any value)</td><td>x = 7</td><td class="n">8</td><td class="n">19</td><td class="n">26</td><td class="n">7</td></tr>
+<tr><td>And (flags)</td><td>x = 0; y = 1</td><td class="n">8</td><td class="n">16</td><td class="n">6</td><td class="n">3</td></tr>
+<tr><td>And (flags)</td><td>x = 1; y = 1</td><td class="n">8</td><td class="n">16</td><td class="n">14</td><td class="n">6</td></tr>
+<tr><td>And (any values)</td><td>x = 3; y = 9</td><td class="n">8</td><td class="n">20</td><td class="n">38</td><td class="n">9</td></tr>
+<tr><td>Or (flags)</td><td>x = 0; y = 0</td><td class="n">8</td><td class="n">16</td><td class="n">4</td><td class="n">3</td></tr>
+<tr><td>Or (flags)</td><td>x = 0; y = 1</td><td class="n">8</td><td class="n">16</td><td class="n">11</td><td class="n">6</td></tr>
+<tr><td>Or (any values)</td><td>x = 128; y = 128</td><td class="n">8</td><td class="n">32</td><td class="n">542</td><td class="n">13</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-notany" aria-labelledby="v-notany-h">
+      <h3 id="v-notany-h">Not (any value)</h3>
+      <p>x = 1 if x was 0, else 0.</p>
+      <div class="code" data-fig="fig-logic-notany">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;+&lt;[[-]&gt;-&lt;]&gt;[-&lt;+&gt;]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%3C%5B%5B-%5D%3E-%3C%5D%3E%5B-%3C%2B%3E%5D%3C&amp;names=0:x,1:scratch">Open in the playground</a><span class="count" data-len>19 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-notany"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Not (any value)” works on 2 cells, named “x” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-logic-notany" data-p="logic" data-v="notany" aria-label="The form Not (any value) of not, and, or on flags, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-and" aria-labelledby="v-and-h">
+      <h3 id="v-and-h">And (flags)</h3>
+      <p>z = x and y. Layout: x, y, z.</p>
+      <div class="code" data-fig="fig-logic-and">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;[-&gt;+&lt;]&lt;-]&gt;[-]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%5B-%3E%2B%3C%5D%3C-%5D%3E%5B-%5D%3C&amp;names=0:x,1:y,2:z">Open in the playground</a><span class="count" data-len>16 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-and"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “And (flags)” works on 3 cells, named “x”, “y” and “z”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+        <figure class="fig col" id="fig-logic-and" data-p="logic" data-v="and" aria-label="The form And (flags) of not, and, or on flags, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-andany" aria-labelledby="v-andany-h">
+      <h3 id="v-andany-h">And (any values)</h3>
+      <p>z = 1 if both are not 0.</p>
+      <div class="code" data-fig="fig-logic-andany">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;[[-]&gt;+&lt;]&lt;[-]]&gt;[-]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%5B%5B-%5D%3E%2B%3C%5D%3C%5B-%5D%5D%3E%5B-%5D%3C&amp;names=0:x,1:y,2:z">Open in the playground</a><span class="count" data-len>20 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-andany"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “And (any values)” works on 3 cells, named “x”, “y” and “z”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+        <figure class="fig col" id="fig-logic-andany" data-p="logic" data-v="andany" aria-label="The form And (any values) of not, and, or on flags, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-or" aria-labelledby="v-or-h">
+      <h3 id="v-or-h">Or (flags)</h3>
+      <p>x = x or y. Layout: x, y.</p>
+      <div class="code" data-fig="fig-logic-or">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;+&lt;]&gt;[[-]&lt;+&gt;]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%3C%5D%3E%5B%5B-%5D%3C%2B%3E%5D%3C&amp;names=0:x,1:y">Open in the playground</a><span class="count" data-len>16 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-or"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Or (flags)” works on 2 cells, named “x” and “y”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+        <figure class="fig col" id="fig-logic-or" data-p="logic" data-v="or" aria-label="The form Or (flags) of not, and, or on flags, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-orany" aria-labelledby="v-orany-h">
+      <h3 id="v-orany-h">Or (any values)</h3>
+      <p>x = 1 if either is not 0. Layout: x, y, scratch.</p>
+      <div class="code" data-fig="fig-logic-orany">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[[-]&gt;&gt;+&lt;&lt;]&gt;[[-]&gt;+&lt;]&gt;[[-]&lt;&lt;+&gt;&gt;]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%5B-%5D%3E%3E%2B%3C%3C%5D%3E%5B%5B-%5D%3E%2B%3C%5D%3E%5B%5B-%5D%3C%3C%2B%3E%3E%5D%3C%3C&amp;names=0:x,1:y,2:scratch">Open in the playground</a><span class="count" data-len>32 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-orany"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Or (any values)” works on 3 cells, named “x”, “y” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+        <figure class="fig col" id="fig-logic-orany" data-p="logic" data-v="orany" aria-label="The form Or (any values) of not, and, or on flags, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="compare-equal.html">Equal</a> is "not (x − y)".</li>
+      <li>Combining tests in the <a href="../challenges/">challenges</a>.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: sections "not x", "x and y", "x or y" (boolean, logical); the snippets here are our own, shorter forms for the same layouts.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>12</b> of 38</p>
+    <a class="prev" href="counted-loop.html" rel="prev"><span>Previous</span>A counted loop</a>
+    <a class="next" href="compare-equal.html" rel="next"><span>Next</span>Equal</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

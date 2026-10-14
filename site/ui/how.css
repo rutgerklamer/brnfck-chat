@@ -1,0 +1,33 @@
+/* "How it works" (how/index.html). */
+
+/* ---- the row of cells, as the figures here use it ---- */
+main.how .tape.joined.wrap { flex-wrap: wrap; row-gap: var(--s2); --cell-h: 2.5rem; }
+main.how .tape.joined.wrap > .cell { flex: 0 0 1.75rem; min-width: 0; }
+
+/* the three keys of the reading machine */
+#fig-read .keypad { grid-template-columns: repeat(3, minmax(0, 1fr));--key-h: 4.5rem; --key-fs: 1.5rem; gap: var(--edge); border-width: var(--edge); margin-bottom: var(--s4); }
+#fig-read .keypad > button { border-top-width: 8px; }
+#fig-read .keypad small { font-family: var(--mono); }
+#fig-read { --cell: var(--c-in); --cell-ink: var(--on-data); }       /* the number on the green cell: dark ink in both themes */
+#fig-read .tape.joined { --cell-w: none; }
+
+/* ---- bars: the shared .bars, placed ---- */
+main.how .bars { grid-template-columns: fit-content(45%) minmax(3rem, 1fr) auto; }
+/* a bar made of parts: the two parts of the program, to scale */
+main.how .stack { display: flex; gap: 1px; height: 3rem; background: var(--sunk); }
+main.how .stack > i { min-width: 4px; height: 100%; }
+main.how .twocap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s1) var(--s4); margin: var(--s3) 0 0; }
+main.how .twocap > span { display: inline-flex; align-items: center; gap: var(--s2); }
+main.how .twocap .sw { margin: 0; }
+#fig-size dl.facts { margin: 0; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+#fig-size .seg { display: flex; flex: 1 1 auto; }
+#fig-write td.bf { min-width: 12rem; }
+
+/* ---- narrower ---- */
+@media (max-width: 45em) {
+  main.how .bars { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--s1); }
+  main.how .bars .lab { grid-column: 1 / -1; margin-top: var(--s2); }
+}
+@media (max-width: 36em) {
+  #fig-read .keypad { --key-h: 4rem; --key-fs: 1.375rem; }
+}

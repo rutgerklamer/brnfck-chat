@@ -1,0 +1,60 @@
+/* The Reference (reference/). */
+
+/* ---- 1. tables in a .scroll ---- */
+main.reference table.cmp th[scope="row"] { min-width: 7.5rem; }
+main.reference table.cmp td { min-width: 9rem; }
+main.reference table.wide td, main.reference table.wide th { min-width: 9.5rem; }
+main.reference td code, main.reference th code { white-space: nowrap; }
+main.reference table .bf { white-space: normal; }
+main.reference table.cmp th a, main.reference table.cmp td a:only-child { display: inline-flex; align-items: center; min-height: var(--target); min-width: var(--target); }
+main.reference section > .scroll { margin: var(--s4) 0; }
+
+/* ---- 2. the choices under a figure ---- */
+main.reference .fig .ctl.pick { align-items: end; }
+main.reference .fig .ctl.pick > .seg { flex: 0 1 auto; }
+main.reference .fig .ctl.pick .field { display: flex; flex: 1 1 14rem; flex-direction: column; gap: var(--s1); }
+main.reference .fig .ctl.pick .field > span { font: var(--ctl); }
+main.reference .fig .ctl.pick .field > input { flex: none; width: 100%; max-width: 20rem; }
+main.reference .fig .ctl.pick .group { display: flex; flex: 1 1 auto; flex-direction: column; gap: var(--s1); }
+main.reference .fig .ctl.pick .group > span { font: var(--ctl); }
+/* what a program printed can be long: it wraps instead of widening the page */
+main.reference .printed > output { flex: 1 1 0; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* the two counts of the same run, side by side */
+main.reference .counts { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); margin: var(--s3) 0 0; }
+main.reference .counts > div { display: flex; flex-direction: column; min-width: 10rem; }
+main.reference .counts dt { color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+main.reference .counts dd { margin: 0; font: 700 var(--fs-h2)/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+main.reference .counts > div.on dd { box-shadow: inset 6px 0 0 var(--ink); padding-left: var(--s3); }
+
+/* ---- 3. drawings ---- */
+main.reference ul.pairs { list-style: none; margin: var(--s4) 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); max-width: none; }
+main.reference ul.pairs > li { margin: 0; display: grid; gap: var(--s2); align-content: start; }
+main.reference .pairs .keys { display: flex; gap: var(--s1); }
+@media (max-width: 47.5em) { main.reference ul.pairs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 22em) { main.reference ul.pairs { grid-template-columns: minmax(0, 1fr); } }
+
+/* bars under an axis: the label column has one width, the ticks stand over the bars */
+main.reference .bars.scale { grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) auto; }
+main.reference .scale .ticks { display: flex; justify-content: space-between; padding-bottom: var(--s1); border-bottom: var(--edge) solid var(--ink); font: var(--lab); color: var(--muted); }
+@media (max-width: 38.75em) {
+  main.reference .bars.scale { grid-template-columns: minmax(0, 1fr) auto; }
+  main.reference .bars.scale > .lab { grid-column: 1 / -1; }
+  main.reference .bars.scale > span[aria-hidden]:first-child { display: none; }
+}
+
+main.reference ol.years > li.key { background: var(--hot); }
+
+/* a quotation */
+main.reference figure.quote { margin: var(--s5) 0; max-width: var(--measure); }
+main.reference figure.quote blockquote { margin: 0; }
+main.reference figure.quote figcaption { margin-top: var(--s2); color: var(--muted); font-size: var(--fs-small); }
+
+/* ---- 4. lists ---- */
+main.reference .biblio { list-style: none; padding: 0; }
+main.reference .biblio > li { margin: 0 0 var(--s4); }
+main.reference .biblio p { margin: 0 0 var(--s1); }
+main.reference .kb { margin-top: var(--s7); max-width: none; --tile-min: 11rem; }
+main.reference .kb > .label { margin: 0 0 var(--s2); }
+main.reference aside.sidenote { max-width: var(--measure); }
+
+main.reference ol.timeline > li > b > a { display: inline-flex; align-items: center; min-height: var(--target); }

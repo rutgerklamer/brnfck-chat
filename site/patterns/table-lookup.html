@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Table lookup as a decision tree</title>
+<meta name="description" content="Gives entry number x of a fixed table, in a number of steps that depends on the size of the table and not on x. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#advanced">Advanced: wrapping cells of a known width</a><span>Table lookup as a decision tree</span></p>
+    <h1>Table lookup as a decision tree</h1>
+    <p class="lead">Gives entry number x of a fixed table, in a number of steps that depends on the size of the table and not on x.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>35</b> of 38</p>
+    <a class="prev" href="signed-multiply.html" rel="prev"><span>Previous</span>Signed multiplication by shift-and-add</a>
+    <a class="next" href="frames.html" rel="next"><span>Next</span>One copy of code over many frames</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “A table of squares” works on 11 cells; the named ones are “x” and “y”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider and edit the choice of entries:</p>
+
+    <figure class="fig col" id="fig-table-lookup-tree" data-p="table-lookup" data-v="tree" aria-label="The form A table of squares of table lookup as a decision tree, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>The table is not on the tape. It is in the program text, as a tree of <a href="if-else.html">if and else</a>: first "is bit 0 of x set?", inside each answer "is bit 1 set?", and so on. At the end of each path one entry is added to the result.</p>
+    <p>The questions are the tests of <a href="bit-peel.html">the bit peel</a>, so no bit is ever stored. A table of 256 entries is 8 questions deep: about 70 steps.</p>
+    <p>The price is length. Every entry has its own path in the text. The table of 16 squares here is about 4,000 characters; with 256 entries it is 134,000.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran, written by the generators for these values and this cell size. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-table-lookup-tree">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;&gt;&gt;&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;]&gt;[-&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;]&lt;[-&lt;&lt;&lt;++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[-&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;]&gt;[-&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;]&lt;[-&gt;&gt;++++++++++++++++&lt;&lt;]&lt;&lt;&lt;[-&gt;+&gt;++++++++&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;-&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;[-&lt;+&gt;&gt;++++&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;&lt;--&gt;&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&gt;++&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;----&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&gt;++&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;----&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]]]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;[-&lt;+&gt;&gt;++++&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;&lt;--&gt;&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&gt;++&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;----&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&gt;++&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;[-&lt;&lt;&lt;&lt;----&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&lt;]&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;[[-]&gt;&gt;&gt;&gt;&gt;-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;]&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]]]]&lt;&lt;[-]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%3E%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C%5B-%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C%5B-%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%3C%5D%3C%3C%3C%5B-%3E%2B%3E%2B%2B%2B%2B%2B%2B%2B%2B%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C-%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%5B-%3C%2B%3E%3E%2B%2B%2B%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C%3C--%3E%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3E%2B%2B%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C----%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3E%2B%2B%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C----%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%5D%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%5B-%3C%2B%3E%3E%2B%2B%2B%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C%3C--%3E%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3E%2B%2B%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C----%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3E%2B%2B%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%5B-%3C%3C%3C%3C----%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3C%5D%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%5B%5B-%5D%3E%3E%3E%3E%3E-%3C%3C%3C%3C%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%5D%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3E%3E%3E%3E%3E%3E%3E%3E%5D%5D%5D%5D%3C%3C%5B-%5D&amp;names=0:x,1:y">Open in the playground</a><span class="count" data-len>4,035 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Cells that wrap at a known width. The program text is made for that width (8, 16 or 32 bits) and gives wrong answers on any other.</li>
+      <li>To be fast it needs an interpreter that does a flat loop in one step. In plain steps the shifts are long loops and the gain is lost.</li>
+      <li>Nine scratch cells. The table length is a power of two. An x past the end counts from the start again.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Using it for a big table. The text grows with the table; the tape form, <a href="array-index.html">store and fetch by index</a>, does not.</li>
+      <li>Using a tree where x is nearly always tiny. A chain of "take 1 off, still not zero?" is shorter and then just as fast: that is the form <a href="#v-chain">The naive way: a chain</a> on this page.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-table-lookup-tree-cost" data-p="table-lookup" data-v="tree" data-cost-fig aria-label="Steps taken by the form A table of squares, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>A table of squares</td><td>thousands</td><td>about 40 for 16 entries, 60 to 80 for 256</td></tr>
+<tr><td>The naive way: a chain</td><td>grows with x</td><td>about 4 per unit of x</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>A table of squares</td><td>entries = 16; x = 5</td><td class="n">32</td><td class="n">4,035</td><td class="n">more than 30,000,000</td><td class="n">38</td></tr>
+<tr><td>A table of squares</td><td>entries = 256; x = 3</td><td class="n">32</td><td class="n">134,250</td><td class="n">more than 30,000,000</td><td class="n">61</td></tr>
+<tr><td>A table of squares</td><td>entries = 256; x = 100</td><td class="n">32</td><td class="n">134,250</td><td class="n">more than 30,000,000</td><td class="n">69</td></tr>
+<tr><td>A table of squares</td><td>entries = 256; x = 255</td><td class="n">32</td><td class="n">134,250</td><td class="n">more than 30,000,000</td><td class="n">82</td></tr>
+<tr><td>The naive way: a chain</td><td>entries = 16; x = 5</td><td class="n">32</td><td class="n">328</td><td class="n">152</td><td class="n">23</td></tr>
+<tr><td>The naive way: a chain</td><td>entries = 256; x = 3</td><td class="n">32</td><td class="n">66,328</td><td class="n">88</td><td class="n">15</td></tr>
+<tr><td>The naive way: a chain</td><td>entries = 256; x = 100</td><td class="n">32</td><td class="n">66,328</td><td class="n">12,407</td><td class="n">403</td></tr>
+<tr><td>The naive way: a chain</td><td>entries = 256; x = 255</td><td class="n">32</td><td class="n">66,328</td><td class="n">71,152</td><td class="n">1,023</td></tr></tbody></table></div>
+    </div></details>
+    <h3>Against the naive way</h3>
+    <p>The same table as a chain: take 1 off x and add the next difference, once for every unit of x.</p>
+    <details class="q fold" id="compare"><summary>The numbers, row by row</summary><div class="a">
+      <div class="bars"><span class="lab">this pattern: entries = 256; x = 255</span><div><div class="bar b2" style="width:7.62%"></div></div><span>78</span><span class="lab">the naive way: entries = 256; x = 255</span><div><div class="bar ink" style="width:100.00%"></div></div><span>1,023</span></div>
+      <p class="measured">This pattern against the naive way, on 16-bit cells, measured when this page was written. The bars show the last row: optimised steps.</p>
+      <div class="scroll" tabindex="0" role="region" aria-label="This pattern against the naive way"><table>
+        <thead><tr><th rowspan="2">Values</th><th colspan="2">Optimised steps</th><th colspan="2">Plain steps</th><th colspan="2">Characters</th></tr>
+        <tr><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th></tr></thead>
+        <tbody><tr><td>entries = 256; x = 3</td><td class="n">57</td><td class="n">15</td><td class="n">296,377</td><td class="n">88</td><td class="n">133,198</td><td class="n">66,328</td></tr>
+<tr><td>entries = 256; x = 100</td><td class="n">65</td><td class="n">403</td><td class="n">8,060,647</td><td class="n">12,407</td><td class="n">133,198</td><td class="n">66,328</td></tr>
+<tr><td>entries = 256; x = 255</td><td class="n">78</td><td class="n">1,023</td><td class="n">20,528,684</td><td class="n">71,152</td><td class="n">133,198</td><td class="n">66,328</td></tr></tbody></table></div>
+    </div></details>
+    <p>Measured in the project for a table of 256 entries and a random x: about 68 optimised steps with the tree, against about 500 with the chain. <span class="ev">measured in the project</span></p>
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-chain" aria-labelledby="v-chain-h">
+      <h3 id="v-chain-h"><span class="badge">to measure against</span> The naive way: a chain</h3>
+      <p>Nested loops, one per entry. Short text, and a cost per unit of x.</p>
+      <div class="code" data-fig="fig-table-lookup-chain">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;+&gt;+&lt;&lt;&lt;]&gt;&gt;&gt;[-&lt;&lt;&lt;+&gt;&gt;&gt;]&lt;[-&lt;+&gt;[-&lt;+++&gt;[-&lt;+++++&gt;[-&lt;+++++++&gt;[-&lt;+++++++++&gt;[-&lt;+++++++++++&gt;[-&lt;+++++++++++++&gt;[-&lt;+++++++++++++++&gt;[-&lt;+++++++++++++++++&gt;[-&lt;+++++++++++++++++++&gt;[-&lt;+++++++++++++++++++++&gt;[-&lt;+++++++++++++++++++++++&gt;[-&lt;+++++++++++++++++++++++++&gt;[-&lt;+++++++++++++++++++++++++++&gt;[-&lt;+++++++++++++++++++++++++++++&gt;[-]]]]]]]]]]]]]]]]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%2B%3E%2B%3C%3C%3C%5D%3E%3E%3E%5B-%3C%3C%3C%2B%3E%3E%3E%5D%3C%5B-%3C%2B%3E%5B-%3C%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D%5D&amp;names=0:x,1:y,2:counter">Open in the playground</a><span class="count" data-len>328 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-chain"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The naive way: a chain” works on 4 cells; the named ones are “x”, “y” and “counter”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider and edit the choice of entries:</p>
+        <figure class="fig col" id="fig-table-lookup-chain" data-p="table-lookup" data-v="chain" aria-label="The form The naive way: a chain of table lookup as a decision tree, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../learn/10-attention.html">Build toward a chatbot, lesson 10, "Looking back"</a>: the weights of attention and the reciprocal for its division come from two such tables.</li>
+      <li>In the chat model: <code>lookup</code> in patterns.js, for the weights of attention and for dividing by their total: see <a href="../how/#s7">How it works, section "Looking back at the other words"</a>.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: lookup, lookupChain (the baseline).</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>35</b> of 38</p>
+    <a class="prev" href="signed-multiply.html" rel="prev"><span>Previous</span>Signed multiplication by shift-and-add</a>
+    <a class="next" href="frames.html" rel="next"><span>Next</span>One copy of code over many frames</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

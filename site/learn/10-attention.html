@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 10: looking back · brnfck.chat</title>
+<meta name="description" content="Lesson 10: attention. Four earlier word pieces, four scores: you decide which piece counts, find the edge of a lookup table, and watch the program walk past the pieces.">
+<meta property="og:title" content="Lesson 10: looking back">
+<meta property="og:description" content="Lesson 10: attention. Four earlier word pieces, four scores: you decide which piece counts, find the edge of a lookup table, and watch the program walk past the pieces.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Looking back</span></p>
+    <h1>Looking back</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson your program looks back at four earlier word pieces, decides how much each one counts, and mixes what they have to say into one number.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>10</b> of 11</p>
+    <a class="prev" href="09-neuron.html" rel="prev"><span>Previous</span>One number of the model</a>
+    <a class="next" href="11-together.html" rel="next"><span>Next</span>Choosing the word</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>The sum so far was given its four inputs. In a model they come from the text before: here the words of "The capital of France is", cut into word pieces, which are words or parts of words. To go on, the model must look back at those pieces.</p>
+  </section>
+
+  <h2 id="s1">Decide which piece counts</h2>
+  <p class="try"><b>Try it:</b> four earlier word pieces have a score each, and each says one number. Move the scores until " France" is the only piece that counts: its count 15, the other three 0:</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div class="cols" id="cols"></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="What the pieces say, mixed by count; scrolls sideways on a narrow screen"><table>
+      <tr><td>What the pieces say, mixed by count</td><td class="n" id="js"></td></tr>
+      <tr><td><b>The same, from the brainfuck program</b></td><td class="n"><b id="bf"></b></td></tr>
+    </table></div>
+    <p class="tell" id="say"></p>
+  <figcaption id="c1"><b>Figure 1.</b> Four earlier word pieces with a score each. The counts are read from the tape of a brainfuck program. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>Every earlier piece has a <b>score</b>: how useful is it right now? And it has something to say, here one number.</p>
+    <p>The piece with the best score always gets the full count, 15. Every other piece gets less, and only the distance to the best matters. A piece far behind gets 0 and is not heard at all. The result is the average of what the pieces say, each counted as often as its count.</p>
+    <p>This looking back is called <b>attention</b>.</p>
+  </section>
+
+  <h2 id="s2">A list of ready-made answers</h2>
+  <p class="try"><b>Try it:</b> a piece that is far enough behind the best gets count 0. Find the smallest distance at which that happens:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="ctl vals">
+      <label><span>Points behind the best</span><input type="range" id="gap" min="0" max="200" value="60"><output id="gapo"></output></label>
+      <button class="quiet" id="gm" aria-label="one point less">−1</button><button class="quiet" id="gp" aria-label="one point more">+1</button>
+    </div>
+    <div class="hist" id="hist" aria-hidden="true"></div>
+    <p class="tell" id="gsay" aria-live="polite"></p>
+  <figcaption id="c2"><b>Figure 2.</b> The list of ready-made counts. The marked bar is the entry your distance picks. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>In the original model, the count comes from a curve that needs numbers with fractions. Here it comes from a list of 64 ready-made answers. The distance is divided by 8, and that picks an entry of the list. Such a list is called a <b>lookup table</b>.</p>
+    <p>You found its edge. At 160 points behind, a piece is cut off. One point closer and it still gets count 1.</p>
+    <p>Looking up is cheap because of the peel (<a href="05-peel.html#s3">step 3 of lesson 5</a>): the bits of the entry number are read one by one, and each bit halves the list.</p>
+  </section>
+
+  <h2 id="s3">Watch the program walk past the pieces</h2>
+  <p class="try"><b>Try it:</b> choose a fast speed and press Play, or go to the last step. The pointer passes the four pieces twice:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div class="map" id="map" aria-hidden="true" style="grid-template-columns:repeat(6,1fr)"></div>
+    <div id="mach"></div>
+    <p class="measured">It uses the scores you set in step 1. The program is <span id="len"></span> characters long, so only the part around the lit-up command is shown.</p>
+  <figcaption id="c3"><b>Figure 3.</b> The attention program. The strip on top shows which word piece the pointer is at. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>Everything in this program is something you have built.</p>
+    <ul>
+      <li><b>First pass: find the best score.</b> A "best so far" travels from piece to piece (<a href="07-walking.html#s3">step 3 of lesson 7</a>). At each piece the program works out how far this score is above it, clamps that at zero (<a href="05-peel.html#s5">step 5 of lesson 5</a>) and adds it.</li>
+      <li><b>Second pass: the counts.</b> Best minus my score, divided by 8 (a peel), then the lookup table of step 2.</li>
+      <li><b>Count × what the piece says</b> is a product of two numbers from the tape (<a href="06-product.html#s4">step 4 of lesson 6</a>). The total walks along.</li>
+      <li><b>The average.</b> There is no division by an unknown number. A second small table gives 4,096 divided by the total count. Multiply by that, then throw away 12 bits.</li>
+    </ul>
+    <p>One copy of the program handled all four pieces, because it sits in a loop that walks from frame to frame (<a href="07-walking.html#s2">step 2 of lesson 7</a>).</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Look back along the tape, weigh the earlier word pieces and mix them. The numbers that go into the sum now come from the text itself.</p>
+    <p class="next-q">One part is left. The model has a score for every word piece it knows, and the highest must win. Brainfuck cannot compare. What then?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p><b>The cost of a lookup.</b> In the chat program, looking up one of 256 values takes about 68 steps with the peel (<a href="05-peel.html#s3">step 3 of lesson 5</a>), against about 500 by counting down.</p>
+    <p id="note-scores"><b>Where the scores come from.</b> Here you set them. In the chat program each score is itself a sum of products between the current word piece and an earlier one. The bits of the current piece are peeled once and used for all the earlier pieces (<a href="06-product.html#note-bonus">the note "A bonus" of lesson 6</a>).</p>
+    <p><b>A difference with the original.</b> The original model never cuts a piece off completely; it lets tiny counts through. This is one of the places where the whole-number model differs a little. The chat model uses a finer table than this lesson: 256 entries, and the best piece gets count 255.</p>
+    <p><b>What a piece "says"</b> is in reality a whole row of numbers, not one. The same counts are used for every number of the row.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>10</b> of 11</p>
+    <a class="prev" href="09-neuron.html" rel="prev"><span>Previous</span>One number of the model</a>
+    <a class="next" href="11-together.html" rel="next"><span>Next</span>Choosing the word</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(10), ref = core.ref, A = D.attention(4);
+  const words = [' capital', ' of', ' France', ' is'], startS = [150, 60, 170, 120], vals = [-40, 10, 90, -100];
+  const S = [], OUT = [], cols = $('cols');
+  for (let t = 0; t < 4; t++) {
+    const c = el('div', 'card'), s = el('input'), so = el('div', 'muted small'), w = el('div', 'w'), mt = el('div', 'meter'), bar = el('i');
+    s.type = 'range'; s.min = 0; s.max = 200; s.value = startS[t]; s.setAttribute('aria-label', 'score of' + words[t]);
+    mt.append(bar);
+    c.append(el('b', '', '"' + words[t] + '"'), el('div', 'muted small', 'says ' + fmt(vals[t])), s, so, el('div', 'muted small', 'counts'), w, mt);
+    cols.append(c); S.push(s); OUT.push({ so, w, bar });
+  }
+  const fr = ['marker', 'score', 'says', 'best', 'total weight', 'sum', 'weight', 'gap', 'entry'];
+  const label = (a) => { if (a < 16) return ['scratch', '4096÷total', 'product', 'result'][a] || 'scratch'; const f = (a - 16) % 24, t = Math.floor((a - 16) / 24); return (fr[f] || 'scratch') + ' ' + (t < 4 ? t + 1 : 'end'); };
+  const map = $('map');
+  ['start', ...words.map((w) => '"' + w.trim() + '"'), 'end'].forEach((t) => map.append(el('div', '', t)));
+  $('len').textContent = fmt(A.code.length);
+  const mach = Learn.machine($('mach'), { code: A.code, bits: 32, size: A.size, cells: 12, follow: true, labels: label, signed: true, fast: true, delay: 60,
+    onDraw: (m) => { const here = m.p < A.F ? 0 : Math.min(5, Math.floor((m.p - A.F) / A.S) + 1); [...map.children].forEach((d, i) => { d.className = i === here ? 'here' : ''; }); },
+    result: (m) => 'Counts ' + [0, 1, 2, 3].map((t) => m.tape[A.weight(t)]).join(', ') + '. The result cell holds ' + fmt(m.signed(m.tape[A.OUT])) + '.',
+    onEnd: (m) => L.done(3, 'Two passes over four pieces, ' + fmt(m.steps) + ' steps. Result: ' + fmt(m.signed(m.tape[A.OUT])) + '.') });
+  const run = (sc) => { const init = {}; sc.forEach((s, t) => { init[A.score(t)] = s; init[A.value(t)] = vals[t] >>> 0; }); return { init, r: core.run(A.code, { init, size: A.size }) }; };
+  let touched = false;
+  function refresh() {
+    const sc = S.map(num), j = ref.attention(sc, vals), { init, r } = run(sc);
+    const bw = [0, 1, 2, 3].map((t) => r.tape[A.weight(t)]), got = r.machine.signed(r.tape[A.OUT]);
+    OUT.forEach((o, t) => {
+      o.so.textContent = 'score ' + sc[t] + (sc[t] === j.best ? ' (best)' : ' (' + (j.best - sc[t]) + ' behind)');
+      o.w.textContent = bw[t]; o.bar.style.width = (100 * bw[t]) / 15 + '%';
+    });
+    $('js').textContent = fmt(j.out); $('bf').textContent = fmt(got) + (got === j.out ? ' ✓' : ' ✗');
+    $('say').textContent = 'The counts shown are read from the tape of the brainfuck program (' + fmt(r.steps) + ' steps). ✓ = it agrees with the arithmetic.';
+    mach.set({ init });
+    if (!touched) return;
+    if (bw.join() === '0,0,15,0') L.done(1, 'Only " France" is heard, so the result is what it says: ' + fmt(got) + '.');
+    else if (!L.isDone(1)) L.note(1, bw[2] !== 15 ? '" France" must have the best score.' : 'The counts are ' + bw.join(', ') + '. Push the other three further behind.');
+  }
+  for (const s of S) s.addEventListener('input', () => { touched = true; refresh(); });
+  refresh();
+
+  // ---- 2. the table
+  const hist = $('hist');
+  ref.expTable.forEach((w, e) => { if (e < 26) { const d = el('div'); d.style.height = (100 * w) / 15 + '%'; hist.append(d); } });
+  let gTouched = false;
+  function gap() {
+    const g = num($('gap')), entry = Math.floor(g / 8), { r } = run([200 - g, 0, 200, 0]), w = r.tape[A.weight(0)];
+    $('gapo').textContent = g;
+    [...hist.children].forEach((d, e) => d.classList.toggle('used', e === entry));
+    $('gsay').textContent = g + ' points behind: ' + g + ' ÷ 8, rounded down, is entry ' + entry + ' of the list, and that entry holds ' + w + '. (Count read from the brainfuck tape.)';
+    if (!gTouched) return;
+    if (g === 160) L.done(2, '160 points behind is the first distance with count 0. At 159 the count is still 1.');
+    else if (!L.isDone(2)) L.note(2, w === 0 ? 'Count 0, but a smaller distance also gives 0. Go down.' : 'Count ' + w + '. Go further behind.');
+  }
+  const nudge = (d) => { $('gap').value = Math.max(0, Math.min(200, num($('gap')) + d)); gTouched = true; gap(); };
+  $('gap').addEventListener('input', () => { gTouched = true; gap(); });
+  $('gm').addEventListener('click', () => nudge(-1)); $('gp').addEventListener('click', () => nudge(1));
+  gap();
+});
+</script>
+</body>
+</html>

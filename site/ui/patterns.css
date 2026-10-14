@@ -1,0 +1,100 @@
+/* The Code patterns (patterns/). */
+
+/* ---- 1. the figure ---- */
+main.patterns .fig .tape.joined.wrap { flex-wrap: wrap; row-gap: var(--s3); --cell-h: 2.75rem; }
+main.patterns .fig .tape.joined.wrap > .cell { flex: 0 0 var(--cw, 4.6rem); min-width: 0; max-width: none; }
+main.patterns .fig .tape.joined.wrap > .cell > b { overflow: hidden; font-size: var(--fs-ui); }
+main.patterns .fig .prog.bf { max-height: 9.5em; overflow-y: auto; padding: var(--s1) 0; font-size: var(--fs-ui); letter-spacing: 1px; word-break: break-all; }
+main.patterns .fig .prog .lp { border-bottom: calc(3 * var(--edge)) solid var(--ink); padding-bottom: 1px; }   /* the loop the next command is in */
+main.patterns .fig .printed > output { font-size: var(--fs-h3); }
+main.patterns .fig .printed > output.in span.now { background: var(--ink); color: var(--bg); }
+main.patterns .printed[hidden] { display: none; }
+main.patterns .fig .tell { min-height: 4.5em; }
+main.patterns .fig .ctl > label { min-width: 0; }
+main.patterns .fig .ctl > label:has(> select) { flex-wrap: wrap; }
+main.patterns .fig .ctl > label:has(> select) > span { flex: 1 1 100%; }
+main.patterns .fig .ctl > label > select { flex: 1 1 12rem; min-width: 0; max-width: 100%; }
+
+/* ---- 2. the values ---- */
+main.patterns .ctl.vals > label.stacked { flex: 1 1 12rem; }
+main.patterns .ctl.vals > label.stacked.wide { flex: 1 1 100%; }
+main.patterns .ctl.vals label.stacked > input.wide { width: 100%; max-width: none; }
+main.patterns .ctl.vals label.stacked > small { color: var(--muted); font: var(--fs-small)/1.4 var(--sans); letter-spacing: 0; text-transform: none; }
+
+/* ---- 3. the code to copy ---- */
+main.patterns .code { margin: var(--s4) 0 var(--s5); max-width: 46rem; }
+main.patterns .code > pre.listing { margin: 0; max-height: 12em; }
+main.patterns .code > .ctl { margin-top: var(--s2); }
+main.patterns .code .count { color: var(--muted); font: var(--ctl); font-variant-numeric: tabular-nums; }
+main.patterns section > h3 + ul { margin-top: var(--s2); }
+main.patterns section > h3 { margin-top: var(--s5); }
+main.patterns section > h3 .badge { margin-right: var(--s2); vertical-align: .1em; }
+main.patterns .variation + .variation { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
+main.patterns .variation > h3 { margin-top: 0; }
+main.patterns .variation details.fold { margin: var(--s3) 0 0; }
+main.patterns .variation details.fold > .a > figure.fig { margin: 0; padding: var(--s2) 0 0; }
+main.patterns details.fold > .a > .callout { margin-top: var(--s3); }
+
+/* ---- 4. cost ---- */
+main.patterns .bars { grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) auto; margin: var(--s3) 0 var(--s2); }
+main.patterns .bars > span:not(.lab) { text-align: right; white-space: nowrap; }
+main.patterns .scroll { margin: var(--s3) 0 var(--s4); max-width: none; }
+main.patterns .scroll table { margin: 0; min-width: 30rem; }
+main.patterns td:nth-child(2) { overflow-wrap: anywhere; }
+main.patterns details.fold > .a > .scroll { margin-top: var(--s3); }
+main.patterns details.fold > .a > figure { margin: var(--s3) 0; }
+
+/* ---- 5. the front page ---- */
+main.patterns .finder { margin: var(--s4) 0 var(--s3); max-width: 46rem; }
+main.patterns .finder label { max-width: none; }
+main.patterns .finder p { margin: var(--s2) 0 0; }
+main.patterns .grp h2 { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2); }
+main.patterns .grp h2 .label { margin: 0; }
+main.patterns .plist { max-width: none; }
+main.patterns .plist a { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 2px var(--s4); }
+main.patterns .plist a > b { grid-row: 1 / span 3; }
+main.patterns .plist a > code, main.patterns .plist a > .mt { grid-column: 2; }
+main.patterns .plist a > code { word-break: break-all; }
+main.patterns ul.legend { max-width: none; }
+main.patterns .sw.rd, main.patterns .sw.ch, main.patterns .sw.here { border: var(--edge) solid var(--rule); background-color: var(--panel); }
+main.patterns .sw.rd { border-top: calc(4 * var(--edge)) solid var(--ink); }
+main.patterns .sw.ch { border-color: var(--ink); background-color: var(--loud); }
+main.patterns .sw.here { border: calc(2 * var(--edge)) solid var(--ink); background-color: var(--hot); }
+
+main.patterns .mt { display: grid; gap: var(--s1); justify-items: start; margin-top: var(--s1); min-width: 0; max-width: 100%; overflow: hidden; }
+main.patterns .mt-r { display: flex; align-items: center; }
+main.patterns .mt-k { flex: none; width: 3.6rem; }
+main.patterns .mt .tape { margin: 0; }
+main.patterns .mt .tape > .cell { flex: 0 0 auto; min-width: 1.7em; max-width: none; }
+main.patterns .mt .tape > .cell > b { height: auto; padding: var(--s1); }
+main.patterns .mt .tape > .cell.rd > b { border-top: calc(4 * var(--edge)) solid var(--ink); }
+main.patterns .mt .tape > .cell.ch > b { border-color: var(--ink); background-color: var(--loud); color: var(--on-loud); font-weight: 700; }
+main.patterns .mt-g { align-self: center; padding: 0 var(--s1); }
+main.patterns dl.glossary { max-width: var(--measure); }
+
+/* ---- 6. what costs what ---- */
+main.patterns [data-cost="flat"] label { max-width: none; }
+main.patterns .flat-ops { max-width: none; }
+main.patterns .flat-ops li.fold { background-color: var(--hot); }                       /* a loop that was folded into one step */
+main.patterns .flat-ops li.real > span { color: var(--ink); font-weight: 600; }         /* a loop that still goes round */
+main.patterns table.ct td.n { min-width: 7.5rem; }
+main.patterns table.ct .bars { display: block; margin: var(--s1) 0 0; }
+main.patterns table.ct tbody th a { display: inline-flex; align-items: center; min-height: var(--target); }
+
+/* ---- narrower ---- */
+@media (max-width: 38.75em) {
+  main.patterns .plist a { grid-template-columns: minmax(0, 1fr); }
+  main.patterns .plist a > b { grid-row: auto; }
+  main.patterns .plist a > code, main.patterns .plist a > .mt { grid-column: 1; }
+  main.patterns .bars { grid-template-columns: minmax(0, 1fr) auto; }
+  main.patterns .bars > .lab { grid-column: 1 / -1; }
+  main.patterns table.ct th:nth-child(2), main.patterns table.ct td:nth-child(2) { display: none; }
+  main.patterns table.ct td.n { min-width: 4.6rem; }
+  main.patterns .fig .tell { min-height: 6em; }
+  /* a long tape is one row that scrolls sideways, so the pointer and the buttons fit on one screen */
+  main.patterns .fig .tape.joined.wrap:has(> .cell:nth-child(13)) { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; overscroll-behavior-x: contain; scrollbar-width: thin; }
+}
+@media print {
+  main.patterns .finder, main.patterns .code > .ctl { display: none; }
+  main.patterns .plist li { break-inside: avoid; }
+}

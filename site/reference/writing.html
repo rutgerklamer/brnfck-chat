@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, writing programs</title>
+<meta name="description" content="How real brainfuck programs get written: planning the tape, the common idioms (clear, move, copy, multiply, if), comments and debugging, and the macro systems and compilers that generate brainfuck.">
+<meta property="og:title" content="Writing real brainfuck programs">
+<meta property="og:description" content="How real brainfuck programs get written: planning the tape, the common idioms (clear, move, copy, multiply, if), comments and debugging, and the macro systems and compilers that generate brainfuck.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Writing programs</span></p>
+    <h1>Writing real programs</h1>
+    <p class="lead">Nobody writes a large brainfuck program by typing plus signs and hoping. People who write them by hand first draw a map of the tape, then put the program together from a small set of well-known pieces <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. People who want something larger write a program in another language that writes the brainfuck: with macros, or with a compiler from BASIC or C <a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#cells">Think in cells</a></li>
+          <li><a href="#idioms">The idioms</a></li>
+          <li><a href="#source">Laying out the source</a></li>
+          <li><a href="#debug">Finding mistakes</a></li>
+          <li><a href="#generate">Letting a program write the program</a></li>
+          <li><a href="#speed">Writing for speed</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="cells" aria-labelledby="cells-h">
+    <h2 id="cells-h">Think in cells</h2>
+    <p>Other languages let you name things. Brainfuck has only places. So the first step of any program is to decide what lives where, and to write that down. Daniel Cristofani, who has written more well-known brainfuck by hand than anyone we know of, makes such maps of memory for his own programs and for other people's, and advises readers to follow "the way the data moves and changes over time"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
+    <p>Here is the map for a program that reads a line and prints it backwards. Cell 0 stays 0 on purpose, so that a loop walking left knows where to stop:</p>
+
+    <figure class="fig col" id="fig-map" aria-label="A map of five cells: cell 0 stays 0, cells 1 to 3 hold the saved characters, cell 4 is free">
+      <div class="tape joined" id="fig-map-tape" role="list" aria-label="A map of five cells"></div>
+    </figure>
+    <p>Three habits make maps work:</p>
+    <ul>
+      <li><b>Say where the pointer is.</b> For every piece of program, write down where the pointer is before and after. Most mistakes are a pointer one cell off.</li>
+      <li><b>Leave gaps.</b> Many pieces need a spare cell next to the data. Programs that handle lists often give every item two or three cells: the value and some room to work.</li>
+      <li><b>Use zeros as fences.</b> A cell that is always 0 stops a loop such as <span class="bf">[&lt;]</span>. A row of data between two zeros can be walked from either end.</li>
+    </ul>
+    <p>The program below is the one that the map is for: it reads characters into cells 1, 2, 3 and so on until a new line comes, then walks back to the left and prints each cell. Type another word (up to eight letters; the new line at the end is added for you) and press <em>Play</em>:</p>
+
+    <figure class="fig col" id="fig-rev" aria-label="A program that reads a word and prints it backwards"></figure>
+    <p>The program has two loops. The first reads a character and takes 10 off. If the result is 0, the character was a new line and the loop ends. If not, it puts the 10 back, moves right and reads the next one. The second loop, <span class="bf">[.&lt;]</span>, prints and steps left until it meets the 0 in cell 0. The fence was planned in the map before any command was written. (The program expects a new line at the end of its input: see <a href="portability.html#eof">the end of the input</a>.)</p>
+  </section>
+
+  <section id="idioms" aria-labelledby="idioms-h">
+    <h2 id="idioms-h">The idioms</h2>
+    <p>A few short pieces of program come back everywhere. Learn to read these six and most brainfuck stops looking like noise. <a href="#tab-idioms">The table</a> lists them. The <a href="../patterns/">patterns</a> section has each one as a page you can run: <a href="../patterns/clear.html">Set a cell to zero</a>, <a href="../patterns/move.html">Move a value</a>, <a href="../patterns/copy.html">Copy a value</a>, <a href="../patterns/mul-const.html">Multiply by a constant</a>, <a href="../patterns/if-nonzero.html">If non-zero</a> and <a href="../patterns/scan.html">Find a zero cell or a marker</a>. The Esolang wiki keeps a longer cookbook, which also says for each recipe whether it needs cells that wrap&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="Six idioms; scrolls sideways on a narrow screen">
+    <table id="tab-idioms" class="cmp">
+      <caption>Six idioms. In each, the pointer starts and ends on the same cell, called x here; y and t are the next two cells to the right.</caption>
+      <thead><tr><th scope="col">Name</th><th scope="col">Program</th><th scope="col">What it does</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Clear</th><td><span class="bf">[-]</span></td><td>Makes x zero, whatever it was</td></tr>
+        <tr><th scope="row">Move</th><td><span class="bf">[-&gt;+&lt;]</span></td><td>Adds x to y and leaves x empty</td></tr>
+        <tr><th scope="row">Copy</th><td><span class="bf">[-&gt;+&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;&lt;</span></td><td>Adds x to y and keeps x: it moves x to both y and t, then moves t back</td></tr>
+        <tr><th scope="row">Multiply</th><td><span class="bf">[-&gt;+++&lt;]</span></td><td>Adds three times x to y and leaves x empty</td></tr>
+        <tr><th scope="row">If</th><td><span class="bf">[ ... [-]]</span></td><td>Runs the part at the dots once if x is not zero. The part must come back to x</td></tr>
+        <tr><th scope="row">Find a zero</th><td><span class="bf">[&gt;]</span></td><td>Moves right to the first cell that holds zero. This one does not end where it began</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The program below copies cell 0 into cell 1, with cell 2 as a spare. Press <em>Play</em>, or drag <em>Step</em> to watch cell 2 fill up and empty again. Change the start value:</p>
+
+    <figure class="fig col" id="fig-copy" aria-label="A program that copies a number to the next cell and keeps the original"></figure>
+    <p>The only way to read a number is to count it down in a loop, and that destroys it. So copying takes two moves: one loop moves the number to two places at once, a second loop moves one of those back. Every idiom that "keeps" a value pays for it with a spare cell and a second loop.</p>
+    <h3>Numbers</h3>
+    <p>A number is made by adding. For 65 you could write sixty-five <code>+</code>, but eight times eight plus one is 23 commands. Programs that print text spend most of their length on this, and finding the shortest way to make each number is a sport of its own: the Esolang wiki has a table of the shortest known program for every number from 0 to 255&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. Many of the entries go below zero on purpose and need cells that wrap.</p>
+    <h3>Comparing and dividing</h3>
+    <p>There is no "less than" and no division. Both are built from the <a href="#tab-idioms">idioms in the table above</a>: count two numbers down together and see which reaches zero first; subtract again and again and count how often. The standard recipes are in the cookbook&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> and in the patterns <a href="../patterns/compare-less.html">Less than</a> and <a href="../patterns/divmod.html">Divide, with remainder</a>. They are the point where hand-written brainfuck gets hard, and where most people start to want a tool.</p>
+  </section>
+
+  <section id="source" aria-labelledby="source-h">
+    <h2 id="source-h">Laying out the source</h2>
+    <p>Because every other character is ignored, a program can carry its own explanation. Good hand-written programs use this heavily: one idea per line, the map of the tape in a comment at the top, and after each piece a note saying where the pointer is. Linus Åkesson, who wrote a Game of Life by hand, says he could do it only by using plenty of comments and white space&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>The traps are the ones from <a href="language.html#program">What a program is</a>: punctuation in a comment is carried out, and a bracket in a comment can break the pairing. Either keep those characters out of comments, or put a long comment inside a loop that cannot run.</p>
+    <p>For publishing, many authors strip a program to its commands and wrap the lines. That is why famous programs look like walls of symbols. They were not written that way.</p>
+  </section>
+
+  <section id="debug" aria-labelledby="debug-h">
+    <h2 id="debug-h">Finding mistakes</h2>
+    <ul>
+      <li><b>Step through it.</b> Run the program one command at a time and watch the tape. The <a href="../playground/">playground</a> does this.</li>
+      <li><b>Print the tape.</b> Müller's own interpreter of 1993 had a ninth command for this: a <code>#</code> in the program prints the first ten cells&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. Some implementations still have it&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>.</li>
+      <li><b>Test one piece at a time</b>, with the cells it needs set by hand.</li>
+      <li><b>Use a strict interpreter.</b> One that stops when the pointer leaves the tape, or when a cell goes below zero, finds mistakes that a forgiving one hides. brainfuck.org offers one that was made for contests and is described there as restrictive&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>.</li>
+    </ul>
+  </section>
+
+  <section id="generate" aria-labelledby="generate-h">
+    <h2 id="generate-h">Letting a program write the program</h2>
+    <p>Beyond a few thousand commands, most brainfuck is generated. The author writes in something more comfortable, and a tool turns that into the eight commands. There are four ways, in <a href="#tab-ways">the table below</a>.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="Four ways to generate brainfuck, with examples; scrolls sideways on a narrow screen">
+    <table id="tab-ways" class="cmp">
+      <caption>Four ways to generate brainfuck, with examples. The Esolang wiki lists many more&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</caption>
+      <thead><tr><th scope="col">Way</th><th scope="col">What you write</th><th scope="col">Examples</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Macros</th><td>Brainfuck with names: "add a to b", "while x". Each name expands to a fixed piece of brainfuck</td><td>Erik Bosman's Mandelbrot viewer, built from a set of macro files&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>. The Esolang wiki says they were expanded with the C preprocessor&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></td></tr>
+        <tr><th scope="row">A compiler from a small language</th><td>A simple language with variables and loops, designed to be turned into brainfuck</td><td>BFBASIC by Jeffry Johnston (2003), from a kind of BASIC&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. A recent ray tracer was written in a small language of its author's own&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a></td></tr>
+        <tr><th scope="row">A compiler from a real language</th><td>Ordinary C</td><td>C2BF by Gregor Richards, unfinished&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. ELVM by shinh, which compiles C to a simple intermediate form and from there to brainfuck&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a></td></tr>
+        <tr><th scope="row">A generator for one job</th><td>A program in any language that prints the brainfuck for one specific task</td><td>The chat models of this site: a JavaScript program wrote them&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. lobotoml, which compiles a small neural network&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>How does C fit on a tape? C2BF's description gives the idea: the tape is cut into equal chunks of five cells, some cells of each chunk belong to a stack and some to a heap, and a function call becomes a round of one big loop that picks the next block to run&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. Programs made this way are long and slow, and they work. With ELVM, the C compiler itself has been compiled to brainfuck&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</p>
+    <p>One more kind of tool searches. The shortest known "Hello, World!" was found by a program that tried out short brainfuck programs systematically&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>.</p>
+    <aside class="sidenote"><b>Is generated brainfuck still brainfuck?</b> The program that runs is the same eight commands either way. What changes is who did the typing. Authors usually say which it was, and so do we: see <a href="programs.html">Notable programs</a>.</aside>
+  </section>
+
+  <section id="speed" aria-labelledby="speed-h">
+    <h2 id="speed-h">Writing for speed</h2>
+    <p>A fast implementation does not carry out commands one by one. It recognises common shapes, above all the loops among the <a href="#tab-idioms">idioms</a>, and does each in one operation&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a>. So a program is fast when its heavy work has those shapes:</p>
+    <ul>
+      <li><b>Loops that end where they begin.</b> A loop whose body moves the pointer and brings it back, and takes exactly one off the starting cell each round, is a multiplication. It costs one step however large the number is.</li>
+      <li><b>No loops inside the hot loop.</b> A loop that holds another loop cannot be merged in this way.</li>
+      <li><b>Short walks.</b> Keep data that is used together close together.</li>
+    </ul>
+    <p>The chat programs of this site were designed around this. Their arithmetic is built so that the expensive part consists of loops of the simple shape; that is what brought one division from more than a million steps to about a hundred <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. How implementations do the merging is on the page <a href="implementations.html">Implementations</a>.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>This is an overview. The exact programs for comparing, dividing and printing numbers are in the patterns <a href="../patterns/compare-less.html">Less than</a>, <a href="../patterns/divmod.html">Divide, with remainder</a> and <a href="../patterns/print-number.html">Print a number in decimal</a>, and in the cookbook we cite.</li>
+      <li>We did not run the tools in the <a href="#tab-ways">table of four ways</a> ourselves, except this site's own generator. What they do is taken from their authors' descriptions.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="../patterns/"><b>Patterns</b><span>Every idiom on this page and many more, each explained and runnable.</span></a></li>
+      <li><a href="../playground/"><b>The playground</b><span>Write, run and step through your own programs.</span></a></li>
+      <li><a href="programs.html"><b>Notable programs and feats</b><span>What these methods have produced.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Daniel B Cristofani, "get good at brainfuck"</b>: <a href="https://brainfuck.org/ggab.html">the series on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Esolang wiki, "Brainfuck algorithms"</b>: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">the wiki's collection of algorithms</a>. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Esolang wiki, "Brainfuck code generation"</b>: <a href="https://esolangs.org/wiki/Brainfuck_code_generation">the wiki's list of tools that write brainfuck</a>. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Esolang wiki, "Brainfuck constants"</b>: <a href="https://esolangs.org/wiki/Brainfuck_constants">the wiki's table of constants</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Linus Åkesson, "Game of Life in Brainfuck"</b>: <a href="https://www.linusakesson.net/programming/brainfuck/index.php">the page on linusakesson.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Daniel B Cristofani, "The Epistle to the Implementors"</b>: <a href="https://brainfuck.org/epistle.html">the epistle on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Erik Bosman, Mandelbrot set viewer</b>, files dated 1 June 2003, in the Brainfuck Archive: <a href="http://esoteric.sange.fi/brainfuck/utils/mandelbrot/">the mandelbrot directory</a> with its <code>README.txt</code>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Esolang wiki, "BFBASIC"</b>: <a href="https://esolangs.org/wiki/BFBASIC">the wiki article on BFBASIC</a>. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>"Writing a ray tracer in Brainfuck"</b>, 24 September 2026: <a href="https://epestr.com/blog/writing-a-ray-tracer-in-brainfuck/">the article on epestr.com</a>. All figures are the author's own. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>Esolang wiki, "C2BF"</b>: <a href="https://esolangs.org/wiki/C2BF">the wiki article on C2BF</a>. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>shinh, <i>ELVM Compiler Infrastructure</i></b>, README: <a href="https://github.com/shinh/elvm">shinh/elvm on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>This site's own project.</b> Counts and measurements are on <a href="../how/#numbers">How it works: the numbers</a> and <a href="../how/#real">How do I know it is real?</a>; the earlier work we know of is under <a href="../how/#prior">Has this been done before?</a>. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>Ad1th, <i>lobotoml</i></b>: <a href="https://github.com/Ad1th/lobotoml">Ad1th/lobotoml on GitHub</a>. All figures are from its README. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Code Golf Stack Exchange, answers to the "Hello, World!" challenge</b>: <a href="https://codegolf.stackexchange.com/a/163590">the answer by KSab</a> (27 April 2018, 72 bytes) and <a href="https://codegolf.stackexchange.com/a/68494">the answer by primo</a> (3 January 2016, 78 bytes). Read through the Stack Exchange API. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html" aria-current="page"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>6</b> of 13</p>
+    <a class="prev" href="theory.html" rel="prev"><span>Previous</span>Theory</a>
+    <a class="next" href="programs.html" rel="next"><span>Next</span>Notable programs</a>
+  </nav>
+</main>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ref.js?v=r7"></script>
+<script>
+(function () {
+  var A = Article, $ = function (id) { return document.getElementById(id); };
+
+  // the map of the tape
+  A.drawTape($('fig-map-tape'), ['0', 's', 't', 'r', 'next'], 4, { top: function (i) { return ['stays 0', 'saved', 'saved', 'saved', 'free'][i]; } });
+
+  // reverse a word
+  var f = Ref.field('The word', 'stressed', function () { rv.reload(); }); f.input.maxLength = 8;
+  var rv = Ref.runner($('fig-rev'), { printed: true, input: true, rate: 30,
+    build: function () { return { code: '>,----------[++++++++++>,----------]<[.<]', size: 10, cells: 10, input: RefRun.bytes(f.get().replace(/\\n/g, '')).concat([10]),
+      end: function (m) { return m.error ? 'Stopped: the pointer went off the ' + m.error + ' end of the tape.' : 'Finished. It printed “' + RefRun.show(m.out) + '”.'; } }; } });
+  Ref.addControl($('fig-rev'), f);
+
+  // copy
+  A.machine($('fig-copy'), { code: '{a}[->+>+<<]>>[-<<+>>]<<', cells: 4, labels: ['x', 'y', 't'], rate: 8,
+    sliders: [{ name: 'x starts at', min: 0, max: 9, value: 3, id: 'a', repeat: '+' }],
+    end: function (m, v) { return 'Finished. x holds ' + m.tape[0] + ', y holds ' + m.tape[1] + ', and the spare cell t is ' + m.tape[2] + ' again.'; } });
+})();
+</script>
+</body>
+</html>

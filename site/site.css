@@ -1,0 +1,658 @@
+/* The styles every page shares: tokens, the bar and the footer, and the parts of a page. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+
+:root {
+  color-scheme: light;
+  /* paper and ink: the interface has no colour of its own */
+  --bg: #f5f3ec; --panel: #fffefa; --sunk: #eae7dd; --hot: #e2ded1;
+  --ink: #111; --ink-2: #33312c; --muted: #57544d; --mine: #57544d;
+  --line: #cdc9bc; --rule: #6c6961; --shade: rgba(17, 17, 17, .14);
+  --accent: #111; --on-accent: #fff; --loud: #e2ded1; --on-loud: #111;
+  /* meaning: code, and "this is right" */
+  --code: #0a6b50; --good: #0a6b50; --goodbg: #e4efe9;
+  /* data: series colours, colour-blind-safe order; all at least 4.5:1 on --bg */
+  --d1: #1f6aa5; --d2: #b8500f; --d3: #1c7c66; --d4: #a04a86; --d5: #8a6a00; --d6: #6a6a6a;
+  --c-plus: #e69f00; --c-minus: #3d9bd6; --c-lt: #9aa3b2; --c-gt: #9aa3b2;
+  --c-open: #cc79a7; --c-close: #cc79a7; --c-in: #00b384; --c-out: #e8601c;
+  --t-plus: #8a5a00; --t-minus: #0b5c9a; --t-mv: #55534e; --t-br: #9c2c66; --t-in: #0a6b50; --t-out: #a83c00;
+  --on-data: #111;
+  --night: #0d0e10; --night-ink: #f4f3ee; --night-muted: #a9a79f; --night-line: #3b3c40;
+  --pink: #cc79a7; --yellow: #e69f00; --chip: #0d0e10;
+  --go: #f2b01e; --on-go: #111; --drop-c: #111;
+  --sec: var(--c-in);                        /* site.js sets it on <html> to the colour of the current part */
+  --radius: 0; --edge: 2px; --edge-strong: 2px; --drop: 5px 5px 0 var(--drop-c); --ease: .12s ease;
+  --ring: 3px;                               /* the width of the focus ring */
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  --serif: var(--sans); --display: var(--mono);
+  /* type scale: rem, so it follows the reader's own font size */
+  --fs-body: 1.0625rem; --lh: 1.65;
+  --fs-h1: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem); --fs-h2: 1.375rem; --fs-h3: 1.0625rem;
+  --fs-ui: .875rem; --fs-caption: .875rem; --fs-small: .875rem; --fs-control: max(1rem, 16px);
+  --lab: 600 .75rem/1.4 var(--mono);      /* a small label, as on an instrument: used with uppercase and .08em */
+  --kick: 600 .75rem/1.5 var(--mono);
+  --ctl: 600 .875rem/1.2 var(--mono);      /* the type on a control */
+  --ls-lab: .08em; --ls-kick: .06em;        /* the letter-spacing that goes with --lab and with --kick */
+  --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem; --s5: 1.5rem;
+  --s6: clamp(2rem, 1.6rem + 1.6vw, 2.5rem); --s7: clamp(2.75rem, 2rem + 3vw, 4rem);
+  /* layout */
+  --measure: 40rem; --page: 68rem; --wide: 68rem; --gutter: 1rem; --target: 2.75rem;
+  --pad: 1rem;                               /* the inside of a frame, a card, a tile */
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121316; --panel: #1b1c20; --sunk: #25272c; --hot: #30333a;
+  --ink: #f4f3ee; --ink-2: #dddbd3; --muted: #aeaca4; --mine: #aeaca4;
+  --line: #3a3c42; --rule: #8d8b83; --shade: rgba(0, 0, 0, .5);
+  --accent: #f4f3ee; --on-accent: #111; --loud: #30333a; --on-loud: #f4f3ee;
+  --code: #58d3ae; --good: #58d3ae; --goodbg: #14362c;
+  --d1: #6db7e8; --d2: #ff8a4c; --d3: #58d3ae; --d4: #e39cc4; --d5: #f0b429; --d6: #aeaca4;
+  --t-plus: #f0b429; --t-minus: #6db7e8; --t-mv: #b3b9c6; --t-br: #e39cc4; --t-in: #3fd0a6; --t-out: #ff8a4c;
+  /* the dark band stays a band: blacker than the page, and it gets an edge */
+  --night: #000; --night-line: #4a4c52;
+  --drop-c: #000;
+}
+@media (min-width: 64em) { :root { --gutter: 1.5rem; } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+/* no wait after a tap: double-tap zoom is off on things you press (pinch zoom still works) */
+:where(a, button, input, select, textarea, summary, label, [role="button"]) { touch-action: manipulation; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--top-h, 0px) + var(--s4)); }   /* the bar sticks: a link to #something lands under it */
+body { margin: 0; background: var(--bg); color: var(--ink); font: var(--fs-body)/var(--lh) var(--serif); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--go); color: var(--on-go); }
+:where(a) { color: var(--accent); }   /* :where keeps it weak, so any component can set its own link colour */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ---- skip link (site.js puts it first in the body) ---- */
+a.skip { position: absolute; left: 8px; top: -80px; z-index: 100; padding: 12px 16px; background: var(--ink); color: var(--bg); font: 600 .9375rem/1.3 var(--sans); border-radius: var(--radius); }
+a.skip:focus { top: 8px; outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+/* the focus ring, everywhere: an ink line around the thing, never a glow */
+:where(:focus-visible) { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+main[tabindex="-1"]:focus { outline: none; }
+
+:where(.mark) { display: inline-flex; align-items: center; gap: .15em; padding: .32em .5em .3em; background: var(--chip); color: var(--yellow); font: 700 .9375rem/1 var(--mono); letter-spacing: 0; white-space: nowrap; }
+:where(.mark) :where(i) { color: var(--pink); font-style: normal; }
+:root[data-theme="dark"] :where(.mark) { outline: 1px solid var(--night-line); }
+
+.top { position: sticky; top: 0; z-index: 40; border-bottom: var(--edge) solid var(--ink); background: var(--bg); font: var(--ctl); padding-top: env(safe-area-inset-top, 0px); }
+.top .in, .foot .in { max-width: var(--wide); margin: 0 auto; padding: 0 max(var(--gutter), env(safe-area-inset-right, 0px)) 0 max(var(--gutter), env(safe-area-inset-left, 0px)); }
+.top .in { display: flex; align-items: center; gap: var(--s3); min-height: 3.5rem; }
+.top .brand { display: inline-flex; align-items: center; gap: .6em; min-height: var(--target); margin-right: auto; color: var(--ink); font: 700 1rem/1 var(--mono); letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
+.top nav ul { list-style: none; display: flex; gap: 2px; margin: 0; padding: 0; }
+.top nav li { margin: 0; }
+.top nav a { display: flex; align-items: center; gap: .5em; min-height: var(--target); padding: 0 .7em; border: var(--edge) solid transparent; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.top nav a > i { color: var(--c); font: 700 1em/1 var(--mono); font-style: normal; }
+.top nav a > span { display: none; }                       /* what you do there: shown in the open menu */
+.top nav a:hover { border-color: var(--ink); }
+.top nav a[aria-current] { background: var(--ink); color: var(--bg); }
+:root[data-theme="dark"] .top nav a[aria-current] > i { color: inherit; }     /* the block is light there: the glyph is ink on it */
+.top button { display: inline-flex; align-items: center; justify-content: center; gap: .5em; min-height: var(--target); min-width: var(--target); padding: 0 .7em; border: var(--edge) solid var(--ink); border-radius: 0; background: var(--panel); color: var(--ink); font: var(--ctl); cursor: pointer; }
+.top button:hover { background: var(--hot); }
+.top .menu { display: none; }
+.top .theme::before { content: ""; width: .8em; height: .8em; border: 2px solid currentColor; border-radius: 50%; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+/* the row of a part: its name in its colour, then its pages */
+.top .sub { border-top: 1px solid var(--line); }
+.top .sub .in { min-height: var(--target); overflow-x: auto; scrollbar-width: none; }
+.top .sub .lab { flex: 0 0 auto; padding: .2em .5em; background: var(--sec); color: var(--on-data); font: var(--lab); font-size: .75rem; letter-spacing: var(--ls-lab); text-transform: uppercase; }
+.top .sub nav a { min-height: var(--target); color: var(--muted); font-weight: 500; }
+.top .sub nav a[aria-current] { background: none; color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+/* the page strip (site.js): the parts of a long page to scale, filled as far as you have read */
+.pagebar { border-top: 1px solid var(--line); }
+.pagebar .in { min-height: 0; gap: var(--s3); padding-top: 1px; padding-bottom: 1px; }
+.pagebar .now { flex: 0 1 18rem; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font: 500 .75rem/1.2 var(--mono); }
+.pagebar .now b { margin-right: .4em; color: var(--ink); }
+.pagebar ol { list-style: none; display: flex; flex: 1 1 auto; gap: 2px; margin: 0; padding: 0; }
+.pagebar li { --f: 0; flex: 1 1 0; min-width: 3px; margin: 0; }
+.pagebar a { display: block; position: relative; height: 22px; background: linear-gradient(var(--sunk), var(--sunk)) center / 100% 10px no-repeat; outline-offset: -2px; }
+.pagebar a::before { content: ""; position: absolute; inset: 6px 0; background: var(--sec); transform: scaleX(var(--f)); transform-origin: left; }
+.pagebar a:hover { background-image: linear-gradient(var(--hot), var(--hot)); }
+.pagebar a[aria-current]::after { content: ""; position: absolute; inset: 2px 0; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.top.open .pagebar { display: none; }
+
+/* a phone: the entries are behind Menu, and there each one says what you do there */
+@media (max-width: 61.99em) {
+  .top .menu { display: inline-flex; }
+  .top nav.main { display: none; }
+  .top.open nav.main { display: block; position: absolute; left: 0; right: 0; top: 100%; max-height: calc(100vh - 3.5rem); max-height: calc(100dvh - 3.5rem); overflow-y: auto; border-bottom: var(--edge) solid var(--ink); background: var(--bg); box-shadow: 0 12px 0 var(--shade); }
+  .top.open nav.main ul { display: block; }
+  .top.open nav.main li + li { border-top: 1px solid var(--line); }
+  .top.open nav.main a { display: grid; grid-template-columns: 2.75rem minmax(0, 1fr); gap: 0 var(--s3); align-items: center; padding: var(--s3) var(--gutter); border: 0; border-left: 8px solid var(--c); white-space: normal; font-size: 1rem; }
+  .top.open nav.main a > i { grid-row: span 2; display: grid; place-items: center; height: 2.75rem; border: var(--edge) solid var(--ink); background: var(--c); color: var(--on-data); font-size: 1.125rem; }
+  .top.open nav.main a > span { display: block; grid-column: 2; color: var(--muted); font: 400 .875rem/1.4 var(--sans); }
+  .top.open nav.main a[aria-current] > span { color: inherit; }
+  .top.open .sub { display: none; }
+}
+@media (max-width: 26em) { .top .theme b { display: none; } }
+:where(.top, .foot) :focus-visible { outline: var(--ring) solid var(--accent); outline-offset: -3px; }
+
+.foot { margin-top: var(--s7); border-top: var(--edge) solid var(--ink); color: var(--muted); font: .8125rem/1.6 var(--sans); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.foot .in { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--s5); padding-top: var(--s5); padding-bottom: var(--s6); }
+.foot p { margin: 0; grid-column: 1 / -1; max-width: 44rem; }
+.foot h2 { margin: 0 0 var(--s1); color: var(--ink); font: var(--lab); font-size: .75rem; letter-spacing: var(--ls-lab); text-transform: uppercase; }
+.foot h2 i { margin-right: .5em; color: var(--c); font: 700 1.2em/1 var(--mono); font-style: normal; }
+.foot ul { list-style: none; margin: 0; padding: 0; }
+.foot a { display: inline-flex; align-items: center; min-height: var(--target); min-width: var(--target); color: var(--ink-2); }
+
+/* ---- layout ---- */
+main:where(.doc) { display: block; max-width: var(--page); margin: 0 auto; padding: clamp(2rem, 6vh, 3.5rem) max(var(--gutter), env(safe-area-inset-right, 0px)) var(--s7) max(var(--gutter), env(safe-area-inset-left, 0px)); counter-reset: sec fig tab ex; }
+main:where(.doc.wide) { max-width: var(--wide); }
+:where(.doc) { font: var(--fs-body)/var(--lh) var(--serif); overflow-wrap: break-word; }
+:where(.doc, .doc > article, .doc > header, .doc > section, .doc > article > header, .doc > article > section, .doc section > section)
+  > :where(:not(section, article, header, figure, .full)) { max-width: var(--measure); }
+:where(.doc) :where(section, article, header, figure, div) { min-width: 0; }
+:where(.doc) :where(.two) { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5) var(--s6); }
+:where(.doc) :where(.two) > * { min-width: 0; }
+:where(.doc) :where(.scroll) { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+:where(.doc) :where(img, video) { max-width: 100%; height: auto; }
+:where(.doc) :where(svg, canvas) { max-width: 100%; }
+:where(.doc) :where(:focus-visible) { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+:where(.doc) :where([id]) { scroll-margin-top: var(--s4); }
+
+/* ---- text ---- */
+:where(.doc) :where(h1, h2, h3, h4) { font-family: var(--display); font-weight: 600; color: var(--ink); text-wrap: balance; }
+:where(.doc) :where(h1, h2, h3) { font-weight: 700; letter-spacing: -.035em; }
+:where(.doc) :where(h1) { font-size: var(--fs-h1); line-height: 1.2; margin: var(--s3) 0 var(--s3); max-width: none; }
+:where(.doc) :where(h2) { font-size: var(--fs-h2); line-height: 1.35; margin: var(--s7) 0 var(--s3); }
+:where(.doc, .doc > article, .doc > section, .doc article > section, .doc section > section) > :where(h2:not(.nonum)) { padding-top: var(--s3); border-top: var(--edge) solid var(--ink); }
+:where(.doc, .doc > article, .doc > section, .doc article > section, .doc section > section) > :where(h2)::before { content: "# "; color: var(--muted); font-weight: 400; }
+:where(.doc) :where(h3) { font-size: var(--fs-h3); line-height: 1.35; margin: var(--s5) 0 var(--s2); }
+:where(.doc) :where(h4) { font: 600 var(--fs-ui)/1.4 var(--sans); margin: var(--s4) 0 var(--s1); }
+:where(.doc) :where(p) { margin: 0 0 var(--s4); text-wrap: pretty; }
+:where(.doc) :where(ul, ol) { margin: 0 0 var(--s4); padding-left: 1.4em; }
+:where(.doc) :where(li) { margin-bottom: var(--s1); }
+:where(.doc) :where(a) { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+:where(.doc) :where(a:hover) { text-decoration-thickness: 2px; }
+:where(.doc) :where(b, strong) { font-weight: 700; }
+:where(.doc) :where(hr) { border: 0; border-top: 1px solid var(--line); margin: var(--s6) 0; }
+:where(.doc) :where(.muted) { color: var(--muted); }
+:where(.doc) :where(.small) { font-size: var(--fs-small); line-height: 1.5; }
+:where(.doc) :where(.sr-only) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---- title block ---- */
+:where(main.doc) > :where(header) { margin-bottom: 2rem; }
+:where(main.doc:not(.mapapp)) > :where(header:not(.plain))::after { content: ">  <  +  \2212   [  ]  ,  ."; display: block; max-width: 100%; margin-top: 1.75rem; padding-bottom: 1.125rem; border-bottom: 1px solid var(--line); color: var(--rule); font: 400 .9375rem/1.5 var(--mono); letter-spacing: .28em; }
+:where(.doc) :where(.kicker, .label) { font: var(--kick); text-transform: uppercase; letter-spacing: var(--ls-kick); color: var(--muted); margin: var(--s4) 0 0; }
+:where(.doc) :where(.label) { font: var(--lab); letter-spacing: var(--ls-lab); margin: 0 0 var(--s2); text-transform: uppercase; color: var(--muted); }
+:where(.doc) :where(.kicker.crumbs) { display: flex; flex-wrap: wrap; gap: 2px 0; }
+:where(.doc) :where(.kicker.crumbs) > :where(* + *)::before { content: "/"; display: inline-block; margin: 0 .75em; color: var(--rule); }
+:where(.doc) :where(.kicker.crumbs) :where(a) { color: inherit; }
+:where(.doc) :where(.lead) { font-size: 1.25rem; line-height: 1.5; color: var(--muted); margin: 0 0 var(--s5); }
+:where(.doc) :where(.abstract) { border-top: var(--edge) solid var(--ink); border-bottom: 1px solid var(--line); padding: var(--s4) 0 var(--s1); margin: 0 0 var(--s5); }
+:where(.doc) :where(.abstract) :where(h2) { padding-top: 0; border-top: 0; font: var(--kick); font-weight: 600; text-transform: uppercase; letter-spacing: var(--ls-kick); color: var(--ink); margin: 0 0 var(--s2); }
+:where(.doc) :where(.abstract) :where(p) { font-size: 1.0625rem; line-height: 1.6; }
+
+/* ---- numbering (opt-in with .numbered on .doc) ---- */
+:where(.doc.numbered) :where(h2:not(.nonum)) { counter-increment: sec; counter-reset: sub; }
+:where(.doc.numbered) :where(.abstract) :where(h2) { counter-increment: none; counter-reset: none; }
+:where(.doc.numbered) :where(h2:not(.nonum))::before { content: counter(sec) "\2002"; color: var(--accent); font-variant-numeric: tabular-nums; }
+:where(.doc.numbered) :where(.abstract) :where(h2)::before { content: none; }
+:where(.doc.numbered) :where(h3:not(.nonum)) { counter-increment: sub; }
+:where(.doc.numbered) :where(h3:not(.nonum))::before { content: counter(sec) "." counter(sub) "\2002"; color: var(--accent); font-variant-numeric: tabular-nums; }
+:where(.doc.numbered) :where(.explanation, .callout, figure, .abstract) :where(h3) { counter-increment: none; }
+:where(.doc.numbered) :where(.explanation, .callout, figure, .abstract) :where(h3)::before { content: none; }
+:where(.doc.numbered) :where(figure:not(.nonum)) { counter-increment: fig; }
+:where(.doc.numbered) :where(figure:not(.nonum)) > :where(figcaption)::before { content: "Figure " counter(fig) ".\2002"; font-weight: 700; color: var(--ink); }
+:where(.doc.numbered) :where(figure.interactive:not(.nonum)) > :where(figcaption)::before { content: "Figure " counter(fig) " (interactive).\2002"; }
+:where(.doc.numbered) :where(table:not(.nonum)) > :where(caption) { counter-increment: tab; }
+:where(.doc.numbered) :where(table:not(.nonum)) > :where(caption)::before { content: "Table " counter(tab) ".\2002"; font-weight: 700; color: var(--ink); }
+:where(.doc.numbered) :where(.exercise:not(.nonum)) { counter-increment: ex; }
+:where(.doc) :where(.exercise)::before { content: "Exercise"; }
+:where(.doc.numbered) :where(.exercise:not(.nonum))::before { content: "Exercise " counter(ex); }
+:where(.doc.numbered) :where(details.q:not(.nonum)) { counter-increment: sub; }
+:where(.doc.numbered) :where(details.q:not(.nonum)) > :where(summary)::before { content: counter(sec) "." counter(sub) "\2002"; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+/* ---- figures ---- */
+:where(.doc) :where(figure) { margin: var(--s5) 0 var(--s5); padding: var(--s4) 0 var(--s3); border-top: var(--edge) solid var(--ink); border-bottom: 1px solid var(--line); clear: both; font: var(--fs-ui)/1.5 var(--sans); }
+:where(.doc) :where(figure) > :where(:first-child) { margin-top: 0; }
+:where(.doc) :where(figure.plain) { border: 0; padding: 0; }
+:where(.doc) :where(figcaption) { margin-top: var(--s4); font: var(--fs-caption)/1.5 var(--sans); color: var(--muted); max-width: var(--measure); }
+:where(.doc) :where(figcaption) :where(b) { color: var(--ink); }
+
+/* ---- tables ---- */
+:where(.doc) :where(table) { width: 100%; border-collapse: collapse; font: var(--fs-ui)/1.45 var(--sans); font-variant-numeric: tabular-nums lining-nums; margin: 0 0 var(--s4); }
+:where(.doc) :where(caption) { caption-side: top; text-align: left; font: var(--fs-caption)/1.5 var(--sans); color: var(--muted); padding: 0 0 var(--s2); }
+:where(.doc) :where(caption) :where(b) { color: var(--ink); }
+:where(.doc) :where(th, td) { text-align: left; padding: 7px 14px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+:where(.doc) :where(th) { font-size: .8rem; font-weight: 600; color: var(--muted); }
+:where(.doc) :where(thead th, table > tr:first-child > th, table > tbody:first-child > tr:first-child > th) { border-top: var(--edge-strong) solid var(--ink); border-bottom: var(--edge) solid var(--ink); }
+:where(.doc) :where(tr:first-child > td) { border-top: var(--edge-strong) solid var(--ink); }
+:where(.doc) :where(tbody:last-child > tr:last-child > *, table > tr:last-child > *) { border-bottom: var(--edge-strong) solid var(--ink); }
+:where(.doc) :where(tbody th) { font-size: inherit; color: var(--ink); font-weight: 400; }
+:where(.doc) :where(td.n, th.n) { text-align: right; padding-right: 0; white-space: nowrap; }
+:where(.doc) :where(td.n + td.n, th.n + th.n, td + td.n, th + th.n) { padding-left: 14px; }
+:where(.doc) :where(td:last-child, th:last-child) { padding-right: 0; }
+:where(.doc) :where(tr[aria-selected="true"], tr[aria-current]) > :where(td, th) { background-color: var(--hot); color: var(--ink); font-weight: 700; }
+:where(.doc) :where(tr[aria-selected="true"], tr[aria-current]) > :where(:first-child) { background-image: linear-gradient(var(--ink), var(--ink)); background-size: 3px 100%; background-repeat: no-repeat; padding-left: var(--s2); }
+:where(.doc) :where(table.select) :where(tbody tr) { cursor: pointer; }
+:where(.doc) :where(table.select) :where(tbody tr:hover) > :where(td, th) { background-color: var(--hot); }
+
+/* ---- evidence: tags, citations, references, side notes ---- */
+:where(.doc) :where(.ev, .badge) { display: inline-block; font: var(--lab); text-transform: uppercase; letter-spacing: var(--ls-kick); color: var(--muted); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0 5px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
+:where(.doc) :where(.badge) { margin-left: 0; color: var(--ink); }
+:where(.doc) :where(.badge.solid) { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+:where(.doc) :where(a.cite) { font: max(.78em, .75rem)/1 var(--sans); text-decoration: none; white-space: nowrap; padding: 6px 1px; position: relative; }
+:where(.doc) :where(a.cite)::after { content: ""; position: absolute; inset: -10px -14px; }
+:where(.doc) :where(td, th) > :where(a) { position: relative; }
+:where(.doc) :where(td, th) > :where(a)::after { content: ""; position: absolute; inset: -12px 0; }
+:where(.doc) :where(a.cite:hover) { text-decoration: underline; }
+:where(.doc) :where(ol.refs) { list-style: none; padding: 0; margin: 0 0 var(--s4); counter-reset: ref; font-size: 1rem; line-height: 1.55; }
+:where(.doc) :where(ol.refs) > :where(li) { counter-increment: ref; position: relative; padding: var(--s2) 0 var(--s2) 2.6em; margin: 0; border-bottom: 1px solid var(--line); }
+:where(.doc) :where(ol.refs) > :where(li)::before { content: "[" counter(ref) "]"; position: absolute; left: 0; font: var(--fs-caption)/1.9 var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
+:where(.doc) :where(ol.refs) > :where(li:target) { background: var(--hot); box-shadow: -8px 0 0 var(--hot), 8px 0 0 var(--hot); }
+:where(.doc) :where(.sidenote) { font: var(--fs-caption)/1.5 var(--sans); color: var(--muted); border-left: 2px solid var(--rule); padding: 2px 0 2px var(--s3); margin: 0 0 var(--s4); }
+:where(.doc) :where(.sidenote) :where(b:first-child) { color: var(--ink); }
+:where(.doc) :where(.sidenote) > :where(:last-child) { margin-bottom: 0; }
+@media (min-width: 47.5em) {
+  :where(.doc:not(.wide), .doc:not(.wide) > section, .doc:not(.wide) > article, .doc:not(.wide) > article > section) > :where(.sidenote) {
+    float: right; clear: right; width: calc(100% - var(--measure) - var(--s5)); max-width: none; margin: .35rem 0 var(--s4) var(--s5);
+    border-left: 0; border-top: 1px solid var(--rule); padding: var(--s2) 0 0; font-size: .8125rem;
+  }
+}
+
+/* ---- callouts ---- */
+:where(.doc) :where(.exercise) { font: var(--fs-ui)/1.5 var(--sans); border-left: 3px solid var(--ink); padding: 2px 0 2px var(--s3); margin: var(--s4) 0 var(--s3); }
+:where(.doc) :where(.exercise)::before { display: block; font: var(--kick); text-transform: uppercase; letter-spacing: var(--ls-kick); color: var(--muted); }
+:where(.doc) :where(.exercise) > :where(b:first-child) { color: var(--ink); }
+:where(.doc) :where(.explanation) { border-left: 3px solid var(--rule); padding: 2px 0 2px var(--s3); margin: var(--s4) 0 var(--s5); }
+:where(.doc) :where(.explanation)::before { content: "Explanation"; display: block; font: var(--kick); text-transform: uppercase; letter-spacing: var(--ls-kick); color: var(--muted); }
+:where(.doc) :where(.explanation) > :where(h3) { font: italic 600 var(--fs-h3)/1.35 var(--serif); letter-spacing: -.025em; margin: 0 0 var(--s2); }
+:where(.doc) :where(.explanation, .callout, .card) > :where(:last-child) { margin-bottom: 0; }
+:where(.doc) :where(.callout) { border-top: var(--edge) solid var(--rule); border-bottom: 1px solid var(--line); padding: var(--s3) 0; margin: var(--s4) 0 var(--s5); font: var(--fs-ui)/1.55 var(--sans); }
+:where(.doc) :where(.callout) > :where(h3) { font: var(--kick); font-weight: 600; text-transform: uppercase; letter-spacing: var(--ls-kick); color: var(--ink); margin: 0 0 var(--s1); }
+:where(.doc) :where(.callout.warn) { border-top: 2px solid var(--ink); }
+:where(.doc) :where(.callout.warn) > :where(h3)::before { content: "! "; }
+
+/* ---- fact lists ---- */
+:where(.doc) :where(dl.facts) { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0 var(--s5); margin: var(--s4) 0 var(--s5); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); font-family: var(--sans); }
+:where(.doc) :where(dl.facts) > :where(div) { display: flex; flex-direction: column-reverse; justify-content: flex-end; padding: var(--s3) 0; }
+:where(.doc) :where(dl.facts) :where(dt) { font-size: var(--fs-caption); line-height: 1.4; color: var(--muted); }
+:where(.doc) :where(dl.facts) :where(dd) { margin: 0; font: 600 1.3rem/1.3 var(--serif); font-variant-numeric: tabular-nums lining-nums; overflow-wrap: anywhere; }
+:where(.doc) :where(dl.kv) { display: grid; grid-template-columns: auto 1fr; margin: 0 0 var(--s4); font: var(--fs-ui)/1.45 var(--sans); border-top: 1px solid var(--ink); }
+:where(.doc) :where(dl.kv) > :where(dt, dd) { padding: 6px 0; border-bottom: 1px solid var(--line); margin: 0; }
+:where(.doc) :where(dl.kv) > :where(dt) { color: var(--muted); padding-right: var(--s4); }
+:where(.doc) :where(dl.kv) > :where(dd) { text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+/* dl.kv.readout: the labels as on an instrument, the values beside them */
+:where(.doc) :where(dl.kv.readout) { grid-template-columns: max-content minmax(0, 1fr); border-top: 0; }
+:where(.doc) :where(dl.kv.readout) > :where(dt) { align-self: baseline; font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+:where(.doc) :where(dl.kv.readout) > :where(dd) { text-align: left; }
+:where(.doc) :where(dl.glossary) { margin: 0 0 var(--s4); }
+:where(.doc) :where(dl.glossary) :where(dt) { font-weight: 700; margin-top: var(--s3); }
+:where(.doc) :where(dl.glossary) :where(dd) { margin: 0; }
+
+/* ---- code and brainfuck ---- */
+:where(.doc) :where(code, .bf, pre, kbd, samp) { font-family: var(--mono); }
+:where(.doc) :where(code, .bf) { font-size: .88em; color: var(--code); }
+:where(.doc) :where(kbd) { padding: 2px 4px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--panel); font: 600 .75rem/1 var(--mono); white-space: nowrap; }
+:where(.doc) :where(.bf) { overflow-wrap: anywhere; word-break: break-all; }
+:where(.doc) :where(pre) { margin: 0 0 var(--s4); padding: var(--s3) var(--s4); border-left: 3px solid var(--line); background-color: var(--sunk); font-size: .9rem; line-height: 1.5; color: var(--code); overflow-x: auto; overscroll-behavior-x: contain; tab-size: 2; }
+:where(.doc) :where(.listing) { font: .8rem/1.4 var(--mono); color: var(--code); background: var(--sunk); border: 1px solid var(--line); padding: var(--s2) var(--s3); max-height: 11em; overflow: auto; white-space: pre-wrap; word-break: break-all; margin: 0 0 var(--s3); }
+:where(.doc) :where(.prog) { font: 1.25rem/1.6 var(--mono); letter-spacing: 2px; color: var(--code); overflow-wrap: anywhere; margin: 0 0 var(--s3); }
+:where(.doc) :where(.prog) :where(.now) { background: var(--ink); color: var(--bg); border-radius: var(--radius); outline: 2px solid var(--ink); font-weight: 700; }
+:where(.doc) :where(.tape) { display: flex; gap: 6px; flex-wrap: wrap; margin: var(--s3) 0; }
+:where(.doc) :where(.tape.line) { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+:where(.doc) :where(.cell) { flex: 0 0 auto; min-width: 3.4rem; padding: 5px 7px; border: 1px solid var(--rule); border-radius: var(--radius); text-align: center; font: 1rem/1.4 var(--sans); font-variant-numeric: tabular-nums; background: var(--panel); }
+:where(.doc) :where(.cell) :where(small) { display: block; color: var(--muted); font-size: .75rem; line-height: 1.3; white-space: nowrap; }
+:where(.doc) :where(.cell.here) { border: 2px solid var(--accent); padding: 4px 6px; background: var(--hot); color: var(--ink); font-weight: 700; }
+:where(.doc) :where(.cell.here) :where(small) { color: var(--ink); }
+:where(.doc) :where(.tape.joined) { gap: 0; flex-wrap: nowrap; }
+:where(.doc) :where(.tape.joined) > :where(.cell) { flex: 1 1 0; min-width: 2.25rem; max-width: var(--cell-w, 4.5rem); padding: 0; border: 0; background: none; margin-right: -1px; font: 400 .875rem/1.4 var(--mono); }
+:where(.doc) :where(.tape.joined) > :where(.cell) > :where(b) { display: grid; place-items: center; height: var(--cell-h, var(--target)); border: 1px solid var(--rule); background: var(--panel); color: var(--muted); font-weight: 400; }
+:where(.doc) :where(.tape.joined) > :where(.cell) > :where(i) { display: block; padding-top: var(--s1); color: var(--muted); font: 400 .6875rem/1.2 var(--mono); font-style: normal; text-align: center; }
+:where(.doc) :where(.tape.joined) > :where(.cell.here) > :where(b) { position: relative; z-index: 1; border: 2px solid var(--ink); background: var(--cell, var(--hot)); color: var(--cell-ink, var(--ink)); font-weight: 700; }
+:where(.doc) :where(.tape.joined) > :where(.cell.here) > :where(i) { color: var(--ink); font-weight: 700; }
+:where(.doc) :where(.tape.joined) > :where(.cell.here) > :where(i)::before { content: "\25B2\00A0"; font-size: .5rem; vertical-align: .15em; }
+
+/* ---- controls ---- */
+:where(.doc) :where(button, input, select, textarea, label, output, progress) { font-family: var(--sans); font-size: var(--fs-ui); }
+:where(.doc) :where(button, a.btn) { display: inline-flex; align-items: center; justify-content: center; min-height: var(--target); min-width: var(--target); padding: 8px 16px; border: var(--edge) solid var(--ink); border-radius: var(--radius); background: var(--ink); color: var(--panel); font: var(--ctl); letter-spacing: 0; text-decoration: none; cursor: pointer; }
+:where(.doc) :where(button:hover:not(:disabled), a.btn:hover) { background: var(--ink-2); border-color: var(--ink-2); }
+:where(.doc) :where(button.primary, a.btn.primary) { background: var(--go); color: var(--on-go); border-color: var(--ink); }
+:where(.doc) :where(button.primary:hover:not(:disabled), a.btn.primary:hover) { background: var(--on-go); color: var(--go); border-color: var(--on-go); }
+:where(.doc) :where(button.quiet, a.btn.quiet) { background: var(--panel); color: var(--ink); }
+:where(.doc) :where(button.quiet:hover:not(:disabled), a.btn.quiet:hover) { background: var(--hot); border-color: var(--ink); }
+:where(.doc) :where(button.link) { background: none; border: 0; padding: 0; min-width: 0; color: var(--ink); font: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+:where(.doc) :where(button.link:hover:not(:disabled)) { background: none; text-decoration-thickness: 2px; }
+:where(.doc) :where(a.btn.go)::after { content: "\2192"; margin-left: .6em; }
+:where(.doc) :where(button:disabled) { opacity: .45; cursor: default; }
+:where(.doc) :where(input:not([type]), input[type="text"], input[type="number"], input[type="search"], select, textarea) { min-height: var(--target); padding: 8px 10px; border: var(--edge) solid var(--rule); border-radius: var(--radius); background: var(--panel); color: var(--ink); min-width: 0; max-width: 100%; font-family: var(--sans); font-size: var(--fs-control); }
+:where(.doc) :where(input, select, textarea):where([aria-invalid="true"]) { border: 2px solid var(--ink); }
+:where(.doc) :where(input[type="number"]) { width: 6rem; font-variant-numeric: tabular-nums; }
+:where(.doc) :where(textarea) { width: 100%; min-height: 5rem; font-family: var(--mono); color: var(--code); resize: vertical; }
+:where(.doc) :where(input[type="range"]) { accent-color: var(--accent); min-height: var(--target); flex: 1 1 140px; min-width: 100px; max-width: 320px; margin: 0; touch-action: pan-y; cursor: pointer; }
+:where(.doc) :where(progress) { width: 100%; height: 8px; accent-color: var(--accent); }
+:where(.doc) :where(label) { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+:where(.doc) :where(label:has(> input[type="range"])) { flex: 1 1 auto; flex-wrap: nowrap; max-width: 100%; }
+:where(.doc) :where(label) > :where(output) { white-space: nowrap; }
+/* a tick box or a radio button with its words: one row, the whole row is the target */
+:where(.doc) :where(label.check) { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; min-height: var(--target); cursor: pointer; }
+:where(.doc) :where(label.check, .picklist) :where(input[type="checkbox"], input[type="radio"]) { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--accent); }
+/* a label over its control */
+:where(.doc) :where(label.stacked) { display: flex; flex-direction: column; align-items: stretch; gap: var(--s1); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; color: var(--muted); }
+:where(.doc) :where(output) { font-variant-numeric: tabular-nums; min-width: 2.5em; }
+:where(.doc) :where(.row) { display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; margin: var(--s3) 0; }
+:where(.doc) :where(.chips) { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--s3) 0; }
+:where(.doc) :where(.chips) :where(button) { background: transparent; color: var(--ink); border: 1px solid var(--rule); padding: 6px 12px; }
+:where(.doc) :where(.chips) :where(button:hover:not(:disabled)) { background: var(--hot); border-color: var(--ink); }
+:where(.doc) :where(.chips) :where(button[aria-pressed="true"]) { border: 2px solid var(--ink); padding: 5px 11px; background: var(--hot); font-weight: 700; }
+:where(.doc) :where(.seg) { display: inline-flex; flex-wrap: wrap; border: var(--edge) solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+:where(.doc) :where(.seg) > :where(button, a) { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; min-height: var(--target); min-width: var(--target); padding: 8px 16px; background: transparent; color: var(--ink); border: 0; border-radius: 0; font: var(--ctl); text-decoration: none; }
+:where(.doc) :where(.seg) > :where(* + *) { border-left: 1px solid var(--rule); }
+:where(.doc) :where(.seg) > :where(button:hover:not(:disabled), a:hover) { background: var(--hot); }
+:where(.doc) :where(.seg) > :where([aria-pressed="true"], [aria-current]) { background: var(--ink); color: var(--bg); font-weight: 700; }
+:where(.doc) :where(.seg) > :where([aria-pressed="true"], [aria-current]):focus-visible { outline-offset: -5px; outline-color: var(--bg); }
+:where(.doc) :where(.tabs) { display: flex; margin: 0 0 var(--s3); border-bottom: var(--edge-strong) solid var(--ink); }
+:where(.doc) :where(.tabs) > :where([role="tab"]) { flex: 1 1 0; min-width: 0; min-height: var(--target); padding: 0 6px; border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); font: var(--kick); text-transform: uppercase; letter-spacing: var(--ls-lab); }
+:where(.doc) :where(.tabs) > :where([role="tab"]:last-child) { border-right: 0; }
+:where(.doc) :where(.tabs) > :where([role="tab"]:hover) { background: var(--hot); }
+:where(.doc) :where(.tabs) > :where([role="tab"][aria-selected="true"]) { background: var(--ink); color: var(--bg); font-weight: 700; }
+:where(.doc) :where(.tabs) > :where([role="tab"]):focus-visible { outline-offset: calc(-1 * var(--ring)); }
+:where(.doc) :where(.tabs) > :where([role="tab"][aria-selected="true"]):focus-visible { outline-color: var(--bg); outline-offset: -5px; }
+:where(.doc) :where(.keypad) { --c: var(--c-lt); display: grid; grid-template-columns: repeat(var(--keys, 8), minmax(0, 1fr)); gap: 1px; margin: 0 0 var(--s3); border: var(--edge) solid var(--ink); background: var(--ink); max-width: none; }
+:where(.doc) :where(.keypad) > :where(button) { display: grid; place-items: center; align-content: center; gap: 3px; min-width: 0; min-height: var(--key-h, 3.625rem); padding: 4px 0 6px; border: 0; border-top: 4px solid var(--c); border-radius: 0; background: var(--panel); color: var(--ink); font: 700 var(--key-fs, 1.25rem)/1 var(--mono); }
+:where(.doc) :where(.keypad) :where(small) { display: block; color: var(--muted); font: 400 .6875rem/1.2 var(--sans); }
+:where(.doc) :where(.keypad) :where([data-c="+"]) { --c: var(--c-plus); }
+:where(.doc) :where(.keypad) :where([data-c="-"]) { --c: var(--c-minus); }
+:where(.doc) :where(.keypad) :where([data-c=">"]) { --c: var(--c-gt); }
+:where(.doc) :where(.keypad) :where([data-c="["]) { --c: var(--c-open); }
+:where(.doc) :where(.keypad) :where([data-c="]"]) { --c: var(--c-close); }
+:where(.doc) :where(.keypad) :where([data-c=","]) { --c: var(--c-in); }
+:where(.doc) :where(.keypad) :where([data-c="."]) { --c: var(--c-out); }
+:where(.doc) :where(.keypad) > :where(button:hover:not(:disabled)) { background: color-mix(in srgb, var(--c) 22%, var(--panel)); border-color: var(--c); }
+:where(.doc) :where(.keypad) > :where(button:disabled) { opacity: 1; }
+:where(.doc) :where(.keypad) > :where(button.at) { background: var(--c); color: var(--on-data); }
+:where(.doc) :where(.keypad) > :where(button.at) > :where(small) { color: var(--on-data); font-weight: 700; }
+:where(.doc) :where(.keypad) > :where(button[aria-pressed="true"]) { outline: 3px solid var(--ink); outline-offset: -3px; }
+:where(.doc) :where(.keypad) > :where(button[aria-pressed="true"]) > :where(small) { color: var(--ink); font-weight: 700; }
+:where(.doc) :where(.keypad) > :where(button):focus-visible { outline-offset: -5px; z-index: 1; }
+:where(.doc) :where(.picklist) { margin: 0 0 var(--s4); padding: 0; border: 0; min-width: 0; font: var(--fs-ui)/1.4 var(--sans); }
+:where(.doc) :where(.picklist) > :where(legend) { padding: 0; margin: 0 0 var(--s2); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; color: var(--muted); }
+:where(.doc) :where(.picklist) > :where(label) { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--s3); min-height: 3rem; padding: 6px var(--s2) 6px calc(var(--s2) - 3px); border-top: 1px solid var(--line); border-left: 3px solid transparent; cursor: pointer; }
+:where(.doc) :where(.picklist) > :where(legend + label, label:first-child) { border-top-color: var(--ink); }
+:where(.doc) :where(.picklist) > :where(label:last-child) { border-bottom: 1px solid var(--ink); }
+:where(.doc) :where(.picklist) > :where(label:hover) { background: var(--hot); }
+:where(.doc) :where(.picklist) > :where(label:has(input:checked)) { border-left-color: var(--ink); background: var(--panel); }
+:where(.doc) :where(.picklist) > :where(label:has(input:checked)) :where(b) { font-weight: 700; }
+:where(.doc) :where(.picklist) > :where(label:has(input:disabled)) { cursor: default; color: var(--muted); }
+:where(.doc) :where(.picklist) > :where(label:has(input:focus-visible)) { outline: var(--ring) solid var(--accent); outline-offset: calc(-1 * var(--ring)); }
+:where(.doc) :where(.picklist) :where(label) > :where(span:first-of-type) { flex: 1 1 auto; min-width: 0; }
+:where(.doc) :where(.picklist) :where(b) { font-weight: 600; }
+:where(.doc) :where(.picklist) :where(small) { display: block; color: var(--muted); font-size: .75rem; overflow-wrap: anywhere; }
+:where(.doc) :where(.picklist) :where(.n) { flex: 0 0 auto; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+:where(.doc) :where(.verdict) { font: var(--fs-ui)/1.5 var(--sans); min-height: 1.5em; margin: var(--s2) 0 0; }
+:where(.doc) :where(.verdict.ok) { color: var(--good); font-weight: 600; }
+:where(.doc) :where(.verdict.ok:not(:empty))::before { content: "\2713\2002"; }
+:where(.doc) :where(.verdict.no) { color: var(--accent); }
+:where(.doc) :where(.ok) { color: var(--good); }
+:where(.doc) :where(.no) { color: var(--accent); }
+
+/* ---- lists and navigation ---- */
+:where(.doc) :where(ol.toc) { list-style: none; padding: 0; margin: var(--s4) 0 var(--s5); counter-reset: toc; columns: 2; column-gap: var(--s6); font: var(--fs-ui)/1.4 var(--sans); border-top: 1px solid var(--line); }
+:where(.doc) :where(ol.toc) > :where(li) { counter-increment: toc; margin: 0; break-inside: avoid; }
+:where(.doc) :where(ol.toc) :where(a) { display: flex; align-items: center; gap: .6em; min-height: var(--target); padding: 6px 0; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+:where(.doc) :where(ol.toc) :where(a)::before { content: counter(toc); color: var(--accent); font-weight: 600; min-width: 1.3em; font-variant-numeric: tabular-nums; }
+:where(.doc) :where(ol.toc) :where(a:hover) { color: var(--accent); }
+:where(.doc) :where(ol.toc) > :where(li.done) :where(a)::before { content: "\2713"; }
+:where(.doc) :where(ul.linklist) { list-style: none; padding: 0; margin: var(--s4) 0 var(--s5); border-top: 1px solid var(--line); }
+:where(.doc) :where(ul.linklist) > :where(li) { margin: 0; border-bottom: 1px solid var(--line); }
+:where(.doc) :where(ul.linklist) :where(a) { display: block; padding: var(--s3) 0; text-decoration: none; color: var(--ink); min-height: var(--target); }
+:where(.doc) :where(ul.linklist) :where(a) > :where(b) { display: block; color: var(--accent); font-size: 1.17rem; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+:where(.doc) :where(ul.linklist) :where(a:hover) > :where(b) { text-decoration-thickness: 2px; }
+:where(.doc) :where(ul.linklist) :where(a) > :where(span) { display: block; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+:where(.doc) :where(ol.timeline) { list-style: none; padding: 0; margin: var(--s4) 0; counter-reset: tl; }
+:where(.doc) :where(ol.timeline) > :where(li) { counter-increment: tl; position: relative; padding: 0 0 var(--s4) 2.6rem; margin: 0; }
+:where(.doc) :where(ol.timeline) > :where(li)::before { content: counter(tl); position: absolute; left: 0; top: .1rem; width: 1.7rem; height: 1.7rem; border-radius: var(--radius); border: 1px solid var(--rule); color: var(--ink); text-align: center; font: 600 .8rem/1.6rem var(--mono); font-variant-numeric: tabular-nums; }
+:where(.doc) :where(ol.timeline) > :where(li)::after { content: ""; position: absolute; left: .85rem; top: 2rem; bottom: .1rem; width: 1px; background: var(--line); }
+:where(.doc) :where(ol.timeline) > :where(li:last-child)::after { display: none; }
+:where(.doc) :where(ol.timeline) > :where(li:last-child)::before { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+:where(.doc) :where(ol.timeline) :where(li) > :where(b) { display: block; }
+:where(.doc) :where(ol.timeline) :where(li) > :where(span) { display: block; color: var(--muted); font-size: 1rem; line-height: 1.55; }
+:where(.doc) :where(details.q) { border-top: 1px solid var(--line); margin: 0; }
+:where(.doc) :where(details.q:last-of-type) { border-bottom: 1px solid var(--line); margin-bottom: var(--s4); }
+:where(.doc) :where(details.q) > :where(summary) { cursor: pointer; padding: 10px 0; min-height: var(--target); font-weight: 600; font-size: var(--fs-h3); line-height: 1.35; }
+:where(.doc) :where(details.q) > :where(summary:hover) { color: var(--accent); }
+:where(.doc) :where(details.q) > :where(.a) { padding: 0 0 var(--s2); }
+:where(.doc) :where(nav.steps) { display: flex; justify-content: space-between; gap: var(--s3); margin-top: var(--s6); padding-top: var(--s2); border-top: var(--edge) solid var(--ink); font: var(--fs-ui)/1.4 var(--sans); max-width: none; }
+:where(.doc) :where(nav.steps) :where(a) { max-width: 48%; display: inline-flex; align-items: center; min-height: var(--target); min-width: var(--target); }
+:where(.doc) :where(nav.steps) :where(a:last-child) { text-align: right; margin-left: auto; }
+:where(.doc) :where(.stepbar) { list-style: none; display: flex; margin: var(--s3) 0; padding: 0; max-width: none; border: 1px solid var(--ink); overflow-x: auto; scrollbar-width: thin; font: var(--kick); font-variant-numeric: tabular-nums; }
+:where(.doc) :where(.stepbar) > :where(li) { flex: 1 1 0; display: flex; margin: 0; border-left: 1px solid var(--ink); color: var(--muted); }
+:where(.doc) :where(.stepbar) > :where(li:first-child) { border-left: 0; }
+:where(.doc) :where(.stepbar) > :where(li) > :where(a, span) { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; min-height: var(--target); min-width: var(--target); padding: 0 10px; color: inherit; text-decoration: none; white-space: nowrap; }
+:where(.doc) :where(.stepbar) :where(a) { color: var(--ink); }
+:where(.doc) :where(.stepbar) :where(a:hover) { background: var(--hot); }
+:where(.doc) :where(.stepbar) > :where(li.done) { color: var(--ink); }
+:where(.doc) :where(.stepbar) > :where(li.done) > :where(a, span)::after { content: "\00a0\2713"; }
+:where(.doc) :where(.stepbar) > :where(li.now, li[aria-current]) > :where(a, span), :where(.doc) :where(.stepbar) :where(a[aria-current]) { background: var(--ink); color: var(--bg); font-weight: 700; }
+:where(.doc) :where(.stepbar) :where(a):focus-visible { outline-offset: calc(-1 * var(--ring)); }
+:where(.doc) :where(.stepbar) :where(a[aria-current], li.now > a):focus-visible { outline-color: var(--bg); outline-offset: -5px; }
+:where(.doc) :where(.tiles) { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--tile-min, 12rem), 1fr)); margin: var(--s4) 0 var(--s5); padding: 0; max-width: none; border: var(--edge) solid var(--ink); border-top-width: 0; border-left-width: 0; overflow: hidden; counter-reset: tile; background: var(--panel); }
+:where(.doc) :where(.tiles) > :where(li) { display: flex; min-width: 0; margin: 0; border: solid var(--ink); border-width: var(--edge) 0 0 var(--edge); counter-increment: tile; }
+:where(.doc) :where(.tiles) > :where(li) > :where(a, button) { flex: 1 1 auto; display: block; min-width: 0; min-height: var(--target); padding: var(--s3) var(--pad) var(--s4); border: 0; border-radius: 0; background: var(--panel); color: var(--ink); font: var(--fs-ui)/1.5 var(--sans); text-align: left; text-decoration: none; }
+:where(.doc) :where(ol.tiles) > :where(li) > :where(a, button)::before { content: counter(tile, decimal-leading-zero); display: block; margin-bottom: var(--s3); color: var(--muted); font: var(--kick); }
+:where(.doc) :where(.tiles) :where(b) { display: block; margin-bottom: var(--s1); font: 700 1rem/1.25 var(--mono); letter-spacing: -.03em; }
+:where(.doc) :where(.tiles) :where(a) > :where(b)::after { content: " \2192"; }
+:where(.doc) :where(.tiles) :where(a, button) > :where(span) { display: block; color: var(--muted); }
+:where(.doc) :where(.tiles) > :where(li) > :where(a:hover, button:hover:not(:disabled)) { background: var(--hot); }
+:where(.doc) :where(.tiles) > :where(li) > :where([aria-current], [aria-pressed="true"]) { background: var(--ink); color: var(--bg); }
+:where(.doc) :where(.tiles) :where([aria-current], [aria-pressed="true"]) > :where(span), :where(.doc) :where(.tiles) > :where(li) > :where([aria-current], [aria-pressed="true"])::before { color: var(--bg); }
+:where(.doc) :where(.tiles) :where([aria-current], [aria-pressed="true"]) > :where(b)::after { content: "\2002\2713"; }
+:where(.doc) :where(.tiles) > :where(li) > :where(a, button):focus-visible { outline-offset: calc(-1 * var(--ring)); }
+:where(.doc) :where(.tiles) > :where(li) > :where([aria-current], [aria-pressed="true"]):focus-visible { outline-color: var(--bg); outline-offset: -5px; }
+/* boxes joined by arrows: what leads to what */
+:where(.doc) :where(ol.flow) { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.875rem; margin: var(--s4) 0; padding: 0; max-width: none; font: var(--fs-caption)/1.4 var(--sans); }
+:where(.doc) :where(ol.flow) > :where(li) { position: relative; display: flex; flex-direction: column; gap: 3px; margin: 0; padding: var(--s3); border: var(--edge-strong) solid var(--ink); background: var(--panel); }
+:where(.doc) :where(ol.flow) > :where(li:not(:last-child))::after { content: "\2193"; position: absolute; left: 50%; bottom: -1.875rem; width: 1.875rem; height: 1.875rem; margin-left: -.9375rem; text-align: center; font: 400 1.25rem/1.875rem var(--mono); color: var(--ink); }
+:where(.doc) :where(ol.flow) :where(b) { font: 700 1rem/1.3 var(--mono); }
+:where(.doc) :where(ol.flow) > :where(li[aria-current]) { background: var(--ink); color: var(--bg); }
+@media (min-width: 38.75em) {
+  :where(.doc) :where(ol.flow) { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+  :where(.doc) :where(ol.flow) > :where(li:not(:last-child))::after { content: "\2192"; left: auto; right: -1.875rem; bottom: auto; top: 50%; margin: -.9375rem 0 0; }
+}
+
+/* ---- data figures ---- */
+:where(.doc) :where(ul.legend) { list-style: none; padding: 0; margin: var(--s2) 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font: var(--fs-caption)/1.5 var(--sans); color: var(--muted); }
+:where(.doc) :where(ul.legend) > :where(li) { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+:where(.doc) :where(.sw) { display: inline-block; width: 14px; height: 14px; border-radius: var(--radius); flex: 0 0 auto; background-color: var(--d6); }
+:where(.doc) :where(.sw.glyph) { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; color: var(--on-data); font: 700 .8125rem/1 var(--mono); font-style: normal; }
+:where(.doc) :where(.c-plus) { background-color: var(--c-plus); }
+:where(.doc) :where(.c-minus) { background-color: var(--c-minus); }
+:where(.doc) :where(.c-lt) { background-color: var(--c-lt); }
+:where(.doc) :where(.c-gt) { background-color: var(--c-gt); }
+:where(.doc) :where(.c-open) { background-color: var(--c-open); }
+:where(.doc) :where(.c-close) { background-color: var(--c-close); }
+:where(.doc) :where(.c-in) { background-color: var(--c-in); }
+:where(.doc) :where(.c-out) { background-color: var(--c-out); }
+:where(.doc) :where(.d1) { background-color: var(--d1); }
+:where(.doc) :where(.d2) { background-color: var(--d2); }
+:where(.doc) :where(.d5) { background-color: var(--d5); }
+:where(.doc) :where(.bars .bar.b2) { background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--bg) 3px 5px); }
+:where(.doc) :where(.bars) { display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; margin: var(--s3) 0; font: var(--fs-ui)/1.4 var(--sans); font-variant-numeric: tabular-nums; }
+:where(.doc) :where(.bars) :where(.bar) { height: 14px; background-color: var(--d1); min-width: 2px; }
+:where(.doc) :where(.bars) :where(.bar.b2) { background-color: var(--d2); }
+:where(.doc) :where(.bars) :where(.bar.ink) { background-color: var(--ink); }
+:where(.doc) :where(.bars) :where(.bar.range) { background-color: transparent; background-image: repeating-linear-gradient(135deg, var(--ink) 0 1.5px, transparent 1.5px 4px); outline: 1px solid var(--ink); outline-offset: -1px; }
+:where(.doc) :where(.bars) :where(.lab) { color: var(--muted); font-size: var(--fs-caption); }
+:where(.doc) :where(.meter) { height: 8px; background: var(--sunk); border: 1px solid var(--line); overflow: hidden; }
+:where(.doc) :where(.meter) > :where(i) { display: block; height: 100%; background: var(--d1); }
+
+/* ---- frames, cards ---- */
+:where(.doc) :where(.frame) { margin: var(--s5) 0; padding: 0; border: var(--edge) solid var(--ink); background: var(--panel); max-width: none; font: var(--fs-ui)/1.55 var(--sans); }
+:where(.doc) :where(.frame) > :where(*) { max-width: none; }
+:where(.doc) :where(.frame-head) { display: flex; align-items: center; gap: var(--s3); margin: 0; padding: var(--s2) var(--pad); background: var(--ink); color: var(--bg); font: var(--kick); letter-spacing: var(--ls-kick); text-transform: uppercase; }
+:where(.doc) :where(.frame-head) > :where(b) { font-weight: 700; }
+:where(.doc) :where(.frame-head) > :where(span) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: color-mix(in srgb, var(--bg) 72%, transparent); }       /* the bar is --ink: in the dark theme it is light */
+:where(.doc) :where(.frame-head) > :where(.state) { display: inline-flex; align-items: center; gap: var(--s2); margin-left: auto; overflow: visible; color: var(--bg); }
+:where(.doc) :where(.frame-head) > :where(.state)::before { content: ""; width: 9px; height: 9px; background: var(--state, var(--night-muted)); }
+:where(.doc) :where(.frame-body) { padding: var(--pad); }
+:where(.doc) :where(.frame-body) > :where(:first-child) { margin-top: 0; }
+:where(.doc) :where(.frame-body) > :where(:last-child) { margin-bottom: 0; }
+:where(.doc) :where(.frame) > :where(figcaption) { margin: 0; padding: var(--s3) var(--pad); border-top: var(--edge) solid var(--ink); }
+/* a plain box for a thing that stands apart */
+:where(.doc) :where(.card) { padding: var(--pad); border: var(--edge) solid var(--rule); background: var(--panel); }
+
+/* ---- a question and its answer, quoted ---- */
+:where(.doc) :where(.exchange) { font: 1.25rem/1.5 var(--serif); margin: 0 0 var(--s3); }
+:where(.doc) :where(.exchange) :where(.q) { display: block; color: var(--mine); font-style: italic; }
+:where(.doc) :where(.exchange) :where(.q)::before { content: "Q\2002"; font: 600 .72rem/1 var(--sans); letter-spacing: .08em; color: var(--muted); }
+:where(.doc) :where(.exchange) :where(.a)::before { content: "A\2002"; font: 600 .72rem/1 var(--sans); letter-spacing: .08em; color: var(--muted); }
+
+:where(.doc) :where(.kicker.crumbs) :where(a) { position: relative; }
+:where(.doc) :where(.kicker.crumbs) :where(a)::after { content: ""; position: absolute; inset: -13px -4px; }
+:where(.doc) :where(ol.flow) > :where(li[aria-current]) :where(.label, .muted, a, b) { color: inherit; }
+:where(.doc) :where(blockquote) { margin: 0 0 var(--s4); padding: 2px 0 2px var(--s3); border-left: 3px solid var(--rule); }
+:where(.doc) :where(blockquote) > :where(:last-child) { margin-bottom: 0; }
+:where(.doc) :where(dl.facts) :where(dd) > :where(small) { margin-left: .35em; color: var(--muted); font: 500 .8125rem/1 var(--mono); letter-spacing: 0; }
+:where(.doc) :where(.exchange.io) :where(.q, .a) { display: block; position: relative; padding-left: 2.25rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+:where(.doc) :where(.exchange.io) :where(.q) { margin-bottom: var(--s2); }
+:where(.doc) :where(.exchange.io) :where(.a) { min-height: 1.5em; }
+:where(.doc) :where(.exchange.io) :where(.q, .a)::before, :where(.doc) :where(.askbox) > :where(i) { width: 1.5rem; height: 1.5rem; border: 1px solid var(--ink); background: var(--c-in); color: var(--on-data); text-align: center; font: 800 1.0625rem/1.4rem var(--mono); font-style: normal; letter-spacing: 0; }
+:where(.doc) :where(.exchange.io) :where(.q, .a)::before { position: absolute; left: 0; top: .12em; content: ","; content: "," / "Question: "; }
+:where(.doc) :where(.exchange.io) :where(.a)::before { background: var(--c-out); content: "."; content: "." / "Answer: "; }
+:where(.doc) :where(.askbox) { display: flex; align-items: stretch; margin: var(--s2) 0 0; max-width: none; border: var(--edge) solid var(--ink); background: var(--panel); }
+:where(.doc) :where(.askbox):has(> input:focus-visible) { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+:where(.doc) :where(.askbox) > :where(i) { flex: 0 0 auto; align-self: center; margin: 0 var(--s1) 0 var(--s3); }
+:where(.doc) :where(.askbox) > :where(input) { flex: 1 1 8rem; min-width: 0; min-height: 3.25rem; padding: var(--s2); border: 0; background: transparent; color: var(--ink); font: 400 1.125rem/1.35 var(--serif); }
+:where(.doc) :where(.askbox) > :where(input)::placeholder { color: var(--muted); opacity: 1; font-style: italic; }
+:where(.doc) :where(.askbox) > :where(input):focus-visible { outline: 0; }
+:where(.doc) :where(.askbox) > :where(button) { flex: 0 0 auto; border-width: 0 0 0 var(--edge); white-space: nowrap; }
+:where(.doc) :where(.askbox) > :where(button):focus-visible { outline-offset: calc(-1 * var(--ring)); }
+:where(.doc) :where(.askbox) > :where(button:not(.quiet)):focus-visible { outline-color: var(--bg); outline-offset: -5px; }
+@media (max-width: 30em) {
+  :where(.doc) :where(.askbox) { flex-wrap: wrap; }
+  :where(.doc) :where(.askbox) > :where(input) { flex-basis: calc(100% - 3.5rem); }
+  :where(.doc) :where(.askbox) > :where(button) { flex: 1 1 0; border-width: var(--edge) 0 0; white-space: normal; }
+  :where(.doc) :where(.askbox) > :where(button + button) { border-left-width: var(--edge); }
+}
+
+/* ---- a hard frame, and cards that lead to a part of the site ---- */
+:where(.hard) { border: var(--edge) solid var(--ink); background: var(--panel); box-shadow: var(--drop); }
+:where(.dest) { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--s4); margin: var(--s4) 0 0; padding: 0; max-width: none; }
+:where(.dest) > :where(li) { display: flex; margin: 0; min-width: 0; }
+:where(.dest) :where(a) { flex: 1 1 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; gap: var(--s1) var(--s3); padding: var(--s4); border: var(--edge) solid var(--ink); border-top: 8px solid var(--c, var(--ink)); background: var(--panel); color: var(--ink); text-decoration: none; transition: transform var(--ease), box-shadow var(--ease); }
+:where(.dest) :where(a) > :where(i) { grid-row: span 2; align-self: start; display: grid; place-items: center; min-width: 2.75rem; height: 2.75rem; padding: 0 .3em; border: var(--edge) solid var(--ink); background: var(--c, var(--hot)); color: var(--on-data); font: 700 1.25rem/1 var(--mono); font-style: normal; }
+:where(.dest) :where(a) > :where(b) { align-self: end; font: 700 1.0625rem/1.25 var(--mono); letter-spacing: -.03em; }
+:where(.dest) :where(a) > :where(b)::after { content: "\00a0\2192"; }
+:where(.dest) :where(a) > :where(small) { color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+:where(.dest) :where(a) > :where(span) { grid-column: 1 / -1; margin-top: var(--s2); color: var(--ink-2); font: var(--fs-ui)/1.5 var(--sans); }
+:where(.dest) :where(a:hover) { transform: translate(-2px, -2px); box-shadow: var(--drop); }
+:where(.dest) :where(a:focus-visible) { outline-offset: 2px; }
+
+/* ---- layout modifiers (last, so they win over the components above) ---- */
+:where(.doc) :where(.full) { max-width: none; clear: both; }
+
+@property --fade-l { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-r { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes edge-fade {
+  0% { --fade-l: 0px; --fade-r: 2.5rem; }
+  6%, 94% { --fade-l: 2.5rem; --fade-r: 2.5rem; }
+  100% { --fade-l: 2.5rem; --fade-r: 0px; }
+}
+@supports (animation-timeline: scroll()) {
+  :where(.doc .scroll, .doc .tape.line, .doc pre) {
+    -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, .12), #000 var(--fade-l), #000 calc(100% - var(--fade-r)), rgba(0, 0, 0, .12));
+    mask-image: linear-gradient(to right, rgba(0, 0, 0, .12), #000 var(--fade-l), #000 calc(100% - var(--fade-r)), rgba(0, 0, 0, .12));
+    animation: edge-fade linear both; animation-timeline: scroll(self inline);
+  }
+}
+@supports not (animation-timeline: scroll()) {
+  :where(.doc .scroll, .doc .tape.line, .doc pre) {
+    --cover: var(--bg);
+    background-image: linear-gradient(to right, var(--cover) 30%, transparent), linear-gradient(to left, var(--cover) 30%, transparent), linear-gradient(to right, var(--shade), transparent), linear-gradient(to left, var(--shade), transparent);
+    background-position: left, right, left, right; background-size: 2.5rem 100%, 2.5rem 100%, .875rem 100%, .875rem 100%;
+    background-repeat: no-repeat; background-attachment: local, local, scroll, scroll;
+  }
+  :where(.doc pre) { --cover: var(--sunk); }
+}
+:where(.doc) :where(.scroll, .tape.line, pre, .listing):focus-visible { outline-offset: -3px; }
+
+/* ---- one column: phones and narrow windows (under 620px) ---- */
+@media (max-width: 38.75em) {
+  :where(.doc) :where(.two) { grid-template-columns: 1fr; }
+  :where(.doc) :where(ol.toc) { columns: 1; }
+  :where(.doc) :where(.lead) { font-size: 1.15rem; }
+  :where(.doc) :where(.exchange) { font-size: 1.125rem; }
+  /* (not the cells of a joined strip: those have no padding of their own) */
+  :where(.doc) :where(.cell:not(.tape.joined > .cell)) { min-width: 2.9rem; padding: 4px 5px; }
+  :where(.doc) :where(.cell.here:not(.tape.joined > .cell)) { padding: 3px 4px; }
+  :where(.doc) :where(.prog) { letter-spacing: 1px; }
+  :where(.doc) :where(th, td) { padding-right: 10px; }
+  :where(.doc) :where(ul:not([class]), ol:not([class])) { padding-left: 1.25em; }      /* plain lists only: a list that is a component sets its own padding */
+  :where(.doc) :where(nav.steps) :where(a) { max-width: 47%; }
+}
+
+@media (max-width: 40em) { :where(main.doc:not(.mapapp)) > :where(header:not(.plain))::after { letter-spacing: .12em; } }
+
+/* ---- phones (under 480px): rows of controls become tidy ---- */
+@media (max-width: 30em) {
+  /* a row of buttons becomes an even grid */
+  :where(.doc) :where(.btns) { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--btn-min, 6.5rem), 1fr)); gap: 8px; align-items: stretch; }
+  :where(.doc) :where(.btns) > :where(button, a.btn, select) { width: 100%; min-width: 0; padding-left: 8px; padding-right: 8px; }
+  :where(.doc) :where(.btns) > :where(.seg, label, .span, p, output) { grid-column: 1 / -1; }
+  :where(.doc) :where(.seg) { display: flex; }
+  :where(.doc) :where(.seg) > :where(button, a) { padding-left: 8px; padding-right: 8px; }
+  /* a slider takes the whole line under its label */
+  :where(.doc) :where(label:has(> input[type="range"])) { flex-wrap: wrap; width: 100%; }
+  :where(.doc) :where(label) > :where(input[type="range"]) { max-width: none; }
+  /* a text box in a label may take the whole line */
+  :where(.doc) :where(label:not(.stacked)) > :where(input:not([type]), input[type="text"], input[type="search"]) { flex: 1 1 12rem; }
+  :where(.doc) :where(dl.kv) > :where(dt) { padding-right: var(--s3); }
+  :where(.doc) :where(.keypad) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  :where(.doc) :where(.frame-head) > :where(span:not(.state)) { display: none; }
+  :where(.doc) :where(.tabs) > :where([role="tab"]) { letter-spacing: 0; }
+}
+
+/* ---- touch screens: a slider you can take with a thumb ---- */
+@media (pointer: coarse) {
+  :where(.doc) :where(input[type="range"]) { -webkit-appearance: none; appearance: none; background: transparent; }
+  :where(.doc) input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: var(--radius); background: var(--rule); }
+  :where(.doc) input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 30px; height: 30px; margin-top: -12px; border-radius: var(--radius); background: var(--accent); border: 2px solid var(--bg); outline: 1px solid var(--accent); }
+  :where(.doc) input[type="range"]::-moz-range-track { height: 6px; border-radius: var(--radius); background: var(--rule); }
+  :where(.doc) input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; border-radius: var(--radius); background: var(--accent); border: 2px solid var(--bg); outline: 1px solid var(--accent); }
+  :where(.doc) input[type="range"]:focus-visible { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+}
+/* a hover look that would stick after a tap is only for devices that hover */
+@media (hover: none) {
+  :where(.doc) :where(button:hover:not(:disabled), a.btn:hover) { background: var(--ink); border-color: var(--ink); }
+  :where(.doc) :where(button.primary:hover:not(:disabled), a.btn.primary:hover) { background: var(--go); color: var(--on-go); border-color: var(--ink); }
+  :where(.doc) :where(button.quiet:hover:not(:disabled), a.btn.quiet:hover) { background: var(--panel); }
+  :where(.doc) :where(button.link:hover:not(:disabled)) { background: none; }
+  :where(.doc) :where(.seg) > :where(button:hover:not(:disabled):not([aria-pressed="true"])) { background: transparent; }
+}
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    color-scheme: light;
+    --bg: #fff; --panel: #fff; --sunk: #f4f4f2; --ink: #000; --muted: #444; --line: #bbb; --rule: #777; --accent: #7a2a0e; --on-accent: #fff;
+    --code: #1d4a34; --mine: #444; --hot: #ecece8; --good: #1d4a34; --goodbg: #ecece8;
+    --d1: #1f6aa5; --d2: #b8500f; --d3: #1c7c66; --d4: #a04a86; --d5: #8a6a00; --d6: #6a6a6a;
+    --t-plus: #8a5a00; --t-minus: #0b5c9a; --t-mv: #55534e; --t-br: #9c2c66; --t-in: #0a6b50; --t-out: #a83c00;
+    --night: #0d0e10; --night-line: #3b3c40; --drop-c: #000;
+    --fs-body: 11pt; --fs-h1: 22pt; --fs-h2: 15pt; --fs-h3: 12pt; --fs-ui: 10pt; --fs-caption: 9pt; --fs-small: 9pt;
+    --s6: 1.5rem; --s7: 2rem; --page: none; --wide: 100%; --gutter: 0px; --measure: 30rem;
+  }
+  @page { margin: 18mm 16mm; }
+  html, body { background: var(--bg); color: var(--ink); }
+  .top, .foot, a.skip { display: none !important; }
+  main:where(.doc) { max-width: none; padding: 0; }
+  :where(.doc) { orphans: 3; widows: 3; }
+  /* controls: left out, with the row or label that holds them */
+  :where(.doc) :where(button, select, textarea, progress, input, a.btn, .chips, .seg, .tabs, .keypad, .stepbar, nav.steps) { display: none !important; }
+  :where(.doc) :where(.row:has(button, input, select), label:has(input, select, textarea)) { display: none !important; }
+  /* what belongs together stays on one page */
+  :where(.doc) :where(figure, table, tr, pre, .explanation, .exercise, .callout, .abstract, .frame, .card, dl.facts, ol.timeline > li, ol.refs > li, .tiles > li, ol.flow > li) { break-inside: avoid; }
+  :where(.doc) :where(h1, h2, h3, h4, summary, .exercise, caption) { break-after: avoid; }
+  :where(.doc) :where(figcaption) { break-before: avoid; }
+  /* nothing scrolls on paper */
+  :where(.doc .scroll, .doc .tape.line, .doc pre, .doc .listing) { overflow: visible; max-height: none; -webkit-mask-image: none; mask-image: none; animation: none; background-image: none; }
+  :where(.doc) :where(.tape.line) { flex-wrap: wrap; }
+  :where(.doc) :where(pre) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  /* folded questions are printed open */
+  :where(.doc) :where(details.q)::details-content { content-visibility: visible; display: block; block-size: auto; }
+  :where(.doc) :where(details.q) > :where(summary) { list-style: none; min-height: 0; }
+  :where(.doc) :where(details.q) > :where(summary)::-webkit-details-marker { display: none; }
+  /* links are ink; the colours of data and of the pointer are printed as they are */
+  :where(.doc) :where(a) { color: inherit; }
+  :where(.doc) :where(.cell.here, .cell.here > b, .prog .now, .bar, .sw, .meter, .meter > i, .frame-head, .badge.solid) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

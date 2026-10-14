@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 1: the machine · brnfck.chat</title>
+<meta name="description" content="Lesson 1: a tape, a pointer and eight commands. Seven short steps in which you write your first brainfuck programs.">
+<meta property="og:title" content="Lesson 1: the machine">
+<meta property="og:description" content="Lesson 1: a tape, a pointer and eight commands. Seven short steps in which you write your first brainfuck programs.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>The machine</span></p>
+    <h1>The machine</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson you can write a program that puts any number in any cell. You need nothing but eight characters.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>1</b> of 11</p>
+    <a class="prev" href="#" rel="prev" aria-disabled="true"><span>Previous</span>The first lesson</a>
+    <a class="next" href="02-copy.html" rel="next"><span>Next</span>Moving and copying</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>Every lesson adds one part to a single small sum. In lesson 11 one program does the whole sum and prints a word. This lesson adds the first part: getting a number, such as the 90 the sum starts with, into a cell.</p>
+  </section>
+
+  <h2 id="s1">A row of boxes and a pointer</h2>
+  <p class="try"><b>Try it:</b> a row of six boxes, a mark on one of them, and four buttons. The buttons call the mark the finger. Use them to put the number 3 in the box called "cell 1":</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+  <figcaption id="c1"><b>Figure 1.</b> A tape of six cells and four buttons. Watch which cell the pointer is on before you add. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>This is the whole machine: a row of boxes that each hold a number, and a mark on one of them. You can move the mark one box, and you can add one to the number or take one off. Nothing else.</p>
+    <p>The row is called the <b>tape</b>, a box is a <b>cell</b>, and the mark is the <b>pointer</b>. Cells are counted from 0. Each button is a <b>command</b>, written as one character: <code>&lt;</code> <code>&gt;</code> <code>+</code> <code>−</code>. The line that grew under the buttons is a <b>program</b>.</p>
+  </section>
+
+  <h2 id="s2">A program runs by itself</h2>
+  <p class="try"><b>Try it:</b> the same row, now with a program already typed. Press Step until the program has ended. Before each press, read the line that starts with "Next":</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div id="m2"></div>
+  <figcaption id="c2"><b>Figure 2.</b> A program of six commands. The lit-up command is the one that runs next; the line "Next" says what it will do. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>The machine reads a program from left to right, one command at a time. The command it is about to do is lit up. Nobody presses buttons any more: the program is the list of presses.</p>
+    <p>This one left 2 in cell 0 and 3 in cell 1, and the pointer on cell 1. The tape of the lesson has six cells; the real one has millions.</p>
+  </section>
+
+  <h2 id="s3">Write a number</h2>
+  <p class="try"><b>Try it:</b> type a program that leaves 12 in cell 2. You only need <code>&gt;</code> and <code>+</code>:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div id="m3"></div>
+  <figcaption id="c3"><b>Figure 3.</b> A box for your own program. The tape below it shows where that program ends. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>You typed twelve plus signs. Brainfuck has no way to write "12": a number is that many plus signs.</p>
+    <p>The sum these lessons build toward starts with the number 90. Written like this, it takes ninety plus signs.</p>
+  </section>
+
+  <h2 id="s4">Doing it again and again</h2>
+  <p>Ninety plus signs is a lot of typing. This program repeats a few commands instead. It starts with a number in the left cell and ends with a number in the right one. Change what the left cell starts at and what is added each round, then press <em>Play</em>, or drag <em>Step</em> back and forth:</p>
+  <figure class="fig col" id="fig-loop" aria-label="A loop that takes 1 from the left cell and adds a fixed number to the right cell, on a tape of two cells"></figure>
+  <p>Every round took 1 from the left cell and added the same amount to the right cell, until the left cell was empty. With 3 and 4 that is three rounds, and the right cell ends at 12. Set the left cell to 0 and nothing is added at all. The sliders stop at 9 to keep the run short.</p>
+  <p>The square brackets are what make it repeat. They mean: repeat what stands between us until the cell under the pointer is zero. Such a repeat is called a <b>loop</b>.</p>
+  <p class="try"><b>Try it:</b> this is the loop with 3 and 4. Press Step until the program has ended, and watch what the two brackets ask:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div id="m4"></div>
+  <figcaption id="c4"><b>Figure 4.</b> A loop. Watch cell 0 count down while cell 1 goes up by four each round. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>Each time the pointer met a bracket, the bracket asked: is this cell zero? The first bracket let the program in because cell 0 held 3. The second one sent it back to the first until cell 0 was empty. Three rounds took 1 from cell 0 and put 4 into cell 1.</p>
+    <p>"Is this cell zero?" is the only question a brainfuck program can ask. Remember that. It comes back in <a href="04-zero.html">lesson 4</a>.</p>
+  </section>
+
+  <h2 id="s5">The same number, one cell further</h2>
+  <p class="try"><b>Try it:</b> this is the loop program of step 4. It leaves 12 in cell 1. Change it so that the 12 lands in cell 2. You may use 13 commands at most:</p>
+  <figure id="f5" aria-labelledby="c5">
+    <div id="m5"></div>
+    <div class="callout hint" id="h5" hidden><h3>Hint</h3><p>Every command says "one to the right" or "one to the left", never "cell 1". What happens if the pointer starts one cell further?</p></div>
+    <div class="ctl"><button class="quiet" id="h5b">Give me a hint</button></div>
+  <figcaption id="c5"><b>Figure 5.</b> The loop program of step 4, for you to change. The line under the tape says what cell 2 holds at the end. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a5" hidden>
+    <h3>What you just saw</h3>
+    <p>One <code>&gt;</code> in front, and the whole program does its work one cell further on. A program never says where it is. It only says left and right. That turns out to be very useful in <a href="07-walking.html#s2">step 2 of lesson 7</a>.</p>
+    <p>The loop also made the program shorter: 13 commands in place of the 14 you typed in step 3. For large numbers a loop saves much more.</p>
+  </section>
+
+  <h2 id="s6">Letters come out</h2>
+  <p>Numbers can come out as letters. This program builds a number in cell 1 with a loop and then prints it. Change the number of rounds and read the line "Printed":</p>
+  <figure class="fig col" id="fig-print" aria-label="A loop that builds a number and a command that prints it as a letter"></figure>
+  <p>The last command, <code>.</code> (a full stop), printed the cell as one letter. A computer keeps every letter as a number, and each round here adds 8: eight rounds make 64, one more plus makes 65, and 65 is the number for A. Nine rounds give 73 and the letter I.</p>
+  <p class="try"><b>Try it:</b> with eight rounds. Press "To the end". What does the program print?</p>
+  <figure id="f6" aria-labelledby="c6">
+    <div id="m6"></div>
+  <figcaption id="c6"><b>Figure 6.</b> A program that prints. Watch cell 1 reach 65, and the line "Printed so far". <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a6" hidden>
+    <h3>What you just saw</h3>
+    <p>Cell 1 reached 65 and the seventh command turned it into the letter A.</p>
+    <p>The eighth command, <code>,</code> (a comma), does the opposite: it takes the next letter that was typed and puts its number in the cell. That is how the chat program gets your question. Those are all eight commands; the table at the end of this page lists them.</p>
+  </section>
+
+  <h2 id="s7">Below zero</h2>
+  <p>A cell holds a whole number of a fixed size, and the size matters. This program only takes 1 from a cell that holds 0. Choose how many bits a cell has, and read what it holds afterwards:</p>
+  <figure class="fig col" id="fig-below" aria-label="One minus command on a cell that holds zero, for cells of 8, 16 and 32 bits"></figure>
+  <p>The cell did not go to −1. It went to the highest number it can hold: 255 for 8 bits, 65,535 for 16 and 4,294,967,295 for 32. After the highest number comes 0 again, and before 0 comes the highest number, like the mileage counter of a car.</p>
+  <p class="try"><b>Try it:</b> a cell of 8 bits holds 0. Press Step once to take 1 off:</p>
+  <figure id="f7" aria-labelledby="c7">
+    <div id="m7"></div>
+  <figcaption id="c7"><b>Figure 7.</b> One minus on an empty cell. Watch the value of cell 0. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a7" hidden>
+    <h3>What you just saw</h3>
+    <p>Not −1, but 255. The cells of these lessons mostly hold up to 255; the cells of the chat program hold up to 4,294,967,295. This going round looks like a nuisance. In <a href="05-peel.html#s1">step 1 of lesson 5</a> it is the key to everything.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Put any number in any cell, repeat something with a loop, and print a letter. For the sum these lessons build toward, that is the first part: the 90 can stand in a cell.</p>
+    <p class="next-q">To use the 90 in a sum, the program has to read it, and reading a cell turns out to empty it. What can be done about that?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>The eight commands in one table</h2>
+    <div class="scroll" id="t1" tabindex="0" role="group" aria-label="The eight commands; scrolls sideways on a narrow screen"><table>
+      <caption><b>Table 1.</b> The eight commands of brainfuck.</caption>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>+</code> <code>−</code></td><td>Add 1 to the cell under the pointer, or take 1 off.</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Move the pointer one cell to the right or to the left.</td></tr>
+      <tr><td><code>[</code> <code>]</code></td><td>Repeat everything between them until the cell under the pointer is zero.</td></tr>
+      <tr><td><code>,</code></td><td>Take one letter of input and put its number in the cell.</td></tr>
+      <tr><td><code>.</code></td><td>Print the cell as one letter.</td></tr>
+    </table></div>
+    <p>On your keyboard the minus is the ordinary hyphen key. Anything in a program that is not one of these characters is skipped.</p>
+    <p>A cell that goes up to 255 has 8 bits; one that goes up to 4,294,967,295 has 32 bits. <a href="05-peel.html#s1">Step 1 of lesson 5</a> shows what a bit is.</p>
+    <p>This lesson shows the machine with six cells. The tape of the chat program has 188,012,789 of them.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>1</b> of 11</p>
+    <a class="prev" href="#" rel="prev" aria-disabled="true"><span>Previous</span>The first lesson</a>
+    <a class="next" href="02-copy.html" rel="next"><span>Next</span>Moving and copying</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  var A = Article, $ = function (id) { return document.getElementById(id); };
+  // step 4: the loop, with the number it starts from and the amount it adds
+  A.machine($('fig-loop'), {
+    code: '{a}[->{b}<]', cells: 2, labels: ['left', 'right'], rate: 5,
+    sliders: [
+      { name: 'Left cell starts at', min: 0, max: 9, value: 3, id: 'a', repeat: '+' },
+      { name: 'Added to the right cell each round', min: 1, max: 9, value: 4, id: 'b', repeat: '+' }
+    ],
+    end: function (m, v) { return 'Finished. The left cell is empty and the right cell holds ' + m.tape[1] + ': ' + v[0] + ' rounds of ' + v[1] + '.'; }
+  });
+  // step 6: rounds, and the letter that comes out
+  A.machine($('fig-print'), {
+    code: '{a}[>++++++++<-]>+.', cells: 2, labels: ['rounds', 'letter'], rate: 6,
+    sliders: [{ name: 'Rounds', min: 1, max: 12, value: 8, id: 'a', repeat: '+' }],
+    end: function (m, v) { return 'Finished. Cell 1 holds ' + m.tape[1] + ' (' + v[0] + ' rounds of 8, and 1 more), and the program printed ' + A.letter(m.tape[1]) + '.'; }
+  });
+  // step 7: the size of the cell
+  A.machine($('fig-below'), {
+    build: function (v) {
+      var bits = [8, 16, 32][v[0] - 1];
+      return { code: '-', cells: 1, bits: bits, top: function () { return bits + ' bits'; }, at: 'end', end: function (m) { return 'One minus on a cell that held 0. It now holds ' + A.fmt(m.tape[0]) + '.'; } };
+    },
+    sliders: [{ name: 'Bits in a cell', min: 1, max: 3, value: 1, say: function (v) { return [8, 16, 32][v - 1] + ' bits'; } }]
+  });
+})();
+</script>
+<script>
+(function () {
+  const { $, core } = Learn;
+  const L = Learn.lesson(1);
+
+  // ---- 1. boxes and a finger
+  Learn.pad('m1', { cells: 6, move: true, judge: (tape, ptr, presses) => {
+    if (tape[1] === 3) L.done(1, 'Cell 1 holds 3. You pressed ' + presses + ' buttons.');
+    else L.note(1, tape[0] > 0 && tape[1] === 0 ? 'That is cell 0. Move the finger one box to the right first.' : 'Cell 1 holds ' + tape[1] + ' now.');
+  } });
+
+  // ---- 2. a program runs by itself
+  Learn.machine($('m2'), { code: '++>+++', bits: 8, cells: 6, onEnd: () => L.done(2, 'The program has ended: 2 in cell 0 and 3 in cell 1.') });
+
+  // ---- 3. write a number
+  const judge = (step, code, limit) => {
+    const r = core.checks.cell2is12(code, limit);
+    if (r.ok) return L.done(step, 'Cell 2 holds 12, with ' + r.got + ' commands.');
+    L.note(step, r.why === 'value' ? 'Not yet: at the end cell 2 holds ' + r.got + '.' : Learn.why(r));
+  };
+  Learn.machine($('m3'), { code: '>+', bits: 8, cells: 6, editable: true, max: 2e6, onEdit: (code) => judge(3, code, 0) });
+
+  // ---- 4. a loop
+  Learn.machine($('m4'), { code: '+++[->++++<]', bits: 8, cells: 6, onEnd: () => L.done(4, 'Three rounds of four: cell 1 holds 12.') });
+
+  // ---- 5. one cell further
+  const m5 = Learn.machine($('m5'), { code: '+++[->++++<]', bits: 8, cells: 6, editable: true, max: 2e6, onEdit: (code) => judge(5, code, 13) });
+  Learn.hints($('h5b'), ['h5'], () => m5.type('>+++[->++++<]'));
+
+  // ---- 6. print a letter
+  Learn.machine($('m6'), { code: '++++++++[>++++++++<-]>+.', bits: 8, cells: 6, onEnd: (m) => L.done(6, 'It printed the letter ' + String.fromCharCode(m.out[0]) + '. Cell 1 holds 65.') });
+
+  // ---- 7. below zero
+  Learn.machine($('m7'), { code: '-', bits: 8, cells: 6, onEnd: (m) => L.done(7, 'The cell went round: it holds ' + m.tape[0] + '.') });
+})();
+</script>
+</body>
+</html>

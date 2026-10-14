@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, glossary</title>
+<meta name="description" content="A glossary of brainfuck terms: tape, cell, pointer, wrapping, end of input, clear loop, multiply loop, interpreter, compiler, Turing complete, Turing tarpit, quine, self-interpreter and more.">
+<meta property="og:title" content="Glossary of brainfuck terms">
+<meta property="og:description" content="A glossary of brainfuck terms: tape, cell, pointer, wrapping, end of input, clear loop, multiply loop, interpreter, compiler, Turing complete, Turing tarpit, quine, self-interpreter and more.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Glossary</span></p>
+    <h1>Glossary</h1>
+    <p class="lead">Each term in a sentence or two, with a link to the page that explains it.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#machine">The machine</a></li>
+          <li><a href="#programs">Programs</a></li>
+          <li><a href="#impl">Implementations</a></li>
+          <li><a href="#models">The chat models</a></li>
+          <li><a href="#world">The wider world</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="machine" aria-labelledby="machine-h">
+    <h2 id="machine-h">The machine</h2>
+    <dl class="glossary">
+      <dt id="g-ascii">ASCII</dt><dd>The table that gives each letter, digit and sign a number from 0 to 127: A is 65, a is 97, the digit 0 is 48, a space is 32. Brainfuck prints and reads characters as these numbers. <a href="language.html#io">Output and input</a>.</dd>
+      <dt id="g-byte">Byte</dt><dd>A number from 0 to 255: eight bits. The usual size of a cell.</dd>
+      <dt id="g-cell">Cell</dt><dd>One place on the tape. It holds one whole number and starts at 0. <a href="language.html#machine">The machine</a>.</dd>
+      <dt id="g-command">Command</dt><dd>One of the eight things brainfuck understands, each written as one character: <code>+ - &lt; &gt; [ ] . ,</code>. Other texts call it an instruction. <a href="language.html#commands">The eight commands</a>.</dd>
+      <dt id="g-eof">End of input (EOF)</dt><dd>The moment a program asks for a character and there is none left. Implementations then store 0, store −1, or leave the cell as it is. <a href="portability.html#eof">The end of the input</a>.</dd>
+      <dt id="g-loop">Loop</dt><dd>The part of a program between a <code>[</code> and its matching <code>]</code>. It repeats while the cell under the pointer is not 0. <a href="language.html#loops">Loops</a>.</dd>
+      <dt id="g-newline">New line</dt><dd>The character that ends a line. In brainfuck programs it is the number 10. <a href="portability.html#newline">New lines</a>.</dd>
+      <dt id="g-pointer">Pointer</dt><dd>The mark that says which cell is the current one. Also called the data pointer or the head. <a href="language.html#machine">The machine</a>.</dd>
+      <dt id="g-tape">Tape</dt><dd>The memory of a brainfuck program: one row of cells. Also called the array, as in the original README. 30,000 cells in the original. <a href="portability.html#tape">The length of the tape</a>.</dd>
+      <dt id="g-wrap">Wrapping</dt><dd>What most implementations do when a cell passes its largest or smallest value: it goes round. With 8-bit cells, 255 plus one is 0 and 0 minus one is 255. <a href="portability.html#cells">Cell size and wrapping</a>.</dd>
+    </dl>
+  </section>
+
+  <section id="programs" aria-labelledby="programs-h">
+    <h2 id="programs-h">Programs</h2>
+    <dl class="glossary">
+      <dt id="g-balanced">Balanced loop</dt><dd>A loop whose body brings the pointer back to the cell where it started. Only balanced loops can be turned into a single multiplication. <a href="writing.html#speed">Writing for speed</a>.</dd>
+      <dt id="g-clear">Clear loop</dt><dd>The loop <span class="bf">[-]</span>, which makes a cell 0. <a href="writing.html#idioms">The idioms</a>.</dd>
+      <dt id="g-comment">Comment</dt><dd>Any character in a program that is not one of the eight commands. It is ignored. <a href="language.html#program">What a program is</a>.</dd>
+      <dt id="g-commentloop">Comment loop</dt><dd>A loop at the very start of a program. The first cell is 0, so the loop never runs, and text inside it is safe even if it contains command characters. <a href="language.html#program">What a program is</a>.</dd>
+      <dt id="g-copy">Copy loop</dt><dd>A loop such as <span class="bf">[-&gt;+&gt;+&lt;&lt;]</span> that adds a cell to others while emptying it. With a second loop that moves one copy back, the original is kept. <a href="writing.html#idioms">The idioms</a>.</dd>
+      <dt id="g-idiom">Idiom</dt><dd>A short piece of program that does one common job and is used again and again. Also called a pattern. <a href="../patterns/">Code patterns</a>.</dd>
+      <dt id="g-layout">Layout (memory map)</dt><dd>The plan of which cell holds what. Made before the program is written. <a href="writing.html#cells">Think in cells</a>.</dd>
+      <dt id="g-mul">Multiply loop</dt><dd>A loop such as <span class="bf">[-&gt;+++&lt;]</span> that adds a multiple of one cell to another. <a href="implementations.html#clear">Recognise simple loops</a>.</dd>
+      <dt id="g-program">Program</dt><dd>A text of commands. The machine reads it from left to right, one command at a time. On this site the chat models are programs of billions of commands. <a href="language.html#program">What a program is</a>.</dd>
+      <dt id="g-quine">Quine</dt><dd>A program that prints its own text. <a href="programs.html#quine">Quines</a>.</dd>
+      <dt id="g-scan">Scan loop</dt><dd>The loop <span class="bf">[&gt;]</span> or <span class="bf">[&lt;]</span>, which moves the pointer to the next cell that holds 0. <a href="implementations.html#clear">Recognise simple loops</a>.</dd>
+      <dt id="g-self">Self-interpreter</dt><dd>An interpreter for a language, written in that language. <a href="programs.html#self">Brainfuck in brainfuck</a>.</dd>
+      <dt id="g-temp">Spare cell (temp)</dt><dd>A cell that an idiom uses for a moment and leaves at 0. <a href="writing.html#idioms">The idioms</a>.</dd>
+    </dl>
+  </section>
+
+  <section id="impl" aria-labelledby="impl-h">
+    <h2 id="impl-h">Implementations</h2>
+    <dl class="glossary">
+      <dt id="g-compiler">Compiler</dt><dd>A program that translates a program into another form, once, before it runs: into C, machine code or WebAssembly. <a href="implementations.html#compile">Compiling</a>.</dd>
+      <dt id="g-contraction">Contraction (run-length merging)</dt><dd>Treating a row of the same command as one operation: <span class="bf">+++++</span> becomes "add 5". <a href="implementations.html#runs">Merge runs</a>.</dd>
+      <dt id="g-implementation">Implementation</dt><dd>Any program or machine that carries out brainfuck programs: an interpreter, a compiler, or hardware.</dd>
+      <dt id="g-interpreter">Interpreter</dt><dd>Software that reads a program and carries it out. On this site your browser does it. <a href="implementations.html#naive">One command at a time</a>.</dd>
+      <dt id="g-jit">JIT (just-in-time compiler)</dt><dd>A compiler that makes machine code while the program is already running, and then runs that. <a href="implementations.html#compile">Compiling</a>.</dd>
+      <dt id="g-offset">Offset folding</dt><dd>Working on cells at a distance from the pointer without moving it, and moving once at the end. <a href="implementations.html#offsets">Fold the moves away</a>.</dd>
+      <dt id="g-optimise">Optimising</dt><dd>Making an implementation faster without changing any result.</dd>
+      <dt id="g-portable">Portable</dt><dd>Said of a program that behaves the same on every implementation. <a href="portability.html#rules">Programs that work everywhere</a>.</dd>
+      <dt id="g-step">Step</dt><dd>One unit of work of an implementation. One command at a time, a step is a command. In an optimising implementation one step can stand for a whole loop, so step counts differ between implementations.</dd>
+      <dt id="g-wasm">WebAssembly</dt><dd>The machine code of web browsers. The chat pages of this site translate brainfuck into it.</dd>
+    </dl>
+  </section>
+
+  <section id="models" aria-labelledby="models-h">
+    <h2 id="models-h">The chat models</h2>
+    <dl class="glossary">
+      <dt id="g-attention">Attention</dt><dd>The part of a layer where the model looks back at the earlier word pieces and decides which ones matter for the next one. <a href="../how/">How it works</a>.</dd>
+      <dt id="g-engine">Engine</dt><dd>The short last stretch of the program that reads your question, does the arithmetic with the weights, and prints the answer. <a href="../inside/">Inside the program</a>.</dd>
+      <dt id="g-layer">Layer</dt><dd>One round of the model's arithmetic. An answer passes through 24 to 30 layers, one after the other. <a href="../how/">How it works</a>.</dd>
+      <dt id="g-model">Model</dt><dd>The part that learned to answer: a very long list of numbers (its weights) and a fixed recipe for multiplying and adding them. The program is its brainfuck form. <a href="programs.html#chat">Three chat models</a>.</dd>
+      <dt id="g-weight">Weight</dt><dd>One of the numbers the model learned in training. The model multiplies it with other numbers to work out its answer. <a href="../how/">How it works</a>.</dd>
+      <dt id="g-wordpiece">Word piece</dt><dd>A word or part of a word, like "capital" or "ing", which the model reads and writes instead of single letters. Other sites call it a token. <a href="../how/">How it works</a>.</dd>
+      <dt id="g-writingpart">Writing part</dt><dd>The first, enormous stretch of the program. It only puts the model's weights onto the tape, and neither reads nor prints. <a href="../inside/">Inside the program</a>.</dd>
+    </dl>
+  </section>
+
+  <section id="world" aria-labelledby="world-h">
+    <h2 id="world-h">The wider world</h2>
+    <dl class="glossary">
+      <dt id="g-aminet">Aminet</dt><dd>The archive of software for the Amiga computer where brainfuck was first published. Founded by the language's author. <a href="history.html#origin">History</a>.</dd>
+      <dt id="g-golf">Code golf</dt><dd>The sport of writing a program for a task in as few characters as possible. <a href="culture.html#golf">Code golf</a>.</dd>
+      <dt id="g-derivative">Derivative</dt><dd>A language made by changing brainfuck. <a href="relatives.html">Relatives and derivatives</a>.</dd>
+      <dt id="g-esolang">Esoteric language (esolang)</dt><dd>A programming language made to try an idea, to make a point or for fun, not for everyday work. <a href="history.html#ancestors">Ancestors</a>.</dd>
+      <dt id="g-false">FALSE</dt><dd>The language of 1993 whose 1,024-byte compiler moved Müller to make brainfuck.</dd>
+      <dt id="g-ppp">P′′</dt><dd>Corrado Böhm's language of 1964, which brainfuck closely resembles. Say "P double prime". <a href="history.html#ancestors">Ancestors</a>.</dd>
+      <dt id="g-polyglot">Polyglot</dt><dd>One text that is a valid program in several languages at once. Brainfuck is easy to include, because it ignores every character it does not know.</dd>
+      <dt id="g-subst">Trivial substitution</dt><dd>A language that is brainfuck with the eight commands renamed, such as Ook!. <a href="relatives.html#rename">The same language in other words</a>.</dd>
+      <dt id="g-tc">Turing complete</dt><dd>Able to compute everything that any computer can compute, given enough memory and time. <a href="theory.html#meaning">Theory</a>.</dd>
+      <dt id="g-tm">Turing machine</dt><dd>Alan Turing's imaginary machine of 1936: a tape, a head, a table of rules. The measure of what "computable" means.</dd>
+      <dt id="g-tarpit">Turing tarpit</dt><dd>A language that can do everything in principle and makes everything hard in practice. After a remark by Alan Perlis. <a href="theory.html#tarpit">The Turing tarpit</a>.</dd>
+    </dl>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="questions.html"><b>Questions people ask</b><span>Plain answers to the things people wonder about first.</span></a></li>
+      <li><a href="language.html"><b>The language, precisely</b><span>The terms of the first group, shown at work.</span></a></li>
+      <li><a href="reading.html"><b>Further reading</b><span>Where to go from here.</span></a></li>
+    </ul>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html" aria-current="page"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>11</b> of 13</p>
+    <a class="prev" href="culture.html" rel="prev"><span>Previous</span>Culture</a>
+    <a class="next" href="questions.html" rel="next"><span>Next</span>Questions</a>
+  </nav>
+</main>
+</body>
+</html>

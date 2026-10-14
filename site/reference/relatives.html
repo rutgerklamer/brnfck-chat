@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, relatives</title>
+<meta name="description" content="The family of languages around brainfuck, briefly and with sources: P′′ and FALSE before it; Ook!, COW, Boolfuck, Smallfuck, pbrain, Brainfork, Brainloller, Unary, BF Joust and BFF after it.">
+<meta property="og:title" content="Relatives and derivatives of brainfuck">
+<meta property="og:description" content="The family of languages around brainfuck, briefly and with sources: P′′ and FALSE before it; Ook!, COW, Boolfuck, Smallfuck, pbrain, Brainfork, Brainloller, Unary, BF Joust and BFF after it.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Relatives</span></p>
+    <h1>Relatives and derivatives</h1>
+    <p class="lead">Brainfuck is easy to change: rename the eight commands, take one away, or add a ninth, and you have a new language. Its author noticed: &ldquo;people created variants. Tons and tons of variants&rdquo; <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. The Esolang wiki files them in a category it calls &ldquo;a very large list&rdquo; <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. The family sorts into six kinds, with one or two well-documented examples of each.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#map">The family at a glance</a></li>
+          <li><a href="#before">Before: P′′ and FALSE</a></li>
+          <li><a href="#rename">The same language in other words</a></li>
+          <li><a href="#less">Smaller still</a></li>
+          <li><a href="#more">With something added</a></li>
+          <li><a href="#code">The same program, written differently</a></li>
+          <li><a href="#play">For play and for research</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="map" aria-labelledby="map-h">
+    <h2 id="map-h">The family at a glance</h2>
+    <div class="scroll" tabindex="0" role="group" aria-label="Languages related to brainfuck, by kind; scrolls sideways on a narrow screen">
+    <table id="tab-family" class="cmp">
+      <caption>Languages related to brainfuck, by kind. Years and authors are as the cited source gives them; "not stated" means it does not.</caption>
+      <thead><tr><th scope="col">Language</th><th scope="col">Year</th><th scope="col">By</th><th scope="col">The idea</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><a href="#before">P′′</a></th><td>1964</td><td>Corrado Böhm</td><td>Four instructions on a tape. A forerunner, not a relative by descent&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></td></tr>
+        <tr><th scope="row"><a href="#before">FALSE</a></th><td>1993</td><td>Wouter van Oortmerssen</td><td>A stack language with a compiler of 1,024 bytes. The spark&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a></td></tr>
+        <tr><th scope="row"><a href="#rename">Ook!</a></th><td>2001</td><td>David Morgan-Mar</td><td>The eight commands as pairs of "Ook"&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a></td></tr>
+        <tr><th scope="row"><a href="#rename">COW</a></th><td>2003</td><td>Sean Heber</td><td>Twelve commands, all ways of writing "moo"&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a></td></tr>
+        <tr><th scope="row"><a href="#less">Smallfuck</a></th><td>2002</td><td>Nikita Ayzikovsky</td><td>Cells of one bit, no input or output, a tape with an end&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a></td></tr>
+        <tr><th scope="row"><a href="#less">Boolfuck</a></th><td>2004</td><td>not stated</td><td>Cells of one bit, with input and output bit by bit&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></td></tr>
+        <tr><th scope="row"><a href="#more">pbrain</a></th><td>2004</td><td>Paul M. Parks</td><td>Adds procedures&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a></td></tr>
+        <tr><th scope="row"><a href="#more">Brainfork</a></th><td>2004</td><td>Asger Ipsen</td><td>Adds a command that splits the program in two&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a></td></tr>
+        <tr><th scope="row"><a href="#code">Brainloller</a></th><td>2005</td><td>Lode Vandevenne</td><td>The program is a picture: one coloured pixel per command&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a></td></tr>
+        <tr><th scope="row"><a href="#code">Unary</a></th><td>2005</td><td>Lode Vandevenne</td><td>The program is one number, written as a row of zeros&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a></td></tr>
+        <tr><th scope="row"><a href="#play">BF Joust</a></th><td>about 2009</td><td>Kerim Aydin</td><td>Two programs fight on one tape&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a></td></tr>
+        <tr><th scope="row"><a href="#play">BFF</a></th><td>2024</td><td>Agüera y Arcas and others</td><td>Programs that can copy each other, for research&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="before" aria-labelledby="before-h">
+    <h2 id="before-h">Before: P′′ and FALSE</h2>
+    <p><b>P′′</b> is the language Corrado Böhm described in 1964. Its four instructions are: move right; add one and move left; and two brackets that repeat while the current cell is not zero&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. Brainfuck without input and output can be translated into it almost command for command, and the Esolang wiki calls brainfuck "a minor variation" of it&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>. Whether Müller knew of it is not known. See <a href="history.html#ancestors">History</a>.</p>
+    <p><b>FALSE</b> is where the idea came from. Wouter van Oortmerssen designed it in 1993 to be powerful, hard to read, and small to compile: 1,024 bytes&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>. Müller made brainfuck by cutting FALSE down until the compiler fitted in 240&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a>. FALSE has some thirty commands, a stack and functions&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, so the two do not look alike. The Esolang wiki credits FALSE with inspiring Befunge as well&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>.</p>
+    <p><b>Befunge</b>, also from 1993, is a sibling by age only. Chris Pressey made it to be as hard to compile as possible: the program is a grid, and the point of execution can travel in four directions&nbsp;<a class="cite" href="#ref-18" aria-label="Source 18">[18]</a>.</p>
+  </section>
+
+  <section id="rename" aria-labelledby="rename-h">
+    <h2 id="rename-h">The same language in other words</h2>
+    <p>The simplest way to make a new language from brainfuck is to rename the commands. The Esolang wiki calls such a language a "trivial brainfuck substitution" and lists a large family&nbsp;<a class="cite" href="#ref-19" aria-label="Source 19">[19]</a>. A program is translated symbol for symbol, so everything said about brainfuck holds for them too.</p>
+    <p><b>Ook!</b>, by David Morgan-Mar (2001), is the best known and one of the first. It is written for orang-utans, who say only "Ook". Each command is two of the three words <code>Ook.</code> <code>Ook?</code> <code>Ook!</code>, so "move right" is <code>Ook. Ook?</code> and "add one" is <code>Ook. Ook.</code>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a> Müller mentioned it in his talk as "orangutan-compatible"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
+    <p>Others of the kind use the word "Blub", single letters (Alphuck), or the sounds of a Pokémon (Pikalang)&nbsp;<a class="cite" href="#ref-19" aria-label="Source 19">[19]</a>. <b>COW</b>, by Sean Heber (2003), is not quite a renaming: its commands are all spellings of "moo" with different capitals, but there are twelve of them, four more than brainfuck has&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>.</p>
+    <p>Daniel Cristofani has one request for people who make variants: give them a name that cannot be confused with "brainfuck", so that the name keeps meaning one language&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>.</p>
+  </section>
+
+  <section id="less" aria-labelledby="less-h">
+    <h2 id="less-h">Smaller still</h2>
+    <p>Can it be done with less? Yes.</p>
+    <p><b>Smallfuck</b>, by Nikita Ayzikovsky (around March 2002), has cells of a single bit and one command, <code>*</code>, that flips it, in place of <code>+</code> and <code>-</code>. It has no input and no output. Its tape has a fixed length, which is why the wiki does not count it as Turing complete as defined&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>.</p>
+    <p><b>Boolfuck</b> (2004) also has cells of one bit, where <code>+</code> flips the bit and <code>-</code> is gone, but keeps input and output, one bit at a time. Every brainfuck program can be translated into it, so it can compute as much&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. Together they show that the size of a cell does not matter for what can be computed, only the length of the tape. See <a href="theory.html#proofs">Theory</a>.</p>
+  </section>
+
+  <section id="more" aria-labelledby="more-h">
+    <h2 id="more-h">With something added</h2>
+    <p>The other direction: keep the eight commands and add what is missed most.</p>
+    <p><b>pbrain</b>, by Paul M. Parks (2004), adds procedures. <code>(</code> and <code>)</code> enclose a piece of program and give it the number that is in the current cell; <code>:</code> runs the procedure with the number in the current cell&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>.</p>
+    <p><b>Brainfork</b>, by Asger Ipsen (2004), adds <code>Y</code>, which splits the running program into two that go on side by side. In one the current cell becomes 0; in the other the pointer moves one cell right and that cell becomes 1, so each copy can find out which one it is&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>.</p>
+    <p>The wiki's list goes on: a version on a grid of cells, one that can run backwards, one on quantum bits&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. Cristofani's verdict on the whole direction is that it is like bolting parts onto a skateboard to make a truck&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The same program, written differently</h2>
+    <p>These keep the language and change what a program looks like.</p>
+    <p><b>Brainloller</b>, by Lode Vandevenne (2005), reads its program from the pixels of a picture. Each command has a colour. Two more colours turn the direction of reading, so that a long program can be folded into a rectangle&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>.</p>
+    <p><b>Unary</b>, by the same author (2005), goes as far as possible the other way. Give each command a code of three bits, put the codes in a row behind a 1, read the result as one number, and write that number as a row of that many zeros. A program is then described completely by its length&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. Even a tiny program becomes absurdly long, which is the joke.</p>
+  </section>
+
+  <section id="play" aria-labelledby="play-h">
+    <h2 id="play-h">For play and for research</h2>
+    <p><b>BF Joust</b> is a game invented by Kerim Aydin. Two programs in a cut-down brainfuck run at the same time on one short tape, one starting at each end. Each has a "flag" in its starting cell and tries to bring the other's flag to zero, or to make the other run off the tape. Players send in programs and a server plays each against all the others&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>. More under <a href="culture.html#games">Culture</a>.</p>
+    <p><b>BFF</b> is the variant used in the study "Computational Life" (2024). Program and data share one tape, and the input and output commands are replaced by commands that copy from one place on the tape to another. The researchers started with a large number of random programs of 64 bytes, let them run against each other, and report that programs that copy themselves tend to appear without being designed&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>For all languages except P′′, FALSE and BFF our source is the Esolang wiki, which anyone can edit. We did not open the designers' own pages; several are no longer online.</li>
+      <li>Years are those the wiki files each language under.</li>
+      <li>This is a small selection. We chose languages that are often mentioned and whose wiki pages are clear, not the "best" ones.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="history.html"><b>History</b><span>How the language itself came about, with a timeline.</span></a></li>
+      <li><a href="culture.html"><b>Culture</b><span>Why people make such things, and where.</span></a></li>
+      <li><a href="theory.html"><b>Theory</b><span>Why even the smallest of these can compute anything.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Esolang wiki, "Brainfuck derivatives"</b>: <a href="https://esolangs.org/wiki/Brainfuck_derivatives">the wiki's page on derivatives</a>. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Wikipedia, "P′′"</b>: <a href="https://en.wikipedia.org/wiki/P%E2%80%B2%E2%80%B2">the Wikipedia article on P′′</a>. Our source for Corrado Böhm, "On a family of Turing machines and the related programming language", <i>ICC Bulletin</i> 3 (1964), 185 to 194, and for C. Böhm and G. Jacopini, "Flow Diagrams, Turing Machines and Languages with Only Two Formation Rules", <i>Communications of the ACM</i> 9(5) (1966), 366 to 371. We did not open the two papers themselves. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Wouter van Oortmerssen, "The FALSE Programming Language"</b>: <a href="https://strlen.com/false-language/">the author's page on FALSE</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Esolang wiki, "Ook!"</b>: <a href="https://esolangs.org/wiki/Ook!">the wiki article on Ook!</a>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Esolang wiki, "COW"</b>: <a href="https://esolangs.org/wiki/COW">the wiki article on COW</a>. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Esolang wiki, "Smallfuck"</b>: <a href="https://esolangs.org/wiki/Smallfuck">the wiki article on Smallfuck</a>. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Esolang wiki, "Boolfuck"</b>: <a href="https://esolangs.org/wiki/Boolfuck">the wiki article on Boolfuck</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Esolang wiki, "pbrain"</b>: <a href="https://esolangs.org/wiki/Pbrain">the wiki article on pbrain</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Esolang wiki, "Brainfork"</b>: <a href="https://esolangs.org/wiki/Brainfork">the wiki article on Brainfork</a>. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>Esolang wiki, "Brainloller"</b>: <a href="https://esolangs.org/wiki/Brainloller">the wiki article on Brainloller</a>. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>Esolang wiki, "Unary"</b>: <a href="https://esolangs.org/wiki/Unary">the wiki article on Unary</a>. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>Esolang wiki, "BF Joust"</b>: <a href="https://esolangs.org/wiki/BF_Joust">the wiki article on BF Joust</a>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>Blaise Agüera y Arcas and others, "Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction"</b>, arXiv:2406.19108, 2024: <a href="https://arxiv.org/abs/2406.19108">the abstract on arXiv</a> and <a href="https://arxiv.org/html/2406.19108v2">the full text</a>. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Esolang wiki, "FALSE"</b>: <a href="https://esolangs.org/wiki/FALSE">the wiki article on FALSE</a>. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-18"><b>Esolang wiki, "Befunge"</b>: <a href="https://esolangs.org/wiki/Befunge">the wiki article on Befunge</a>. Opened 11 October 2026.</li>
+      <li id="ref-19"><b>Esolang wiki, "Trivial brainfuck substitution"</b>: <a href="https://esolangs.org/wiki/Trivial_brainfuck_substitution">the wiki article</a>. Opened 11 October 2026.</li>
+      <li id="ref-20"><b>Daniel B Cristofani, "The Epistle to the Implementors"</b>: <a href="https://brainfuck.org/epistle.html">the epistle on brainfuck.org</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html" aria-current="page"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>9</b> of 13</p>
+    <a class="prev" href="implementations.html" rel="prev"><span>Previous</span>Implementations</a>
+    <a class="next" href="culture.html" rel="next"><span>Next</span>Culture</a>
+  </nav>
+</main>
+</body>
+</html>

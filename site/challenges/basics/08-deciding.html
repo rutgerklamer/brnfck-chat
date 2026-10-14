@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 8, making a decision</title>
+<meta name="description" content="Lesson 8 of Brainfuck basics: brainfuck has one question, is this cell zero? You use it to do something only if a cell is not zero, and something else if it is.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Making a decision</h1>
+    <p class="lead">By the end of this lesson you can make a program do something only if a cell is not zero, and something else if it is.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>8</b> of 10</p>
+    <a class="prev" href="07-copy.html" rel="prev"><span>Previous</span>Moving and copying</a>
+    <a class="next" href="09-program.html" rel="next"><span>Next</span>A small program</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Only if there is something</h2>
+    <p>Here is a small program with a box for its input, which starts as the letter a. Press <em>Play</em>, then empty the box and press <em>Play</em> again:</p>
+    <figure class="fig col" id="f1" aria-label="A program that prints an exclamation mark if it reads a character, with a box for its input">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that with the letter a the program printed an exclamation mark, and with an empty box it printed nothing. In both runs the part between the brackets ran once, or not at all.</p>
+      <p>The program reads a character into cell 0, and then <code>[</code> asks its one question: is the cell under the pointer zero? With the letter a, cell 0 holds 97, so the machine goes in, makes 33 in cell 1 and prints it. With an empty box nothing is read, cell 0 stays 0, and the machine jumps past the closing <code>]</code>.</p>
+      <p>What makes the part run only once is the <code>[−]</code> just before the closing bracket. It empties cell 0, the cell the question is about. Without it the loop would print for ever. A loop that is made to run at most once is how brainfuck says <b>if</b>.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Is it a zero?</h2>
+    <p>This program prints the letter N, unless the digit it reads is 0. Its first 48 commands are minus signs. Press <em>Play</em> with the input 5, then change the input to 0 and press <em>Play</em> again:</p>
+    <figure class="fig col" id="f2" aria-label="A program that prints N for a digit, but nothing for the digit 0, with a box for its input">
+      <div id="m2"></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Notice that the 5 printed N and the 0 printed nothing. The character 0 is number 48 (<a href="03-letters.html">Lesson 3</a> has the table), and 48 is not zero. So the program first takes 48 off. After that the cell is zero exactly when a 0 was typed, and the bracket can ask its only question.</p>
+      <p>Every comparison in brainfuck works like this. <q>Is it equal to 48?</q> becomes <q>is it zero after taking 48 off?</q></p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Or else</h2>
+    <p>This program prints 1 if there is input. Write the missing part, so that it prints 0 if there is none. The words in it are comments, which the machine skips. Empty the input box to try the case without input:</p>
+    <figure class="fig col" id="f3" aria-label="A program with a gap at the end, and a box to write the missing part in">
+      <div id="m3"></div>
+      <div class="callout hint" id="h3a" hidden><h3>Hint</h3><p>The second pair of brackets runs only when the flag in cell 1 is still 1. Inside it you stand on cell 1.</p></div>
+      <div class="callout hint" id="h3b" hidden><h3>Hint</h3><p>Build 48 in a cell further right (6 rounds of 8), print it, empty it, and be back on cell 1 before the last two commands.</p></div>
+      <div class="row"><button class="quiet" id="h3">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that the finished program has two pairs of brackets, and that for any input exactly one of them runs. There is no command for <q>otherwise</q>. The way round it is a second cell, called a <b>flag</b>: it is set to 1 before the question. If the first part runs, it clears the flag. Afterwards a second pair of brackets asks about the flag, and a flag that is still 1 means that the first part did not run.</p>
+      <p>Other languages write <q>if ... else ...</q>. Brainfuck writes a flag and two loops that each run at most once.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">Not for zero</h2>
+    <p>Now use both ideas together. Write a program that reads one digit and prints an exclamation mark (number 33), but not if the digit is 0. It is tried with 5, with 0 and with 9:</p>
+    <figure class="fig col" id="f4" aria-label="A box for a program that prints an exclamation mark for every digit but 0">
+      <div id="m4"></div>
+      <div class="callout hint" id="h4a" hidden><h3>Hint</h3><p>Take 48 off first, as in <a href="#s2">Is it a zero?</a></p></div>
+      <div class="callout hint" id="h4b" hidden><h3>Hint</h3><p>Then the shape of <a href="#s1">Only if there is something</a>: open a bracket, go to another cell, make 33, print, come back, empty the cell, close the bracket.</p></div>
+      <div class="row"><button class="quiet" id="h4">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>Notice that your program is two things you had already seen, one after the other: take 48 off, then an <q>if</q>. You have joined a comparison to a decision, and that is enough for any choice a program has to make.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Read two characters and print an exclamation mark only if they differ. Take one off the other first. Harder: print = only if they are the same, which needs a flag. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, with an input box, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can turn a comparison into the question <q>is this cell zero?</q>, run a part of a program only if a cell is not zero, and use a flag for <q>or else</q>. These are the pieces of this lesson:</p>
+    <div class="scroll"><table>
+      <caption>The pieces of Lesson 8.</caption>
+      <tr><th>Piece</th><th>What it does</th></tr>
+      <tr><td><code>[ … [−]]</code></td><td>Run the part in between once if the cell is not zero, and skip it if the cell is zero. The <code>[−]</code> at the end empties the cell, so the loop does not go round again.</td></tr>
+      <tr><td>Take a number off, then <code>[</code></td><td>Ask whether a cell held that number: it is zero now only if it did.</td></tr>
+      <tr><td>A flag cell</td><td>Set a second cell to 1, clear it inside the first part, and ask about it with a second pair of brackets. That is <q>or else</q>.</td></tr>
+    </table></div>
+    <p>The <a href="../../patterns/">Patterns</a> have these shapes ready to use: <a href="../../patterns/if-nonzero.html">if</a>, <a href="../../patterns/if-else.html">if ... else</a> and <a href="../../patterns/compare-equal.html">equal?</a> The single question also has a price when the numbers get large; <a href="../../learn/04-zero.html">Lesson 4 of Build toward a chatbot</a> shows it.</p>
+    <p class="next-q">You now know every part a program is made of. In <a href="09-program.html">Lesson 9</a> you put them together into a program of your own.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>8</b> of 10</p>
+    <a class="prev" href="07-copy.html" rel="prev"><span>Previous</span>Moving and copying</a>
+    <a class="next" href="09-program.html" rel="next"><span>Next</span>A small program</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const { $ } = Learn, P = BasicsPrograms;
+  const L = Basics.lesson(8);
+  // ---- 1. only if there is something
+  (function () {
+    let full = false, empty = false;
+    Learn.machine($('m1'), { code: P.byId.d8s1.code, bits: 8, cells: 6, inputBox: true, inputText: 'a', max: 2e5, onEnd: (m) => {
+      if (m.input.length) full = true; else empty = true;
+      if (full && empty) L.done(1, 'With input it prints an exclamation mark. With no input it prints nothing.');
+      else L.note(1, full ? 'With input it printed an exclamation mark. Now empty the input box and run it again.' : 'With no input it printed nothing. Now type a letter in the input box and run it again.');
+    } });
+  })();
+  // ---- 2. is it a zero?
+  (function () {
+    let zero = false, other = false;
+    Learn.machine($('m2'), { code: P.byId.d8s2.code, bits: 8, cells: 6, inputBox: true, inputText: '5', max: 2e5, onEnd: (m) => {
+      if (m.input[0] === 48) zero = true; else if (m.input.length) other = true;
+      if (zero && other) L.done(2, 'For 0 it prints nothing. For any other character it prints N.');
+      else L.note(2, zero ? 'For 0 it printed nothing. Now try another digit.' : other ? 'It printed N. Now change the input to 0 and run it again.' : 'The input box is empty. Type a digit in it.');
+    } });
+  })();
+  // ---- 3. or else
+  Basics.task(L, 3, 'm3', 't8s3', { button: 'h3', hints: ['h3a', 'h3b'], said: () => 'With input it prints 1, and with no input it prints 0.' });
+  // ---- 4. not for zero
+  Basics.task(L, 4, 'm4', 't8s4', { button: 'h4', hints: ['h4a', 'h4b'], said: (r) => 'An exclamation mark for 5 and 9, nothing for 0, with ' + r.n + ' commands.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(8, 'quiz', "How does a brainfuck program ask \"does this cell hold 5?\"", [["With the command for comparing",false,"There is no such command. There are only eight, and you know them all."],["It takes 5 off and asks whether the cell is zero",true,"The only question is \"zero or not\". Every other question has to be turned into that one."],["It runs a loop five times",false,"That does something five times. It does not tell you what the cell holds."]]);
+  Basics.free('mf', { inputBox: true, inputText: 'ab' });
+})();
+</script>
+</body>
+</html>

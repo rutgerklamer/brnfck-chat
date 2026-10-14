@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Multiply by a constant</title>
+<meta name="description" content="Adds a fixed multiple of a cell to another cell. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#arithmetic">Arithmetic</a><span>Multiply by a constant</span></p>
+    <h1>Multiply by a constant</h1>
+    <p class="lead">Adds a fixed multiple of a cell to another cell.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>16</b> of 38</p>
+    <a class="prev" href="scan.html" rel="prev"><span>Previous</span>Find a zero cell or a marker</a>
+    <a class="next" href="mul-cells.html" rel="next"><span>Next</span>Multiply two cells</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Using up x” works on 2 cells, named “x” and “y”. Press <em>Play</em>, drag the step slider forwards and back, or change factor f and x with the sliders:</p>
+
+    <figure class="fig col" id="fig-mul-const-drain" data-p="mul-const" data-v="drain" aria-label="The form Using up x of multiply by a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>It is the pattern <a href="move.html">move a value</a>, but it gives more than it takes: for every 1 that leaves x, the target gets 3.</p>
+    <p>The factor is written into the program as that many plus signs. A minus sign instead gives a negative factor.</p>
+    <p>The loop is flat, so an optimising interpreter does the whole multiplication in one step, for any x.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran, written for these values. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-mul-const-drain">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;+++&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%2B%2B%3C%5D&amp;names=0:x,1:y">Open in the playground</a><span class="count" data-len>8 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>The factor is fixed when the program is written.</li>
+      <li>The target gets the product added. Any cell size; too large a product wraps.</li>
+      <li>To keep x: one scratch cell.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Writing a large factor as hundreds of plus signs. Split it: two loops of 16 make 256.</li>
+      <li>Expecting x × y for two cells from this: the factor cannot come from the tape. See <a href="mul-cells.html">multiply two cells</a>.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-mul-const-drain-cost" data-p="mul-const" data-v="drain" data-cost-fig aria-label="Steps taken by the form Using up x, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Using up x</td><td>1 + (4 + f) × x</td><td>1</td></tr>
+<tr><td>Keeping x</td><td>6 + (14 + f) × x</td><td>3</td></tr>
+<tr><td>In place</td><td>4 + (4 + f) × x + 5 × the product</td><td>3</td></tr>
+<tr><td>Several factors in one pass</td><td>1 + 14x</td><td>1</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Using up x</td><td>factor f = 3; x = 5</td><td class="n">8</td><td class="n">8</td><td class="n">36</td><td class="n">1</td></tr>
+<tr><td>Using up x</td><td>factor f = 12; x = 200</td><td class="n">8</td><td class="n">17</td><td class="n">3,201</td><td class="n">1</td></tr>
+<tr><td>Keeping x</td><td>factor f = 3; x = 5</td><td class="n">8</td><td class="n">23</td><td class="n">91</td><td class="n">3</td></tr>
+<tr><td>In place</td><td>factor f = 3; x = 5</td><td class="n">8</td><td class="n">16</td><td class="n">114</td><td class="n">3</td></tr>
+<tr><td>Several factors in one pass</td><td>x = 5</td><td class="n">8</td><td class="n">15</td><td class="n">71</td><td class="n">1</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-keep" aria-labelledby="v-keep-h">
+      <h3 id="v-keep-h">Keeping x</h3>
+      <p>Layout: x, y, scratch.</p>
+      <div class="code" data-fig="fig-mul-const-keep">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;+++&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%2B%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%3C&amp;names=0:x,1:y,2:scratch">Open in the playground</a><span class="count" data-len>23 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-keep"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Keeping x” works on 3 cells, named “x”, “y” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change factor f and x with the sliders:</p>
+        <figure class="fig col" id="fig-mul-const-keep" data-p="mul-const" data-v="keep" aria-label="The form Keeping x of multiply by a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-inplace" aria-labelledby="v-inplace-h">
+      <h3 id="v-inplace-h">In place</h3>
+      <p>x becomes f × x. Layout: x, scratch.</p>
+      <div class="code" data-fig="fig-mul-const-inplace">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;+++&lt;]&gt;[-&lt;+&gt;]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%2B%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C&amp;names=0:x,1:scratch">Open in the playground</a><span class="count" data-len>16 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-inplace"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “In place” works on 2 cells, named “x” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change factor f and x with the sliders:</p>
+        <figure class="fig col" id="fig-mul-const-inplace" data-p="mul-const" data-v="inplace" aria-label="The form In place of multiply by a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-many" aria-labelledby="v-many-h">
+      <h3 id="v-many-h">Several factors in one pass</h3>
+      <p>Three targets get 2x, 3x and −x. One loop, one step.</p>
+      <div class="code" data-fig="fig-mul-const-many">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;++&gt;+++&gt;-&lt;&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%2B%3E%2B%2B%2B%3E-%3C%3C%3C%5D&amp;names=0:x,1:2x,2:3x,3:x">Open in the playground</a><span class="count" data-len>15 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-many"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Several factors in one pass” works on 4 cells, named “x”, “2x”, “3x” and “−x”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-mul-const-many" data-p="mul-const" data-v="many" aria-label="The form Several factors in one pass of multiply by a constant, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../learn/03-multiply.html">Build toward a chatbot, lesson 3, "Multiplying by a fixed number"</a>, teaches it, with 90 × 100 as the example.</li>
+      <li>This is how the chat program holds its weights: each weight is a factor in a loop like this. In the project it is <code>scatter</code> and <code>addMulConst</code> in emit.js.</li>
+      <li><a href="constant.html">Set a constant</a> is this pattern with a fixed x.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: scatter, addMulConst.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>16</b> of 38</p>
+    <a class="prev" href="scan.html" rel="prev"><span>Previous</span>Find a zero cell or a marker</a>
+    <a class="next" href="mul-cells.html" rel="next"><span>Next</span>Multiply two cells</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

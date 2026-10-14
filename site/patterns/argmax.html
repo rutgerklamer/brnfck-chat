@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Pick the largest by a race</title>
+<meta name="description" content="Finds which of many numbers is the largest, without comparing any two of them. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#advanced">Advanced: wrapping cells of a known width</a><span>Pick the largest by a race</span></p>
+    <h1>Pick the largest by a race</h1>
+    <p class="lead">Finds which of many numbers is the largest, without comparing any two of them.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>37</b> of 38</p>
+    <a class="prev" href="frames.html" rel="prev"><span>Previous</span>One copy of code over many frames</a>
+    <a class="next" href="digit-planes.html" rel="next"><span>Next</span>Write many numbers compactly as digits</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Two digits of four bits” works on 31 cells; the named ones are “result 0”, “high 0”, “low 0”, “result 1”, “high 1”, “low 1”, “result 2”, “high 2”, “low 2”, “result 3”, “high 3”, “low 3” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or edit the scores:</p>
+
+    <figure class="fig col" id="fig-argmax-digits" data-p="argmax" data-v="digits" aria-label="The form Two digits of four bits of pick the largest by a race, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>Add 1 to every number at the same time, again and again. The first one to reach the top was the largest. "Add 1 to all" is one flat loop: one step, however many numbers there are.</p>
+    <p>"Has anyone arrived?" is a scan (see <a href="scan.html">find a zero cell or a marker</a>). The numbers are stored as "distance still to go", so an arrival is a zero cell, and <code class="bf">[&gt;&gt;&gt;&gt;&gt;]</code> slides over all the others and stops on it. If nobody has arrived it stops on an empty frame at the end, and a marker there says "go round again".</p>
+    <p>A race over the whole value would take up to 256 rounds. So each number is split into two digits of 4 bits. The race is run on the high digits first, 16 rounds at most; only the winners of that race take part in the race on the low digits.</p>
+    <p>The first of several equal numbers wins, because the scan comes from the left.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran, written by the generators for these values and this cell size. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-argmax-digits">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;----------------&gt;--------------------------------&gt;+&gt;&gt;&gt;----------------&gt;--------------------------------&gt;+&gt;&gt;&gt;----------------&gt;--------------------------------&gt;+&gt;&gt;&gt;----------------&gt;--------------------------------&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;+[&gt;&gt;&gt;&gt;+[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[&gt;&gt;&gt;&gt;&gt;]&lt;&lt;]&lt;[&gt;&gt;&gt;&gt;++++++++++++++++&lt;&gt;&gt;&gt;&gt;&gt;[&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;]&gt;[&gt;&gt;&gt;&gt;+[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;&gt;+&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;]&gt;+&lt;&lt;[&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;-&gt;&gt;&gt;&gt;+[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;-&gt;&gt;&gt;&gt;&gt;-&gt;&gt;&gt;&gt;&gt;-&gt;&gt;&gt;&gt;&gt;-&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-]&gt;[-]&gt;&gt;&gt;&gt;[-]&gt;[-]&gt;&gt;&gt;&gt;[-]&gt;[-]&gt;&gt;&gt;&gt;[-]&gt;[-]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%2B%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E----------------%3E--------------------------------%3E%2B%3E%3E%3E----------------%3E--------------------------------%3E%2B%3E%3E%3E----------------%3E--------------------------------%3E%2B%3E%3E%3E----------------%3E--------------------------------%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%2B%5B%3E%3E%3E%3E%2B%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%2B%3E%3E%3E%3E%3E%2B%3E%3E%3E%3E%3E%2B%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5B%3E%3E%3E%3E%3E%5D%3C%3C%5D%3C%5B%3E%3E%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%3E%3E%3E%3E%3E%5B%3E%3E%3E%3E%3E%5D%3C%3C%3C%5D%3E%5B%3E%3E%3E%3E%2B%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%2B%3E%3E%3E%3E%3E%2B%3E%3E%3E%3E%3E%2B%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5B%3E%3E%3E%3E%3E%5D%3C%3C%3C%5D%3E%2B%3C%3C%5B%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E-%3E%3E%3E%3E%2B%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C-%3E%3E%3E%3E%3E-%3E%3E%3E%3E%3E-%3E%3E%3E%3E%3E-%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5B-%5D%3E%5B-%5D%3E%3E%3E%3E%5B-%5D%3E%5B-%5D%3E%3E%3E%3E%5B-%5D%3E%5B-%5D%3E%3E%3E%3E%5B-%5D%3E%5B-%5D&amp;names=7:result-0,8:high-0,9:low-0,12:result-1,13:high-1,14:low-1,17:result-2,18:high-2,19:low-2,22:result-3,23:high-3,24:low-3">Open in the playground</a><span class="count" data-len>663 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Each number in a frame of five cells: marker, marker, result, high digit, low digit, with one empty frame before and after. One scratch cell.</li>
+      <li>Any cell size that wraps. The numbers are used up; the result is a 1 in the result cell of the winner.</li>
+      <li>To be fast it needs an interpreter that does a flat loop in one step. In plain steps the shifts are long loops and the gain is lost.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Racing on whole values. With 512 numbers a round is about 515 steps; 200 rounds are 100,000 steps.</li>
+      <li>Forgetting the empty frames at both ends: the scan needs a place to stop, and the walk home needs one too.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-argmax-digits-cost" data-p="argmax" data-v="digits" data-cost-fig aria-label="Steps taken by the form Two digits of four bits, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Two digits of four bits</td><td>hundreds to thousands</td><td>about (numbers + 3) per round; at most 32 rounds</td></tr>
+<tr><td>The naive way: count down and test each one</td><td>grows with numbers × (255 − best)</td><td>about 10 per number per round; 255 − best rounds</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Two digits of four bits</td><td>the scores = 93, 41, 207, 150</td><td class="n">8</td><td class="n">663</td><td class="n">3,891</td><td class="n">62</td></tr>
+<tr><td>Two digits of four bits</td><td>the scores = 3, 1, 2, 0, 3, … (8)</td><td class="n">8</td><td class="n">1,175</td><td class="n">9,604</td><td class="n">384</td></tr>
+<tr><td>Two digits of four bits</td><td>the scores = 255, 255</td><td class="n">8</td><td class="n">407</td><td class="n">412</td><td class="n">30</td></tr>
+<tr><td>The naive way: count down and test each one</td><td>the scores = 93, 41, 207, 150</td><td class="n">8</td><td class="n">536</td><td class="n">954,386</td><td class="n">1,825</td></tr>
+<tr><td>The naive way: count down and test each one</td><td>the scores = 3, 1, 2, 0, 3, … (8)</td><td class="n">8</td><td class="n">1,384</td><td class="n">17,385,019</td><td class="n">18,487</td></tr>
+<tr><td>The naive way: count down and test each one</td><td>the scores = 255, 255</td><td class="n">8</td><td class="n">232</td><td class="n">1,147</td><td class="n">31</td></tr></tbody></table></div>
+    </div></details>
+    <h3>Against the naive way</h3>
+    <p>The race of the first version of this project: count every number down by 1 per round, and test each one for zero with a copy.</p>
+    <details class="q fold" id="compare"><summary>The numbers, row by row</summary><div class="a">
+      <div class="bars"><span class="lab">this pattern: the scores = 3, 1, 2, 0, 3, … (8)</span><div><div class="bar b2" style="width:2.08%"></div></div><span>384</span><span class="lab">the naive way: the scores = 3, 1, 2, 0, 3, … (8)</span><div><div class="bar ink" style="width:100.00%"></div></div><span>18,487</span></div>
+      <p class="measured">This pattern against the naive way, on 8-bit cells, measured when this page was written. The bars show the last row: optimised steps.</p>
+      <div class="scroll" tabindex="0" role="region" aria-label="This pattern against the naive way"><table>
+        <thead><tr><th rowspan="2">Values</th><th colspan="2">Optimised steps</th><th colspan="2">Plain steps</th><th colspan="2">Characters</th></tr>
+        <tr><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th></tr></thead>
+        <tbody><tr><td>the scores = 93, 41, 207, 150</td><td class="n">62</td><td class="n">1,825</td><td class="n">3,891</td><td class="n">954,386</td><td class="n">663</td><td class="n">536</td></tr>
+<tr><td>the scores = 3, 1, 2, 0, 3, … (8)</td><td class="n">384</td><td class="n">18,487</td><td class="n">9,604</td><td class="n">17,385,019</td><td class="n">1,175</td><td class="n">1,384</td></tr></tbody></table></div>
+    </div></details>
+    <p>Measured in the project for 512 scores on 32-bit cells: about 5,000 optimised steps with digits of 2 bits, against 119,000 to 595,000 for the baseline, depending on how high the best score is. <span class="ev">measured in the project</span></p>
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-naive" aria-labelledby="v-naive-h">
+      <h3 id="v-naive-h"><span class="badge">to measure against</span> The naive way: count down and test each one</h3>
+      <p>The lowest "distance to go" wins, so each score is stored as 255 − score. Scores in cells 0…, results after them.</p>
+      <div class="code" data-fig="fig-argmax-naive">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+[&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;[&gt;&gt;-&lt;&lt;[-]]&gt;&gt;[&lt;&lt;&lt;[-&gt;+&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;[&lt;-&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;[-]]&gt;&gt;[-]]+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;[&gt;&gt;-&lt;&lt;[-]]&gt;&gt;[&lt;&lt;&lt;[-&gt;+&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;[&lt;-&lt;&lt;&lt;+&gt;&gt;&gt;&gt;[-]]&gt;&gt;[-]]+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;[&gt;&gt;-&lt;&lt;[-]]&gt;&gt;[&lt;&lt;&lt;[-&gt;+&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;[&lt;-&lt;&lt;+&gt;&gt;&gt;[-]]&gt;&gt;[-]]+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;&gt;&gt;&gt;&gt;&gt;+&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;[&gt;&gt;-&lt;&lt;[-]]&gt;&gt;[&lt;&lt;&lt;[-&gt;+&gt;+&lt;&lt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;[&lt;-&lt;+&gt;&gt;[-]]&gt;&gt;[-]]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;-&gt;-&gt;-&gt;-&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-]&gt;[-]&gt;[-]&gt;[-]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%3E%3E%3E%3E%3E%3E%2B%5B%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%3E%3E%3E%3E%3E%3E%3E%3E%2B%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%5B%3E%3E-%3C%3C%5B-%5D%5D%3E%3E%5B%3C%3C%3C%5B-%3E%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%5B%3C-%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%5B-%5D%5D%3E%3E%5B-%5D%5D%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%3E%3E%3E%3E%3E%3E%3E%2B%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%5B%3E%3E-%3C%3C%5B-%5D%5D%3E%3E%5B%3C%3C%3C%5B-%3E%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%5B%3C-%3C%3C%3C%2B%3E%3E%3E%3E%5B-%5D%5D%3E%3E%5B-%5D%5D%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%3E%3E%3E%3E%3E%3E%2B%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%5B%3E%3E-%3C%3C%5B-%5D%5D%3E%3E%5B%3C%3C%3C%5B-%3E%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%5B%3C-%3C%3C%2B%3E%3E%3E%5B-%5D%5D%3E%3E%5B-%5D%5D%2B%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%3E%3E%3E%3E%3E%2B%3E%2B%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%5D%3C%5B%3E%3E-%3C%3C%5B-%5D%5D%3E%3E%5B%3C%3C%3C%5B-%3E%2B%3E%2B%3C%3C%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%5B%3C-%3C%2B%3E%3E%5B-%5D%5D%3E%3E%5B-%5D%5D%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C-%3E-%3E-%3E-%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%5D%3E%5B-%5D%3E%5B-%5D%3E%5B-%5D&amp;names=0:to-go-0,1:to-go-1,2:to-go-2,3:to-go-3,4:result-0,5:result-1,6:result-2,7:result-3">Open in the playground</a><span class="count" data-len>536 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-naive"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The naive way: count down and test each one” works on 12 cells; the named ones are “to go 0”, “to go 1”, “to go 2”, “to go 3”, “result 0”, “result 1”, “result 2” and “result 3”. Press <em>Play</em>, drag the step slider forwards and back, or edit the scores:</p>
+        <figure class="fig col" id="fig-argmax-naive" data-p="argmax" data-v="naive" aria-label="The form The naive way: count down and test each one of pick the largest by a race, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../learn/11-together.html">Build toward a chatbot, lesson 11, "Choosing the word"</a>: it chooses the next word piece this way.</li>
+      <li>In the chat model: <code>argmax</code> in patterns.js picks the next word piece out of tens of thousands: see <a href="../how/#s8">How it works, section "Choosing the word"</a>. <code>splitDigits</code> makes the digits with <a href="bit-peel.html">the bit peel</a>.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: argmax, argmaxRaceNaive (the baseline), frames, splitDigits.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>37</b> of 38</p>
+    <a class="prev" href="frames.html" rel="prev"><span>Previous</span>One copy of code over many frames</a>
+    <a class="next" href="digit-planes.html" rel="next"><span>Next</span>Write many numbers compactly as digits</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

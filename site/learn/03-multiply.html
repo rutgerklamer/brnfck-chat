@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 3: multiplying by a fixed number · brnfck.chat</title>
+<meta name="description" content="Lesson 3: a loop that multiplies, why a fast interpreter does it in one step, and the first part of the goal: four products added up.">
+<meta property="og:title" content="Lesson 3: multiplying by a fixed number">
+<meta property="og:description" content="Lesson 3: a loop that multiplies, why a fast interpreter does it in one step, and the first part of the goal: four products added up.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Multiplying by a fixed number</span></p>
+    <h1>Multiplying by a fixed number</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson your program works out 90 × 100, adds three more products to it, and you know why that costs only eight steps.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>3</b> of 11</p>
+    <a class="prev" href="02-copy.html" rel="prev"><span>Previous</span>Moving and copying</a>
+    <a class="next" href="04-zero.html" rel="next"><span>Next</span>Obstacle 1: only one question</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>The sum starts with four products added into one total. This lesson makes them, in a language that has no "times" command.</p>
+  </section>
+
+  <h2 id="s1">A loop that multiplies</h2>
+  <p>You met this loop in lesson 1. The left cell holds a number, and each round adds the same amount to the right cell. Change the number and the amount, and read the right cell at the end: press <em>Play</em>, or drag <em>Step</em> back and forth:</p>
+  <figure class="fig col" id="fig-times" aria-label="A loop that takes 1 from the left cell and adds a fixed number to the right cell, on a tape of two cells"></figure>
+  <p>The right cell ends at the left number times the amount: 3 rounds of 4 make 12. Adding the same amount again and again is multiplying. The 4 is not on the tape. It stands in the program, as four plus signs, and that is called a <b>fixed number</b>. A model is full of such multiplications, and the number an input is multiplied by is called a <b>weight</b>. The sliders stop at 9 to keep the run short; the weights of the chat model are larger.</p>
+  <p class="try"><b>Try it:</b> the left cell holds 3 and the weight is 4. Press Step until the program has ended. What ends up in the right cell?</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+  <figcaption id="c1"><b>Figure 1.</b> A loop that multiplies by 4. Watch the right cell grow by four each round. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>Every round took 1 from the left cell and added 4 to the right cell. Three rounds: 3 × 4 = 12.</p>
+  </section>
+
+  <h2 id="s2">Now 90 × 100</h2>
+  <p class="try"><b>Try it:</b> set the number to 90 and the weight to 100. Go to the last step and read how many steps the program took:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="ctl vals">
+      <label><span>Number</span><input type="range" id="x" min="0" max="90" value="6"><output id="xo"></output></label>
+      <label><span>Weight</span><input type="range" id="f" min="-100" max="100" value="4"><output id="fo"></output></label>
+    </div>
+    <div id="m2"></div>
+  <figcaption id="c2"><b>Figure 2.</b> The same loop with your number and weight, run one command at a time. Watch the step counter. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>The answer is right: 9,000. The weight is a row of a hundred plus signs in the program.</p>
+    <p>But it took 9,361 steps. Every round is 104 commands, and there are 90 rounds. A model that needs millions of products cannot pay that.</p>
+  </section>
+
+  <h2 id="s3">The same loop in one step</h2>
+  <p class="try"><b>Try it:</b> press "fast interpreter", then go to the last step. Compare the number of steps with the 9,361 of step 2:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div id="m3"></div>
+  <figcaption id="c3"><b>Figure 3.</b> The loop for 90 × 100 with a choice of interpreter. Compare the step counter in the two modes. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>The same program, the same answer, one step.</p>
+    <p>Whatever carries out the commands is called an <b>interpreter</b>. A simple one does one command at a time. A fast one first looks at the loop. It sees that the loop only adds and moves, so it does the whole loop as one multiplication: "add 100 times this cell to that cell, and empty this cell".</p>
+    <p>The chat page uses a fast interpreter. From here on, "steps" are counted the fast way. Simple loops like this one are the cheap building blocks.</p>
+  </section>
+
+  <h2 id="s4">Four products, one total</h2>
+  <p class="try"><b>Try it:</b> press Step until the program has ended. The total should come to 11,868:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div id="m4"></div>
+    <p class="measured">Four inputs on the tape: 90, −25, 40 and 12. Four weights in the program: 100, −60, 30 and 14.</p>
+  <figcaption id="c4"><b>Figure 4.</b> Four products added into one total. Watch each input leave its cell and come back. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>Each input was poured into the total, times its weight. At the same time it was poured into a scratch cell, and from there back. That is the copy of <a href="02-copy.html#s2">step 2 of lesson 2</a>. Two steps per input, eight in all.</p>
+    <p>A weight below zero is a row of minus signs. Nothing else changes.</p>
+    <p>This is the first part of the sum: 90 × 100 + (−25) × (−60) + 40 × 30 + 12 × 14 = 11,868.</p>
+  </section>
+
+  <h2 id="s5">Write the weight shorter</h2>
+  <p class="try"><b>Try it:</b> this program writes the weight 100 into cell 1 with a hundred plus signs. Do the same with 30 commands or fewer:</p>
+  <figure id="f5" aria-labelledby="c5">
+    <div id="m5"></div>
+    <div class="callout hint" id="h5" hidden><h3>Hint</h3><p>10 × 10 is also 100. Put 10 in cell 0. Then a loop that takes 1 from cell 0 and adds 10 to cell 1, as in step 1.</p></div>
+    <div class="ctl"><button class="quiet" id="h5b">Give me a hint</button></div>
+  <figcaption id="c5"><b>Figure 5.</b> A program that writes 100 with a hundred plus signs, for you to shorten. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a5" hidden>
+    <h3>What you just saw</h3>
+    <p>You traded plus signs for a loop. A number in a program costs characters, and a big number costs many.</p>
+    <p>Keep that in mind for <a href="08-size.html">lesson 8</a>. The chat model has 135 million numbers.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Multiply by a weight that stands in the program, and add products into one total. The first part of the sum is done: 11,868.</p>
+    <p class="next-q">11,868 is too large to work with: the model divides it by 128. There is no "divide" command either, and this time no cheap loop. What does dividing cost?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p>The fast interpreter of these lessons does three things: a row of <code>+</code> or <code>−</code> is one addition; a row of <code>&gt;</code> or <code>&lt;</code> is one move, done together with the next command; and a loop that only adds and moves, and takes 1 from its own cell each round, is one multiplication. The result is always the same as going one command at a time. The interpreter behind the chat page goes further: it first turns the whole program into the computer's own instructions.</p>
+    <p>A large fixed number can be written as "a × b + rest" with one loop, which costs about twice the square root of the number in characters. 5,000 then takes 178 characters in place of 5,000.</p>
+    <p>In step 4 the weights stand in the program. The chat program keeps its 135 million weights on the tape instead; <a href="08-size.html">lesson 8</a> shows how.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>3</b> of 11</p>
+    <a class="prev" href="02-copy.html" rel="prev"><span>Previous</span>Moving and copying</a>
+    <a class="next" href="04-zero.html" rel="next"><span>Next</span>Obstacle 1: only one question</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  // step 1: the loop that multiplies, for a number and a weight you choose
+  Article.machine(document.getElementById('fig-times'), {
+    code: '{a}[->{b}<]', cells: 2, labels: ['number', 'total'], rate: 5,
+    sliders: [
+      { name: 'Number', min: 0, max: 9, value: 3, id: 'a', repeat: '+' },
+      { name: 'Weight', min: 1, max: 9, value: 4, id: 'b', repeat: '+' }
+    ],
+    end: function (m, v) { return 'Finished. The number cell is empty and the total holds ' + m.tape[1] + ': ' + v[0] + ' × ' + v[1] + '.'; }
+  });
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt } = Learn;
+  const L = Learn.lesson(3);
+  const names = { 0: 'number', 1: 'total' };
+  Learn.machine($('m1'), { code: D.timesConst(4).code, bits: 32, cells: 2, init: { 0: 3 }, labels: { 0: 'left', 1: 'right' }, delay: 200,
+    onEnd: (m) => L.done(1, 'The right cell holds ' + m.tape[1] + ': that is 3 times 4.') });
+
+  // ---- 2. 90 x 100, one command at a time
+  const m2 = Learn.machine($('m2'), { code: '', bits: 32, cells: 2, labels: names, signed: true, delay: 40,
+    result: (m) => 'The total is ' + fmt(m.signed(m.tape[1])) + '.',
+    onEnd: (m) => {
+      const x = num($('x')), f = num($('f'));
+      if (x === 90 && f === 100) L.done(2, '90 × 100 = 9,000, in ' + fmt(m.steps) + ' steps.');
+      else L.note(2, fmt(x) + ' × ' + fmt(f) + ' = ' + fmt(x * f) + ', in ' + fmt(m.steps) + ' steps. Now set the number to 90 and the weight to 100.');
+    } });
+  function set2() {
+    const x = num($('x')), f = num($('f'));
+    $('xo').textContent = fmt(x); $('fo').textContent = fmt(f);
+    m2.set({ code: D.timesConst(f).code, init: { 0: x } });
+  }
+  $('x').addEventListener('input', set2); $('f').addEventListener('input', set2); set2();
+
+  // ---- 3. the same, fast
+  const m3 = Learn.machine($('m3'), { code: D.timesConst(100).code, bits: 32, cells: 2, init: { 0: 90 }, labels: names, signed: true, modes: true, delay: 40,
+    result: (m) => 'The total is ' + fmt(m.signed(m.tape[1])) + '.',
+    onEnd: (m) => {
+      if (m3.fast) L.done(3, '9,000 again, in ' + fmt(m.steps) + (m.steps === 1 ? ' step.' : ' steps.'));
+      else L.note(3, 'That was one command at a time: ' + fmt(m.steps) + ' steps. Press "fast interpreter" and run it again.');
+    } });
+
+  // ---- 4. the sum of the goal
+  const ws = [100, -60, 30, 14], xs = [90, -25, 40, 12], dot = D.dot(ws);
+  Learn.machine($('m4'), { code: dot.code, bits: 32, cells: 6, init: { ...xs.map((x) => x >>> 0) }, signed: true, fast: true, delay: 500,
+    labels: (a) => (a < 4 ? 'input ' + (a + 1) : a === 4 ? 'total' : 'scratch'),
+    result: (m) => 'The total is ' + fmt(m.signed(m.tape[4])) + '.',
+    onEnd: (m) => L.done(4, 'Total ' + fmt(m.signed(m.tape[4])) + ' in ' + m.steps + ' steps, and all four inputs are still there.') });
+
+  // ---- 5. the weight 100 in few commands
+  const m5 = Learn.machine($('m5'), { code: '>' + '+'.repeat(100), bits: 32, cells: 4, editable: true, max: 2e6,
+    onEdit: (code) => {
+      const r = core.checks.hundred(code, 30);
+      if (r.ok) return L.done(5, 'Cell 1 holds 100, with ' + r.got + ' commands in place of 101.');
+      L.note(5, r.why === 'value' ? 'Not yet: at the end cell 1 holds ' + fmt(r.got) + '.' : Learn.why(r));
+    } });
+  Learn.hints($('h5b'), ['h5'], () => m5.type('++++++++++[->++++++++++<]'));
+});
+</script>
+</body>
+</html>

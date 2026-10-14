@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Signed multiplication by shift-and-add</title>
+<meta name="description" content="Multiplies two numbers from the tape, negative ones too, at a cost that does not depend on the numbers. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#advanced">Advanced: wrapping cells of a known width</a><span>Signed multiplication by shift-and-add</span></p>
+    <h1>Signed multiplication by shift-and-add</h1>
+    <p class="lead">Multiplies two numbers from the tape, negative ones too, at a cost that does not depend on the numbers.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>34</b> of 38</p>
+    <a class="prev" href="shift-round-clamp.html" rel="prev"><span>Previous</span>Shift, round and clamp</a>
+    <a class="next" href="table-lookup.html" rel="next"><span>Next</span>Table lookup as a decision tree</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “acc gets a × b added” works on 11 cells; the named ones are “a”, “b” and “acc”. Press <em>Play</em>, drag the step slider forwards and back, or change a and b with the sliders:</p>
+
+    <figure class="fig col" id="fig-signed-multiply-mulacc" data-p="signed-multiply" data-v="mulacc" aria-label="The form acc gets a × b added of signed multiplication by shift-and-add, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>This is long multiplication in base 2. Read a bit by bit with <a href="bit-peel.html">the bit peel</a>. For every set bit j, add b × 2ʲ to the answer.</p>
+    <p>b × 2ʲ is the pattern <a href="mul-const.html">multiply by a constant</a>, a flat loop: one step, and b is kept with a second step.</p>
+    <p>The top bit of a signed number counts negative, so for that one bit the same loop subtracts. Nothing else is needed for negative numbers.</p>
+    <p>So the cost is about 25 steps for the eight tests and 5 more for every set bit of a: 28 to 60 in all, whether b is 7 or 7 million.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran, written by the generators for these values and this cell size. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-signed-multiply-mulacc">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;&gt;&gt;&gt;&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;[-&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;]&gt;[-&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[-&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;]&gt;[-&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;]&lt;&lt;&lt;&lt;[-&gt;+&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;&lt;]&gt;&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;-&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;[-&lt;+&gt;&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&lt;]&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;--&gt;&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;&lt;[-&gt;+&gt;++++++++++++++++++++++++++++++++&lt;&lt;]&gt;&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;----&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;[-&lt;+&gt;&gt;++++++++++++++++&lt;]&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;--------&gt;&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;&lt;[-&gt;+&gt;++++++++&lt;&lt;]&gt;&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;----------------&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;[-&lt;+&gt;&gt;++++&lt;]&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;--------------------------------&gt;&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;&lt;[-&gt;+&gt;++&lt;&lt;]&gt;&gt;[[-]&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;----------------------------------------------------------------&gt;&gt;&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;[-&gt;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&lt;[-&gt;+&lt;]&gt;[[-]&lt;&lt;&lt;&lt;[-&gt;--------------------------------------------------------------------------------------------------------------------------------&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;&gt;[-]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%3E%3E%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E%5B-%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%5D%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3C%3C%3C%3C%5B-%3E%2B%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%3C%5D%3E%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C-%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%5B-%3C%2B%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C%3C--%3E%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%3C%5B-%3E%2B%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%3C%5D%3E%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C----%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%5B-%3C%2B%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C%3C--------%3E%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%3C%5B-%3E%2B%3E%2B%2B%2B%2B%2B%2B%2B%2B%3C%3C%5D%3E%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C----------------%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%5B-%3C%2B%3E%3E%2B%2B%2B%2B%3C%5D%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C%3C--------------------------------%3E%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%3C%5B-%3E%2B%3E%2B%2B%3C%3C%5D%3E%3E%5B%5B-%5D%3E%3E%3E%5B-%3C%3C%3C%3C----------------------------------------------------------------%3E%3E%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%3C%3C%3C%3C%3C%3C%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3C%5B-%3E%2B%3C%5D%3E%5B%5B-%5D%3C%3C%3C%3C%5B-%3E--------------------------------------------------------------------------------------------------------------------------------%3E%3E%3E%3E%3E%3E%3E%3E%2B%3C%3C%3C%3C%3C%3C%3C%3C%3C%5D%3E%3E%3E%3E%3E%3E%3E%3E%3E%5B-%3C%3C%3C%3C%3C%3C%3C%3C%3C%2B%3E%3E%3E%3E%3E%3E%3E%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%3E%3E%5B-%5D&amp;names=0:a,1:b,2:acc">Open in the playground</a><span class="count" data-len>3,093 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Cells that wrap at a known width. The program text is made for that width (8, 16 or 32 bits) and gives wrong answers on any other.</li>
+      <li>To be fast it needs an interpreter that does a flat loop in one step. In plain steps the shifts are long loops and the gain is lost.</li>
+      <li>Eight scratch cells. a is read as a signed 8-bit number; b may be any value. Both are kept.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Peeling the wider of the two numbers. The cost follows the bits of a: peel the narrow one.</li>
+      <li>An a outside −128…127: only its low 8 bits are used.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-signed-multiply-mulacc-cost" data-p="signed-multiply" data-v="mulacc" data-cost-fig aria-label="Steps taken by the form acc gets a × b added, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>acc gets a × b added</td><td>tens of thousands and more</td><td>about 25 + 5 per set bit of a</td></tr>
+<tr><td>The naive way: repeated addition</td><td>grows with a × b, each read as a count</td><td>2 + 5 × a, with a read as a count</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>acc gets a × b added</td><td>a = 6; b = 7</td><td class="n">32</td><td class="n">3,093</td><td class="n">more than 30,000,000</td><td class="n">36</td></tr>
+<tr><td>acc gets a × b added</td><td>a = 100; b = −60</td><td class="n">32</td><td class="n">3,093</td><td class="n">more than 30,000,000</td><td class="n">42</td></tr>
+<tr><td>acc gets a × b added</td><td>a = −25; b = −60</td><td class="n">32</td><td class="n">3,093</td><td class="n">more than 30,000,000</td><td class="n">58</td></tr>
+<tr><td>acc gets a × b added</td><td>a = −128; b = −128</td><td class="n">32</td><td class="n">3,093</td><td class="n">more than 30,000,000</td><td class="n">28</td></tr>
+<tr><td>The naive way: repeated addition</td><td>a = 6; b = 7</td><td class="n">8</td><td class="n">50</td><td class="n">959</td><td class="n">32</td></tr>
+<tr><td>The naive way: repeated addition</td><td>a = 100; b = −60</td><td class="n">8</td><td class="n">50</td><td class="n">375,005</td><td class="n">502</td></tr>
+<tr><td>The naive way: repeated addition</td><td>a = −25; b = −60</td><td class="n">8</td><td class="n">50</td><td class="n">866,255</td><td class="n">1,157</td></tr></tbody></table></div>
+    </div></details>
+    <h3>Against the naive way</h3>
+    <p>The same product by repeated addition, the loop of <a href="mul-cells.html">multiply two cells</a>. A negative a is a huge count there: −3 on 16-bit cells is 65,533 rounds.</p>
+    <details class="q fold" id="compare"><summary>The numbers, row by row</summary><div class="a">
+      <div class="bars"><span class="lab">this pattern: a = −25; b = −60</span><div><div class="bar b2" style="width:0.60%"></div></div><span>54</span><span class="lab">the naive way: a = −25; b = −60</span><div><div class="bar ink" style="width:100.00%"></div></div><span>327,557</span></div>
+      <p class="measured">This pattern against the naive way, on 16-bit cells, measured when this page was written. The bars show the last row: optimised steps.</p>
+      <div class="scroll" tabindex="0" role="region" aria-label="This pattern against the naive way"><table>
+        <thead><tr><th rowspan="2">Values</th><th colspan="2">Optimised steps</th><th colspan="2">Plain steps</th><th colspan="2">Characters</th></tr>
+        <tr><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th><th class="n">pattern</th><th class="n">naive</th></tr></thead>
+        <tbody><tr><td>a = 6; b = 7</td><td class="n">32</td><td class="n">32</td><td class="n">502,023</td><td class="n">959</td><td class="n">2,041</td><td class="n">50</td></tr>
+<tr><td>a = 100; b = −60</td><td class="n">38</td><td class="n">502</td><td class="n">22,688,925</td><td class="n">more than 30,000,000</td><td class="n">2,041</td><td class="n">50</td></tr>
+<tr><td>a = −25; b = −60</td><td class="n">54</td><td class="n">327,557</td><td class="n">more than 30,000,000</td><td class="n">more than 30,000,000</td><td class="n">2,041</td><td class="n">50</td></tr></tbody></table></div>
+    </div></details>
+    <p>Measured in the project on 16-bit cells with both numbers between −127 and 127: about 43 optimised steps per product, against about 195,000 by repeated addition. <span class="ev">measured in the project</span></p>
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-naive" aria-labelledby="v-naive-h">
+      <h3 id="v-naive-h"><span class="badge">to measure against</span> The naive way: repeated addition</h3>
+      <p>The loop of <a href="mul-cells.html">multiply two cells</a>. Correct for negative numbers on wrapping cells, and very slow for them.</p>
+      <div class="code" data-fig="fig-signed-multiply-naive">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;&gt;+&lt;&lt;[-&gt;+&gt;&gt;+&lt;&lt;&lt;]&gt;&gt;&gt;[-&lt;&lt;&lt;+&gt;&gt;&gt;]&lt;&lt;&lt;&lt;]&gt;&gt;&gt;[-&lt;&lt;&lt;+&gt;&gt;&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%3E%2B%3C%3C%5B-%3E%2B%3E%3E%2B%3C%3C%3C%5D%3E%3E%3E%5B-%3C%3C%3C%2B%3E%3E%3E%5D%3C%3C%3C%3C%5D%3E%3E%3E%5B-%3C%3C%3C%2B%3E%3E%3E%5D&amp;names=0:a,1:b,2:acc,3:scratch,4:scratch">Open in the playground</a><span class="count" data-len>50 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-naive"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The naive way: repeated addition” works on 5 cells; the named ones are “a”, “b”, “acc” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change a and b with the sliders:</p>
+        <figure class="fig col" id="fig-signed-multiply-naive" data-p="signed-multiply" data-v="naive" aria-label="The form The naive way: repeated addition of signed multiplication by shift-and-add, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../learn/06-product.html">Build toward a chatbot, lesson 6, "Two numbers from the tape"</a>, multiplies −25 by −60 with it.</li>
+      <li>In the chat model: <code>mulAcc</code> and <code>dotVar</code> in patterns.js. It is what makes attention possible, because there both numbers come from the tape: see <a href="../how/#s7">How it works, section "Looking back at the other words"</a>.</li>
+      <li><a href="../learn/10-attention.html">Build toward a chatbot, lesson 10, "Looking back"</a>, uses it twice.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: mulAcc; the baseline is addMul in emit.js.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>34</b> of 38</p>
+    <a class="prev" href="shift-round-clamp.html" rel="prev"><span>Previous</span>Shift, round and clamp</a>
+    <a class="next" href="table-lookup.html" rel="next"><span>Next</span>Table lookup as a decision tree</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

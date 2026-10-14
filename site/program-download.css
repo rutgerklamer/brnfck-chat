@@ -1,0 +1,9 @@
+/* "Download this program (.bf)" (program-download.js), on every page that offers a program. */
+.program-download { margin: var(--s3) 0; min-width: 0; }
+.program-download p { margin: 0 0 var(--s2); overflow-wrap: anywhere; }
+.program-download code { overflow-wrap: anywhere; word-break: break-all; }
+.program-download .pd-act { display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0 0 var(--s2); }
+.program-download .pd-link { display: inline-flex; align-items: center; min-height: var(--target); }
+.program-download details summary { display: flex; align-items: center; min-height: var(--target); cursor: pointer; }
+.program-download pre.cmd { max-height: 9em; margin: 0 0 var(--s2); }
+.program-download button.link { min-width: var(--target); }

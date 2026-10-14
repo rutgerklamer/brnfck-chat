@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, the language</title>
+<meta name="description" content="A precise description of the brainfuck language: the tape, the pointer, the eight commands, loops, input and output, comments, and what the original 1993 README defines. With small programs you can run.">
+<meta property="og:title" content="The brainfuck language, precisely">
+<meta property="og:description" content="A precise description of the brainfuck language: the tape, the pointer, the eight commands, loops, input and output, comments, and what the original 1993 README defines. With small programs you can run.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>The language</span></p>
+    <h1>The language, precisely</h1>
+    <p class="lead">A brainfuck program works on a row of numbered cells with a pointer on one of them. Eight commands move the pointer, change the cell under it, read and print one character, and repeat a piece of program while that cell is not zero. Every other character in a program is a comment. The whole original definition is one table and three sentences <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>; what it leaves open is on the page <a href="portability.html">Where implementations differ</a>.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#machine">The machine</a></li>
+          <li><a href="#commands">The eight commands</a></li>
+          <li><a href="#loops">Loops</a></li>
+          <li><a href="#io">Output and input</a></li>
+          <li><a href="#program">What a program is</a></li>
+          <li><a href="#original">What the original defines</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="machine" aria-labelledby="machine-h">
+    <h2 id="machine-h">The machine</h2>
+    <p>The program below is <code>+++&gt;++</code>: six commands. Under it is a row of six cells that all hold 0, and a mark on the cell the pointer is on. Press <em>Play</em>, or drag <em>Step</em> forwards and backwards, and watch the marked command and the marked cell:</p>
+
+    <figure class="fig col" id="fig-first" aria-label="A program of six commands running on a row of six cells"></figure>
+
+    <p>Three steps added one to cell 0, three times. The fourth moved the pointer to cell 1. The last two added one to cell 1. Nothing else happened, and nothing else can: a command either moves the pointer by one cell or works on the cell under it. The marked command is one place in the program, the marked cell is one place on the row, and nothing else is remembered. I'm showing six cells; the original has 30,000.</p>
+    <p>The parts have names:</p>
+    <dl class="glossary">
+      <dt>Tape</dt><dd>The memory: one row of cells. The original has 30,000 of them&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Other implementations have more.</dd>
+      <dt>Cell</dt><dd>One place on the tape. It holds a whole number and starts at 0. In most implementations it holds 0 to 255, one byte.</dd>
+      <dt>Pointer</dt><dd>The mark that says which cell is the current one. It starts on the first cell. On these pages the first cell is cell 0.</dd>
+      <dt>Program</dt><dd>A text. The machine reads it from left to right, one command at a time, and stops after the last one.</dd>
+    </dl>
+    <p class="next-q">The program had only two kinds of command. What can the other kinds do?</p>
+  </section>
+
+  <section id="commands" aria-labelledby="commands-h">
+    <h2 id="commands-h">The eight commands</h2>
+    <p>Choose a command below. The program is that command with a <code>&gt;</code> in front of it, which puts the pointer on cell 1; cell 1 holds 5, except for <code>.</code>, where it holds 72 so that there is a letter to print; for <code>,</code> the input is the letter A. Press <em>Play</em>, or drag <em>Step</em>, and watch what the command changes:</p>
+
+    <figure class="fig col" id="fig-commands" aria-label="Each of the eight commands, run on a short row of cells"></figure>
+
+    <p>Notice what each one touched. <code>+</code> and <code>-</code> changed the cell under the pointer by one. <code>&gt;</code> and <code>&lt;</code> changed nothing on the tape, only the place of the pointer. <code>.</code> sent a cell to the output and <code>,</code> took a letter from the input. The pair <code>[</code> and <code>]</code> asked whether the cell was 0, and repeated what stands between them until it was. Here are the eight commands in a table, with the wording of the 1993 README and its translation into C:</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="The eight commands; scrolls sideways on a narrow screen">
+    <table id="tab-commands" class="cmp">
+      <caption>The eight commands. The third column is the wording of the 1993 README, the fourth its translation into C&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. (The README has the misprint "Decrases".)</caption>
+      <thead><tr><th scope="col">Command</th><th scope="col">What it does</th><th scope="col">The README says</th><th scope="col">In C</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>+</code></th><td>Adds one to the current cell</td><td>Increases element under pointer</td><td><code>array[p]++;</code></td></tr>
+        <tr><th scope="row"><code>-</code></th><td>Takes one off the current cell</td><td>Decrases element under pointer</td><td><code>array[p]--;</code></td></tr>
+        <tr><th scope="row"><code>&gt;</code></th><td>Moves the pointer one cell to the right</td><td>Increases pointer</td><td><code>p++;</code></td></tr>
+        <tr><th scope="row"><code>&lt;</code></th><td>Moves the pointer one cell to the left</td><td>Decreases pointer</td><td><code>p--;</code></td></tr>
+        <tr><th scope="row"><code>[</code></th><td>If the current cell is 0, jumps forward to just after the matching <code>]</code>. Otherwise goes on</td><td>Starts loop, counter under pointer</td><td><code>while(array[p]) {</code></td></tr>
+        <tr><th scope="row"><code>]</code></th><td>If the current cell is not 0, jumps back to just after the matching <code>[</code>. Otherwise goes on</td><td>Indicates end of loop</td><td><code>}</code></td></tr>
+        <tr><th scope="row"><code>.</code></th><td>Prints the current cell as one character</td><td>Outputs ASCII code under pointer</td><td><code>putchar(array[p]);</code></td></tr>
+        <tr><th scope="row"><code>,</code></th><td>Reads one character and puts its code in the current cell</td><td>Reads char and stores ASCII under ptr</td><td><code>array[p]=getchar();</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The commands come in four pairs. The two in each pair undo or complete each other: the first two pairs change the machine, the third makes a loop, the last speaks to the outside world.</p>
+    <ul class="pairs" id="fig-pairs">
+      <li class="card small"><span class="keys" aria-hidden="true"><i class="sw glyph c-gt">&gt;</i><i class="sw glyph c-lt">&lt;</i></span><b>Move the pointer</b><span><code>&gt;</code> one cell right, <code>&lt;</code> one cell left</span><small class="muted">changes the machine</small></li>
+      <li class="card small"><span class="keys" aria-hidden="true"><i class="sw glyph c-plus">+</i><i class="sw glyph c-minus">-</i></span><b>Change a number</b><span><code>+</code> adds one to the current cell, <code>-</code> takes one off</span><small class="muted">changes the machine</small></li>
+      <li class="card small"><span class="keys" aria-hidden="true"><i class="sw glyph c-open">[</i><i class="sw glyph c-close">]</i></span><b>Make a loop</b><span><code>[</code> and <code>]</code> repeat what is between them while the current cell is not 0</span><small class="muted">repeats and decides</small></li>
+      <li class="card small"><span class="keys" aria-hidden="true"><i class="sw glyph c-out">.</i><i class="sw glyph c-in">,</i></span><b>Speak to the outside world</b><span><code>.</code> prints one character, <code>,</code> reads one</span><small class="muted">output and input</small></li>
+    </ul>
+    <p>Four commands change the machine: two move the pointer, two change a number. Two speak to the outside world. Two make a loop. There are no names, no numbers written out, no "if", no functions. Whatever a program needs, it builds from these.</p>
+    <aside class="sidenote"><b>Order of the table.</b> The README lists the commands in this order: the four that change the machine, then the loop, then output and input. Other texts often start with <code>&gt;</code> and <code>&lt;</code>.</aside>
+    <p>The C column is the most exact part of the definition. It shows that a loop is a plain "while": test the cell, run the body, test again.</p>
+    <p class="next-q">A loop repeats. What exactly decides when it stops?</p>
+  </section>
+
+  <section id="loops" aria-labelledby="loops-h">
+    <h2 id="loops-h">Loops</h2>
+    <p>The program below puts a number in cell 0, then runs a loop that takes 1 off cell 0 and adds 2 to cell 1, until cell 0 is empty. Press <em>Play</em>, or drag <em>Step</em>, and change the two sliders:</p>
+
+    <figure class="fig col" id="fig-loop" aria-label="A loop that adds to the right cell while it counts the left cell down to zero"></figure>
+
+    <p>With the sliders as they were, cell 0 counted down from 3 to 0, and every round added 2 to cell 1. When cell 0 reached 0 the loop ended. Three times two is six: this loop multiplies. The part between <code>[</code> and <code>]</code> is the <b>body</b> of the loop. Slide the left cell to 0 and play again: the whole body is skipped.</p>
+    <p>Exactly:</p>
+    <ul>
+      <li>At <code>[</code> the machine looks at the current cell. If it is 0, the machine skips the whole loop and goes on after the matching <code>]</code>. So a loop can run zero times.</li>
+      <li>At <code>]</code> the machine looks at the current cell again. If it is not 0, it goes back to the start of the body.</li>
+    </ul>
+    <p>"The current cell" is wherever the pointer is at that moment. The body may move the pointer, so the test at <code>]</code> can look at a different cell than the test at <code>[</code>. The tape below starts with some cells that hold 1, followed by a 0, and the program is only <span class="bf">[&gt;]</span>. Slide the number of 1s and press <em>Play</em>:</p>
+
+    <figure class="fig col" id="fig-scan" aria-label="The loop that walks right until it finds a cell that holds 0"></figure>
+
+    <p>The pointer walked right, one cell for every round, and stopped on the first cell that held 0. Whatever the number of 1s, the program is the same. That is what <span class="bf">[&gt;]</span> is for: it finds the next empty cell.</p>
+    <p>Brackets pair up like brackets in arithmetic, and loops can sit inside loops. In the program below the outer loop counts down cell 0. Each round it puts the number of the lower slider in cell 1, and the inner loop moves that number to cell 2. Choose both numbers:</p>
+
+    <figure class="fig col" id="fig-nested" aria-label="A loop inside a loop that multiplies two numbers"></figure>
+
+    <p>Cell 2 ends at the product of the two numbers. Each <code>]</code> belongs to the nearest <code>[</code> before it that has no partner yet, so the inner loop ran to its end once for every round of the outer one. Cells 0 and 1 are empty afterwards: a loop reads a cell by counting it down.</p>
+    <p>Some implementations make <code>]</code> jump back to the <code>[</code> without looking, and let the <code>[</code> do the test. The result is always the same. Only the number of steps differs.</p>
+    <p>A loop is also the only way to decide something. "If the cell is not 0, do this once" is a loop whose body ends by making the cell 0. The pattern <a href="../patterns/if-nonzero.html">If non-zero</a> shows this, and the <a href="../patterns/">patterns</a> section has many more.</p>
+    <p class="next-q">So far the cells only held numbers. How does a number become a letter on the screen?</p>
+  </section>
+
+  <section id="io" aria-labelledby="io-h">
+    <h2 id="io-h">Output and input</h2>
+    <p>The program below makes 64 with a loop (eight times eight), adds the number of plus signs you choose, and prints cell 1. Press <em>Play</em> and watch the line "Printed". Then slide the last number until it prints B:</p>
+
+    <figure class="fig col" id="fig-print" aria-label="A program that prints one letter; a slider sets how many plus signs come before the print"></figure>
+
+    <p>With one plus sign the cell held 65, and 65 is the code of the letter A; with two it held 66, and B came out. The machine knows no letters, only numbers. The command <code>.</code> sends the number in the current cell to the output, and the screen shows the character with that code. The codes are those of the ASCII table: 65 is A, 97 is a, 48 is the digit 0, 32 is a space and 10 is a new line.</p>
+    <p>Now the other way. The program is <code>,+.</code>: read a character, add one, print it. Type a letter in the box and press <em>Play</em>:</p>
+
+    <figure class="fig col" id="fig-read" aria-label="A program that reads a character, adds one to it and prints it"></figure>
+
+    <p>The command <code>,</code> took the next character of the input and stored its code, so the cell held the code of your letter before the <code>+</code>. Each <code>,</code> takes one character; a second <code>,</code> takes the next one. A digit you type arrives as its code too: the key 7 gives 55, not 7. A program that wants to calculate with it takes 48 off first.</p>
+    <p>Input and output are single streams of characters. A brainfuck program cannot open a file, draw on the screen or ask the time. It reads characters and prints characters. What happens when the input has run out is not defined by the original and differs between implementations: see <a href="portability.html#eof">the end of the input</a>.</p>
+  </section>
+
+  <section id="program" aria-labelledby="program-h">
+    <h2 id="program-h">What a program is</h2>
+    <p>A program is any text. The machine looks only at the eight command characters. The README: "All other characters are ignored."&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> So letters, spaces and line breaks can be used freely to lay a program out and to explain it.</p>
+    <pre tabindex="0">++++++++        eight in cell 0
+[ &gt; ++++++++ &lt; - ]   times eight into cell 1
+&gt; + .           one more makes 65 and prints A</pre>
+    <p>This is the program of the printing figure with comments. Two things go wrong often:</p>
+    <ul>
+      <li><b>Punctuation in a comment is a command.</b> A full stop, a comma, a hyphen or a plus sign in your explanation will be carried out. The comments in the listing before this list avoid them on purpose.</li>
+      <li><b>Brackets must match.</b> A <code>[</code> without its <code>]</code> has no meaning. The original compiler did not check this: "they better be", says the README&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. The original interpreter stops with the message "UNBALANCED BRACKETS"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. What a given implementation does varies.</li>
+    </ul>
+    <p>A common trick uses the first rule of <a href="#loops">Loops</a>: a loop can run zero times. The first cell is 0 when a program starts, so a loop at the very beginning never runs. Text inside it is safe, punctuation and all, as long as its own brackets match:</p>
+    <pre tabindex="0">[ This program prints A. Nothing in here runs, not even this: +++ . ]
+++++++++[&gt;++++++++&lt;-]&gt;+.</pre>
+    <p>Programs are usually kept in files that end in <code>.b</code> (as in the original distribution&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>) or <code>.bf</code>.</p>
+  </section>
+
+  <section id="original" aria-labelledby="original-h">
+    <h2 id="original-h">What the original defines</h2>
+    <p>The whole definition in the 1993 distribution is the table of commands (<a href="#tab-commands">the table above</a> gives its wording) and these three sentences&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>:</p>
+    <figure class="quote" aria-label="Quotation from the README of 1993">
+      <blockquote><p>"All other characters are ignored. The 30000 array elements and p are being initialized to zero at the beginning. Now while this seems to be a pretty useless language, it can be proven that it can compute every solvable mathematical problem (if we ignore the array size limit and the executable size limit)."</p></blockquote>
+      <figcaption>Urban Müller, README of brainfuck-2.lha, June 1993&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</figcaption>
+    </figure>
+    <p>So the original fixes these things:</p>
+    <ul>
+      <li>the eight commands and their meaning, by translation into C;</li>
+      <li>that other characters are ignored;</li>
+      <li>that there are 30,000 cells and that they, and the pointer, start at zero.</li>
+    </ul>
+    <p>Elsewhere the README adds that the compiler of this version "operates on a byte array": a cell is one byte&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. It says nothing about what happens when a cell goes past its largest value, when the pointer leaves the tape, or when the input ends. Those gaps are the reason two correct implementations can disagree. The next page of this reference, <a href="portability.html">Where implementations differ</a>, takes them one by one.</p>
+    <aside class="sidenote"><b>Is that claim true?</b> "Every solvable mathematical problem" is the claim that the language is Turing complete. It is, with the proviso the README itself makes. See <a href="theory.html">Theory</a>.</aside>
+    <p>There is no later official definition. The author has said so himself: the language has no formal standard, and people disagree about the size of a cell and about the end of the input&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. What exists are careful descriptions by others&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>The machines in the figures have cells of 0 to 255 that go round, a short tape whose ends are checked, and store 0 when the input has run out. Those are common choices, not the definition.</li>
+      <li>We describe the second version of the original distribution, the only one we found. See <a href="history.html#dist">History</a>.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="portability.html"><b>Where implementations differ</b><span>Cell size, the ends of the tape, the end of the input: everything the definition leaves open.</span></a></li>
+      <li><a href="writing.html"><b>Writing real programs</b><span>From single commands to programs that do something.</span></a></li>
+      <li><a href="../challenges/basics/"><b>Brainfuck basics</b><span>Learn the commands by using them, one small task at a time.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Daniel B Cristofani, "Yet another brainfuck reference"</b>: <a href="https://brainfuck.org/brainfuck.html">the reference on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Brian Raiter, "Portable Brainfuck"</b>: <a href="https://muppetlabs.com/~breadbox/bf/standards.html">the portability page on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html" aria-current="page"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>2</b> of 13</p>
+    <a class="prev" href="./" rel="prev"><span>Previous</span>Overview</a>
+    <a class="next" href="portability.html" rel="next"><span>Next</span>Differences</a>
+  </nav>
+</main>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ref.js?v=r7"></script>
+<script>
+(function () {
+  var A = Article, $ = function (id) { return document.getElementById(id); };
+
+  A.machine($('fig-first'), {
+    code: '+++>++', cells: 6, rate: 3,
+    end: function (m) { return 'Finished. Cell 0 holds ' + m.tape[0] + ' and cell 1 holds ' + m.tape[1] + '.'; }
+  });
+
+  // each command, on its own
+  var CMD = {
+    '+': { code: '>+', init: { 1: 5 } }, '-': { code: '>-', init: { 1: 5 } },
+    '>': { code: '>>', init: { 1: 5 } }, '<': { code: '><', init: { 1: 5 } },
+    '.': { code: '>.', init: { 1: 72 } }, ',': { code: '>,', init: { 1: 5 }, input: [65] },
+    '[ ]': { code: '>[-]', init: { 1: 5 } }
+  };
+  var cmdSeg = Ref.seg('Command', Object.keys(CMD).map(function (k) { return [k, k]; }), '+', function () { cmd.reload(); });
+  var cmd = Ref.runner($('fig-commands'), {
+    printed: true, input: true, rate: 2,
+    build: function () {
+      var c = CMD[cmdSeg.get()];
+      return { code: c.code, size: 6, cells: 6, init: c.init, input: c.input || [], bits: 8,
+        end: function (m) { return 'Finished. The pointer is on cell ' + m.p + ' and cell 1 holds ' + m.tape[1] + '.' + (m.out.length ? ' It printed ' + RefRun.show(m.out) + ' (code ' + m.out[0] + ').' : ''); } };
+    }
+  });
+  Ref.addControl($('fig-commands'), cmdSeg);
+
+  A.machine($('fig-loop'), {
+    code: '{a}[>{b}<-]', cells: 6, rate: 4,
+    sliders: [
+      { name: 'Cell 0 starts at', min: 0, max: 9, value: 3, id: 'a', repeat: '+' },
+      { name: 'Added to cell 1 each round', min: 1, max: 5, value: 2, id: 'b', repeat: '+' }
+    ],
+    end: function (m, v) { return 'Finished. Cell 0 is empty and cell 1 holds ' + m.tape[1] + (v[0] ? ': ' + v[0] + ' rounds of ' + v[1] + '.' : ': the loop did not run at all.'); }
+  });
+
+  A.machine($('fig-scan'), {
+    code: '[>]', cells: 8, rate: 4,
+    init: function (v) { var t = {}; for (var i = 0; i < v[0]; i++) t[i] = 1; return t; },
+    sliders: [{ name: 'Cells that hold 1', min: 1, max: 7, value: 4 }],
+    end: function (m) { return 'Stopped on cell ' + m.p + ', the first cell that holds 0.'; }
+  });
+
+  A.machine($('fig-nested'), {
+    code: '{a}[>{b}[>+<-]<-]', cells: 4, rate: 12,
+    sliders: [
+      { name: 'Outer loop: cell 0 starts at', min: 0, max: 6, value: 3, id: 'a', repeat: '+' },
+      { name: 'Put into cell 1 each round', min: 0, max: 6, value: 4, id: 'b', repeat: '+' }
+    ],
+    end: function (m, v) { return 'Finished. Cell 2 holds ' + m.tape[2] + ': ' + v[0] + ' times ' + v[1] + '.'; }
+  });
+
+  A.machine($('fig-print'), {
+    code: '++++++++[>++++++++<-]>{a}.', cells: 3, rate: 12,
+    sliders: [{ name: 'Plus signs before the print', min: 0, max: 9, value: 1, id: 'a', repeat: '+' }],
+    end: function (m) { return 'Finished. Cell 1 holds ' + m.tape[1] + ' and it printed ' + RefRun.show(m.out) + '.'; }
+  });
+
+  var f = Ref.field('The input', 'A', function () { rd.reload(); });
+  var rd = Ref.runner($('fig-read'), {
+    printed: true, input: true, rate: 2,
+    build: function () { var inp = RefRun.bytes(f.get()).slice(0, 1); return { code: ',+.', size: 4, cells: 4, input: inp, end: function (m) { return 'Finished. Cell 0 holds ' + m.tape[0] + ' and it printed ' + RefRun.show(m.out) + '.'; } }; }
+  });
+  f.input.maxLength = 1;
+  Ref.addControl($('fig-read'), f);
+})();
+</script>
+</body>
+</html>

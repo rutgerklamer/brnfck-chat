@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, theory</title>
+<meta name="description" content="Turing completeness of brainfuck explained for newcomers: what it means, what the proofs need about cell size and tape length, what it does not mean, the Turing tarpit, and what the language teaches about real computers.">
+<meta property="og:title" content="Theory: why eight brainfuck commands are enough">
+<meta property="og:description" content="Turing completeness of brainfuck explained for newcomers: what it means, what the proofs need about cell size and tape length, what it does not mean, the Turing tarpit, and what the language teaches about real computers.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Theory</span></p>
+    <h1>Why eight commands are enough</h1>
+    <p class="lead">Brainfuck can compute anything that any computer can compute, given enough tape and time. That property is called Turing completeness, and for brainfuck it has been shown in several ways <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. Every proof needs something without limit: either the tape or the size of a cell <a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. The property says what is possible; it says nothing about what is easy or fast.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#meaning">What "Turing complete" means</a></li>
+          <li><a href="#enough">Why so little is enough</a></li>
+          <li><a href="#proofs">The proofs, and what they assume</a></li>
+          <li><a href="#not">What it does not mean</a></li>
+          <li><a href="#tarpit">The Turing tarpit</a></li>
+          <li><a href="#teaches">What brainfuck teaches about real computers</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="meaning" aria-labelledby="meaning-h">
+    <h2 id="meaning-h">What "Turing complete" means</h2>
+    <p>In 1936 Alan Turing described a very simple imaginary machine: a tape of squares, a head that reads and writes one square at a time, and a fixed table of rules. He argued that whatever can be worked out by following exact rules can be worked out by such a machine&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. Nothing found since has been able to compute more. Laptops, phones and supercomputers are faster, and can compute exactly the same things.</p>
+    <p>A programming language is called <b>Turing complete</b> when it can do everything such a machine can do. Then it can also do everything any other language can do, because each can imitate the other. Python, C and JavaScript are Turing complete. So is brainfuck.</p>
+    <p>Müller made the claim in the README of 1993: the language "can compute every solvable mathematical problem (if we ignore the array size limit and the executable size limit)"&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>. Both halves of that sentence matter, and the second half is the subject of <a href="#proofs">The proofs, and what they assume</a>.</p>
+  </section>
+
+  <section id="enough" aria-labelledby="enough-h">
+    <h2 id="enough-h">Why so little is enough</h2>
+    <p>To imitate a Turing machine a language needs three things: a memory without a fixed end, a way to change it step by step, and a way to do different things depending on what it finds there. Brainfuck has exactly these and little else. The tape is the memory. <code>+</code> <code>-</code> <code>&lt;</code> <code>&gt;</code> change it. The loop is both "repeat" and "decide".</p>
+    <p>The program below decides: it prints 1 if the letter you type is an a, and 0 for anything else. Type a letter, press <em>Play</em>, and watch cell 1, which starts as 1 and is set back to 0 only if the loop in the middle runs:</p>
+
+    <figure class="fig col" id="fig-decide" aria-label="A program that prints 1 when the input is the letter a and 0 for any other character"></figure>
+    <p>The program takes 97, the code of "a", off the character it read. If the result is 0 the letter was an "a". Then comes the decision: cell 1 is set to 1, and a loop on cell 0 sets it back to 0. That loop runs only when cell 0 is not 0. So a loop that runs at most once is an "if". With "if", "repeat" and a memory you can build comparison, arithmetic, tables and everything else. The <a href="../patterns/">patterns</a> section shows the pieces, each on its own page. The "if" of this program is the pattern <a href="../patterns/if-nonzero.html">If non-zero</a>.</p>
+    <p>Two of the eight commands are not needed for this at all. <code>.</code> and <code>,</code> only let a program talk to the outside. The six others carry the whole power, and they match the six symbols that Corrado Böhm used in 1964 for his language P′′&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. Böhm proved then that this is enough&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>.</p>
+  </section>
+
+  <section id="proofs" aria-labelledby="proofs-h">
+    <h2 id="proofs-h">The proofs, and what they assume</h2>
+    <p>A proof of Turing completeness shows how to imitate something already known to be Turing complete. For brainfuck there are several, and they differ in what they need to be unlimited (<a href="#tab-proofs">the table</a> below).</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="Known proofs that brainfuck is Turing complete; scrolls sideways on a narrow screen">
+    <table id="tab-proofs" class="cmp">
+      <caption>Known proofs that brainfuck is Turing complete. Read the second and third columns: every proof needs the tape or the cells to be without limit.</caption>
+      <thead><tr><th scope="col">Proof</th><th scope="col">Tape</th><th scope="col">Cells</th><th scope="col">How</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Böhm, 1964&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a></th><td>unlimited</td><td>any size, from two values upward</td><td>For P′′, which brainfuck matches almost command for command&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></td></tr>
+        <tr><th scope="row">Cristofani, utm.b&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a></th><td>unlimited</td><td>small numbers</td><td>A brainfuck program that is a universal Turing machine: the one published by Yurii Rogozhin in 1996, which works by imitating "tag systems". Its author calls it "a very direct proof"</td></tr>
+        <tr><th scope="row">Faase, by translation&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a></th><td>unlimited</td><td>as needed</td><td>A recipe that turns any Turing machine into a brainfuck program</td></tr>
+        <tr><th scope="row">Faase, register machines&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></th><td>5 cells</td><td>unlimited</td><td>Imitates a machine with five counters that can each hold any number</td></tr>
+        <tr><th scope="row">Johansen&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a></th><td>3 cells</td><td>unlimited</td><td>Imitates a kind of repeated Collatz function. We know this one only from the Esolang wiki</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The pattern in <a href="#tab-proofs">the table</a> is the important part. With a tape that never ends, small cells are enough: even cells of one bit will do, as the language Boolfuck shows&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>. With cells that can hold any number, three cells are enough. But something must be unlimited.</p>
+    <h3>So is a real implementation Turing complete?</h3>
+    <p>Strictly, no. An implementation with 30,000 cells of one byte has a fixed, finite number of possible states. It is a very large finite machine, not a Turing machine. Müller's proviso says exactly that: "if we ignore the array size limit"&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>The same is true of every computer ever built. Each has a fixed amount of memory. We call them general-purpose because the memory is large enough for the task at hand and more can be added. For brainfuck the fair statement is the same: the language is Turing complete, and an implementation can run any computation that fits on its tape. Implementations whose tape grows as needed come as close as a real machine can.</p>
+  </section>
+
+  <section id="not" aria-labelledby="not-h">
+    <h2 id="not-h">What it does not mean</h2>
+    <dl class="glossary">
+      <dt>Not: fast</dt><dd>Turing completeness counts no steps. A brainfuck program may need a million steps for what another language does in one. See <a href="#teaches">What brainfuck teaches about real computers</a>.</dd>
+      <dt>Not: easy</dt><dd>That a program exists does not help you find it.</dd>
+      <dt>Not: able to do everything a computer does</dt><dd>Computing and doing are different. A brainfuck program reads characters and prints characters. It cannot open a file, show a picture or use a network, because the language has no command for it. It can compute what should be in the file or the picture, if something else does the rest.</dd>
+      <dt>Not: predictable</dt><dd>Turing showed that no method can decide, for every program, whether it will ever stop&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. That holds for every Turing-complete language, so it holds for brainfuck with an unlimited tape. There is no tool that can look at any brainfuck program and say whether it ends.</dd>
+    </dl>
+    <aside class="sidenote"><b>On a fixed tape</b> the question can be answered in principle: a machine with finitely many states either stops or comes back to a state it was in before. In practice the number of states is far too large to try.</aside>
+    <p>Being Turing complete is not rare either: most programming languages are. What makes brainfuck special is how little it needs and how plainly you can see it.</p>
+  </section>
+
+  <section id="tarpit" aria-labelledby="tarpit-h">
+    <h2 id="tarpit-h">The Turing tarpit</h2>
+    <p>In 1982 the computer scientist Alan Perlis published a list of short remarks on programming. Number 54 reads&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>:</p>
+    <figure class="quote" aria-label="Quotation from Alan Perlis">
+      <blockquote><p>"Beware of the Turing tar-pit in which everything is possible but nothing of interest is easy."</p></blockquote>
+      <figcaption>Alan J. Perlis, "Epigrams on Programming", 1982&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>.</figcaption>
+    </figure>
+    <p>It reads as a warning to people who design languages and systems: being able to do anything in principle is worth little if every useful thing is hard. He wrote it eleven years before brainfuck existed.</p>
+    <p>Since then the phrase has become a name. Small languages that are Turing complete with as few parts as possible are called "Turing tarpits"&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>, and brainfuck is the usual example. The difference is that these languages walk into the tar-pit on purpose. What Perlis warned against, they are made to explore: how little is needed, and what it is like to work with only that.</p>
+  </section>
+
+  <section id="teaches" aria-labelledby="teaches-h">
+    <h2 id="teaches-h">What brainfuck teaches about real computers</h2>
+    <p>A real processor is closer to brainfuck than to the languages people write in. That is why the language is good for learning what happens underneath.</p>
+    <dl class="glossary">
+      <dt>Memory is a row of numbered cells</dt><dd>A computer's memory is a long row of bytes, each with a number: its address. Variables with names are a convenience that a compiler turns into addresses. In brainfuck you do that work yourself: you decide which cell holds what.</dd>
+      <dt>A pointer is a position</dt><dd>The pointer is the one address the machine is looking at. Getting to data means moving there, and moving costs steps. Keeping things that are used together close together makes a program faster, on a brainfuck tape and in a real machine.</dd>
+      <dt>Everything is numbers</dt><dd>A letter is a number, and so is a truth value. What a number means is decided by the program that uses it.</dd>
+      <dt>Arithmetic goes round</dt><dd>A cell has a largest value, and one more than that is 0. Real processors count in the same way, with 32 or 64 bits instead of 8.</dd>
+      <dt>Control is a jump with a test</dt><dd>A processor has no "while" and no "if". It has "go to another place in the program if this number is zero". The two brackets are exactly that.</dd>
+      <dt>Using a number can destroy it</dt><dd>A loop that adds cell 0 to cell 1 leaves cell 0 empty. To keep the number you make a second copy at the same time and move it back. Real machines copy for the same reason; they only make it look free.</dd>
+      <dt>Everything has a cost</dt><dd>Multiplying is adding again and again, and adding is counting. In brainfuck you see every step.</dd>
+    </dl>
+    <p>The program below multiplies two numbers with a loop. Under the cells are the number of steps of the run, counted one command at a time and with simple loops merged. Make the numbers larger and watch both counts:</p>
+
+    <figure class="fig col" id="fig-cost" aria-label="A loop that multiplies two numbers, with its step count in two ways"></figure>
+    <p>One command at a time, eight times eight takes 105 steps, and sixteen times eight about twice as many; the merged count hardly moves. The loop has a simple shape, and a program that runs brainfuck can recognise the shape and do the whole multiplication in one operation. The result is identical. This is the main idea behind every fast implementation: see <a href="implementations.html">Implementations</a>.</p>
+    <p>How large the costs get is easy to underrate. The chat models of this site need division, rounding and table look-ups many millions of times. Done by plain counting, one division with rounding took 1.2 to 1.5 million steps; built from loops of the simple shape it takes about 100 <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>. Even so, one word piece of an answer from brnfck-135m costs 1.6 to 1.9 billion steps <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>This is an explanation, not a proof. The proofs are in the sources named in <a href="#tab-proofs">the table of proofs</a>.</li>
+      <li>We did not read Böhm's paper of 1964, Rogozhin's of 1996 or Turing's of 1936. We rely on the descriptions cited.</li>
+      <li>The three-cell result is reported from the Esolang wiki alone.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="implementations.html"><b>Implementations</b><span>How the steps are carried out, and how the slow ones are made fast.</span></a></li>
+      <li><a href="writing.html"><b>Writing real programs</b><span>How people actually build things from these parts.</span></a></li>
+      <li><a href="../patterns/"><b>Patterns</b><span>Deciding, copying, comparing: the building blocks, runnable.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Frans Faase, "BF is Turing-complete"</b>: <a href="https://www.iwriteiam.nl/Ha_bf_Turing.html">the proof page on iwriteiam.nl</a>. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Daniel B Cristofani, <i>utm.b</i></b>: <a href="https://brainfuck.org/utm.b">the universal Turing machine on brainfuck.org</a>. Its comments name the machine it implements: Yurii Rogozhin, "Small universal Turing machines", <i>Theoretical Computer Science</i> 168(2) (1996), 215 to 240, which we did not open. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Wikipedia, "Halting problem"</b>: <a href="https://en.wikipedia.org/wiki/Halting_problem">the Wikipedia article on the halting problem</a>. Our source for the statement of Turing's result (A. M. Turing, "On Computable Numbers, with an Application to the Entscheidungsproblem", <i>Proceedings of the London Mathematical Society</i>, 1936 to 1937), which we did not open. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Wikipedia, "P′′"</b>: <a href="https://en.wikipedia.org/wiki/P%E2%80%B2%E2%80%B2">the Wikipedia article on P′′</a>. Our source for Corrado Böhm, "On a family of Turing machines and the related programming language", <i>ICC Bulletin</i> 3 (1964), 185 to 194, and for C. Böhm and G. Jacopini, "Flow Diagrams, Turing Machines and Languages with Only Two Formation Rules", <i>Communications of the ACM</i> 9(5) (1966), 366 to 371. We did not open the two papers themselves. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Esolang wiki, "Boolfuck"</b>: <a href="https://esolangs.org/wiki/Boolfuck">the wiki article on Boolfuck</a>. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Alan J. Perlis, "Epigrams on Programming"</b>, <i>ACM SIGPLAN Notices</i> 17(9), September 1982, read in the copy at Yale: <a href="https://www.cs.yale.edu/homes/perlis-alan/quotes.html">the epigrams at cs.yale.edu</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Esolang wiki, "Esoteric programming language"</b>: <a href="https://esolangs.org/wiki/Esoteric_programming_language">the wiki article on esoteric languages</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Michael Mateas and Nick Montfort, "A Box, Darkly: Obfuscation, Weird Languages, and Code Aesthetics"</b>, <i>Proceedings of the 6th Digital Arts and Culture Conference</i>, IT University of Copenhagen, 1 to 3 December 2005, pages 144 to 153: <a href="https://nickm.com/cis/a_box_darkly.pdf">the paper on nickm.com (PDF)</a>. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>This site's own project.</b> Counts and measurements are on <a href="../how/#numbers">How it works: the numbers</a> and <a href="../how/#real">How do I know it is real?</a>; the earlier work we know of is under <a href="../how/#prior">Has this been done before?</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html" aria-current="page"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>5</b> of 13</p>
+    <a class="prev" href="history.html" rel="prev"><span>Previous</span>History</a>
+    <a class="next" href="writing.html" rel="next"><span>Next</span>Writing programs</a>
+  </nav>
+</main>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ref.js?v=r7"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  // a program that decides
+  var f = Ref.field('The input', 'a', function () { d.reload(); }); f.input.maxLength = 1;
+  var d = Ref.runner($('fig-decide'), { printed: true, input: true, rate: 20,
+    build: function () { return { code: ',>++++++++++[<---------->-]<+++>+<[>-<[-]]>++++++++++++++++++++++++++++++++++++++++++++++++.', size: 4, cells: 4, input: RefRun.bytes(f.get()).slice(0, 1),
+      end: function (m) { return 'Finished. Cell 1 holds ' + m.tape[1] + ' and it printed ' + RefRun.show(m.out) + (m.tape[1] ? ': the letter was an a.' : ': the letter was not an a.'); } }; } });
+  Ref.addControl($('fig-decide'), f);
+
+  // the cost of 8 times 8
+  Ref.compare($('fig-cost'), { rate: 30,
+    values: [{ name: 'Cell 0 starts at', min: 1, max: 16, value: 8 }, { name: 'Added to cell 1 each round', min: 1, max: 16, value: 8 }],
+    build: function (v) { return { code: '+'.repeat(v[0]) + '[>' + '+'.repeat(v[1]) + '<-]', size: 4, cells: 4,
+      end: function (m) { return 'Finished. Cell 1 holds ' + m.tape[1] + ': ' + v[0] + ' times ' + v[1] + '.'; } }; } });
+})();
+</script>
+</body>
+</html>

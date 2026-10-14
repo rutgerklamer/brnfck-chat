@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playground · brnfck.chat</title>
+<meta name="description" content="Write, run and step through brainfuck programs in the browser: an editor with colours and bracket checks, a tape you can watch, a debugger that steps forward and back, and a sentence that says what every command does.">
+<meta property="og:title" content="Playground">
+<meta property="og:description" content="Write, run and step through brainfuck programs in the browser: an editor, a tape you can watch, a debugger that steps forward and back, and a sentence that says what every command does.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/tools.css?v=r6">
+<link rel="stylesheet" href="playground.css?v=r6">
+</head>
+<body class="pgpage">
+<script src="../site.js?v=r13" data-wide></script>
+<main class="doc pg tool" id="main">
+  <header class="plain pg-head compact">
+    <p class="kicker crumbs"><span>Play</span><span>Playground</span></p>
+    <h1>Playground</h1>
+    <p class="row btns pg-start"><span class="label span" id="start-l">Start with</span>
+      <button type="button" class="quiet" data-example="hello" aria-describedby="start-l">Hello World!</button>
+      <button type="button" class="quiet" data-example="loop" aria-describedby="start-l">A loop</button>
+      <button type="button" class="quiet" data-example="echo" aria-describedby="start-l">Echo</button>
+    </p>
+    <p class="muted small pg-conf"><span id="conf-text">Interpreter: the classic one.</span> <button type="button" class="link" id="conf-change">Change the settings</button></p>
+    <button type="button" class="quiet pg-toolsbtn" id="tools-toggle" aria-expanded="false" aria-controls="tools">Show tools</button>
+  </header>
+  <noscript><p class="callout warn">The playground is a program that runs in your browser. It needs JavaScript.</p></noscript>
+
+  <div class="pg-app" id="app">
+
+    <section class="pg-run" aria-labelledby="run-h">
+      <h2 id="run-h" class="sr-only">Play the program</h2>
+      <div class="row btns pg-buttons" role="group" aria-label="Play and step">
+        <button type="button" id="b-run" class="primary" aria-keyshortcuts="Control+Enter F8">Play</button>
+        <button type="button" id="b-step" class="quiet" aria-keyshortcuts="F10">Step</button>
+        <button type="button" id="b-back" class="quiet" aria-label="Step back" aria-keyshortcuts="F7">Back</button>
+        <label class="pg-speed speed" for="speed"><span>Speed</span>
+          <input type="range" id="speed" min="0" max="9" step="1" value="3" aria-describedby="speed-out">
+          <output id="speed-out" for="speed">10 steps a second</output>
+        </label>
+        <button type="button" id="b-reset" class="quiet" aria-keyshortcuts="Shift+F8">Start again</button>
+        <button type="button" id="b-over" class="quiet" aria-label="Step over loop" aria-keyshortcuts="F2" title="If the next command is [, run the whole loop; otherwise one step">Over loop</button>
+        <button type="button" id="b-out" class="quiet" aria-keyshortcuts="Shift+F2" title="Play until the loop around the next command has ended">Finish loop</button>
+        <button type="button" id="b-cursor" class="quiet" aria-label="Play to cursor" aria-keyshortcuts="F4" title="Play until the command at the text cursor in the editor">To cursor</button>
+        <button type="button" id="b-more" class="quiet" aria-expanded="false" title="Speed, Over loop, Finish loop, To cursor">More controls</button>
+      </div>
+      <div class="row btns pg-fast" role="group" aria-label="Fast mode">
+        <button type="button" id="b-fast" aria-keyshortcuts="Control+Shift+Enter" title="Play in the background with the optimising interpreter: no stepping, no breakpoints, but very fast">Play fast</button>
+        <button type="button" id="b-fpause" class="quiet" hidden title="Stop the fast run where it is and look at it in the debugger">Pause and inspect</button>
+        <button type="button" id="b-stop" hidden aria-keyshortcuts="Escape">Stop</button>
+      </div>
+      <p class="card pg-peek" id="out-peek" hidden><span class="badge">Printed</span><span class="bf" id="out-peek-text"></span><button type="button" class="link" id="out-peek-go">Show all</button></p>
+    </section>
+
+    <section class="pg-status" id="status" aria-labelledby="exp-h" tabindex="0">
+      <h2 id="exp-h" class="sr-only">What the program is doing</h2>
+      <div class="card pg-explain" id="explain">
+        <p class="next" id="ex-next"></p>
+        <p class="prev muted small" id="ex-prev"></p>
+      </div>
+      <button type="button" class="quiet" id="where-toggle" aria-expanded="false" aria-controls="where">Progress</button>
+      <div class="pg-where" id="where">
+        <dl class="kv readout pg-state ready" id="state">
+          <dt>State</dt><dd><span class="badge" id="state-word">Ready</span></dd>
+          <dt>Steps so far</dt><dd id="state-rest"></dd>
+        </dl>
+        <div class="pg-map"><canvas id="map" height="34" aria-hidden="true"></canvas><p id="map-text" class="muted small"></p></div>
+      </div>
+    </section>
+    <p class="sr-only" id="live" role="status" aria-live="polite"></p>
+
+    <div class="pg-views seg" role="group" aria-label="Show">
+      <button type="button" data-view="code" aria-pressed="true">Program</button>
+      <button type="button" data-view="tape" aria-pressed="false">Tape</button>
+      <button type="button" data-view="io" aria-pressed="false">In/out</button>
+      <button type="button" data-view="tools" aria-pressed="false">Tools</button>
+    </div>
+
+    <section class="frame pg-code pane active" data-pane="code" aria-labelledby="code-h">
+      <h2 class="frame-head" id="code-h"><b>Program</b></h2>
+      <div class="frame-body" id="code-body" tabindex="0" role="group" aria-labelledby="code-h">
+        <div class="row btns pg-edit-tools" role="group" aria-label="Edit">
+          <button type="button" class="quiet" id="e-undo" aria-keyshortcuts="Control+Z">Undo</button>
+          <button type="button" class="quiet" id="e-redo" aria-keyshortcuts="Control+Y">Redo</button>
+          <button type="button" class="quiet" id="e-format" title="Indent by loop depth; only spaces and line breaks change">Format</button>
+          <button type="button" class="quiet" id="e-minify" title="Strip the comments and the white space">Minify</button>
+          <button type="button" class="quiet" id="e-bp" aria-keyshortcuts="F9" title="Set or clear a breakpoint on the line of the text cursor">Breakpoint</button>
+          <span class="chips"><button type="button" id="e-keys" aria-pressed="false" title="Show a row of the eight commands to press">Command keys</button></span>
+        </div>
+        <div id="editor"></div>
+        <p class="verdict plain no pg-brackets" id="brackets" role="status"></p>
+        <div class="pg-keys" id="keys" hidden>
+          <div class="keypad" role="group" aria-label="Type a command">
+            <button type="button" data-c="&gt;" aria-label="greater than: move right">&gt;<small>right</small></button>
+            <button type="button" data-c="&lt;" aria-label="less than: move left">&lt;<small>left</small></button>
+            <button type="button" data-c="+" aria-label="plus: add one">+<small>add</small></button>
+            <button type="button" data-c="-" aria-label="minus: take one off">−<small>take</small></button>
+            <button type="button" data-c="." aria-label="full stop: print">.<small>print</small></button>
+            <button type="button" data-c="," aria-label="comma: read">,<small>read</small></button>
+            <button type="button" data-c="[" aria-label="left bracket: start of a loop">[<small>loop</small></button>
+            <button type="button" data-c="]" aria-label="right bracket: end of a loop">]<small>end</small></button>
+          </div>
+          <div class="row btns" role="group" aria-label="Edit keys">
+            <button type="button" class="quiet" data-a="left" aria-label="Cursor left">←</button>
+            <button type="button" class="quiet" data-a="right" aria-label="Cursor right">→</button>
+            <button type="button" class="quiet" data-a="bs" aria-label="Delete backwards">⌫</button>
+            <button type="button" class="quiet" data-k="&#10;" aria-label="New line">↵</button>
+            <button type="button" class="quiet" data-k=" " aria-label="Space">␣</button>
+            <button type="button" class="quiet" data-a="undo">Undo</button>
+            <button type="button" class="quiet" data-a="done" title="Close the keyboard">Done</button>
+          </div>
+        </div>
+        <p class="muted small pg-summary" id="summary"></p>
+        <p class="sr-only" id="editor-help">Every character that is not one of <code>+ − &lt; &gt; [ ] . ,</code> is a comment. Tab leaves the editor. Click left of a line, or press F9, for a breakpoint.</p>
+      </div>
+    </section>
+
+    <section class="frame pg-tape pane" data-pane="tape" aria-labelledby="tape-h">
+      <h2 class="frame-head" id="tape-h"><b>Tape</b></h2>
+      <div class="frame-body" id="tape-body" tabindex="0" role="group" aria-labelledby="tape-h">
+        <div class="row pg-tape-tools">
+          <button type="button" class="quiet" id="t-prev" aria-label="Show the cells to the left" title="Cells to the left">◀</button>
+          <button type="button" class="quiet" id="t-next" aria-label="Show the cells to the right" title="Cells to the right">▶</button>
+          <input type="number" id="t-jump" min="0" value="0" inputmode="numeric" aria-label="Number of the cell to go to">
+          <button type="button" class="quiet" id="t-go">Go to cell</button>
+        </div>
+        <div id="tape"></div>
+        <div class="row pg-tape-opts">
+          <button type="button" class="quiet" id="t-ptr">To the pointer</button>
+          <label class="check"><input type="checkbox" id="t-follow" checked> Follow the pointer</label>
+          <label class="check"><input type="checkbox" id="t-chars" checked> Characters</label>
+          <label class="check"><input type="checkbox" id="t-bits"> Bits</label>
+        </div>
+        <form class="card pg-cell" id="cell-form" hidden aria-labelledby="cell-h">
+          <h3 class="label" id="cell-h">Cell 0</h3>
+          <label class="stacked">Name <input type="text" id="cell-name" maxlength="24" autocomplete="off" placeholder="for example: counter"></label>
+          <label class="stacked">Value <input type="number" id="cell-value" min="0" inputmode="numeric"></label>
+          <button type="submit" class="quiet">Apply</button>
+          <button type="button" class="quiet" id="cell-close">Close</button>
+          <p class="muted small" id="cell-info"></p>
+        </form>
+        <details class="q pg-words" id="tape-more">
+          <summary>The tape in words</summary>
+          <div class="a"><p id="tape-words"></p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="pg-io pane" data-pane="io" aria-label="Input and output">
+      <div class="frame pg-in">
+        <h2 class="frame-head" id="in-h"><b>Input</b></h2>
+        <div class="frame-body" id="in-body" tabindex="0" role="group" aria-labelledby="in-h">
+          <form class="callout warn pg-ask" id="ask" hidden aria-labelledby="ask-h">
+            <h3 id="ask-h">The program asks for input</h3>
+            <label for="ask-text" class="sr-only">Characters to send</label>
+            <input type="text" id="ask-text" autocomplete="off" autocapitalize="off" spellcheck="false">
+            <div class="row btns">
+              <button type="submit" id="ask-send">Send</button>
+              <button type="button" class="quiet" id="ask-line">Send with a line break</button>
+              <button type="button" class="quiet" id="ask-eof">End of input</button>
+            </div>
+            <p class="muted small">Send gives the program what you typed, byte by byte. End of input closes the input for the rest of this run.</p>
+          </form>
+          <textarea id="input" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" aria-labelledby="in-h" aria-describedby="in-help in-pos" placeholder="What the program reads with ,"></textarea>
+          <div class="pg-in-foot">
+          <p class="muted small" id="in-pos"></p>
+          <details class="q pg-in-more">
+            <summary>Input options</summary>
+            <div class="a">
+              <div class="row pg-in-opts">
+                <label class="stacked">At the end of the input , stores
+                  <select id="in-eof"><option value="zero">0</option><option value="minus1">−1 (all bits set)</option><option value="same">nothing: the cell keeps its value</option></select></label>
+                <label class="check"><input type="checkbox" id="in-ask"> Ask me for more when the box is used up</label>
+                <label class="check"><input type="checkbox" id="in-esc"> <span>Read <code>\n</code>, <code>\t</code>, <code>\0</code>, <code>\x41</code> as bytes</span></label>
+              </div>
+              <p class="muted small" id="in-help">Text is sent as UTF-8 bytes. A change takes effect at the next Start again, or when Play starts from the beginning.</p>
+            </div>
+          </details>
+          </div>
+        </div>
+      </div>
+      <div class="frame pg-outbox">
+        <h2 class="frame-head" id="out-h"><b>Printed</b></h2>
+        <div class="frame-body">
+          <pre class="pg-out" id="out" tabindex="0" role="region" aria-labelledby="out-h"></pre>
+          <p class="muted small" id="out-info">Nothing printed yet.</p>
+          <div class="row pg-out-tools">
+            <div class="seg" role="group" aria-label="Show what was printed as">
+              <button type="button" data-out="text" aria-pressed="true">Text</button>
+              <button type="button" data-out="dec" aria-pressed="false">Numbers</button>
+              <button type="button" data-out="hex" aria-pressed="false">Hex</button>
+            </div>
+            <button type="button" class="quiet" id="out-copy">Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="frame pg-tools pane" id="tools" data-pane="tools" aria-labelledby="tools-h">
+      <h2 class="frame-head" id="tools-h"><b>Tools</b></h2>
+      <div class="frame-body">
+      <div class="tabs pg-tabs" role="tablist" aria-labelledby="tools-h">
+        <button type="button" role="tab" id="tab-examples" aria-controls="p-examples" aria-selected="true">Examples</button>
+        <button type="button" role="tab" id="tab-analysis" aria-controls="p-analysis" aria-selected="false" tabindex="-1">Analysis</button>
+        <button type="button" role="tab" id="tab-text" aria-controls="p-text" aria-selected="false" tabindex="-1">Text to brainfuck</button>
+        <button type="button" role="tab" id="tab-save" aria-controls="p-save" aria-selected="false" tabindex="-1">Save and share</button>
+        <button type="button" role="tab" id="tab-settings" aria-controls="p-settings" aria-selected="false" tabindex="-1">Settings</button>
+        <button type="button" role="tab" id="tab-help" aria-controls="p-help" aria-selected="false" tabindex="-1">Help</button>
+      </div>
+
+      <div role="tabpanel" id="p-examples" aria-labelledby="tab-examples" tabindex="0">
+        <p class="muted small">Choosing an example replaces the program, the input and the cell names. Undo brings your program back.</p>
+        <div id="examples"></div>
+      </div>
+
+      <div role="tabpanel" id="p-analysis" aria-labelledby="tab-analysis" tabindex="0" hidden>
+        <p class="muted small">Worked out from the text of the program, without running it.</p>
+        <div id="analysis"></div>
+      </div>
+
+      <div role="tabpanel" id="p-text" aria-labelledby="tab-text" tabindex="0" hidden>
+        <label class="stacked" for="tx-in">Text to print</label>
+        <textarea id="tx-in" rows="3" spellcheck="false">Hello World!
+</textarea>
+        <div class="row pg-opts">
+          <label class="check"><input type="checkbox" id="tx-loops" checked> Use multiplication loops (shorter)</label>
+          <label class="check"><input type="checkbox" id="tx-notes" checked> One line and a comment for each character</label>
+        </div>
+        <div class="row btns">
+          <button type="button" id="tx-make">Make the program</button>
+          <button type="button" class="quiet" id="tx-use" disabled>Put it in the editor</button>
+        </div>
+        <pre class="listing" id="tx-out" tabindex="0" aria-label="The generated program" hidden></pre>
+        <div id="tx-explain"></div>
+      </div>
+
+      <div role="tabpanel" id="p-save" aria-labelledby="tab-save" tabindex="0" hidden>
+        <h3>Link</h3>
+        <p class="muted small">The link holds the program, the input, the settings, the cell names and the breakpoints, compressed in the part after the #. Nothing is sent to a server.</p>
+        <div class="row btns">
+          <button type="button" id="s-link">Copy link</button>
+          <button type="button" class="quiet" id="s-embed">Copy embed code</button>
+        </div>
+        <p class="verdict" id="s-link-msg" role="status"></p>
+        <label for="s-link-out" class="sr-only">The link</label>
+        <input type="text" id="s-link-out" readonly hidden>
+
+        <h3>Saved in this browser</h3>
+        <form class="row" id="s-form">
+          <label for="s-name">Name</label>
+          <input type="text" id="s-name" maxlength="60" autocomplete="off" placeholder="my program">
+          <button type="submit">Save</button>
+        </form>
+        <p class="verdict" id="s-msg" role="status"></p>
+        <ul class="linklist pg-saved" id="s-list"></ul>
+        <div class="row btns">
+          <button type="button" class="quiet" id="s-export">Export all as a file</button>
+          <button type="button" class="quiet" id="s-import">Import a file</button>
+          <input type="file" id="s-import-file" accept=".json,application/json" hidden aria-label="File with saved programs">
+        </div>
+
+        <h3>Files</h3>
+        <div class="row btns">
+          <button type="button" class="quiet" id="f-open">Open a .bf file</button>
+          <button type="button" class="quiet" id="f-save">Download as .bf</button>
+          <input type="file" id="f-file" accept=".bf,.b,.txt,text/plain" hidden aria-label="Brainfuck file">
+        </div>
+        <p class="muted small">You can also drop a file anywhere on this page. Files up to 64 MB are accepted. Up to 300,000 characters a program can be edited (with colours up to 150,000); a larger one is kept as it is and can be run, stepped and analysed, but not edited.</p>
+        <p class="verdict" id="f-msg" role="status"></p>
+      </div>
+
+      <div role="tabpanel" id="p-settings" aria-labelledby="tab-settings" tabindex="0" hidden>
+        <h3>What the page shows</h3>
+        <div class="row pg-opts">
+          <label class="check"><input type="checkbox" id="o-explain" checked> Explain each step</label>
+          <label class="check"><input type="checkbox" id="o-prev" checked> And the step before</label>
+        </div>
+        <h3>The interpreter</h3>
+        <p class="muted small">Interpreters differ in these points, and a program can depend on them. A change resets the program.</p>
+        <form id="settings" class="pg-settings">
+          <div><fieldset class="picklist"><legend>Cell size</legend>
+            <label><input type="radio" name="bits" value="8"><span>8 bits (0 to 255)</span></label><label><input type="radio" name="bits" value="16"><span>16 bits (0 to 65,535)</span></label><label><input type="radio" name="bits" value="32"><span>32 bits (0 to 4,294,967,295)</span></label></fieldset>
+            <p class="muted small">How large the number in one cell can get. The classic size is 8 bits, one byte.</p></div>
+          <div><fieldset class="picklist"><legend>When a cell passes its limit</legend>
+            <label><input type="radio" name="overflow" value="wrap"><span>it wraps round</span></label><label><input type="radio" name="overflow" value="error"><span>the program stops with an error</span></label></fieldset>
+            <p class="muted small">Wrapping means 255 + 1 = 0 and 0 − 1 = 255; most interpreters wrap, and many programs count on it.</p></div>
+          <div><fieldset class="picklist"><legend>Tape length</legend>
+            <label><input type="number" name="size" min="1" max="16777216" step="1" inputmode="numeric"><span>cells</span></label></fieldset>
+            <p class="muted small">How many cells there are. The first interpreter had 30,000; the most here is 16,777,216.</p></div>
+          <div><fieldset class="picklist"><legend>Moving off an end of the tape</legend>
+            <label><input type="radio" name="edge" value="error"><span>is an error</span></label><label><input type="radio" name="edge" value="wrap"><span>wraps round to the other end</span></label></fieldset>
+            <p class="muted small">What <code>&lt;</code> does on cell 0 and <code>&gt;</code> on the last cell. An error finds mistakes; wrapping is what some programs expect.</p></div>
+          <div><fieldset class="picklist"><legend>End of input</legend>
+            <label><input type="radio" name="eof" value="zero"><span>0</span></label><label><input type="radio" name="eof" value="minus1"><span>−1</span></label><label><input type="radio" name="eof" value="same"><span>cell unchanged</span></label></fieldset>
+            <p class="muted small">What <code>,</code> stores when nothing is left to read. Interpreters disagree; a careful program works with all three.</p></div>
+          <div><fieldset class="picklist"><legend>When the input box is used up</legend>
+            <label><input type="radio" name="ask" value="true"><span>ask me for more</span></label><label><input type="radio" name="ask" value="false"><span>that is the end of the input</span></label></fieldset>
+            <p class="muted small">Asking works like a terminal: the program waits until you type something or say that the input has ended.</p></div>
+          <div><fieldset class="picklist"><legend>Line breaks in the input</legend>
+            <label><input type="radio" name="newline" value="lf"><span>one byte: 10</span></label><label><input type="radio" name="newline" value="crlf"><span>two bytes: 13, 10</span></label></fieldset>
+            <p class="muted small">How a line break typed in the input box is sent. Almost every program expects 10. In the output, 10 starts a new line and 13 is not shown.</p></div>
+          <div><fieldset class="picklist"><legend>Breakpoint character</legend>
+            <label><input type="radio" name="bp" value=""><span>none</span></label><label><input type="radio" name="bp" value="#"><span><code>#</code></span></label><label><input type="radio" name="bp" value="!"><span><code>!</code></span></label></fieldset>
+            <p class="muted small">When set, a running program pauses at this character. It is off at first, so that a <code>#</code> or <code>!</code> in a comment stays a comment.</p></div>
+          <div><fieldset class="picklist"><legend>Engine of fast mode</legend>
+            <label><input type="radio" name="engine" value="checked"><span>checked interpreter</span></label><label><input type="radio" name="engine" value="wasm"><span>WebAssembly compiler</span></label></fieldset>
+            <p class="muted small">The checked interpreter obeys every setting, counts steps and can be paused. WebAssembly is much faster for heavy programs, but needs wrapping cells and end of input 0, does not notice a pointer that leaves the tape on the left, and cannot pause or ask for input.</p></div>
+          <p class="row"><button type="button" class="quiet" id="set-classic">Back to the classic settings</button></p>
+        </form>
+      </div>
+
+      <div role="tabpanel" id="p-help" aria-labelledby="tab-help" tabindex="0" hidden>
+        <p>Write a brainfuck program, run it, and step through it forward and back. The tape shows every cell, and one sentence says what each command does.</p>
+        <h3>The eight commands</h3>
+        <div class="scroll" tabindex="0" role="region" aria-label="The eight commands">
+        <table class="nonum">
+          <tbody>
+          <tr><th scope="row"><code>&gt;</code></th><td>move the pointer one cell to the right</td></tr>
+          <tr><th scope="row"><code>&lt;</code></th><td>move the pointer one cell to the left</td></tr>
+          <tr><th scope="row"><code>+</code></th><td>add 1 to the cell under the pointer</td></tr>
+          <tr><th scope="row"><code>-</code></th><td>take 1 from the cell under the pointer</td></tr>
+          <tr><th scope="row"><code>.</code></th><td>print the cell as one character</td></tr>
+          <tr><th scope="row"><code>,</code></th><td>read one byte of input into the cell</td></tr>
+          <tr><th scope="row"><code>[</code></th><td>if the cell is zero, jump past the matching <code>]</code></td></tr>
+          <tr><th scope="row"><code>]</code></th><td>if the cell is not zero, jump back to the matching <code>[</code></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Everything else is a comment. The tape starts with every cell at zero and the pointer on cell 0.</p>
+
+        <h3>Keyboard</h3>
+        <dl class="kv pg-keys-list">
+          <dt><kbd>Ctrl</kbd> + <kbd>Enter</kbd> or <kbd>F8</kbd></dt><dd>Play, or pause when playing</dd>
+          <dt><kbd>F10</kbd> or <kbd>Ctrl</kbd> + <kbd>.</kbd></dt><dd>Step</dd>
+          <dt><kbd>F7</kbd> or <kbd>Ctrl</kbd> + <kbd>,</kbd></dt><dd>Step back</dd>
+          <dt><kbd>F2</kbd></dt><dd>Step over a loop</dd>
+          <dt><kbd>Shift</kbd> + <kbd>F2</kbd></dt><dd>Finish the loop you are in</dd>
+          <dt><kbd>F4</kbd></dt><dd>Play to the text cursor</dd>
+          <dt><kbd>Shift</kbd> + <kbd>F8</kbd></dt><dd>Start again</dd>
+          <dt><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></dt><dd>Play fast</dd>
+          <dt><kbd>Esc</kbd></dt><dd>Pause, or stop a fast run</dd>
+          <dt><kbd>F9</kbd></dt><dd>Breakpoint on the line of the text cursor</dd>
+          <dt><kbd>Ctrl</kbd> + <kbd>Z</kbd>, <kbd>Ctrl</kbd> + <kbd>Y</kbd></dt><dd>Undo and redo in the editor</dd>
+          <dt><kbd>Tab</kbd>, <kbd>Shift</kbd> + <kbd>Tab</kbd></dt><dd>Leave the editor: Tab is never caught, so the keyboard cannot get stuck in it</dd>
+          <dt><kbd>←</kbd> <kbd>→</kbd> on the tabs</dt><dd>Next and previous tab of this panel</dd>
+        </dl>
+        <p class="muted small">On a Mac, use <kbd>⌘</kbd> where this list says Ctrl; the function keys may need <kbd>fn</kbd>.</p>
+
+        <h3>Playing and stepping</h3>
+        <ul>
+          <li><b>Play</b> works in the page, at the speed of the slider, and stops at breakpoints. <b>Step back</b> takes back up to 200,000 steps; older steps are forgotten.</li>
+          <li><b>Play fast</b> works in the background with an optimising interpreter. It ignores breakpoints. <b>Stop</b> ends it at once, whatever the program is doing; <b>Pause and inspect</b> hands the program to the debugger where it stands.</li>
+          <li><b>Breakpoints.</b> Click left of a line (or F9). A run pauses when it arrives at that line from another line. The breakpoint character (Settings) pauses wherever it stands; common interpreters use <code>#</code> or <code>!</code>, and here you choose which, or none.</li>
+          <li><b>Input.</b> The comma reads bytes from the input box. When the box is used up, the program either asks you or gets the end of input: 0, −1 or no change, as set.</li>
+          <li><b>Cells.</b> Press a cell to give it a name or change its value. Names are saved with the program and in the link.</li>
+          <li><b>The program map.</b> The strip beside Steps so far is the whole program from its first command to its last. Its height is the loop depth, and the block marks the command that runs next.</li>
+        </ul>
+        <h3>Use it in another page</h3>
+        <p>A small version of the playground can be put in any page of this site: see the <a href="embed.js">instructions in embed.js</a> and <a href="embed.html?code=%2B%2B%5B-%3E%2B%2B%2B%3C%5D&amp;names=0:x,1:3x">an example</a>.</p>
+        <h3>The rest of the site</h3>
+        <p>This page is one screen, so it has no footer. Every page of the site is in the <a href="../sitemap/">sitemap</a>.</p>
+      </div>
+      </div>
+    </section>
+  </div>
+  <div class="pg-drop full" id="drop" hidden>Drop the file to open it</div>
+</main>
+<script src="engine.js?v=r6"></script>
+<script src="examples.js?v=r6"></script>
+<script src="parts.js?v=r6"></script>
+<script src="app.js?v=r7"></script>
+</body>
+</html>

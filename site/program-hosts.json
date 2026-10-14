@@ -1,0 +1,6 @@
+{
+ "about": "Where each program's compressed chunks are (tools/make-chunks.js writes them to dist/<name>/). An empty value: in dist/<name>/ of this site. A URL: the folder that holds manifest.json, meta.json and the chunk folders, for example https://huggingface.co/datasets/USER/REPO/resolve/main/0.5b/ . Every page that loads a program reads this file (program-start.js).",
+ "0.5b": "",
+ "small": "",
+ "1.5b": ""
+}

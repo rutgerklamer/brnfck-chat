@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build toward a chatbot · brnfck.chat</title>
+<meta name="description" content="Build a small version of each trick a brainfuck program needs to work out one number of a chat model and to choose a word. Every step runs in your browser.">
+<meta property="og:title" content="Build toward a chatbot">
+<meta property="og:description" content="Build a small version of each trick a brainfuck program needs to work out one number of a chat model and to choose a word. Every step runs in your browser.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><span>Build toward a chatbot</span></p>
+    <h1>Build toward a chatbot</h1>
+    <p class="lead">Every chat model on this site runs as one brainfuck program. Here you build a small version of each trick such a program needs, one at a time, and run it. You do not need to know anything about programming.</p>
+    <p class="muted small">11 lessons. New to the language? Start with <a href="../challenges/basics/">Brainfuck basics</a>.</p>
+  </header>
+
+  <section id="startbox" aria-labelledby="startbox-h">
+    <h2 id="startbox-h">Your progress</h2>
+    <nav class="full" aria-label="The eleven lessons"><ol class="stepbar" id="blocks"></ol></nav>
+    <div class="begin">
+      <a class="btn primary go" id="go" href="01-machine.html">Start lesson 1</a>
+      <p id="count" class="muted small" role="status"></p>
+      <p class="note muted small"><span id="mem"></span> <button type="button" class="link" id="forget" hidden>Forget my progress</button></p>
+    </div>
+  </section>
+
+  <section id="goalbox" aria-labelledby="goalbox-h">
+    <h2 id="goalbox-h">What you build</h2>
+    <p class="exchange io"><span class="q">What is the capital of France?</span><span class="a">The capital of France is<b> Paris</b>.</span></p>
+    <p>The model reads and writes text in word pieces: a word, or a part of one. To print that last piece, the program works out a score for every word piece it knows and takes the highest. By lesson 11 you have built a small version of every part of that, for one small sum:</p>
+    <div id="goal"></div>
+  </section>
+
+  <div id="lists"></div>
+
+  <p class="measured">Every program in the lessons is real brainfuck that runs in your browser. Where a lesson quotes numbers of "the chat program", it means the program of brnfck-135m, with 135 million weights. For the story without exercises, read <a href="../how/">How it works</a>.</p>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  const { $, LESSONS } = Learn;
+  const NOTES = {
+    'The language': 'What the machine can do, and the cheap building blocks.',
+    'The four obstacles': 'In each you hit a wall first, and then find the way through.',
+    'The model': 'The parts come together: a number of the model, looking back, a word.',
+  };
+  function draw() {
+    const o = Learn.overview({ lessons: LESSONS, notes: NOTES, unit: 'Lesson', stepsDone: Learn.stepsDone, isSolved: Learn.isSolved }), next = o.next;
+    Learn.goal($('goal'), next ? next.n : LESSONS.length + 1);
+    const go = $('go');
+    if (!next) { go.textContent = 'All done. Look inside the real program'; go.href = '../inside/'; }
+    else {
+      go.href = next.file;
+      go.textContent = (o.started ? 'Continue: lesson ' : 'Start lesson ') + next.n;
+    }
+    $('count').textContent = o.lessonsDone + ' of ' + LESSONS.length + ' lessons done, ' + o.stepsDone + ' of ' + o.stepsAll + ' steps.';
+    $('startbox').classList.toggle('complete', !next);
+    $('mem').textContent = Learn.remembers() ? 'Your progress is kept in this browser, on this device only.' : 'This browser does not let the page save anything. Your progress is kept only as long as this tab stays open.';
+    $('forget').hidden = !o.started;
+  }
+  $('forget').addEventListener('click', () => { Learn.forget(); draw(); });
+  draw();
+  window.addEventListener('pageshow', draw);          // coming back with the Back button: show the new ticks
+})();
+</script>
+</body>
+</html>

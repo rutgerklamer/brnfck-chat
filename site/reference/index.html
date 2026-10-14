@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference</title>
+<meta name="description" content="A reference to the brainfuck programming language: the eight commands, where implementations differ, its history since 1993, the theory, notable programs, implementations, relatives and culture. With sources.">
+<meta property="og:title" content="Brainfuck reference: the language, its history and its world">
+<meta property="og:description" content="A reference to the brainfuck programming language: the eight commands, where implementations differ, its history since 1993, the theory, notable programs, implementations, relatives and culture. With sources.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><span>Reference</span></p>
+    <h1>Reference</h1>
+    <p class="lead">Brainfuck is a programming language with eight commands, made by Urban Müller in 1993 for the Amiga computer <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. It is a well-known &ldquo;esoteric&rdquo; language: one made to explore an idea, not to get work done <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. To learn the language step by step, begin with <a href="../brainfuck/">Start here</a>.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#five">Brainfuck in five minutes</a></li>
+          <li><a href="#map">Look something up</a></li>
+          <li><a href="#how">Where this comes from</a></li>
+          <li><a href="#site">Learn by doing</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="five" aria-labelledby="five-h">
+    <h2 id="five-h">Brainfuck in five minutes</h2>
+    <p>This program prints &ldquo;Hello, World!&rdquo; and a new line, in 136 commands. Press <em>Play</em> and raise the speed, or drag <em>Step</em> to any moment of the run, and watch the cells and the line &ldquo;Printed&rdquo;:</p>
+
+    <figure class="fig col" id="fig-hello" aria-label="A program of 136 commands that prints Hello, World!, on a row of six cells"></figure>
+    <p>Notice cells 1 to 4: a loop filled them with 70, 100, 30 and 10, and the rest of the program nudged those numbers to the letters it needed. The machine has a long row of boxes, the <b>tape</b>. Each box, a <b>cell</b>, holds a number and starts at 0. A <b>pointer</b> marks one cell. A program is a line of commands, read from left to right. There are eight commands, and that is the whole language:</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="Table 1, scrolls sideways on a narrow screen">
+    <table id="tab-commands" class="cmp">
+      <caption>The eight commands. The last column is how the 1993 README writes each one in the language C&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</caption>
+      <thead><tr><th scope="col">Command</th><th scope="col">What it does</th><th scope="col">In C</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>&gt;</code></th><td>Move the pointer one cell to the right</td><td><code>p++;</code></td></tr>
+        <tr><th scope="row"><code>&lt;</code></th><td>Move the pointer one cell to the left</td><td><code>p--;</code></td></tr>
+        <tr><th scope="row"><code>+</code></th><td>Add one to the cell under the pointer</td><td><code>array[p]++;</code></td></tr>
+        <tr><th scope="row"><code>-</code></th><td>Take one off the cell under the pointer</td><td><code>array[p]--;</code></td></tr>
+        <tr><th scope="row"><code>.</code></th><td>Print the cell as one character</td><td><code>putchar(array[p]);</code></td></tr>
+        <tr><th scope="row"><code>,</code></th><td>Read one character into the cell</td><td><code>array[p]=getchar();</code></td></tr>
+        <tr><th scope="row"><code>[</code></th><td>Start of a loop: if the cell is 0, jump past the matching <code>]</code></td><td><code>while(array[p]) {</code></td></tr>
+        <tr><th scope="row"><code>]</code></th><td>End of a loop: go back to the matching <code>[</code></td><td><code>}</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Three more things and you know it all:</p>
+    <ul>
+      <li><b>Letters are numbers.</b> A cell that holds 72 prints as "H", because 72 is the code for H in the ASCII table.</li>
+      <li><b>A loop runs while the cell under the pointer is not 0.</b> It is the only way to repeat something and the only way to decide something.</li>
+      <li><b>Every other character is a comment.</b> The README says it in one sentence: "All other characters are ignored."&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a></li>
+    </ul>
+    <p>That the language is small does not make programs small. Printing thirteen characters took 136 commands in the program above. The shortest program known to print that greeting has 72&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</p>
+    <dl class="facts">
+      <div><dt>commands</dt><dd>8</dd></div>
+      <div><dt>first known release&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a></dt><dd>1993</dd></div>
+      <div><dt>bytes in the original compiler&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a></dt><dd>240</dd></div>
+      <div><dt>cells on the original tape&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a></dt><dd>30,000</dd></div>
+    </dl>
+  </section>
+
+  <section id="map" aria-labelledby="map-h">
+    <h2 id="map-h">Look something up</h2>
+    <ul class="linklist">
+      <li><a href="language.html"><b>The language, precisely</b><span>The eight commands, the tape, the pointer, input and output. With programs you can run.</span></a></li>
+      <li><a href="portability.html"><b>Where implementations differ</b><span>Cell size, the ends of the tape, the end of the input. A compatibility table.</span></a></li>
+      <li><a href="history.html"><b>History</b><span>Urban Müller, the Amiga, 1993, and a compiler of 240 bytes. With a timeline.</span></a></li>
+      <li><a href="theory.html"><b>Theory</b><span>Why eight commands are enough, and what "Turing complete" does not mean.</span></a></li>
+      <li><a href="writing.html"><b>Writing real programs</b><span>Thinking in cells, the idioms, and tools that write brainfuck for you.</span></a></li>
+      <li><a href="programs.html"><b>Notable programs</b><span>From "Hello, World!" in 72 commands to chat models of billions.</span></a></li>
+      <li><a href="implementations.html"><b>Implementations</b><span>How interpreters and compilers work, and what makes them fast.</span></a></li>
+      <li><a href="relatives.html"><b>Relatives</b><span>The languages before it and the many built on it.</span></a></li>
+      <li><a href="culture.html"><b>Culture</b><span>Why people do this, and where they meet.</span></a></li>
+      <li><a href="glossary.html"><b>Glossary</b><span>Every term, in a sentence or two.</span></a></li>
+      <li><a href="questions.html"><b>Questions people ask</b><span>Is it useful? Is it hard? What about the name? Where do I start?</span></a></li>
+      <li><a href="reading.html"><b>Further reading</b><span>Every source we cite, with a note on what it is good for.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="how" aria-labelledby="how-h">
+    <h2 id="how-h">Where this comes from</h2>
+    <p>Much that is written about brainfuck is copied from somewhere else, errors included. The Reference rests on the 1993 package itself&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> and on the authors' own pages. Every source is numbered, and each was opened on 11 October 2026. Where the only source is a community wiki&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>, the text says so. Each page ends with what could not be verified. The programs you can run here were written for this site; other people's programs are described and linked, not copied.</p>
+    <p>The name holds a swear word. It is written here as its author wrote it, in lower case&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Polite spellings are on the <a href="questions.html#name">questions page</a>.</p>
+  </section>
+
+  <section id="site" aria-labelledby="site-h">
+    <h2 id="site-h">Learn by doing</h2>
+    <p>To learn the language rather than look things up, follow the path that begins on <a href="../brainfuck/">Start here</a>. It has three parts, in this order:</p>
+    <ol class="timeline" aria-label="The learning path, in three parts">
+      <li><b><a href="../challenges/basics/">Brainfuck basics</a></b><span>Ten short lessons on the language, one small task at a time.</span></li>
+      <li><b><a href="../learn/">Build toward a chatbot</a></b><span>Eleven lessons, from the eight commands to one number of a chat model and choosing a word.</span></li>
+      <li><b>The real program</b><span>Three pages to read: <a href="../inside/">Inside the program</a>, the <a href="../map/">Program map</a> and <a href="../how/">How it works</a>.</span></li>
+    </ol>
+    <p>Three more pages are for doing, under Play: write, copy, practise.</p>
+    <ul class="linklist">
+      <li><a href="../playground/"><b>Playground</b><span>Write a program, run it, step through it.</span></a></li>
+      <li><a href="../patterns/"><b>Code patterns</b><span>The idioms of the language. Run each one, change it, copy it.</span></a></li>
+      <li><a href="../challenges/"><b>Challenges</b><span>Exercises, from easy to hard. Best after Brainfuck basics.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="language.html"><b>The language, precisely</b><span>The eight commands, the tape and the pointer, with small programs you can run.</span></a></li>
+      <li><a href="history.html"><b>History</b><span>An archive moderator, a compiler of 1,024 bytes, and an answer of 240.</span></a></li>
+      <li><a href="../playground/"><b>Playground</b><span>Write and run your own programs, step by step.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Esolang wiki, "Esoteric programming language"</b>: <a href="https://esolangs.org/wiki/Esoteric_programming_language">the wiki article on esoteric languages</a>. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Code Golf Stack Exchange, answers to the "Hello, World!" challenge</b>: <a href="https://codegolf.stackexchange.com/a/163590">the answer by KSab</a> (27 April 2018, 72 bytes) and <a href="https://codegolf.stackexchange.com/a/68494">the answer by primo</a> (3 January 2016, 78 bytes). Read through the Stack Exchange API. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./" aria-current="page"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>1</b> of 13</p>
+    <a class="prev" href="#" rel="prev" aria-disabled="true"><span>Previous</span>Start of the Reference</a>
+    <a class="next" href="language.html" rel="next"><span>Next</span>The language</a>
+  </nav>
+</main>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ref.js?v=r7"></script>
+<script>
+(function () {
+  var A = Article, $ = function (id) { return document.getElementById(id); };
+
+  A.machine($('fig-hello'), {
+    code: '++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++++++++++++++.------------.<<+++++++++++++++.>.+++.------.--------.>+.>.',
+    cells: 6, rate: 20,
+    end: function (m) { return 'Finished after ' + A.fmt(m.steps) + ' steps. It printed “' + RefRun.show(m.out) .replace(/\n/g, '↵') + '”.'; }
+  });
+})();
+</script>
+</body>
+</html>

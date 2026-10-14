@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About the project · brnfck.chat</title>
+<meta name="description" content="Three real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. Ask one a question, see how it works, or learn it step by step.">
+<meta property="og:title" content="About the project · brnfck.chat">
+<meta property="og:description" content="Three real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. Ask one a question, see how it works, or learn it step by step.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../program-download.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../inside/inside.css?v=r6">
+<style>
+  #models table { min-width: 36rem; }
+  #models td.n { white-space: normal; }
+  #downloads > div { margin: 0 0 var(--s3); }
+  .bars.under { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s1) var(--s3); }
+  .bars.under > div { grid-column: 1 / -1; display: flex; margin: 0 0 var(--s2); border-left: var(--edge) solid var(--ink); }
+  .bars.under > .axis { justify-content: space-between; border-left: 0; border-top: var(--edge) solid var(--ink); }
+  #fig-map .mapframe { height: min(62vh, 520px); min-height: 300px; }
+  #fig-map .mapgate { position: absolute; inset: auto 0 0 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s2) var(--s4); padding: var(--s3); background: var(--night); color: var(--night-ink); text-align: center; pointer-events: none; }
+  #fig-map .mapgate a.btn { pointer-events: auto; border-color: var(--night-ink); background: var(--night-ink); color: var(--night); }
+  #fig-map .mapgate a.btn:focus-visible { outline-color: var(--night-ink); }
+  #fig-map .mapframe.live .mapgate { background: none; }
+  #fig-map .mapframe.live .mapgate span { display: none; }
+</style>
+</head>
+<body>
+<script src="../site.js?v=r13"></script>
+<main class="doc article about numbered" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>About the project</span></p>
+    <h1>Chat models that run as brainfuck programs</h1>
+    <p class="lead">Three real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program.</p>
+  </header>
+
+  <section class="abstract" aria-labelledby="abs">
+    <h2 id="abs">In short</h2>
+    <p>Brainfuck is a programming language made as a joke. It has eight commands: step left, step right, add one, take one off, read a letter, print a letter, and two for repeating. This site runs three real chat models in it. Each is one program of 1 to 11.4 billion characters. The only thing a program reads is your question, and the only thing it prints is the answer. The smallest model is fast and often wrong. The two bigger ones are slower and get simple sums and facts right. Brainfuck runs each of them faithfully, mistakes included.</p>
+  </section>
+
+  <figure id="fig-map" class="full" aria-labelledby="cap-map">
+    <div class="mapframe" id="m-frame" data-hero>
+      <canvas id="m-canvas" role="img" aria-label="The whole program of brnfck-1.5b as one picture. Each coloured field is a part of the model: the output table, twenty-eight layers of weights, the table of word pieces, and in one corner the engine."></canvas>
+      <div class="mapgate"><a class="btn" href="../map/">Explore the map</a><span class="small">Every character of the program is on it. Zoom in until you can read the commands.</span></div>
+    </div>
+    <figcaption id="cap-map">The whole program of brnfck-1.5b, Qwen2.5-1.5B-Instruct: 11,430,468,880 characters of brainfuck, folded into one square. A colour is one part of the model; the engine that does the sums is the small patch in the corner. On <a href="../map/">the map</a> you can zoom in to single commands, for all three programs.</figcaption>
+  </figure>
+
+  <figure id="fig-answers" aria-labelledby="cap-answers">
+    <p class="exchange"><span class="q">What is the capital of France?</span><span class="a">The capital of France is Paris.</span></p>
+    <p class="exchange"><span class="q">What is 12 + 30?</span><span class="a">12 + 30 equals 42.</span></p>
+    <p class="exchange"><span class="q">What is 12 + 30? (Answer with the number only, e.g. "7"; no words!)</span><span class="a">12 + 30 = 32</span></p>
+    <figcaption id="cap-answers">Three real answers. The first two were printed by the program of brnfck-0.5b, Qwen2.5-0.5B-Instruct. The third, for comparison, was printed by the program of brnfck-135m: it is wrong. A smaller model is faster and wrong more often.</figcaption>
+  </figure>
+
+  <p class="row">
+    <a class="btn go" href="../">Ask the model</a>
+    <a class="btn quiet" href="../?m=small">Ask the small, faster model</a>
+    <a class="btn quiet" href="../how/">Read how it works first</a>
+  </p>
+  <p class="small muted">brnfck-0.5b starts a download of 4.2 GB and needs about 4 GB of free memory. brnfck-135m downloads 1 GB and needs about 1.5 GB of memory. Both need a desktop computer. Not the moment? <a href="../how/">How it works</a> needs nothing.</p>
+
+  <section id="what">
+    <h2>What this is</h2>
+    <aside class="sidenote"><b>Note.</b> Times were measured on one desktop computer with the program file on its own disk. They depend on how busy the machine is <a class="cite" href="#ref-6" aria-label="Note 6">[6]</a>.</aside>
+    <p>A chat model is a very long list of numbers, called weights, and a fixed recipe of sums. Here three such models are each written out as a single program in which every character is one of the eight commands. Almost all of a program writes the model's numbers into memory. The last part does the thinking. The only thing a program reads is your question, and the only thing it prints is the answer.</p>
+    <dl class="facts full">
+      <div><dt>models, each one program <span class="ev">counted</span></dt><dd>3</dd></div>
+      <div><dt>different commands, and nothing else <span class="ev">counted</span></dt><dd>8</dd></div>
+      <div><dt>input command in each program: it reads your question <span class="ev">counted</span></dt><dd>1</dd></div>
+      <div><dt>characters in the program of brnfck-1.5b <span class="ev">counted</span></dt><dd>11,430,468,880</dd></div>
+    </dl>
+    <p class="small muted">"Counted" means counted in the program file itself; for brnfck-135m you can <a href="../how/#real">repeat the count in your browser</a> (on How it works, under "How do I know it is real?"). "Measured" means timed on one computer.</p>
+  </section>
+
+  <section id="models">
+    <h2>Three models, compared</h2>
+    <p>The same idea at three sizes. A bigger model answers better, and you wait longer for it.</p>
+    <div class="scroll full" tabindex="0" role="group" aria-label="Table 1, scrolls sideways on a narrow screen"><table id="tab-models">
+      <caption>The three models as brainfuck programs. Read down a column for one model, or along a row to compare. Counts are counted in the program files; times are measured on one desktop computer.</caption>
+      <thead><tr><th></th><th class="n">brnfck-135m</th><th class="n">brnfck-0.5b</th><th class="n">brnfck-1.5b</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td></tr>
+        <tr><th scope="row">Made by</th><td class="n">Hugging Face</td><td class="n">Alibaba Cloud</td><td class="n">Alibaba Cloud</td></tr>
+        <tr><th scope="row">Weights</th><td class="n">135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td></tr>
+        <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td></tr>
+        <tr><th scope="row">Of which write the tape</th><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td></tr>
+        <tr><th scope="row">Tape, in cells of 32 bits</th><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014</td></tr>
+        <tr><th scope="row">Start-up</th><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s</td></tr>
+        <tr><th scope="row">Time for one word piece</th><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s</td></tr>
+        <tr><th scope="row">Same next word piece as the original model</th><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td></tr>
+        <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td></tr>
+        <tr><th scope="row">Download the program</th><td class="n"><a href="#downloads">brnfck-135m.bf</a>, 1.03 GB</td><td class="n"><a href="#downloads">brnfck-0.5b.bf</a>, 4.17 GB</td><td class="n"><a href="#downloads">brnfck-1.5b.bf</a>, 11.43 GB</td></tr>
+        <tr><th scope="row">Where it runs</th><td class="n"><a href="../?m=small">in your browser</a></td><td class="n"><a href="../?m=0.5b">in your browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">in a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or from the <a href="../how/#run">command line</a>, about 10 GiB free</td></tr>
+      </tbody>
+    </table></div>
+    <div id="downloads" class="full">
+      <p class="small muted">Each program can be downloaded as it is: one text file of nothing but the eight commands. Nothing is fetched until you press a button.</p>
+      <div data-dl="0.5b"><a href="../programs/brnfck-0.5b.bf" download>brnfck-0.5b.bf</a> (brnfck-0.5b, 4.17 GB)</div>
+      <div data-dl="small"><a href="../programs/brnfck-135m.bf" download>brnfck-135m.bf</a> (brnfck-135m, 1.03 GB)</div>
+      <div data-dl="1.5b"><a href="../programs/brnfck-1.5b.bf" download>brnfck-1.5b.bf</a> (brnfck-1.5b, 11.43 GB)</div>
+    </div>
+    <p>All three models were published under the Apache 2.0 licence <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. Each program holds only the eight commands, with exactly one input command and one output command. Brainfuck has whole numbers only, so each model was first converted to whole numbers. The row "Same next word piece as the original model" of <a href="#tab-models">Table 1</a> says how often that version agrees with the original <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</p>
+    <figure id="fig-wait" aria-labelledby="cap-wait">
+      <div class="bars under">
+        <span class="lab">brnfck-135m</span><span>about 0.6 to 1.0 s</span><div aria-hidden="true"><div class="bar ink" style="width:5%"></div><div class="bar range" style="width:3.33%"></div></div>
+        <span class="lab">brnfck-0.5b</span><span>about 2.3 s</span><div aria-hidden="true"><div class="bar ink" style="width:19.17%"></div></div>
+        <span class="lab">brnfck-1.5b</span><span>7 to 12 s</span><div aria-hidden="true"><div class="bar ink" style="width:58.33%"></div><div class="bar range" style="width:41.67%"></div></div>
+        <div class="axis muted small" aria-hidden="true"><span>0 s</span><span>6 s</span><span>12 s</span></div>
+      </div>
+      <figcaption id="cap-wait">The time for one word piece of an answer, drawn to scale from 0 to 12 seconds. These are the times of <a href="#tab-models">Table 1</a>. The solid part of a bar is the shortest time measured; the hatched part reaches to the longest. An answer of seven word pieces takes seven of these bars.</figcaption>
+    </figure>
+    <nav class="full" aria-label="Choose a model">
+      <ul class="tiles">
+        <li><a href="../?m=small"><b>brnfck-135m: small and fast</b><span>135 million weights. Ready in about 9 to 16 seconds. A download of 1 GB.</span></a></li>
+        <li><a href="../?m=0.5b"><b>brnfck-0.5b: middle and slower</b><span>494 million weights. Ready in 33 to 47 seconds. A download of 4.2 GB.</span></a></li>
+        <li><a href="../?m=1.5b"><b>brnfck-1.5b: biggest and slowest</b><span>1.54 billion weights. In a desktop browser with about 8 GB of free memory, or from the command line. Ready in about two and a half minutes, about 9 seconds per word piece.</span></a></li>
+      </ul>
+    </nav>
+  </section>
+
+  <section id="where">
+    <h2>Where to go</h2>
+    <ul class="linklist">
+      <li><a href="../?m=0.5b"><b>Chat: brnfck-0.5b</b><span>Ask the program of 494 million weights a question and watch the answer arrive, one word piece at a time.</span></a></li>
+      <li><a href="../?m=small"><b>Chat: brnfck-135m</b><span>The same, with a model of 135 million weights. Faster, and wrong more often.</span></a></li>
+      <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
+      <li><a href="../map/"><b>Program map</b><span>Every character of a program on one map: zoom from the whole of it down to single commands. As one line, as rows, folded into a square, or as an outline. For all three programs.</span></a></li>
+      <li><a href="../inside/"><b>Inside the program</b><span>A walk through each of the three programs: its parts one by one, one block of weights taken apart, the engine, where the time goes, and the three side by side. All measured.</span></a></li>
+      <li><a href="../brainfuck/"><b>Start here</b><span>Where learning starts. The language the models are written in: eight commands, a machine to try them on, and where to go for a playground, patterns, challenges and a reference.</span></a></li>
+      <li><a href="../challenges/basics/"><b>Brainfuck basics</b><span>The language in ten short lessons, for complete beginners.</span></a></li>
+      <li><a href="../learn/"><b>Build toward a chatbot</b><span>Eleven lessons with puzzles, for when you want to try every trick of the model yourself.</span></a></li>
+      <li><a href="../how/#questions"><b>Questions and caveats</b><span>Section 10 of How it works. What "pure" means and does not mean, how it was checked, the numbers, the credits.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="first">
+    <h2>Questions people ask first</h2>
+    <ul class="linklist">
+      <li><a href="../how/#fast"><b>Why is it this fast?</b></a></li>
+      <li><a href="../how/#pure"><b>What does "pure brainfuck" mean here?</b></a></li>
+      <li><a href="../how/#real"><b>How do I know it is real?</b></a></li>
+      <li><a href="../how/#wrong"><b>Why are the models wrong so often?</b></a></li>
+      <li><a href="../how/#run"><b>Can I run it myself?</b></a></li>
+      <li><a href="../how/#words"><b>What do the words mean?</b></a></li>
+    </ul>
+  </section>
+
+  <section id="built">
+    <h2>How it was built</h2>
+    <p>Ten steps, each one small enough to test before the next. Figure 4, under the list, shows what they did to the length of the program.</p>
+    <ol class="timeline">
+      <li id="step-1"><b>A tiny network that answers fixed questions</b><span>A small recurrent network that answers a fixed set of questions. It showed that a brainfuck program can do the sums of a neural network at all.</span></li>
+      <li id="step-2"><b>Faster building blocks</b><span>Brainfuck can only count. Dividing and rounding a number by counting took 1.2 to 1.5 million steps. By pushing bits out of a cell one at a time (the "bit peel") it takes about 100. You can try it in <a href="../learn/05-peel.html">lesson 5 of the model lessons, "peeling off bits"</a>.</span></li>
+      <li id="step-3"><b>A story model, weights written into the program</b><span>A real language model with 260 thousand weights that writes children's stories <a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>: 4,597,324 characters of brainfuck, and about a third of a second for a story of 64 word pieces.</span></li>
+      <li id="step-4"><b>An engine that reads its weights as input</b><span>Writing every weight as plus signs does not scale. So the program became an engine: it reads the model's numbers first, the way a music player reads a song.</span></li>
+      <li id="step-5"><b>A chat model with 135 million weights</b><span>SmolLM2-135M-Instruct <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, converted to whole numbers because brainfuck has no others. The converted model picks the same next word piece as the original in 94.8% of the tested cases (345 of 364) <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</span></li>
+      <li id="step-6"><b>Cutting text into word pieces, in brainfuck</b><span>The model reads word pieces, not letters. The program finds them itself, with a lookup table (a hash table) laid out on the tape.</span></li>
+      <li id="step-7"><b>One program from text to text</b><span>The engine of <a href="#step-4">step 4</a> and the text handling of <a href="#step-6">step 6</a> joined: 30,841,969 characters that read 355,761,802 bytes of model data, then your question, and print the answer.</span></li>
+      <li id="step-8"><b>The self-contained program</b><span>The model data that the program of <a href="#step-7">step 7</a> read moved into the program itself: a billion characters that write the weights onto the tape. Nothing is read but the question. This is <a href="../?m=small">brnfck-135m</a> on this site.</span></li>
+      <li id="step-9"><b>brnfck-0.5b: 494 million weights</b><span>Qwen2.5-0.5B-Instruct <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> as one program of 4,169,659,608 characters. It still runs in the browser: <a href="../?m=0.5b">the chat with brnfck-0.5b</a>.</span></li>
+      <li id="step-10"><b>brnfck-1.5b: 1.54 billion weights</b><span>Qwen2.5-1.5B-Instruct <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> as one program of 11,430,468,880 characters. Its tape of 1,827,870,014 cells takes 6.81 GiB, so it needs an interpreter with 64-bit memory. It runs from the command line, and on 11 October 2026 it ran from start to answer in one desktop Chromium browser: <a href="../?m=1.5b">the chat with brnfck-1.5b</a>. Ready in 2 min 27 s, then 9.0 seconds per word piece (measured).</span></li>
+    </ol>
+    <figure id="fig-growth" aria-labelledby="cap-growth">
+      <div class="bars under">
+        <span class="lab">Step 3 · the story model, 260 thousand weights</span><span>4,597,324</span><div aria-hidden="true"><div class="bar ink" style="width:.04%"></div></div>
+        <span class="lab">Step 7 · the small chat model, weights read as input</span><span>30,841,969</span><div aria-hidden="true"><div class="bar ink" style="width:.27%"></div></div>
+        <span class="lab">Step 8 · the same model, weights written by the program</span><span>1,030,902,380</span><div aria-hidden="true"><div class="bar ink" style="width:9.02%"></div></div>
+        <span class="lab">Step 9 · 494 million weights</span><span>4,169,659,608</span><div aria-hidden="true"><div class="bar ink" style="width:36.48%"></div></div>
+        <span class="lab">Step 10 · 1.54 billion weights</span><span>11,430,468,880</span><div aria-hidden="true"><div class="bar ink" style="width:100%"></div></div>
+      </div>
+      <figcaption id="cap-growth">The length of the program at five of the ten steps, in characters, drawn to scale. Look at the jump from <a href="#step-7">step 7</a> to <a href="#step-8">step 8</a>: the model is the same, but its 355,761,802 bytes of data moved into the program. The bars of steps 3 and 7 are too short to draw at this scale; each is shown as a hairline. The other steps did not produce a program whose length this page gives.</figcaption>
+    </figure>
+  </section>
+
+  <section id="earlier">
+    <h2>Has this been done before?</h2>
+    <p>An earlier public project (lobotoml) ran a neural network of 7 neurons in brainfuck, for the XOR function <a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. We looked for an earlier language model or chat model in brainfuck and found none. Our search was limited, so we do not claim to be the first.</p>
+  </section>
+
+  <section id="limits">
+    <h2>Limitations</h2>
+    <ul>
+      <li><b>The answers can be wrong.</b> brnfck-135m is often wrong, also on simple sums. The two bigger ones get simple sums and facts right but are still wrong on harder facts. The original models make the same kind of mistakes. Do not rely on what any of them says. How it works says why: <a href="../how/#wrong">"Why are the models wrong so often?"</a></li>
+      <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only. The converted models pick the same next word piece as the originals in 94.8%, 96.6% and 97.2% of the tested cases, not in all <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</li>
+      <li><b>The models were not made in brainfuck.</b> They were trained by Hugging Face and by Alibaba Cloud in the usual way. Brainfuck only runs them.</li>
+      <li><b>It is heavy.</b> brnfck-135m needs a download of 1 GB and about 1.5 GB of free memory; brnfck-0.5b 4.2 GB and about 4 GB of memory. brnfck-1.5b needs a recent desktop browser, a program of 11.4 GB and about 8 GB of free memory; a phone cannot run it. The chats have only been tried in one desktop Chromium browser.</li>
+      <li><b>It needs a fast interpreter with cells of 32 bits.</b> The result is identical to running one command at a time, but one at a time would take far too long. How it works has the details: <a href="../how/#fast">"Why is it this fast?"</a></li>
+    </ul>
+    <p>The full list is on How it works, under <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></p>
+  </section>
+
+  <section id="notes">
+    <h2 class="nonum">Notes and sources</h2>
+    <ol class="refs">
+      <li id="ref-1"><b>SmolLM2-135M-Instruct</b>, the model of brnfck-135m. Made by Hugging Face and published under the Apache 2.0 licence.</li>
+      <li id="ref-2"><b>Qwen2.5-0.5B-Instruct</b> and <b>Qwen2.5-1.5B-Instruct</b>, the two bigger chat models. Made by Alibaba Cloud and published under the Apache 2.0 licence.</li>
+      <li id="ref-3"><b>llama2.c</b>, a project by Andrej Karpathy, published under the MIT licence, and the <b>tinyllamas</b> collection of model files that belongs to it (also MIT). The small story model stories260K of <a href="#step-3">step 3 of "How it was built"</a> comes from there.</li>
+      <li id="ref-4"><b>lobotoml</b>, an earlier public project: a neural network of 7 neurons in brainfuck, for the XOR function.</li>
+      <li id="ref-5"><b>Brainfuck</b>, a language designed by Urban Müller in 1993.</li>
+      <li id="ref-6"><b>Measurements of this project.</b> Character counts are counted in the program files; times were measured on one desktop computer with the program file on its own disk. The full tables are on How it works, under <a href="../how/#numbers">"The numbers"</a>.</li>
+      <li id="ref-7"><b>Agreement with the original models.</b> The same next word piece in 345 of 364 tested cases for brnfck-135m (94.8%), 477 of 494 for brnfck-0.5b (96.6%) and 318 of 327 for brnfck-1.5b (97.2%). See How it works, <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></li>
+    </ol>
+  </section>
+
+  <section id="fromhere" aria-labelledby="fromhere-h">
+    <h2 class="nonum" id="fromhere-h">From here</h2>
+    <ul class="tiles" aria-label="Where to go from here">
+      <li><a href="../"><b>Ask the model</b><span>brnfck-0.5b, in your browser. A download of 4.2 GB.</span></a></li>
+      <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
+      <li><a href="../inside/"><b>Inside the program</b><span>The parts of the program, one by one, measured.</span></a></li>
+      <li><a href="../map/"><b>Program map</b><span>Every character of the program as one picture, to zoom into.</span></a></li>
+      <li><a href="../brainfuck/"><b>Start here</b><span>The path from eight commands to this program.</span></a></li>
+    </ul>
+  </section>
+</main>
+<script>window.InsideOptions = { light: true };</script>
+<script src="../program-source.js?v=r6"></script>
+<script src="../program-start.js?v=r6"></script>
+<script src="../program-download.js?v=r6"></script>
+<script src="../inside/engine-sections.js?v=r9"></script>
+<script src="../inside/core.js?v=r12"></script>
+<script src="../inside/map.js?v=r12"></script>
+<script>
+document.querySelectorAll('#downloads [data-dl]').forEach(function (box) { if (window.Inside && window.ProgramDownload) window.Inside.program(box.getAttribute('data-dl')).then(function (P) { if (P) window.ProgramDownload.attach(box, P); }); });
+</script>
+</body>
+</html>

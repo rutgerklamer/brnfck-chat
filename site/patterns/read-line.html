@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Read a line into memory</title>
+<meta name="description" content="Reads letters and stores them in cells next to each other, up to a newline or the end of the input. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#data">Data</a><span>Read a line into memory</span></p>
+    <h1>Read a line into memory</h1>
+    <p class="lead">Reads letters and stores them in cells next to each other, up to a newline or the end of the input.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>25</b> of 38</p>
+    <a class="prev" href="stack.html" rel="prev"><span>Previous</span>A stack</a>
+    <a class="next" href="reverse.html" rel="next"><span>Next</span>Reverse a string</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Up to a newline” works on 7 cells; the named ones are “zero”, “letter” and “end”. Press <em>Play</em>, drag the step slider forwards and back, or edit the line:</p>
+
+    <figure class="fig col" id="fig-read-line-newline" data-p="read-line" data-v="newline" aria-label="The form Up to a newline of read a line into memory, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>One cell per letter, from cell 1 on. Cell 0 stays zero and the cell after the last letter is zero: a string in brainfuck is a row of non-zero cells between two zeros.</p>
+    <p>Those two zeros are what make the string usable. <code class="bf">[&lt;]</code> walks to its start and <code class="bf">[&gt;]</code> to its end, whatever its length: see <a href="scan.html">find a zero cell or a marker</a>.</p>
+    <p>To stop at a newline, take 10 off each letter as it arrives. A newline becomes zero and ends the loop; any other letter gets its 10 back.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-read-line-newline">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;,----------[++++++++++&gt;,----------]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2C----------%5B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%2C----------%5D&amp;names=0:zero,1:letter,2:letter,3:letter,4:letter,5:letter,6:end">Open in the playground</a><span class="count" data-len>36 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>A zero cell before the string and enough zero cells after it.</li>
+      <li>The newline form needs wrapping cells and an input that has a newline in it.</li>
+      <li>The end-of-input form needs <code class="bf">,</code> to give 0 (or leave the cell alone) at the end of the input.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Starting on cell 0. Then there is no zero to the left of the string and <code class="bf">[&lt;]</code> runs off the tape.</li>
+      <li>Input without a final newline in the newline form: at the end of the input it reads zeros for ever.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-read-line-newline-cost" data-p="read-line" data-v="newline" data-cost-fig aria-label="Steps taken by the form Up to a newline, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Up to a newline</td><td>13 + 23 per letter</td><td>3 + 4 per letter</td></tr>
+<tr><td>Up to the end of the input</td><td>3 + 3 per letter</td><td>2 + 2 per letter</td></tr>
+<tr><td>The form from the wiki, keeping the newline</td><td>44 + 23 per letter</td><td>7 + 4 per letter</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Up to a newline</td><td>the line = &quot;&quot;</td><td class="n">8</td><td class="n">36</td><td class="n">13</td><td class="n">3</td></tr>
+<tr><td>Up to a newline</td><td>the line = &quot;hello&quot;</td><td class="n">8</td><td class="n">36</td><td class="n">128</td><td class="n">23</td></tr>
+<tr><td>Up to the end of the input</td><td>the input = &quot;hello&quot;</td><td class="n">8</td><td class="n">6</td><td class="n">18</td><td class="n">12</td></tr>
+<tr><td>The form from the wiki, keeping the newline</td><td>the line = &quot;hello&quot;</td><td class="n">8</td><td class="n">44</td><td class="n">159</td><td class="n">27</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-eof" aria-labelledby="v-eof-h">
+      <h3 id="v-eof-h">Up to the end of the input</h3>
+      <p>Shorter. Needs 0 at the end of the input.</p>
+      <div class="code" data-fig="fig-read-line-eof">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;,[&gt;,]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2C%5B%3E%2C%5D&amp;names=0:zero,1:letter,2:letter,3:letter,4:letter,5:letter,6:end">Open in the playground</a><span class="count" data-len>6 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-eof"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Up to the end of the input” works on 7 cells; the named ones are “zero”, “letter” and “end”. Press <em>Play</em>, drag the step slider forwards and back, or edit the input:</p>
+        <figure class="fig col" id="fig-read-line-eof" data-p="read-line" data-v="eof" aria-label="The form Up to the end of the input of read a line into memory, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-wiki" aria-labelledby="v-wiki-h">
+      <h3 id="v-wiki-h">The form from the wiki, keeping the newline</h3>
+      <p>Starts by taking 10 off the empty first cell, so cell 0 serves as the left zero. The newline is stored as the last letter and the pointer ends on it.</p>
+      <div class="code" data-fig="fig-read-line-wiki">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">----------[++++++++++&gt;,----------]++++++++++</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=----------%5B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%2C----------%5D%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B&amp;names=0:zero,1:letter,2:letter,3:letter,4:letter,5:letter,6:newline">Open in the playground</a><span class="count" data-len>44 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-wiki"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The form from the wiki, keeping the newline” works on 7 cells; the named ones are “zero”, “letter” and “newline”. Press <em>Play</em>, drag the step slider forwards and back, or edit the line:</p>
+        <figure class="fig col" id="fig-read-line-wiki" data-p="read-line" data-v="wiki" aria-label="The form The form from the wiki, keeping the newline of read a line into memory, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="reverse.html">Reverse a string</a> and <a href="compare-strings.html">compare two strings</a> start with this.</li>
+      <li>The chat program reads its question this way, one byte per cell, before it turns it into word pieces.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: sections "Read all characters into memory" and "Read until newline/other char".</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>25</b> of 38</p>
+    <a class="prev" href="stack.html" rel="prev"><span>Previous</span>A stack</a>
+    <a class="next" href="reverse.html" rel="next"><span>Next</span>Reverse a string</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

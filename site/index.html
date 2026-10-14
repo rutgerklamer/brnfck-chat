@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: a chatbot written in eight characters</title>
+<meta name="description" content="A chat model written out as one brainfuck program of billions of characters. Ask it a question: it runs in your browser.">
+<meta property="og:title" content="brnfck.chat: a chatbot written in eight characters">
+<meta property="og:description" content="A real chat model, written out as one brainfuck program of billions of characters. Eight commands, nothing else. Ask it a question: it runs in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="site.css?v=r9">
+<link rel="stylesheet" href="program-download.css?v=r6">
+<link rel="stylesheet" href="home.css?v=r13">
+</head>
+<body>
+<script src="site.js?v=r13" data-section="chat"></script>
+<main class="doc home" id="main" data-state="finding">
+
+  <div class="stage">
+    <header class="title">
+      <p class="wordmark" aria-hidden="true">brnfck<span>.chat</span></p>
+      <h1>A chatbot written in eight characters <span class="g" aria-hidden="true"><i class="mv">&gt;</i><i class="mv">&lt;</i><i class="pl">+</i><i class="mi">&minus;</i><i class="br">[</i><i class="br">]</i><i class="in">,</i><i class="ou">.</i></span></h1>
+      <p class="lead">Brainfuck is a programming language with eight commands. Here, those commands run a language model. Type a question and the program prints an answer.</p>
+    </header>
+
+    <aside class="field" aria-labelledby="fieldHead">
+      <p class="label" id="fieldHead">Inside the largest program</p>
+      <div id="programWindow" hidden>
+        <pre class="src" id="sourcePreview" aria-label="Brainfuck program excerpt" aria-describedby="sourcePosition"></pre>
+        <p class="field-foot"><span id="sourcePosition"></span><a id="sourceMap" href="map/">Find this spot on the map</a></p>
+      </div>
+      <p class="field-wait">Looking up the program&hellip;</p>
+    </aside>
+
+    <figure class="chat hard" id="fig-chat" aria-labelledby="chatHead">
+      <p class="chat-head"><b id="chatHead">Chatbot</b><span class="state" id="cmdText" role="status" aria-live="polite"></span><span class="state" id="figState" aria-hidden="true">finding the program</span></p>
+      <div class="bench">
+        <div class="talk">
+          <form id="ask" class="askbox" autocomplete="off">
+            <label for="q">Your question</label>
+            <input id="q" maxlength="200" placeholder="Type a short question&hellip;" aria-describedby="consent">
+            <span id="count" class="muted small" hidden></span>
+            <button id="go" class="primary" disabled>Ask</button>
+            <button id="stop" type="button" class="quiet" hidden>Stop</button>
+          </form>
+          <p class="under muted small"><span id="consent">Nothing is downloaded until you ask.</span><button id="clear" type="button" class="link" hidden>Clear conversation</button></p>
+
+          <section class="screen" id="chatWorkspace" aria-label="Conversation" tabindex="-1">
+            <div id="emptyOutput">
+              <p class="label">Or try one of these</p>
+              <div class="chips" id="chips" role="group" aria-label="Example questions"></div>
+            </div>
+
+            <ol id="history" class="history" aria-label="Earlier questions and answers"></ol>
+
+            <section id="thread" class="thread" hidden aria-label="Question and answer">
+              <p class="exchange io"><span class="q" id="mine"></span><span class="a" id="answer"></span></p>
+              <div class="process">
+                <ol id="steps" class="stepbar" aria-label="What is happening"><li><span>1. Load the model</span></li><li><span>2. Read your question</span></li><li><span>3. Write the answer</span></li></ol>
+                <p id="explain"></p>
+                <div id="tapeBox" class="tapeBox" aria-hidden="true" hidden>
+                  <dl class="kv"><dt>Model written into memory</dt><dd id="tapeText">0%</dd></dl>
+                  <div id="tape" class="fill"></div>
+                  <div id="tapeLive" class="live" hidden>
+                    <canvas id="tapeStrip" class="strip"></canvas>
+                    <p class="ends small muted"><span>cell 0</span><span id="tapeEnd"></span></p>
+                    <p id="tapeWhere" class="where"></p>
+                    <p class="key small"><span style="--k: var(--k-out)">Output table</span><span style="--k: var(--k-ff)">Feed-forward</span><span style="--k: var(--k-att)">Attention</span><span style="--k: var(--k-mem)">Memory slots</span><span style="--k: var(--k-emb)">Word pieces</span><span style="--k: var(--k-text)">Vocabulary</span></p>
+                  </div>
+                  <p id="srcLab" class="label" hidden>A piece of the program that is running right now</p>
+                  <pre id="src" class="listing src" hidden></pre>
+                </div>
+              </div>
+              <div id="memBox" class="memBox" hidden>
+                <dl class="kv"><dt>Memory of this conversation</dt><dd id="memText"></dd></dl>
+                <canvas id="memGrid" class="grid" role="img" aria-describedby="memSay"></canvas>
+                <p class="ends small muted"><span>position 1</span><button type="button" class="link" id="memZoom" aria-pressed="false">Zoom in on the filled slots</button><span id="memEnd"></span></p>
+                <p class="key small"><span style="--k: var(--rule)">Opening lines, in the program</span><span style="--k: var(--k-mem)">Your question</span><span style="--k: var(--c-out)">The answer</span><span class="plain">Brighter: a larger key than the other slots of its layer</span></p>
+                <p id="memSay" class="small muted"></p>
+              </div>
+              <progress id="bar" class="sr-only" max="1" value="0" aria-label="The program, loaded so far" hidden></progress>
+              <p id="status" class="muted small"></p>
+              <div class="after">
+                <p id="acts" class="acts" hidden><button id="copy" type="button" class="quiet">Copy answer</button><button id="again" type="button" class="quiet">Ask again</button></p>
+                <p id="betterBox" hidden><button id="better" type="button" class="quiet"></button></p>
+              </div>
+            </section>
+
+            <section id="unfit" class="callout" hidden aria-labelledby="unfitHead">
+              <h3 id="unfitHead">Not on this device</h3>
+              <p id="unfitText"></p>
+              <p class="exchange io"><span class="q">What is the capital of France?</span><span class="a">The capital of France is Paris.</span></p>
+              <p class="exchange io"><span class="q">What is 12 + 30?</span><span class="a">12 + 30 equals 42.</span></p>
+              <p class="small muted">Recorded answers from brnfck-0.5b, on a desktop computer.</p>
+              <p>What works here: the eight commands below, <a href="how/">how it works</a>, <a href="map/">the program map</a> and <a href="brainfuck/">the lessons</a>.</p>
+              <button id="anyway" type="button" class="quiet">Try brnfck-135m here anyway</button>
+            </section>
+
+            <section id="error" class="callout warn" role="alert" hidden>
+              <h3>This did not work</h3>
+              <p id="errorText"></p>
+              <button id="retry" type="button" class="quiet">Try again</button>
+            </section>
+          </section>
+        </div>
+
+        <section class="rig" id="settings" aria-labelledby="rig-prog">
+          <h2 class="label nonum" id="rig-prog">Which program answers</h2>
+          <p class="modelLine"><b id="modelText"></b><span class="muted small" id="programSize"></span></p>
+          <fieldset class="picklist" id="models"><legend class="sr-only">Three models, each one brainfuck program</legend></fieldset>
+          <p class="small muted">A bigger model answers better, and you wait longer for it.</p>
+          <p id="storeLine" class="small muted" hidden><span id="storeText"></span> <button id="removeStored" type="button" class="link">Remove it</button></p>
+          <details class="q nonum"><summary>Download this program (.bf)</summary><div class="a" id="download"></div></details>
+        </section>
+      </div>
+    </figure>
+  </div>
+  <p id="live" class="sr-only" role="status"></p>
+
+  <section id="where" aria-labelledby="whereHead">
+    <h2 id="whereHead">What is on this site</h2>
+    <p>The chatbot above is the result. The four parts below show how it is made, from one command up to the whole program.</p>
+    <ol class="dest">
+      <li style="--c: var(--c-plus)"><a href="brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>21 short lessons</small><span>Start from the eight commands. Each lesson has a small program you run and change.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="how/"><i aria-hidden="true">[]</i><b>Program insights</b><small>2 articles</small><span>Read how a question becomes an answer, and what each part of the program does.</span></a></li>
+      <li style="--c: var(--c-gt)"><a href="map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>1 map, 3 programs</small><span>See every character of a program in one picture, and zoom in to single commands.</span></a></li>
+      <li style="--c: var(--c-out)"><a href="playground/"><i aria-hidden="true">.</i><b>Play</b><small>Editor and exercises</small><span>Write your own brainfuck, run it step by step, and solve checked exercises.</span></a></li>
+    </ol>
+  </section>
+
+  <section id="play" aria-labelledby="playHead">
+    <h2 id="playHead">Try three commands</h2>
+    <p>You can see the same commands at work without loading a model. Brainfuck keeps its numbers in a row of memory cells, and a pointer marks the cell it is working on.</p>
+    <p>Press <kbd>,</kbd> to read the letter A into the cell. The cell becomes 65, the number computers use for A. Press <kbd>+</kbd> to add one, then <kbd>.</kbd> to print.</p>
+    <figure class="frame interactive full" id="fig-keys" aria-labelledby="cap-keys">
+      <div class="frame-body">
+        <div class="keypad" id="cmds" role="group" aria-label="Try the eight brainfuck commands"><button type="button" data-c="&gt;" aria-label="Move right">&gt;<small>right</small></button><button type="button" data-c="&lt;" aria-label="Move left">&lt;<small>left</small></button><button type="button" data-c="+" aria-label="Add one">+<small>add 1</small></button><button type="button" data-c="-" aria-label="Take one away">-<small>take 1</small></button><button type="button" data-c="[" aria-label="Begin a loop">[<small>loop</small></button><button type="button" data-c="]" aria-label="Close and run the loop">]<small>repeat</small></button><button type="button" data-c="," aria-label="Read the demo letter">,<small>read</small></button><button type="button" data-c="." aria-label="Print the current cell">.<small>print</small></button></div>
+        <div class="command-play" id="commandPlay">
+          <div class="command-tools" id="commandTools">
+            <div class="tool cells-tool"><span class="label">Memory cells</span><div class="tape joined" id="commandTape" role="list" aria-label="Memory cells of the small machine"></div></div>
+            <label class="tool"><span class="label">, reads</span><input id="commandInput" aria-label="The letter the comma command reads" maxlength="1" value="A"></label>
+            <div class="tool"><span class="label">. printed</span><output class="cell" id="commandOutput" aria-label="What the small machine printed">&mdash;</output></div>
+            <button id="commandReset" type="button" class="quiet" aria-label="Reset the small machine" title="Reset the small machine">&#8634;</button>
+          </div>
+          <p class="verdict" id="playText" role="status" aria-live="polite">Press a key. Try , then + then . to turn A into B.</p>
+        </div>
+      </div>
+      <figcaption id="cap-keys">A small machine of its own, for trying the commands. It does not touch the chat model. While the chatbot works, the filled key is the command it is at.</figcaption>
+    </figure>
+    <p>The cell holds 66, so the program prints B. The chat model uses these same commands on a much longer row of cells.</p>
+    <p class="row"><a class="btn go" href="brainfuck/">Learn the eight commands</a><a class="btn quiet go" href="playground/">Write your own program</a></p>
+  </section>
+
+  <section id="method" aria-labelledby="methodHead">
+    <h2 id="methodHead">Numbers first, then words</h2>
+    <p>The program has two parts. The first writes the model's numbers into memory. In brnfck-1.5b, the largest program, that is 11,334,697,744 of its 11,430,468,880 characters. It reads nothing and prints nothing.</p>
+    <figure class="frame interactive full" id="fig-zoom" aria-labelledby="cap-zoom">
+      <p class="frame-head"><b>From one command to the whole program</b><span>brnfck-1.5b, every square to scale</span></p>
+      <div class="frame-body zoom">
+        <canvas id="zoomView" role="img" aria-describedby="zoomSay"></canvas>
+        <div class="zoom-side">
+          <p class="key small zoom-key"><span style="--k: #f2b01e">one command, one character</span></p>
+          <dl class="kv readout"><dt>Across</dt><dd id="zoomAcross"></dd><dt>In view</dt><dd id="zoomIn"></dd></dl>
+          <p id="zoomSay" class="small" aria-live="polite"></p>
+          <ol class="zoom-levels" id="zoomLevels" aria-label="Go to a square"></ol>
+          <div class="zoom-ctl"><button type="button" id="zoomPlay" class="quiet">Zoom out</button><span class="zoom-speed" id="zoomSpeed" role="group" aria-label="Speed"><button type="button" data-speed="0.5" aria-pressed="false">½×</button><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button><button type="button" data-speed="4" aria-pressed="false">4×</button></span><input type="range" id="zoomAt" min="0" max="1000" step="1" value="0" aria-label="How far out"></div>
+        </div>
+      </div>
+      <figcaption id="cap-zoom">Each square has the area of its number of characters, and lies inside the square it is part of. The letters are a real block of the writing part, in the colours of the eight commands. Where a square lies is not where it lies in the program: <a href="map/?m=1.5b">the map</a> shows that.</figcaption>
+    </figure>
+    <p>The second part, the engine, reads your question and uses those numbers to work out which piece of text should come next. It prints that piece, then does the same again with the new piece included. An answer grows one piece at a time.</p>
+    <figure class="frame interactive full" id="fig-engine" aria-labelledby="cap-engine">
+      <p class="frame-head"><b>The engine</b><span>brnfck-1.5b: what it is made of, and where its time goes</span></p>
+      <div class="frame-body">
+        <p class="eng-axis"><b>Its text</b><span>what the program file holds: <b id="engChars"></b></span></p>
+        <canvas id="engView" tabindex="0" role="img" aria-describedby="engSay"></canvas>
+        <p class="eng-axis"><b>Its work</b><span>what it does for one word piece of the answer: <b id="engSteps"></b></span></p>
+        <p class="eng-ctl"><button type="button" id="engPrev" class="quiet">Previous section</button><button type="button" id="engNext" class="quiet">Next section</button><a class="btn quiet" href="inside/?m=1.5b#s4-h">Every section, on Inside the program</a></p>
+        <p class="key small"><span style="--k: var(--k-text)">Text in and out</span><span style="--k: var(--k-emb)">Word pieces</span><span style="--k: var(--k-att)">Attention</span><span style="--k: var(--k-mem)">Memory</span><span style="--k: var(--k-ff)">Feed-forward</span><span style="--k: var(--k-tidy)">Scaling and rounding</span><span style="--k: var(--k-work)">Walking</span><span style="--k: var(--k-out)">Output table</span></p>
+        <p class="eng-hint small muted">Point at a section in either bar, or press it, to read what it does. The arrow keys work too.</p>
+        <div class="eng-detail">
+          <p class="label" id="engGroup"></p>
+          <h3 id="engName" aria-live="polite"></h3>
+          <p id="engDesc"></p>
+          <dl class="facts" id="engFacts"></dl>
+        </div>
+        <p id="engSay" class="sr-only"></p>
+      </div>
+      <figcaption id="cap-engine"></figcaption>
+    </figure>
+    <p>The program does not train a model. It runs one that Hugging Face or Alibaba Cloud trained earlier.</p>
+    <p class="row"><a class="btn go" href="inside/">Look inside the program</a></p>
+  </section>
+
+  <section id="programs" aria-labelledby="programsHead">
+    <h2 id="programsHead">Three programs, three costs</h2>
+    <p>There are three sizes. brnfck-135m loads quickest and often gets simple questions wrong. The two larger ones need more memory and take longer for every piece of an answer.</p>
+    <figure class="frame interactive full" id="fig-race" aria-labelledby="cap-race">
+      <p class="frame-head"><b>One question, three programs</b><span class="state" id="raceClock" aria-hidden="true"></span></p>
+      <div class="frame-body">
+        <p class="race-q"><span class="label">Question</span>What is the capital of France?</p>
+        <div class="race" id="race"></div>
+        <p class="key small"><span style="--k: var(--c-plus)">+ writes the model into memory</span><span style="--k: var(--c-in)">, reads the question</span><span style="--k: var(--c-out)">. prints the answer</span></p>
+        <p class="race-ctl"><button type="button" id="racePlay" class="quiet">Pause</button><span class="seg" id="raceSpeed" role="group" aria-label="Speed"><button type="button" data-x="1" aria-pressed="false">Real speed</button><button type="button" data-x="10" aria-pressed="true">10 times</button><button type="button" data-x="30" aria-pressed="false">30 times</button></span></p>
+      </div>
+      <figcaption id="cap-race">All three print the same answer. The times are the middle of each range in the table below, from one desktop computer; download time comes on top. Reading a word piece of the question takes as long as printing one: the program does the same work for both.</figcaption>
+    </figure>
+    <div class="scroll full" tabindex="0" role="group" aria-label="The three programs; scrolls sideways on a narrow screen"><table>
+      <thead><tr><th></th><th class="n">brnfck-135m</th><th class="n">brnfck-0.5b</th><th class="n">brnfck-1.5b</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td></tr>
+        <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td></tr>
+        <tr><th scope="row">Download, compressed</th><td class="n">180 MB</td><td class="n">749 MB</td><td class="n">about 2.1 GB (estimated)</td></tr>
+        <tr><th scope="row">Memory in the tab</th><td class="n">about 1.5 GB</td><td class="n">about 4 GB</td><td class="n">about 8 GB</td></tr>
+        <tr><th scope="row">Start-up</th><td class="n">9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">2 min 27 s</td></tr>
+        <tr><th scope="row">One piece of an answer</th><td class="n">0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">about 9 s</td></tr>
+        <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small muted">Measured on one desktop computer in Chromium 152 on Windows, with the program on its own disk. Download time comes on top, and another computer will differ. <a href="how/#numbers">Every measurement</a></p>
+  </section>
+
+  <section id="limits" aria-labelledby="limitsHead">
+    <h2 id="limitsHead">What to expect</h2>
+    <ul>
+      <li><b>Answers can be wrong.</b> These are small models, and running one in brainfuck does not make it smarter.</li>
+      <li><b>Each question starts fresh.</b> A question is at most 200 characters. The program does not remember earlier ones; the list on the page is only a record of this visit.</li>
+      <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was converted to whole-number arithmetic. The three programs then pick the same next piece of text as the original model in 94.8%, 96.6% and 97.2% of the tested cases. That measures agreement with the original, not whether an answer is true.</li>
+      <li><b>It is heavy.</b> The first question downloads the program, and the tab needs the memory in the table. No phone can run any of the three.</li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notesHead">
+    <h2 id="notesHead">Sources</h2>
+    <ol class="refs">
+      <li><b>SmolLM2-135M-Instruct</b>, brnfck-135m. Made by Hugging Face, Apache 2.0 licence.</li>
+      <li><b>Qwen2.5-0.5B-Instruct</b> and <b>Qwen2.5-1.5B-Instruct</b>, the two larger models. Made by Alibaba Cloud, Apache 2.0 licence.</li>
+      <li><b>Brainfuck</b>, a language designed by Urban M&uuml;ller in 1993.</li>
+      <li><b>Measurements of this project</b>: <a href="how/#numbers">the full table and how each figure was obtained</a>. <a href="about/">About the project</a>.</li>
+    </ol>
+  </section>
+</main>
+<script src="program-source.js?v=r6"></script>
+<script src="program-start.js?v=r6"></script>
+<script src="program-download.js?v=r6"></script>
+<script src="learn/core.js?v=r6"></script>
+<script src="command-play.js?v=r6"></script>
+<script src="ui/tapeview.js?v=r9"></script>
+<script src="home.js?v=r10"></script>
+<script src="inside/engine-sections.js?v=r9"></script>
+<script src="home-figures.js?v=r20"></script>
+</body>
+</html>

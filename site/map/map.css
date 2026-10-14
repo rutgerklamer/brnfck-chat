@@ -1,0 +1,237 @@
+/* The page /map/: one screen with a bar, a panel and the map. */
+
+body.mappage {
+  --code: var(--ink); --good: var(--ink);
+  --c-lt: #5d6980;
+  --sheet: var(--map-bg, var(--night)); --sheet-ink: var(--map-ink, var(--night-ink));      /* the dark sheet of the map and what is written on it (../inside/inside.css) */
+}
+
+/* ---- the page: exactly one screen high, nothing to scroll ---- */
+html:has(> body.mappage) { height: 100%; }
+body.mappage { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; overscroll-behavior: none; }
+body.mappage > .top { flex: 0 0 auto; }
+body.mappage > .foot { display: none; }          /* its links are under "About this map" in the tab Display */
+main.mapapp { --panel-w: 21.5rem; --peek: 13.25rem; flex: 1 1 auto; min-height: 0; max-width: none; margin: 0; padding: 0; position: relative;
+  display: grid; grid-template: "bar bar" auto "panel stage" minmax(0, 1fr) / var(--panel-w) minmax(0, 1fr); }
+main.mapapp > * { max-width: none; min-width: 0; }
+main.mapapp.nopanel { grid-template-columns: 0 minmax(0, 1fr); }
+main.mapapp p { max-width: none; text-wrap: wrap; }
+
+/* ---- the bar: one row of controls ---- */
+.mbar { grid-area: bar; display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--s3); padding: 5px max(12px, env(safe-area-inset-right, 0px)) 5px max(12px, env(safe-area-inset-left, 0px)); border-bottom: var(--edge) solid var(--ink); background: var(--bg); }
+.mbar h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* the menu of the site already says where you are */
+.mbar .mprog { margin: 0; }
+.mbar button, .mbar .seg > * { gap: var(--s2); padding-left: var(--s3); padding-right: var(--s3); }      /* tighter than elsewhere, so that the bar stays one row */
+.mbar .seg { flex-wrap: nowrap; flex: 0 0 auto; }
+.mbar .seg > * { flex: 0 0 auto; white-space: nowrap; }
+.mbar label { display: flex; }
+.mbar .mlaysel { display: none; }
+.mbar select { min-width: 7.5rem; }
+.mbar .mmore select { min-width: 0; }
+@media (max-width: 92em) { .mbar .mbil, .mbar .mprog { display: none; } }
+@media (max-width: 72em) { .mbar #m-panel-toggle-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } .mbar #m-panel-toggle { padding-left: 0; padding-right: 0; } }
+@media (max-width: 62em) { .mbar .mlay, .mbar .mmore { display: none; } .mbar .mlaysel { display: block; } }
+
+/* ---- the panel ---- */
+.mpanel { grid-area: panel; display: flex; flex-direction: column; min-height: 0; background: var(--bg); border-right: var(--edge) solid var(--ink); overflow: hidden; }
+.mpanel[hidden] { display: none; }
+.mgrip, .mnow { display: none; }
+.mtabs { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.mtabs > .tabs { flex: 0 0 auto; margin: 0; }
+.tabpanel { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: var(--s3) var(--s3) calc(20px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); scrollbar-gutter: stable; }
+/* the groups of a tab: a label, and a rule above every one but the first */
+.tabpanel > h3.label { margin: var(--s5) 0 var(--s2); padding-top: var(--s3); border-top: var(--edge) solid var(--ink); }
+.tabpanel > h3.label:first-of-type { border-top: 0; margin-top: 2px; padding-top: 0; }
+.tabpanel > h3.label.sep { margin-top: var(--s5); padding-top: var(--s3); border-top: var(--edge) solid var(--ink); }      /* a heading after a list (Places: "Go to a character") */
+.tabpanel > p { margin: 0 0 var(--s3); }
+.tabpanel > .callout { margin: 0 0 var(--s3); }
+.mpanel button.link { min-width: var(--target); }      /* a button in a sentence ("Outline") is a full target too */
+.mpanel .row.first { margin: 0 0 var(--s3); }      /* Places: the way in for a first visit */
+.mpanel .tiles { margin: 0 0 var(--s3); }
+/* a control whose box is cut off by the panel has its focus ring inside */
+.mpanel :is(.pgroup > h3 > button, .mgrip button, #m-open-code):focus-visible { outline-offset: calc(-1 * var(--ring)); }
+
+/* Places */
+.pfilter { margin: 0 0 var(--s2); }
+.pfilter input { width: 100%; }
+.pfilter p { margin: var(--s1) 0 0; min-height: 1.4em; }
+.pgroup { margin: 0 0 var(--s3); }
+.pgroup > h3 { margin: 0; }
+.pgroup > h3 > button { width: 100%; justify-content: flex-start; gap: var(--s2); padding-left: var(--s2); padding-right: var(--s2); text-align: left; }
+.pgroup > h3 > button::before { content: "\25B8"; flex: 0 0 12px; width: 12px; text-align: center; }
+.pgroup > h3 > button[aria-expanded="true"]::before { content: "\25BE"; }
+.pgroup > h3 > button .n { margin-left: auto; white-space: nowrap; }
+.pgroup > .tiles { margin: calc(-1 * var(--edge)) 0 0; }      /* joined to the button of its group */
+.also { margin: 0 0 var(--s1); }
+.also a { display: inline-flex; align-items: center; min-height: var(--target); min-width: var(--target); justify-content: center; padding: 0 6px; }
+
+/* Tours */
+.tours { list-style: none; margin: 0; padding: 0; }
+.tours li { border-top: 1px solid var(--line); padding: var(--s3) 0; margin: 0; }
+.tours h3, .tourbox h3 { margin: 0 0 var(--s1); }
+.tours p { margin: 0 0 var(--s2); }
+.tourbox { margin: 0 0 var(--s4); }
+.tourbox .count { display: flex; align-items: center; gap: var(--s3); margin: 0 0 var(--s2); }
+.tourbox progress { flex: 1 1 auto; min-width: 0; }
+.tourbox #m-tour-text { margin: 0 0 var(--s3); }
+.tourbtns, .nowbtns { display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0 0 var(--s3); }
+.tourbtns button, .nowbtns button { padding-left: var(--s3); padding-right: var(--s3); }
+.tourbtns .chips, .nowbtns .chips { display: contents; }      /* the one switch among these buttons (Play / Pause) stands in their row */
+#m-tour-stops { margin: 0; }
+#m-tour-count { white-space: nowrap; }
+
+/* Display */
+.radios { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--s2); margin: 0 0 var(--s1); }
+#m-legend { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 var(--s3); margin: 0 0 var(--s2); }
+#m-legend li { min-width: 0; min-height: 28px; gap: var(--s2); }
+#m-layout-cards .label { margin-top: var(--s2); }
+#m-layout-cards button { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 2px 10px; align-items: start; width: 100%; padding: var(--s2); }
+#m-layout-cards button svg { grid-row: 1 / span 2; width: 56px; height: 40px; border: 1px solid currentColor; }      /* the small picture of a layout, drawn in the colour of its text */
+#m-layout-cards button :is(b, span) { grid-column: 2; margin: 0; }
+#m-roww-wrap { margin: 0 0 var(--s2); }
+#m-progs { --tile-min: 5.5rem; }
+#m-progs a { padding: var(--s2); }
+.movepad { display: grid; grid-template-columns: repeat(4, minmax(var(--target), 1fr)); gap: 6px; margin: 0 0 6px; }
+.movepad button { padding-left: 0; padding-right: 0; }
+.movepad button.wide { grid-column: span 2; }
+.goto .row { flex-wrap: nowrap; margin: var(--s1) 0 0; }
+.goto input { flex: 1 1 auto; min-width: 0; width: auto; }
+.mpanel .dl { margin: 6px 0 0; }
+.mpanel .program-download { margin-top: 0; }
+#m-keys dt { white-space: nowrap; }
+
+/* the program text at a chosen spot */
+.mreader { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: var(--s2) var(--s3) calc(12px + env(safe-area-inset-bottom, 0px)); }
+.mreader[hidden] { display: none; }
+.mreader .rhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 6px; }
+.mreader h2 { margin: 0; }
+#m-open-about { flex: 0 0 auto; max-height: 34%; overflow-y: auto; margin: 0 0 var(--s3); }
+.mreader .code { flex: 1 1 auto; min-height: 6rem; max-height: none; }
+.mreader .code .ln { grid-template-columns: 1fr; gap: 0; }
+.mreader .code .note { padding-left: 14px; }
+
+/* ---- the map: what lies on its dark sheet ---- */
+.mstage { grid-area: stage; display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--sheet); }
+.mappage .mapframe { flex: 1 1 auto; height: auto; min-height: 0; }
+#m-canvas { touch-action: none; }
+.mappage .mapctl { left: auto; top: auto; right: max(10px, env(safe-area-inset-right, 0px)); bottom: 10px; flex-direction: row; gap: 0; }
+.mappage .mapctl button { position: relative; border: 1px solid var(--sheet-ink); background: var(--night); color: var(--sheet-ink); }      /* one block of three: a light edge on the dark sheet */
+.mappage .mapctl button:hover { background: var(--night-line); }
+.mappage .mapctl button + button { margin-left: -1px; }
+.mappage #m-mini { right: max(10px, env(safe-area-inset-right, 0px)); top: 10px; width: 128px; height: 128px; max-width: none; border: 1px solid var(--sheet-ink); touch-action: none; }
+.mapframe[data-shape="line"] #m-mini { width: 176px; height: 34px; }
+.mapframe[data-layout="rows"] #m-mini { width: 34px; height: 128px; }
+.mapframe[data-layout="tree"] #m-mini, .mapframe[data-layout="parts"] #m-mini, #m-mini[hidden] { display: none; }
+.maptree { padding: 12px max(14px, env(safe-area-inset-right, 0px)) 20px 14px; }
+.maptree .trow { grid-template-columns: minmax(0, 1fr) 90px minmax(11.5em, auto) auto; }
+.maptree .tname { display: flex; align-items: center; gap: 0; }
+.maptree .tname .sw { color: var(--on-data); flex: 0 0 auto; }
+.maptree .tsays { display: block; color: var(--night-muted); padding: 2px 8px 8px 22px; max-width: 52rem; }
+.mappage .maptree .tgo { min-height: var(--target); min-width: var(--target); border: 1px solid var(--sheet-ink); }
+.maptree .tnum { white-space: normal; }
+.maptree details > summary { min-height: var(--target); }
+/* the letters in the key to the colours of the commands (../inside/map.js writes them) */
+.mappage .sw.cmd { color: var(--on-data); font-family: var(--mono); }
+.mappage .sw.cmd.dark { color: var(--on-accent); }
+.mappage .mapctl button:focus-visible, .mappage .maptree :focus-visible { outline: var(--ring) solid var(--sheet-ink); outline-offset: calc(-1 * var(--ring) - 1px); box-shadow: none; z-index: 1; }
+.mappage .maptree:focus-visible { outline: var(--ring) solid var(--sheet-ink); outline-offset: calc(-1 * var(--ring)); box-shadow: none; }
+.mappage #m-canvas:focus-visible { outline: var(--ring) solid var(--sheet-ink); outline-offset: calc(-1 * var(--ring)); box-shadow: none; }
+.mapframe:has(> #m-canvas:focus-visible)::after { content: ""; position: absolute; inset: var(--ring); border: var(--ring) solid var(--sheet); pointer-events: none; }
+
+.mstatus { flex: 0 0 auto; height: 7.6rem; overflow-y: auto; overscroll-behavior: contain; display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content minmax(8rem, min(24%, 16rem)); grid-template-rows: auto auto auto auto; align-content: start; gap: 0 var(--s4); padding: 0 max(12px, env(safe-area-inset-right, 0px)) 4px 12px; background: var(--panel); border-top: var(--edge) solid var(--ink); }
+.mstatus > dl { display: contents; }
+.mstatus dt { grid-column: 1; padding-right: 0; }
+.mstatus dd { grid-column: 2; }
+.mstatus dt, .mstatus dd { padding-top: 2px; padding-bottom: 2px; }
+.mstatus dt:has(+ #m-where), #m-where { grid-row: 2; }
+.mstatus dt:has(+ #m-scale) { grid-column: 3; grid-row: 2; }
+#m-scale { grid-column: 4; grid-row: 2; text-align: right; text-wrap: balance; }
+.mstatus dt:has(+ #m-what), #m-what { grid-row: 3; }
+.mstatus dt:has(+ #m-snip), #m-snip { grid-row: 4; }
+.mstatus dt:has(+ dd:empty) { visibility: hidden; }      /* a value that is empty has no label */
+#m-snip { white-space: pre; overflow: hidden; text-overflow: ellipsis; min-height: 1.4em; word-break: normal; overflow-wrap: normal; }
+#m-snip mark { background: var(--ink); color: var(--panel); padding: 0 1px; }      /* the command the text is opened at */
+#m-readbtn { grid-column: 3 / 5; grid-row: 3 / 5; align-self: end; justify-self: end; white-space: nowrap; }
+.mpos { grid-column: 1 / -1; grid-row: 1; position: relative; height: 10px; margin: 0 calc(-1 * max(12px, env(safe-area-inset-right, 0px))) 4px -12px; border-bottom: 1px solid var(--line); background: var(--sunk); }
+.mpos i { position: absolute; top: 0; bottom: 0; background: var(--ink); border-left: 1px solid var(--panel); border-right: 1px solid var(--panel); transition: left .2s linear, width .2s linear; }
+.mpos[hidden] { display: none; }
+.mstatus:has(> .mpos[hidden]) { padding-top: 6px; }
+@media (max-width: 100em) { #m-where .of { display: none; } }
+
+/* a program whose data is not on this host */
+.mapframe.missing #m-mini, .mapframe.missing .mapctl { display: none; }
+
+/* ---- a low window (a phone on its side): tighter ---- */
+@media (max-height: 30em) {
+  .mbar { padding-top: 0; padding-bottom: 0; }
+  .mstatus { height: 5.2rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto; }
+  .mstatus dt, #m-scale, #m-snip, #m-where .of, #m-where .part { display: none; }      /* two short lines: no room for a column of labels */
+  #m-where, #m-what { grid-column: 1; }
+  #m-readbtn { grid-column: 2; grid-row: 2 / 4; align-self: center; }
+  main.mapapp { --panel-w: 19rem; }
+  .mappage #m-mini { width: 88px; height: 88px; }
+  .mapframe[data-shape="line"] #m-mini { width: 132px; height: 28px; }
+  .mapframe[data-layout="rows"] #m-mini { width: 28px; height: 88px; }
+}
+@media (max-height: 20em) {
+  html:has(> body.mappage) { height: auto; }
+  body.mappage { height: auto; overflow: auto; }
+  main.mapapp { flex: 0 0 auto; height: 30rem; }
+}
+
+/* ---- NARROW: the panel is a sheet at the bottom (SHEET; the same query is in app.js) ---- */
+@media (max-width: 40em), (max-width: 56.25em) and (orientation: portrait) {
+  main.mapapp, main.mapapp.nopanel { grid-template: "bar" auto "stage" minmax(0, 1fr) / minmax(0, 1fr); }
+  .mbar { gap: 4px var(--s2); flex-wrap: nowrap; }
+  .mbar h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .mbar #m-panel-toggle { display: none; }
+  .mbar #modelbar { margin-right: auto; }
+  .mbar #modelbar > a { padding-left: var(--s2); padding-right: var(--s2); }
+  .mbar .mlaysel { flex: 1 1 auto; min-width: 0; }
+  .mbar .mlaysel select { width: 100%; min-width: 0; }
+  .mstage { padding-bottom: var(--peek); }
+  /* the status bar: where you are on the whole width, under it the scale and the button */
+  .mstatus { height: 8rem; grid-template-columns: max-content minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; gap: 2px var(--s3); padding-left: max(12px, env(safe-area-inset-left, 0px)); }
+  .mstatus dt, #m-what, #m-snip, #m-where .of, #m-where .part { display: none; }
+  #m-where { grid-column: 1 / -1; grid-row: 2; }
+  #m-where { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; align-self: start; }      /* at most two lines, so a long name never lies over the scale under it */
+  .mstatus dt:has(+ #m-scale) { display: block; grid-column: 1; grid-row: 3; align-self: center; }
+  #m-scale { grid-column: 2; grid-row: 3; text-align: left; align-self: center; white-space: normal; }
+  #m-readbtn { grid-column: 3; grid-row: 3; align-self: center; }
+  .mappage #m-mini { width: 88px; height: 88px; }
+  .mapframe[data-shape="line"] #m-mini { width: 132px; height: 28px; }
+  .mapframe[data-layout="rows"] #m-mini { width: 28px; height: 88px; }
+
+  .mpanel, .mpanel[hidden] { display: flex; position: absolute; left: 0; right: 0; bottom: 0; z-index: 10; height: var(--peek); max-height: 100%; border-right: 0; border-top: 2px solid var(--ink); transition: height .22s ease; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .mpanel[data-sheet="half"] { height: 58%; }
+  .mpanel[data-sheet="full"] { height: 100%; }
+  .mpanel.dragging { transition: none; }
+  /* the handle of the sheet, between the two arrows */
+  .mgrip { display: grid; grid-template-columns: var(--target) minmax(0, 1fr) var(--target); gap: var(--s1); flex: 0 0 auto; padding: 0 max(6px, env(safe-area-inset-right, 0px)) 0 max(6px, env(safe-area-inset-left, 0px)); }
+  .mgrip button { padding: 0; }
+  #m-grip { flex-direction: column; gap: 6px; touch-action: none; cursor: grab; }
+  #m-grip .bar { display: block; width: 44px; height: 4px; background: var(--ink); }
+  #m-grip .label { margin: 0; }
+  .mpanel[data-sheet="peek"] .mnow { display: flex; }
+  .mpanel[data-sheet="peek"] .mtabs, .mpanel[data-sheet="peek"] .mreader { display: none; }
+  .mnow .nowtext { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .mnow { flex-direction: column; flex: 1 1 auto; min-height: 0; padding: 0 max(12px, env(safe-area-inset-right, 0px)) var(--s2) max(12px, env(safe-area-inset-left, 0px)); }
+  .mnow .label { margin: 0; }
+  .mnow h2 { margin: 0 0 2px; }
+  .mnow p { margin: 0 0 6px; }
+  .mnow .nowbtns { margin: 6px 0 0; flex: 0 0 auto; flex-wrap: nowrap; }
+  .mnow .nowbtns button { flex: 1 1 0; min-width: 0; }
+  .tabpanel { padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+}
+@media (max-width: 40em) and (max-height: 34em), (max-width: 56.25em) and (orientation: portrait) and (max-height: 34em) {
+  html:has(> body.mappage) { height: auto; }
+  body.mappage { height: auto; overflow: auto; }
+  main.mapapp { flex: 0 0 auto; height: 36rem; }
+}
+@media (max-width: 24em) { .mbar #modelbar > a { padding-left: 6px; padding-right: 6px; } }
+@media (max-width: 22em) { .mbar { flex-wrap: wrap; } }
+@media (max-width: 40em) and (max-height: 45em), (max-width: 56.25em) and (orientation: portrait) and (max-height: 45em) { main.mapapp { --peek: 11rem; } .mstatus { height: 6.4rem; } #m-where { -webkit-line-clamp: 1; line-clamp: 1; } }      /* a low phone: one line of "where", the rest is in the panel */
+@media print { body.mappage { height: auto; overflow: visible; } .mpanel, .mbar, .mapctl, #m-mini { display: none !important; } }
+
+@keyframes mapflash { 0%, 70% { background-color: var(--hot); outline: 1px solid var(--ink); outline-offset: 2px; } }
+.flash { animation: mapflash .9s steps(1, end) 1; }

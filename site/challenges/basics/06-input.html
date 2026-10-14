@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 6, reading input</title>
+<meta name="description" content="Lesson 6 of Brainfuck basics: the comma reads a character of the input into a cell. You write a program that reads what was typed and answers with it.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Reading input</h1>
+    <p class="lead">By the end of this lesson you can write a program that reads what was typed and answers with it.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>6</b> of 10</p>
+    <a class="prev" href="05-numbers.html" rel="prev"><span>Previous</span>Building numbers</a>
+    <a class="next" href="07-copy.html" rel="next"><span>Next</span>Moving and copying</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">The last command</h2>
+    <p>The program here has two commands, a comma and a full stop. Above it is a box in which you type. Type one letter in the box, then press <em>Step</em> twice and watch cell 0:</p>
+    <figure class="fig col" id="f1" aria-label="A program of two commands, and a box for the text it reads">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that after the first step cell 0 held a number, the number of your letter, and that the second step printed the letter again. A small <code>a</code> is 97, as in the chart of <a href="03-letters.html">Lesson 3</a>.</p>
+      <p>The first command, the comma <code>,</code>, takes the next character of the text and puts its number in the cell under the pointer. Whatever the cell held before is gone. The text a program is given to read is its <b>input</b>; on these pages you type all of it before the program starts. The comma was the eighth and last command of brainfuck.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Calculate with it</h2>
+    <p>One command is added between the two: <code>+</code>. The input is the letter a. Guess what the program prints, then press <em>Play</em>. Afterwards type other letters in the box:</p>
+    <figure class="fig col" id="f2" aria-label="A program that reads a letter, adds one and prints it, with a box for the input">
+      <div id="m2"></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Notice that the letter was only a number once it was in the cell, and that the program treated it like any other: add one and you get the next character of the table of <a href="03-letters.html">Lesson 3</a>.</p>
+      <p>Try z, and try 9. You get { and a colon: the program knows nothing about alphabets or digits. It only adds one.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Until there is nothing left</h2>
+    <p>This program reads a character, then loops: it prints the character and reads the next. The input is the word hey. Press <em>Step</em> until the program ends, and watch what the last comma does. The line under the tape says what each comma finds:</p>
+    <figure class="fig col" id="f3" aria-label="A loop that prints each character it reads, with a box for the input">
+      <div id="m3"></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that after the third character there was nothing left to read, so the last comma put 0 in the cell. Zero is exactly what ends a loop.</p>
+      <p>The program <code>,[.,]</code> is known as <b>cat</b>, after an old command that copies its input. Nearly every program that reads text has this shape: read once before the loop, and read again as the last thing inside it.</p>
+      <p>What a comma does when the input has run out differs between brainfuck machines: 0 here, but some give 255 and some leave the cell as it was. Every one of the <a href="../">Challenges</a> states its rule, and the <a href="../../reference/">Reference</a> explains the three.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">Back to front</h2>
+    <p>Write a program that reads two characters and prints them in the opposite order: ab gives ba. It is tried with ab and with one other input:</p>
+    <figure class="fig col" id="f4" aria-label="A box for your program, and the tape and printed text it leaves">
+      <div id="m4"></div>
+      <div class="callout hint" id="h4a" hidden><h3>Hint</h3><p>You need both characters at the same time, so they cannot share a cell.</p></div>
+      <div class="callout hint" id="h4b" hidden><h3>Hint</h3><p>Read into cell 0, step right, read into cell 1. Then print cell 1 first.</p></div>
+      <div class="row"><button class="quiet" id="h4">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p><code>,&gt;,.&lt;.</code> Two cells, two characters, and you choose the order of the visits. A second comma on the same cell would have wiped out the first character.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Read three characters and print only the middle one. Then try: print every character of the input two times. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program and its input, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can read a character with <code>,</code>, calculate with it, and copy a whole text with <code>,[.,]</code>. With this lesson you know all eight commands:</p>
+    <div class="scroll"><table>
+      <caption>The eight commands of brainfuck.</caption>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>+</code> <code>−</code></td><td>Add 1 to the cell under the pointer, or take 1 off.</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Move the pointer one cell to the right or to the left.</td></tr>
+      <tr><td><code>.</code></td><td>Print the cell as one character.</td></tr>
+      <tr><td><code>[</code> <code>]</code></td><td>Repeat everything between them until the cell under the pointer is zero.</td></tr>
+      <tr><td><code>,</code></td><td>Read one character of input and put its number in the cell.</td></tr>
+    </table></div>
+    <p class="measured">The input box sends plain characters. A letter with an accent, or an emoji, is sent as two to four numbers above 127, one per comma: that is how such characters are stored (UTF-8).</p>
+    <p class="next-q">To work with what you read, you have to move it around without losing it. <a href="07-copy.html">Lesson 7</a> shows how.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>6</b> of 10</p>
+    <a class="prev" href="05-numbers.html" rel="prev"><span>Previous</span>Building numbers</a>
+    <a class="next" href="07-copy.html" rel="next"><span>Next</span>Moving and copying</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const L = Basics.lesson(6);
+  const typed = (m) => String.fromCharCode.apply(null, m.input);
+  // ---- 1. the last command
+  Basics.demo(L, 1, 'm1', 'd6s1', { machine: { inputBox: true, inputText: '' }, when: (m) => m.input.length > 0, else: () => 'The input box was empty, so the comma found nothing. Type a letter in it and try again.',
+    text: (m) => 'It read ' + BFStudy.show(typed(m).slice(0, 1)) + ' as number ' + m.input[0] + ' and printed it again.' });
+  // ---- 2. calculate with it
+  Basics.demo(L, 2, 'm2', 'd6s2', { machine: { inputBox: true }, when: (m) => m.input.length > 0, else: () => 'The input box is empty. Type a letter in it.',
+    text: (m) => 'For ' + BFStudy.show(typed(m).slice(0, 1)) + ' it printed ' + BFStudy.show(Basics.outOf(m)) + ': one further in the table.' });
+  // ---- 3. until there is nothing left
+  Basics.demo(L, 3, 'm3', 'd6s3', { machine: { inputBox: true }, text: (m) => 'It printed ' + m.out.length + ' characters and stopped when the comma found nothing more.' });
+  // ---- 4. back to front
+  Basics.task(L, 4, 'm4', 't6s4', { button: 'h4', hints: ['h4a', 'h4b'], said: (r) => 'ab gives ba and xy gives yx, with ' + r.n + ' commands.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(6, 'quiz', "On this site, what does a comma put in the cell when the input has run out?", [["0",true,"And because a loop ends at zero, the program ,[.,] stops by itself. Other brainfuck machines may give 255, or leave the cell unchanged."],["A space",false,"A space is a real character, number 32. At the end of the input the cell becomes 0."],["The last character again",false,"Every comma asks for a new character. When there is none, the cell becomes 0 here."]]);
+  Basics.free('mf', { inputBox: true, inputText: 'abc' });
+})();
+</script>
+</body>
+</html>

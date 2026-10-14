@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Compare two strings</title>
+<meta name="description" content="Reads two lines and prints Y if they are the same and N if not. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#data">Data</a><span>Compare two strings</span></p>
+    <h1>Compare two strings</h1>
+    <p class="lead">Reads two lines and prints Y if they are the same and N if not.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>27</b> of 38</p>
+    <a class="prev" href="reverse.html" rel="prev"><span>Previous</span>Reverse a string</a>
+    <a class="next" href="print-string.html" rel="next"><span>Next</span>Print a constant string</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Two lines from the input” works on 17 cells; the named ones are “zero”, “letter”, “flag” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or edit first line and second line:</p>
+
+    <figure class="fig col" id="fig-compare-strings-lines" data-p="compare-strings" data-v="lines" aria-label="The form Two lines from the input of compare two strings, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>The first line is stored with two empty cells after every letter. Then the second line is read one letter at a time, and each letter is taken off the stored one: a flat loop.</p>
+    <p>If anything is left, the letters differed. A flag is set to 1, and the flag is carried along from letter to letter, as the running total is in the form <a href="records.html#v-carry">A running total that travels along</a> of <a href="records.html">walk an array of records</a>.</p>
+    <p>A line that is longer than the other leaves letters with nothing to cancel them, so different lengths are caught by the same test.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-compare-strings-lines">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;&gt;,----------[++++++++++&gt;&gt;&gt;,----------]&lt;&lt;&lt;[&lt;&lt;&lt;]&gt;&gt;&gt;&gt;&gt;,----------[++++++++++[-&lt;&lt;-&gt;&gt;]&lt;&lt;[[-]&gt;[-]+&lt;]&gt;[-&gt;&gt;&gt;+&lt;&lt;&lt;]&gt;&gt;&gt;&gt;,----------]&lt;&lt;[[-]&gt;[-]+[-&gt;&gt;&gt;+&lt;&lt;&lt;]&gt;&gt;]&gt;&gt;+&lt;[[-]&gt;-&gt;&gt;++++++[-&lt;+++++++++++++&gt;]&lt;.[-]&lt;]&gt;[&gt;&gt;+++++++++++[-&lt;++++++++&gt;]&lt;+.[-]&lt;-&gt;]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%3E%2C----------%5B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%3E%3E%2C----------%5D%3C%3C%3C%5B%3C%3C%3C%5D%3E%3E%3E%3E%3E%2C----------%5B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3C%3C-%3E%3E%5D%3C%3C%5B%5B-%5D%3E%5B-%5D%2B%3C%5D%3E%5B-%3E%3E%3E%2B%3C%3C%3C%5D%3E%3E%3E%3E%2C----------%5D%3C%3C%5B%5B-%5D%3E%5B-%5D%2B%5B-%3E%3E%3E%2B%3C%3C%3C%5D%3E%3E%5D%3E%3E%2B%3C%5B%5B-%5D%3E-%3E%3E%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C.%5B-%5D%3C%5D%3E%5B%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C%2B.%5B-%5D%3C-%3E%5D%3C%3C&amp;names=0:zero,3:letter,4:flag,5:scratch,6:letter,7:flag,8:scratch,9:letter,10:flag,11:scratch,12:letter,13:flag">Open in the playground</a><span class="count" data-len>230 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Both lines end with a newline. Wrapping cells.</li>
+      <li>A zero cell at the start; three cells per letter of the longer line, plus four.</li>
+      <li>The tape ends empty. The pointer ends past the strings: where exactly depends on their length.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Storing the two strings one after the other. Then every comparison of two letters is a walk between them. Next to each other, it is one step.</li>
+      <li>Counting the differences instead of setting a flag: 256 differences would wrap to "equal" on 8-bit cells.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-compare-strings-lines-cost" data-p="compare-strings" data-v="lines" data-cost-fig aria-label="Steps taken by the form Two lines from the input, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Two lines from the input</td><td>grows with the letter codes</td><td>19 + 12 per letter when the lines are equal</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Two lines from the input</td><td>first line = &quot;tea&quot;; second line = &quot;tea&quot;</td><td class="n">8</td><td class="n">230</td><td class="n">2,761</td><td class="n">55</td></tr>
+<tr><td>Two lines from the input</td><td>first line = &quot;tea&quot;; second line = &quot;ten&quot;</td><td class="n">8</td><td class="n">230</td><td class="n">3,298</td><td class="n">59</td></tr>
+<tr><td>Two lines from the input</td><td>first line = &quot;tea&quot;; second line = &quot;teapot&quot;</td><td class="n">8</td><td class="n">230</td><td class="n">6,082</td><td class="n">88</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li>The idea of laying two things side by side so that one flat loop can combine them is how the chat program adds up its sums.</li>
+      <li>The <a href="../challenges/">challenges</a>: recognise a command word.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: the equality test and the newline loop are the wiki's; the side-by-side layout and the carried flag are our own.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>27</b> of 38</p>
+    <a class="prev" href="reverse.html" rel="prev"><span>Previous</span>Reverse a string</a>
+    <a class="next" href="print-string.html" rel="next"><span>Next</span>Print a constant string</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

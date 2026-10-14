@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Runnable brainfuck · brnfck.chat</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b4491f'/%3E%3Ctext x='16' y='22' font-size='15' font-family='monospace' font-weight='700' text-anchor='middle' fill='%23fff'%3E[+]%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/tools.css?v=r6">
+<link rel="stylesheet" href="playground.css?v=r6">
+</head>
+<body class="bfe-body">
+<main class="doc bfe tool" id="main">
+  <div class="frame bfe-box">
+    <p class="frame-head"><b id="e-title">Try it</b><span class="state ready" id="e-state">Ready</span></p>
+    <div class="frame-body">
+      <div id="e-editor"></div>
+      <p class="verdict plain no bfe-next err" id="e-err" role="status" hidden></p>
+      <div class="row btns bfe-row" role="group" aria-label="Play and step">
+        <button type="button" id="e-run" class="primary">Play</button>
+        <button type="button" class="quiet" id="e-step">Step</button>
+        <button type="button" class="quiet" id="e-back">Back</button>
+        <button type="button" class="quiet" id="e-reset">Start again</button>
+      </div>
+      <p class="bfe-next" id="e-next"></p>
+      <div id="e-tape"></div>
+      <div class="bfe-io">
+        <label class="stacked" id="e-in-box" hidden>Input <input type="text" id="e-in" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <div><p class="label" id="e-out-l">Printed</p><pre class="bfe-out" id="e-out" tabindex="0" role="region" aria-labelledby="e-out-l"></pre></div>
+      </div>
+      <p class="small bfe-foot"><a id="e-open" href="./" target="_blank" rel="noopener">Open in the playground</a></p>
+      <p class="sr-only" id="e-live" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</main>
+<script src="engine.js?v=r6"></script>
+<script src="parts.js?v=r6"></script>
+<script src="embed-app.js?v=r6"></script>
+</body>
+</html>

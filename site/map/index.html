@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Program map · brnfck.chat</title>
+<meta name="description" content="Every character of a chat model written as a brainfuck program, on one map you can zoom: from the whole program of 1 to 11 billion characters down to single commands. Folded into a square, as one line, as rows, or as an outline.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/tools.css?v=r6">
+<link rel="stylesheet" href="../inside/inside.css?v=r6">
+<link rel="stylesheet" href="../program-download.css?v=r6">
+<link rel="stylesheet" href="map.css?v=r9">
+<script>
+(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : 'qwen'); })();
+window.InsideOptions = { light: true };
+</script>
+</head>
+<body class="mappage">
+<script src="../site.js?v=r13" data-page="map" data-wide></script>
+<main class="doc mapapp tool" id="main">
+  <div class="mbar" id="m-bar">
+    <button type="button" class="quiet" id="m-panel-toggle" aria-expanded="true" aria-controls="m-panel"><span class="ico" aria-hidden="true">&#9776;</span><span id="m-panel-toggle-t">Hide panel</span></button>
+    <h1 class="label" id="m-h1">Program map</h1>
+    <span class="label mprog" aria-hidden="true">Program</span>
+    <nav class="seg" id="modelbar" aria-label="Which program the map shows">
+      <a href="?m=small" data-m="small">brnfck-135m <span class="mbil">1.03 billion</span></a>
+      <a href="?m=0.5b" data-m="0.5b">brnfck-0.5b <span class="mbil">4.17 billion</span></a>
+      <a href="?m=1.5b" data-m="1.5b">brnfck-1.5b <span class="mbil">11.43 billion</span></a>
+    </nav>
+    <span class="seg mlay" id="m-layout" role="group" aria-label="Layout of the map">
+      <button type="button" data-layout="fold" aria-pressed="true">Folded</button><button type="button" data-layout="line" aria-pressed="false">One line</button><button type="button" data-layout="rows" aria-pressed="false">Rows</button><button type="button" data-layout="tree" aria-pressed="false">Outline</button>
+    </span>
+    <label class="mmore"><span class="sr-only">More layouts of the map</span>
+      <select id="m-more"><option value="">More layouts</option><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Three programs</option></select>
+    </label>
+    <label class="mlaysel"><span class="sr-only">Layout of the map</span>
+      <select id="m-layout-sel"><optgroup label="Basic layouts"><option value="fold" selected>Folded</option><option value="line">One line</option><option value="rows">Rows</option><option value="tree">Outline</option></optgroup><optgroup label="More layouts"><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Three programs</option></optgroup></select>
+    </label>
+  </div>
+
+  <aside class="mpanel" id="m-panel" aria-label="Places, tours and display" data-sheet="peek">
+    <div class="mgrip" id="m-grip-row">
+      <button type="button" class="quiet" id="m-sheet-down" aria-label="Make the panel smaller"><span aria-hidden="true">&#9662;</span></button>
+      <button type="button" class="quiet" id="m-grip" aria-label="Places, tours, display. Panel height: small. Press to make the panel larger."><span class="bar" aria-hidden="true"></span><span class="label" id="m-grip-t">Places, tours, display</span></button>
+      <button type="button" class="quiet" id="m-sheet-up" aria-label="Make the panel larger"><span aria-hidden="true">&#9652;</span></button>
+    </div>
+
+    <div class="mnow" id="m-now">
+      <div class="nowtext" id="m-now-scroll">
+      <p class="label" id="m-now-kick">Place</p>
+      <h2><span id="m-now-title" tabindex="-1">The whole program, folded</span></h2>
+      <p class="small" id="m-now-text"></p>
+      <p class="also muted small" id="m-now-also" hidden></p>
+      </div>
+      <div class="row nowbtns">
+        <button type="button" class="quiet" id="m-now-prev">Previous</button>
+        <span class="chips"><button type="button" id="m-now-play" hidden aria-pressed="false">Play</button></span>
+        <button type="button" class="quiet" id="m-now-read" hidden>Read the text</button>
+        <button type="button" id="m-now-next">Next</button>
+      </div>
+    </div>
+
+    <div class="mtabs" id="m-tabs">
+      <div class="tabs" role="tablist" aria-label="What the panel shows">
+        <button type="button" role="tab" id="t-places" aria-selected="true" aria-controls="p-places">Places</button>
+        <button type="button" role="tab" id="t-tours" aria-selected="false" aria-controls="p-tours" tabindex="-1">Tours</button>
+        <button type="button" role="tab" id="t-display" aria-selected="false" aria-controls="p-display" tabindex="-1">Display</button>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="p-places" aria-labelledby="t-places">
+        <h2 class="sr-only">Places</h2>
+        <p class="callout warn" id="m-norange" role="status" hidden><b>Only part of the map can be read at full depth here.</b> This web server cannot send a part of a file, so the single commands are shown only for the engine and for <span data-f="patches"></span> framed patches that are stored with the page. Start the site with <code>python tools/serve.py</code> (in the project folder) and every one of the <span data-f="charsShort"></span> characters can be read.</p>
+        <p class="muted small" id="m-intro">The map shows the whole program of <b data-f="modelName"></b>: <span data-f="chars"></span> characters, every one of them. What the colours mean is under Display.</p>
+        <p class="muted small">Drag the map and zoom in, down to single commands. Or choose a place below: it moves the map and sets how it looks, and you go on from there.</p>
+        <div class="row first"><button type="button" class="quiet" id="m-first-tour">Start the first tour</button></div>
+        <div class="pfilter">
+          <label class="stacked" for="m-filter">Find a place by name <input type="search" id="m-filter" autocomplete="off" spellcheck="false" enterkeyhint="search"></label>
+          <p class="muted small" id="m-filter-count" role="status"></p>
+        </div>
+        <div id="m-places"><p class="muted small">Reading the program&hellip;</p></div>
+        <h3 class="label sep">Go to a character</h3>
+        <form class="goto" id="m-goto" novalidate>
+          <label class="stacked" for="m-goto-n"><span>Number of the character, from 1 to <span data-f="chars"></span></span></label>
+          <div class="row"><input type="text" id="m-goto-n" inputmode="numeric" autocomplete="off" aria-describedby="m-goto-err"><button type="submit">Go</button></div>
+          <p class="verdict plain no" id="m-goto-err" role="alert"></p>
+        </form>
+        <p class="muted small">Every named part of the program, with where it is and what it does, is in the layout <button type="button" class="link" id="m-to-outline">Outline</button>.</p>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="p-tours" aria-labelledby="t-tours" hidden>
+        <h2 class="sr-only">Tours</h2>
+        <div class="card tourbox" id="m-tour" hidden role="group" aria-labelledby="m-tour-name">
+          <h3 id="m-tour-name" tabindex="-1"></h3>
+          <p class="count muted small"><span id="m-tour-count"></span> <progress id="m-tour-prog" max="1" value="0" aria-label="How far the tour is"></progress></p>
+          <p id="m-tour-text"></p>
+          <p class="also muted small" id="m-tour-also" hidden></p>
+          <div class="row tourbtns">
+            <button type="button" class="quiet" id="m-tour-prev">Back</button>
+            <button type="button" id="m-tour-next">Next</button>
+            <span class="chips"><button type="button" id="m-tour-play" aria-pressed="false">Play by itself</button></span>
+            <button type="button" class="quiet" id="m-tour-stop">Stop the tour</button>
+          </div>
+          <p class="muted small" id="m-tour-calm" hidden>The tour does not play by itself, because your system asks for less motion. Press Next to go on; the map jumps instead of flying.</p>
+          <ol class="tiles" id="m-tour-stops"></ol>
+        </div>
+        <p class="muted small">A tour goes from stop to stop and says what you see. You stay in charge: move the map at any stop, then press Next.</p>
+        <ul class="tours" id="m-tours"></ul>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="p-display" aria-labelledby="t-display" hidden>
+        <h2 class="sr-only">Display</h2>
+
+        <h3 class="label" id="h-mode">Colours</h3>
+        <div class="radios" role="radiogroup" aria-labelledby="h-mode" id="m-mode-radios">
+          <label class="check"><input type="radio" name="m-mode" value="purpose" checked> By purpose</label>
+          <label class="check"><input type="radio" name="m-mode" value="command"> By command</label>
+        </div>
+        <p class="muted small" id="m-mode-said"></p>
+        <ul class="legend" id="m-legend" aria-label="Key to the colours"></ul>
+
+        <h3 class="label">On the map</h3>
+        <label class="check"><input type="checkbox" id="m-labels" checked> Names of the parts</label>
+        <label class="check"><input type="checkbox" id="m-mini-on" checked> Small map in the corner, when zoomed in</label>
+
+        <h3 class="label" id="h-layout">Layout</h3>
+        <p class="muted small">Now: <b id="m-layout-name">One line</b>. <span id="m-layout-said"></span></p>
+        <div id="m-layout-cards" role="group" aria-labelledby="h-layout"></div>
+        <label id="m-roww-wrap" hidden>Characters in a row <select id="m-roww"><option>64</option><option>128</option><option selected>256</option><option>512</option><option>1024</option></select></label>
+
+        <h3 class="label">Program</h3>
+        <p class="muted small">The map shows the program of <b data-f="modelName"></b>: <span data-f="chars"></span> characters.</p>
+        <ul class="tiles progs" id="m-progs">
+          <li><a href="?m=small" data-m="small"><b>brnfck-135m</b><span>1.03 billion characters</span></a></li>
+          <li><a href="?m=0.5b" data-m="0.5b"><b>brnfck-0.5b</b><span>4.17 billion characters</span></a></li>
+          <li><a href="?m=1.5b" data-m="1.5b"><b>brnfck-1.5b</b><span>11.43 billion characters</span></a></li>
+        </ul>
+
+        <h3 class="label" id="h-move">Move without dragging</h3>
+        <div class="movepad" role="group" aria-labelledby="h-move">
+          <button type="button" class="quiet" data-pan="-1,0" aria-label="Move left"><span aria-hidden="true">&larr;</span></button>
+          <button type="button" class="quiet" data-pan="0,-1" aria-label="Move up"><span aria-hidden="true">&uarr;</span></button>
+          <button type="button" class="quiet" data-pan="0,1" aria-label="Move down"><span aria-hidden="true">&darr;</span></button>
+          <button type="button" class="quiet" data-pan="1,0" aria-label="Move right"><span aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="quiet" data-zoom="1" aria-label="Zoom in"><span aria-hidden="true">+</span></button>
+          <button type="button" class="quiet" data-zoom="-1" aria-label="Zoom out"><span aria-hidden="true">&minus;</span></button>
+          <button type="button" class="quiet wide" data-home>Whole program</button>
+        </div>
+
+        <h3 class="label">Share and download</h3>
+        <div class="row"><button type="button" class="quiet" id="m-link">Copy a link to this view</button></div>
+        <p class="muted small" id="m-link-said" role="status"></p>
+        <div class="dl" id="dl-program"></div>
+
+        <h3 class="label">Keys</h3>
+        <dl class="kv readout" id="m-keys">
+          <dt><kbd>Tab</kbd></dt><dd>Go to the next control; the map is one of them. <kbd>Shift</kbd> + <kbd>Tab</kbd> goes back.</dd>
+          <dt><kbd>&larr;</kbd> <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&rarr;</kbd></dt><dd>On the map: move the view. <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move a whole screen.</dd>
+          <dt><kbd>+</kbd> <kbd>&minus;</kbd></dt><dd>On the map: zoom in and out.</dd>
+          <dt><kbd>Home</kbd></dt><dd>On the map: show the whole program again (<kbd>0</kbd> does the same).</dd>
+          <dt><kbd>Enter</kbd></dt><dd>On the map: open the program text at the middle of the view. On a place in the list: go there.</dd>
+          <dt><kbd>Esc</kbd></dt><dd>Close the program text, or make the panel small again on a phone.</dd>
+          <dt><kbd>&larr;</kbd> <kbd>&rarr;</kbd></dt><dd>On Places, Tours, Display: change the tab.</dd>
+        </dl>
+        <p class="muted small">With a mouse: drag to move, scroll to zoom, click to choose a spot, double-click to zoom in. With fingers: one finger moves, two fingers zoom, a double tap zooms in. Everything can also be done with the buttons above.</p>
+
+        <h3 class="label">About this map</h3>
+        <p class="muted small">The brainfuck program of <span data-f="modelName"></span>: <span data-f="chars"></span> characters, every one of them on this map. The first <span data-f="writerPct"></span> writes the model's numbers into memory; the last <span data-f="enginePct"></span>, the engine, does the model's sums. Far out the picture comes from stored counts of the commands; from 16 commands per pixel on, the page reads the program file itself. <span class="ev">measured</span></p>
+        <p class="muted small"><a href="../inside/" id="m-inside">Inside the program</a> walks through what the parts do. <a href="../how/#questions">Questions and caveats</a> and <a href="../how/#credits">credits</a> are on the other pages. The three models (SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, all Apache 2.0) are only run by brainfuck; their answers can be wrong.</p>
+      </div>
+    </div>
+
+    <section class="mreader" id="m-open" hidden aria-labelledby="m-open-title">
+      <div class="rhead"><h2><span id="m-open-title" tabindex="-1">The program text</span></h2><button type="button" class="quiet" id="m-open-close">Close</button></div>
+      <p class="muted small" id="m-open-about"></p>
+      <div class="code" id="m-open-code" tabindex="0" role="group" aria-label="The program text, one step on each line, with what it does"></div>
+    </section>
+  </aside>
+
+  <div class="mstage" id="m-stage" role="region" aria-label="The map">
+    <h2 class="sr-only">The map</h2>
+    <div class="mapframe" id="m-frame" data-app data-now data-live data-layout0="fold">
+      <canvas id="m-canvas" tabindex="0" role="application" aria-roledescription="map" aria-label="Program map" aria-describedby="m-canvas-help">A picture of the whole program that can be zoomed. Everything on it is also in the list of places and in the layout "Outline", as text.</canvas>
+      <div class="mapctl" data-avoid role="group" aria-label="Zoom">
+        <button type="button" id="m-out" aria-label="Zoom out" title="Zoom out (&minus;)"><span aria-hidden="true">&minus;</span></button>
+        <button type="button" id="m-in" aria-label="Zoom in" title="Zoom in (+)"><span aria-hidden="true">+</span></button>
+        <button type="button" id="m-home" aria-label="Show the whole program" title="Whole program (Home)"><span aria-hidden="true">&#8962;</span></button>
+      </div>
+      <canvas id="m-mini" data-avoid width="128" height="128" hidden role="img" aria-label="Small map: the frame shows which part of the whole program is in view. Press on it to move the view there."></canvas>
+      <div class="maptree" id="m-tree" hidden tabindex="-1" role="group" aria-label="Outline of the program"></div>
+    </div>
+    <div class="mstatus" id="m-read" role="group" aria-label="Where you are">
+      <h2 class="sr-only">Where you are</h2>
+      <div class="mpos" id="m-pos" aria-hidden="true"><i id="m-pos-i"></i></div>
+      <dl class="kv readout">
+        <dt>Where</dt><dd id="m-where">Reading the program&hellip;</dd>
+        <dt>Scale</dt><dd id="m-scale"></dd>
+        <dt>What</dt><dd id="m-what"></dd>
+        <dt>Text</dt><dd class="bf" id="m-snip"></dd>
+      </dl>
+      <button type="button" class="quiet" id="m-readbtn">Read the text here</button>
+    </div>
+  </div>
+  <p class="sr-only" id="m-canvas-help">Arrow keys move the view. Plus and minus zoom. Home shows the whole program. Enter opens the program text at the middle of the view; Escape closes it. Where you are is said after every move. Everything on the map is also in the list Places and in the layout Outline, as text.</p>
+  <p class="sr-only" id="m-live" role="status"></p>
+</main>
+<script src="../program-source.js?v=r6"></script>
+<script src="../program-start.js?v=r6"></script>
+<script src="../program-download.js?v=r6"></script>
+<script src="../inside/engine-sections.js?v=r9"></script>
+<script src="../inside/core.js?v=r12"></script>
+<script src="../inside/map.js?v=r12"></script>
+<script src="app.js?v=r10"></script>
+</body>
+</html>

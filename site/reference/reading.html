@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, further reading</title>
+<meta name="description" content="An annotated bibliography of brainfuck: the original 1993 distribution, the author's talk, language references, theory, implementations, notable programs, tools, relatives and culture. Every source was opened on 11 October 2026.">
+<meta property="og:title" content="Further reading on brainfuck: an annotated bibliography">
+<meta property="og:description" content="An annotated bibliography of brainfuck: the original 1993 distribution, the author's talk, language references, theory, implementations, notable programs, tools, relatives and culture. Every source was opened on 11 October 2026.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Further reading</span></p>
+    <h1>Further reading</h1>
+    <p class="lead">Every source behind the Reference: 53 of them, each opened on 11 October 2026. They are grouped by subject, and each has a line on what it is and why you might read it. If you read only a few, read the six at the top. At the end are works cited only through others.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#start">Start here</a></li>
+          <li><a href="#primary">The original and its author</a></li>
+          <li><a href="#language">Descriptions of the language</a></li>
+          <li><a href="#theory">Theory</a></li>
+          <li><a href="#writing">Writing and generating programs</a></li>
+          <li><a href="#programs">Programs</a></li>
+          <li><a href="#impl">Implementations and how to make them fast</a></li>
+          <li><a href="#relatives">Relatives and derivatives</a></li>
+          <li><a href="#culture">Culture and scholarship</a></li>
+          <li><a href="#orientation">For orientation only</a></li>
+          <li><a href="#unread">Cited through others</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="start" aria-labelledby="start-h">
+    <h2 id="start-h">Start here</h2>
+    <p>Six sources that together give you the language, its story, how to write it and how to run it fast. All are short.</p>
+    <ol class="biblio">
+      <li><p><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing.</p><p class="small"><b>Why read it:</b> The original distribution, and the nearest thing the language has to a definition. The README is 2,863 bytes and takes two minutes to read. Read it before anything else.</p></li>
+      <li><p><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording.</p><p class="small"><b>Why read it:</b> The author telling the story himself, 24 years later. Short and funny. The only source we found for his motives in his own words.</p></li>
+      <li><p><b>Daniel B Cristofani, "Yet another brainfuck reference"</b>: <a href="https://brainfuck.org/brainfuck.html">the reference on brainfuck.org</a>.</p><p class="small"><b>Why read it:</b> One careful page by the language's best-known programmer. Says exactly what is defined and what is "unpredictable".</p></li>
+      <li><p><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source.</p><p class="small"><b>Why read it:</b> The best single page on the language as it is used today: conventions, examples, the computational class, and many links.</p></li>
+      <li><p><b>Daniel B Cristofani, "get good at brainfuck"</b>: <a href="https://brainfuck.org/ggab.html">the series on brainfuck.org</a>.</p><p class="small"><b>Why read it:</b> A series that walks through his programs in the order he wrote them. The author calls it unfinished. The best next step after <a href="../challenges/basics/">Brainfuck basics</a>.</p></li>
+      <li><p><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>.</p><p class="small"><b>Why read it:</b> The clearest account of the standard optimisations, each measured on six real programs. Start here if you want to write a fast implementation.</p></li>
+    </ol>
+  </section>
+
+  <section id="primary" aria-labelledby="primary-h">
+    <h2 id="primary-h">The original and its author</h2>
+    <p>What Müller published and said. Everything else is commentary.</p>
+    <ul class="biblio">
+      <li><p><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing.</p><p class="small"><b>Why read it:</b> The original distribution, and the nearest thing the language has to a definition. The README is 2,863 bytes and takes two minutes to read. Read it before anything else.</p></li>
+      <li><p><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording.</p><p class="small"><b>Why read it:</b> The author telling the story himself, 24 years later. Short and funny. The only source we found for his motives in his own words.</p></li>
+      <li><p><b>Esolang wiki, "Urban Müller"</b>: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller">the wiki page on the author</a>.</p><p class="small"><b>Why read it:</b> A few lines on the author: founder of Aminet (1992), author of other Amiga software.</p></li>
+      <li><p><b>Wouter van Oortmerssen, "The FALSE Programming Language"</b>: <a href="https://strlen.com/false-language/">the author's page on FALSE</a>.</p><p class="small"><b>Why read it:</b> The language that set Müller off, described by its author, who links to Müller's talk.</p></li>
+    </ul>
+  </section>
+
+  <section id="language" aria-labelledby="language-h">
+    <h2 id="language-h">Descriptions of the language</h2>
+    <p>Careful accounts of what is defined, what is not, and what implementations should do.</p>
+    <ul class="biblio">
+      <li><p><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source.</p><p class="small"><b>Why read it:</b> The best single page on the language as it is used today: conventions, examples, the computational class, and many links.</p></li>
+      <li><p><b>Daniel B Cristofani, "Yet another brainfuck reference"</b>: <a href="https://brainfuck.org/brainfuck.html">the reference on brainfuck.org</a>.</p><p class="small"><b>Why read it:</b> One careful page by the language's best-known programmer. Says exactly what is defined and what is "unpredictable".</p></li>
+      <li><p><b>Daniel B Cristofani, "The Epistle to the Implementors"</b>: <a href="https://brainfuck.org/epistle.html">the epistle on brainfuck.org</a>.</p><p class="small"><b>Why read it:</b> Advice to people who write interpreters: newlines, end of input, the # and ! conventions. Read it before you write one.</p></li>
+      <li><p><b>Brian Raiter, "Portable Brainfuck"</b>: <a href="https://muppetlabs.com/~breadbox/bf/standards.html">the portability page on muppetlabs.com</a>.</p><p class="small"><b>Why read it:</b> An informal standard: the least a program may count on.</p></li>
+      <li><p><b>Brian Raiter, "Brainfuck: An Eight-Instruction Turing-Complete Programming Language"</b>: <a href="https://muppetlabs.com/~breadbox/bf/">the brainfuck page on muppetlabs.com</a>.</p><p class="small"><b>Why read it:</b> One of the oldest brainfuck pages still online, with a 166-byte compiler for Linux, a quine and a factoring program.</p></li>
+      <li><p><b>Daniel B Cristofani, <i>tests.b</i></b>: <a href="https://brainfuck.org/tests.b">test programs for implementations on brainfuck.org</a>.</p><p class="small"><b>Why read it:</b> Small programs that tell you how an implementation treats newlines, end of input and the edges of the tape.</p></li>
+    </ul>
+  </section>
+
+  <section id="theory" aria-labelledby="theory-h">
+    <h2 id="theory-h">Theory</h2>
+    <p>Proofs, and the older work the language connects to.</p>
+    <ul class="biblio">
+      <li><p><b>Wikipedia, "P′′"</b>: <a href="https://en.wikipedia.org/wiki/P%E2%80%B2%E2%80%B2">the Wikipedia article on P′′</a>. Our source for Corrado Böhm, "On a family of Turing machines and the related programming language", <i>ICC Bulletin</i> 3 (1964), 185 to 194, and for C. Böhm and G. Jacopini, "Flow Diagrams, Turing Machines and Languages with Only Two Formation Rules", <i>Communications of the ACM</i> 9(5) (1966), 366 to 371. We did not open the two papers themselves.</p><p class="small"><b>Why read it:</b> The language of 1964 that brainfuck closely resembles. The article gives the instruction set and the exact correspondence.</p></li>
+      <li><p><b>Frans Faase, "BF is Turing-complete"</b>: <a href="https://www.iwriteiam.nl/Ha_bf_Turing.html">the proof page on iwriteiam.nl</a>.</p><p class="small"><b>Why read it:</b> Three routes to the result on one page: translating a Turing machine, Cristofani's universal machine, and register machines.</p></li>
+      <li><p><b>Frans Faase, "Brainf***"</b>: <a href="https://www.iwriteiam.nl/Ha_BF.html">the brainfuck pages on iwriteiam.nl</a>.</p><p class="small"><b>Why read it:</b> An early enthusiast's collection: an introduction, proofs, an interpreter written in brainfuck, and links.</p></li>
+      <li><p><b>Daniel B Cristofani, <i>utm.b</i></b>: <a href="https://brainfuck.org/utm.b">the universal Turing machine on brainfuck.org</a>. Its comments name the machine it implements: Yurii Rogozhin, "Small universal Turing machines", <i>Theoretical Computer Science</i> 168(2) (1996), 215 to 240, which we did not open.</p><p class="small"><b>Why read it:</b> A universal Turing machine as a commented brainfuck program. The comments are a lesson in themselves.</p></li>
+      <li><p><b>Alan J. Perlis, "Epigrams on Programming"</b>, <i>ACM SIGPLAN Notices</i> 17(9), September 1982, read in the copy at Yale: <a href="https://www.cs.yale.edu/homes/perlis-alan/quotes.html">the epigrams at cs.yale.edu</a>.</p><p class="small"><b>Why read it:</b> The source of "Turing tar-pit" (epigram 54). A list of one-liners, many of them still quoted.</p></li>
+    </ul>
+  </section>
+
+  <section id="writing" aria-labelledby="writing-h">
+    <h2 id="writing-h">Writing and generating programs</h2>
+    <p>Cookbooks, and tools that write brainfuck.</p>
+    <ul class="biblio">
+      <li><p><b>Esolang wiki, "Brainfuck algorithms"</b>: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">the wiki's collection of algorithms</a>.</p><p class="small"><b>Why read it:</b> The standard cookbook: assignment, arithmetic, comparison, if and else, arrays, printing numbers. Each recipe says whether it needs wrapping cells.</p></li>
+      <li><p><b>Esolang wiki, "Brainfuck constants"</b>: <a href="https://esolangs.org/wiki/Brainfuck_constants">the wiki's table of constants</a>.</p><p class="small"><b>Why read it:</b> The shortest known way to make each number from 0 to 255.</p></li>
+      <li><p><b>Esolang wiki, "Brainfuck code generation"</b>: <a href="https://esolangs.org/wiki/Brainfuck_code_generation">the wiki's list of tools that write brainfuck</a>.</p><p class="small"><b>Why read it:</b> Macro systems and compilers that have brainfuck as their output.</p></li>
+      <li><p><b>Esolang wiki, "BFBASIC"</b>: <a href="https://esolangs.org/wiki/BFBASIC">the wiki article on BFBASIC</a>.</p><p class="small"><b>Why read it:</b> Jeffry Johnston's compiler from BASIC to brainfuck (2003).</p></li>
+      <li><p><b>Esolang wiki, "C2BF"</b>: <a href="https://esolangs.org/wiki/C2BF">the wiki article on C2BF</a>.</p><p class="small"><b>Why read it:</b> Gregor Richards's partial C compiler, with a description of how it lays out a stack and a heap on the tape.</p></li>
+      <li><p><b>shinh, <i>ELVM Compiler Infrastructure</i></b>, README: <a href="https://github.com/shinh/elvm">shinh/elvm on GitHub</a>.</p><p class="small"><b>Why read it:</b> Compiles C to an intermediate form and from there to brainfuck and some sixty other targets.</p></li>
+    </ul>
+  </section>
+
+  <section id="programs" aria-labelledby="programs-h">
+    <h2 id="programs-h">Programs</h2>
+    <p>The notable ones, at their authors' own addresses.</p>
+    <ul class="biblio">
+      <li><p><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0.</p><p class="small"><b>Why read it:</b> The best collection of hand-written programs there is, most with comments: sorting, Life, tic-tac-toe, e, a universal Turing machine, and contest results.</p></li>
+      <li><p><b>Daniel B Cristofani, "get good at brainfuck"</b>: <a href="https://brainfuck.org/ggab.html">the series on brainfuck.org</a>.</p><p class="small"><b>Why read it:</b> A series that walks through his programs in the order he wrote them. The author calls it unfinished. The best next step after <a href="../challenges/basics/">Brainfuck basics</a>.</p></li>
+      <li><p><b>Daniel B Cristofani, <i>dbfi.b</i></b>: <a href="https://brainfuck.org/dbfi.b">the self-interpreter on brainfuck.org</a>. The count of 423 commands is ours, of the file without its closing comment.</p><p class="small"><b>Why read it:</b> A brainfuck interpreter in a few lines of brainfuck.</p></li>
+      <li><p><b>Oleg Mazonka and Daniel B. Cristofani, "A Very Short Self-Interpreter"</b>, arXiv:cs/0311032, 21 November 2003: <a href="https://arxiv.org/abs/cs/0311032">the abstract on arXiv</a>. We read the abstract only.</p><p class="small"><b>Why read it:</b> The paper about dbfi.</p></li>
+      <li><p><b>Frans Faase, "BF interpreter written in BF"</b>: <a href="https://www.iwriteiam.nl/Ha_bf_inter.html">the interpreter page on iwriteiam.nl</a>.</p><p class="small"><b>Why read it:</b> An earlier self-interpreter, made by a C program that writes brainfuck.</p></li>
+      <li><p><b>Erik Bosman, Mandelbrot set viewer</b>, files dated 1 June 2003, in the Brainfuck Archive: <a href="http://esoteric.sange.fi/brainfuck/utils/mandelbrot/">the mandelbrot directory</a> with its <code>README.txt</code>.</p><p class="small"><b>Why read it:</b> The famous Mandelbrot program with the macro files it was made from.</p></li>
+      <li><p><b>Code Golf Stack Exchange, answers to the "Hello, World!" challenge</b>: <a href="https://codegolf.stackexchange.com/a/163590">the answer by KSab</a> (27 April 2018, 72 bytes) and <a href="https://codegolf.stackexchange.com/a/68494">the answer by primo</a> (3 January 2016, 78 bytes). Read through the Stack Exchange API.</p><p class="small"><b>Why read it:</b> The record-holding short programs, with their authors' explanations of how they work and how they were found.</p></li>
+      <li><p><b>Jon Ripley, "The Lost Kingdom Brainfuck Edition"</b>, 2004 to 2005: <a href="http://jonripley.com/i-fiction/games/LostKingdomBF.html">the game's page on jonripley.com</a>.</p><p class="small"><b>Why read it:</b> A text adventure of two megabytes, and its author's notes.</p></li>
+      <li><p><b>Linus Åkesson, "Game of Life in Brainfuck"</b>: <a href="https://www.linusakesson.net/programming/brainfuck/index.php">the page on linusakesson.net</a>.</p><p class="small"><b>Why read it:</b> Conway's Life, written by hand, with the author's answers to readers.</p></li>
+      <li><p><b>mitxela, <i>bf-tic-tac-toe</i></b>, 2017: <a href="https://github.com/mitxela/bf-tic-tac-toe">mitxela/bf-tic-tac-toe on GitHub</a>.</p><p class="small"><b>Why read it:</b> Tic-tac-toe against the computer, with the commented source.</p></li>
+      <li><p><b>"Writing a ray tracer in Brainfuck"</b>, 24 September 2026: <a href="https://epestr.com/blog/writing-a-ray-tracer-in-brainfuck/">the article on epestr.com</a>. All figures are the author's own.</p><p class="small"><b>Why read it:</b> A recent account of generating a 23 MB program from a small language of the author's own.</p></li>
+      <li><p><b>Ad1th, <i>lobotoml</i></b>: <a href="https://github.com/Ad1th/lobotoml">Ad1th/lobotoml on GitHub</a>. All figures are from its README.</p><p class="small"><b>Why read it:</b> A neural network of 7 neurons (2, 4 and 1) for XOR, compiled to a brainfuck program of 9,731 bytes.</p></li>
+      <li><p><b>Blaise Agüera y Arcas and others, "Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction"</b>, arXiv:2406.19108, 2024: <a href="https://arxiv.org/abs/2406.19108">the abstract on arXiv</a> and <a href="https://arxiv.org/html/2406.19108v2">the full text</a>.</p><p class="small"><b>Why read it:</b> Research that uses a brainfuck variant as the "physics" of an artificial world in which self-copying programs appear.</p></li>
+      <li><p><b>This site's own project.</b> Counts and measurements are on <a href="../how/#numbers">How it works: the numbers</a> and <a href="../how/#real">How do I know it is real?</a>; the earlier work we know of is under <a href="../how/#prior">Has this been done before?</a>.</p><p class="small"><b>Why read it:</b> Three chat models as brainfuck programs, with the checks that were done and the limits.</p></li>
+    </ul>
+  </section>
+
+  <section id="impl" aria-labelledby="impl-h">
+    <h2 id="impl-h">Implementations and how to make them fast</h2>
+    <p>Explanations, measurements and well-known implementations.</p>
+    <ul class="biblio">
+      <li><p><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>.</p><p class="small"><b>Why read it:</b> The clearest account of the standard optimisations, each measured on six real programs. Start here if you want to write a fast implementation.</p></li>
+      <li><p><b>Eli Bendersky, "Adventures in JIT compilation: Part 1, an interpreter"</b>, 20 March 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-1-an-interpreter/">part 1 on eli.thegreenplace.net</a>.</p><p class="small"><b>Why read it:</b> Four interpreters, each faster than the last, with timings. Uses brainfuck to teach how interpreters work.</p></li>
+      <li><p><b>Eli Bendersky, "Adventures in JIT compilation: Part 2, an x64 JIT"</b>, 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-2-an-x64-jit/">part 2 on eli.thegreenplace.net</a>.</p><p class="small"><b>Why read it:</b> The same programs translated to machine code while they run.</p></li>
+      <li><p><b>Wilfred Hughes, <i>bfc</i></b>: <a href="https://bfc.wilfred.me.uk/">the bfc site</a>, its page <a href="https://bfc.wilfred.me.uk/docs/optimisations/">"Optimisations"</a> and <a href="https://github.com/Wilfred/bfc">the repository</a>.</p><p class="small"><b>Why read it:</b> "An industrial grade compiler" for brainfuck, with its optimisations documented one by one, with examples.</p></li>
+      <li><p><b>rdebath, <i>Brainfuck</i> repository</b>: <a href="https://github.com/rdebath/Brainfuck">rdebath/Brainfuck on GitHub</a>. Holds the Tritium interpreter, translators to many languages, test programs and a copy of Müller's 1993 compiler.</p><p class="small"><b>Why read it:</b> A large toolbox: a very fast interpreter, tests such as bitwidth.b, and translators from brainfuck to dozens of languages.</p></li>
+      <li><p><b>Kang Seonghoon, <i>Esotope Brainfuck Compiler</i></b>, README: <a href="https://github.com/lifthrasiir/esotope-bfc">lifthrasiir/esotope-bfc on GitHub</a>.</p><p class="small"><b>Why read it:</b> The compiler that turns a "Hello World!" program into one print statement.</p></li>
+      <li><p><b>Mats Linander, <i>awib</i></b>, README dated 14 September 2014: <a href="https://github.com/matslina/awib">matslina/awib on GitHub</a>.</p><p class="small"><b>Why read it:</b> A brainfuck compiler written in brainfuck, with several back ends.</p></li>
+      <li><p><b>Brian Raiter, <i>bf.asm</i></b>, copyright 1999: <a href="https://www.muppetlabs.com/~breadbox/software/tiny/bf.asm.txt">the assembly source on muppetlabs.com</a>.</p><p class="small"><b>Why read it:</b> A whole compiler in 166 bytes of Linux executable, with comments.</p></li>
+      <li><p><b>Esolang wiki, "Brainfuck implementations"</b>: <a href="https://esolangs.org/wiki/Brainfuck_implementations">the wiki's list of implementations</a>.</p><p class="small"><b>Why read it:</b> A long list: interpreters, compilers, hardware. Uneven, but the widest net.</p></li>
+      <li><p><b>Hugi Size Coding Competition</b>, list of past competitions: <a href="https://www.hugi.scene.org/compo/compoold.htm">the competition archive on hugi.scene.org</a>. Competition 6 (1999) asked for a brainfuck interpreter.</p><p class="small"><b>Why read it:</b> The results of a 1999 contest for the smallest interpreter.</p></li>
+      <li><p><b>Surma, <i>bfwasm</i></b>: <a href="https://github.com/surma/bfwasm">surma/bfwasm on GitHub</a>.</p><p class="small"><b>Why read it:</b> A small compiler from brainfuck to WebAssembly that says of itself that it does not optimise.</p></li>
+      <li><p><b>mrjameshamilton, <i>bf</i></b>: <a href="https://github.com/mrjameshamilton/bf">mrjameshamilton/bf on GitHub</a>.</p><p class="small"><b>Why read it:</b> One optimising front end, many back ends: JVM, C, LLVM IR, ARM, WebAssembly, JavaScript.</p></li>
+      <li><p><b>kostya, <i>benchmarks</i></b>: <a href="https://github.com/kostya/benchmarks">kostya/benchmarks on GitHub</a>.</p><p class="small"><b>Why read it:</b> A well-known comparison of programming languages. One of its tests is a brainfuck interpreter.</p></li>
+    </ul>
+  </section>
+
+  <section id="relatives" aria-labelledby="relatives-h">
+    <h2 id="relatives-h">Relatives and derivatives</h2>
+    <p>Pages of the Esolang wiki on single languages.</p>
+    <ul class="biblio">
+      <li><p><b>Esolang wiki, "Brainfuck derivatives"</b>: <a href="https://esolangs.org/wiki/Brainfuck_derivatives">the wiki's page on derivatives</a>.</p><p class="small"><b>Why read it:</b> A short hand-picked list, and the door to the full category.</p></li>
+      <li><p><b>Esolang wiki, "Trivial brainfuck substitution"</b>: <a href="https://esolangs.org/wiki/Trivial_brainfuck_substitution">the wiki article</a>.</p><p class="small"><b>Why read it:</b> The family of languages that only rename the eight commands.</p></li>
+      <li><p><b>Esolang wiki, "Ook!"</b>: <a href="https://esolangs.org/wiki/Ook!">the wiki article on Ook!</a>.</p></li>
+      <li><p><b>Esolang wiki, "COW"</b>: <a href="https://esolangs.org/wiki/COW">the wiki article on COW</a>.</p></li>
+      <li><p><b>Esolang wiki, "Boolfuck"</b>: <a href="https://esolangs.org/wiki/Boolfuck">the wiki article on Boolfuck</a>.</p></li>
+      <li><p><b>Esolang wiki, "Smallfuck"</b>: <a href="https://esolangs.org/wiki/Smallfuck">the wiki article on Smallfuck</a>.</p></li>
+      <li><p><b>Esolang wiki, "pbrain"</b>: <a href="https://esolangs.org/wiki/Pbrain">the wiki article on pbrain</a>.</p></li>
+      <li><p><b>Esolang wiki, "Brainfork"</b>: <a href="https://esolangs.org/wiki/Brainfork">the wiki article on Brainfork</a>.</p></li>
+      <li><p><b>Esolang wiki, "Brainloller"</b>: <a href="https://esolangs.org/wiki/Brainloller">the wiki article on Brainloller</a>.</p></li>
+      <li><p><b>Esolang wiki, "Unary"</b>: <a href="https://esolangs.org/wiki/Unary">the wiki article on Unary</a>.</p></li>
+      <li><p><b>Esolang wiki, "BF Joust"</b>: <a href="https://esolangs.org/wiki/BF_Joust">the wiki article on BF Joust</a>.</p><p class="small"><b>Why read it:</b> A game for two programs on one tape.</p></li>
+      <li><p><b>Esolang wiki, "FALSE"</b>: <a href="https://esolangs.org/wiki/FALSE">the wiki article on FALSE</a>.</p></li>
+      <li><p><b>Esolang wiki, "Befunge"</b>: <a href="https://esolangs.org/wiki/Befunge">the wiki article on Befunge</a>.</p></li>
+    </ul>
+  </section>
+
+  <section id="culture" aria-labelledby="culture-h">
+    <h2 id="culture-h">Culture and scholarship</h2>
+    <p>Writing about why, and the places where the community is.</p>
+    <ul class="biblio">
+      <li><p><b>Esolang wiki, "Esoteric programming language"</b>: <a href="https://esolangs.org/wiki/Esoteric_programming_language">the wiki article on esoteric languages</a>.</p><p class="small"><b>Why read it:</b> What an esoteric language is, a short history from INTERCAL (1972), and the kinds there are.</p></li>
+      <li><p><b>David S. Touretzky, "Gallery of CSS Descramblers"</b>, Carnegie Mellon University: <a href="https://www.cs.cmu.edu/~dst/DeCSS/Gallery/">the gallery at cs.cmu.edu</a>.</p><p class="small"><b>Why read it:</b> A collection made to argue that program code is speech. One exhibit is a descrambler in brainfuck.</p></li>
+      <li><p><b>Michael Mateas and Nick Montfort, "A Box, Darkly: Obfuscation, Weird Languages, and Code Aesthetics"</b>, <i>Proceedings of the 6th Digital Arts and Culture Conference</i>, IT University of Copenhagen, 1 to 3 December 2005, pages 144 to 153: <a href="https://nickm.com/cis/a_box_darkly.pdf">the paper on nickm.com (PDF)</a>.</p><p class="small"><b>Why read it:</b> A scholarly look at why people write obfuscated code and invent strange languages. Has a section on brainfuck as minimalism.</p></li>
+      <li><p><b>Ronald T. Kneusel, <i>Strange Code</i></b>, No Starch Press, 2022, chapter 10, read as the publisher's sample: <a href="https://nostarch.com/download/samples/StrangeCode_Chapter10.pdf">chapter 10 on nostarch.com (PDF)</a>.</p><p class="small"><b>Why read it:</b> A book chapter that teaches the language (as "BF") and walks through Müller's original interpreter.</p></li>
+      <li><p><b>Esolang wiki, "Community portal"</b>: <a href="https://esolangs.org/wiki/Esolang:Community_portal">the wiki's community portal</a>.</p><p class="small"><b>Why read it:</b> Where the people are: the chat channel, its logs, forums.</p></li>
+      <li><p><b>The Brainfuck Archive</b>, maintained by Panu Kalliokoski, first collected by Jeff Johnston: <a href="https://esoteric.sange.fi/brainfuck/">the archive at esoteric.sange.fi</a> and its <code>README.txt</code>.</p><p class="small"><b>Why read it:</b> An old file archive of programs, implementations and tools. Most files date from 2002 to 2005.</p></li>
+    </ul>
+  </section>
+
+  <section id="orientation" aria-labelledby="orientation-h">
+    <h2 id="orientation-h">For orientation only</h2>
+    <p>Encyclopedia articles. Good maps, not evidence.</p>
+    <ul class="biblio">
+      <li><p><b>Wikipedia, "Brainfuck"</b>: <a href="https://en.wikipedia.org/wiki/Brainfuck">the Wikipedia article</a>. Used for orientation and for its list of references, not as evidence.</p><p class="small"><b>Why read it:</b> A fair overview with a good reference list. Check its details against the sources: see History for one date that does not match the archive.</p></li>
+      <li><p><b>Wikipedia, "Halting problem"</b>: <a href="https://en.wikipedia.org/wiki/Halting_problem">the Wikipedia article on the halting problem</a>. Our source for the statement of Turing's result (A. M. Turing, "On Computable Numbers, with an Application to the Entscheidungsproblem", <i>Proceedings of the London Mathematical Society</i>, 1936 to 1937), which we did not open.</p><p class="small"><b>Why read it:</b> Orientation on the one question no program can answer about all programs.</p></li>
+    </ul>
+  </section>
+
+  <section id="unread" aria-labelledby="unread-h">
+    <h2 id="unread-h">Cited through others</h2>
+    <p>These works matter to the story, and we did not read them ourselves. Where the reference mentions them, it cites the source that describes them.</p>
+    <ul class="biblio">
+      <li><p><b>Corrado Böhm, "On a family of Turing machines and the related programming language"</b>, <i>ICC Bulletin</i> 3 (1964), 185 to 194. The paper that introduces P′′. Cited through the Wikipedia article on P′′ and the Esolang wiki.</p></li>
+      <li><p><b>Corrado Böhm and Giuseppe Jacopini, "Flow Diagrams, Turing Machines and Languages with Only Two Formation Rules"</b>, <i>Communications of the ACM</i> 9(5) (1966), 366 to 371. Cited through the Wikipedia article on P′′.</p></li>
+      <li><p><b>Alan M. Turing, "On Computable Numbers, with an Application to the Entscheidungsproblem"</b>, <i>Proceedings of the London Mathematical Society</i>, 1936 to 1937. Cited through the Wikipedia article on the halting problem.</p></li>
+      <li><p><b>Yurii Rogozhin, "Small universal Turing machines"</b>, <i>Theoretical Computer Science</i> 168(2) (1996), 215 to 240. Cited through the comments of Cristofani's utm.b.</p></li>
+      <li><p><b>The recording of Urban Müller's talk of 2017.</b> We read a transcript, which says its last page is missing.</p></li>
+      <li><p><b>The first version of the brainfuck package</b> (before 9 June 1993). Known only from the README of the second version. We did not find it.</p></li>
+    </ul>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>It holds what we cited, not everything worth reading. Books and papers behind a paywall are missing unless a free copy was available.</li>
+      <li>Web pages change and vanish. Every address worked on 11 October 2026.</li>
+      <li>We read all sources in English.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="./"><b>The reference: overview</b><span>Back to the front page and the map of all pages.</span></a></li>
+      <li><a href="../playground/"><b>The playground</b><span>Enough reading. Write something.</span></a></li>
+      <li><a href="questions.html"><b>Questions people ask</b><span>Short answers, if that is all you need.</span></a></li>
+    </ul>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html" aria-current="page"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>13</b> of 13</p>
+    <a class="prev" href="questions.html" rel="prev"><span>Previous</span>Questions</a>
+    <a class="next" href="#" rel="next" aria-disabled="true"><span>Next</span>End of the Reference</a>
+  </nav>
+</main>
+</body>
+</html>

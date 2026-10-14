@@ -1,0 +1,397 @@
+/* The LAYOUT of the playground (index.html) and of its embed (embed.html). */
+
+/* ---- shared by the page and the embed ---- */
+.pg label.stacked > input, .bfe label.stacked > input { flex: 0 0 auto; }
+.pg button[aria-disabled="true"], .bfe button[aria-disabled="true"] { opacity: .45; cursor: default; }
+.pg-explain .badge, .bfe-next .badge { margin-right: var(--s2); }
+
+.ed { border: var(--edge) solid var(--ink); background: var(--night); overflow: hidden; }
+.ed:focus-within { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
+.ed-scroll { overflow: auto; height: var(--ed-h, 22rem); min-height: 8rem; resize: vertical; overscroll-behavior: contain; }
+.ed-stack { position: relative; --gut: 3.4rem; min-height: 100%; display: grid; }
+.ed-hl, .ed-ta, .ed-mark { font: 400 var(--fs-control)/1.5 var(--mono); letter-spacing: 0; font-variant-ligatures: none; }
+.ed-hl, .ed-ta { tab-size: 2; white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; margin: 0; border: 0; box-sizing: border-box; }
+.ed-hl { position: relative; z-index: 1; padding: var(--s2) var(--s3) var(--s2) calc(var(--gut) + var(--s3)); min-height: 100%; counter-reset: ln; pointer-events: none; color: var(--night-ink); }
+.ed-line { position: relative; min-height: 1.5em; counter-increment: ln; }
+.ed-line::before { content: counter(ln); position: absolute; left: calc(-1 * var(--s3) - var(--gut)); top: 0; width: calc(var(--gut) - var(--s2)); text-align: right; color: var(--night-muted); font: var(--lab); line-height: calc(var(--fs-control) * 1.5); font-variant-numeric: tabular-nums; }
+.ed-line.bp::before { content: "\25CF" counter(ln); background: var(--night-ink); color: var(--night); }
+.ed-gutter { position: absolute; z-index: 0; left: 0; top: 0; bottom: 0; width: var(--gut); border-right: var(--edge) solid var(--night-line); cursor: pointer; }
+.ed-marks { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.ed-mark { position: absolute; box-sizing: border-box; font-style: normal; font-weight: 700; text-align: center; overflow: visible; white-space: pre; }
+.ed-mark.exec { z-index: 3; background: var(--night-ink); color: var(--night); outline: 2px solid var(--night-ink); outline-offset: 2px; }
+.ed-mark.loop { background: var(--night); color: var(--c-open); outline: 2px solid var(--c-open); outline-offset: 1px; }
+.ed-mark.match { outline: 1px dashed var(--night-ink); }
+.ed-mark.err { background: var(--c-out); color: var(--night); border-bottom: 3px double var(--night-ink); }
+.ed-ta { position: absolute; z-index: 4; left: var(--gut); top: 0; width: calc(100% - var(--gut)); height: 100%; min-height: 0; max-width: none; padding: var(--s2) var(--s3); resize: none; overflow: hidden; background: transparent; color: transparent; caret-color: var(--night-ink); outline: none; border: 0; }
+.ed-ta::selection { background: color-mix(in srgb, var(--night-ink) 28%, transparent); color: transparent; }
+.ed-hl .p { color: var(--c-plus); }
+.ed-hl .n { color: var(--c-minus); }
+.ed-hl .m { color: var(--c-lt); }
+.ed-hl .l { color: var(--c-open); }
+.ed-hl .r { color: var(--c-in); }
+.ed-hl .o { color: var(--c-out); }
+.ed-hl .b { background: var(--night-ink); color: var(--night); }
+.ed-hl .c { color: var(--night-muted); }
+/* a very large program: the plain text box, no coloured copy */
+.ed.plain .ed-hl, .ed.plain .ed-gutter, .ed.plain .ed-marks { display: none; }
+.ed.plain .ed-ta { position: static; width: 100%; height: var(--ed-h, 22rem); overflow: auto; color: var(--night-ink); }
+.ed.plain .ed-scroll { height: auto; resize: none; }
+@media (max-width: 30em) { .ed-stack { --gut: 2.6rem; } }
+@media (forced-colors: active) { .ed-ta { color: FieldText; } .ed-hl span { visibility: hidden; } }
+
+.tp-grid { --cw: 5; display: grid; font-size: var(--fs-body); column-gap: 0; row-gap: var(--s2); }
+.tp-grid > .cell { max-width: none; min-width: 0; padding: 0; }
+.pg .tc { cursor: pointer; }
+.tc:focus-visible { position: relative; z-index: 2; outline-offset: calc(-1 * var(--ring)); }
+.tc > .ti { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tc > span { display: block; text-align: center; }
+.tc > .tch, .tc > .tb { min-height: 1.4em; font: var(--lab); color: var(--muted); }
+.tc.long > b { font: var(--lab); overflow-wrap: anywhere; text-align: center; }
+.tp-grid:not(.with-chars) .tch, .tp-grid:not(.with-bits) .tb { display: none; }
+.pg .tc:hover:not(.here) > b { background: var(--hot); }
+.pg .tc[aria-pressed="true"]:not(.here) > b { background: var(--sunk); color: var(--ink); font-weight: 700; outline: var(--edge-strong) solid var(--ink); outline-offset: -4px; }
+/* the overview of the whole tape (a canvas drawn by parts.js) */
+.tp-over { display: block; width: 100%; height: 40px; margin-top: var(--s3); cursor: pointer; touch-action: none; }
+.tp-range { margin: var(--s1) 0 0; }
+@media (max-width: 30em) { .tp-grid { --cw: 4.4; } }
+
+/* ---- the output ---- */
+.pg-out, .bfe-out { margin: 0; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+.pg-out mark, .bfe-out mark { background: var(--ink); color: var(--bg); }
+.pg-out .cur { display: inline-block; width: .6em; height: 1.1em; vertical-align: text-bottom; background: var(--ink); margin-left: 2px; }
+.pg-out.live .cur { animation: pg-blink 1s steps(2, start) infinite; }
+@keyframes pg-blink { to { visibility: hidden; } }
+
+/* ---- the playground: one screen ---- */
+html:has(> body.pgpage) { height: 100%; }
+body.pgpage { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; overscroll-behavior: none; }
+body.pgpage > .top { flex: 0 0 auto; }
+body.pgpage > .foot { display: none; }          /* its links: the menu of the bar, and "The rest of the site" in the tab Help */
+main.pg { flex: 1 1 auto; min-height: 0; width: 100%; max-width: none; margin: 0; position: relative; overflow: clip;
+  padding: var(--s2) max(var(--s2), env(safe-area-inset-right, 0px)) max(var(--s2), env(safe-area-inset-bottom, 0px)) max(var(--s2), env(safe-area-inset-left, 0px));
+  display: grid; gap: var(--s2) var(--s3);
+  grid-template: "head" auto "run" auto "status" auto "views" auto "pane" minmax(0, 1fr) / minmax(0, 1fr); }
+.pg-app { display: contents; }
+main.pg > *, .pg-app > * { min-width: 0; max-width: none; margin: 0; }
+main.pg > noscript { grid-column: 1 / -1; }
+.pg-head { grid-area: head; }
+.pg-run { grid-area: run; }
+.pg-status { grid-area: status; }
+.pg-views { grid-area: views; }
+.pane { grid-area: pane; }
+
+/* ---- the head: one slim row ---- */
+.pg-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s4); }
+.pg-head > * { margin: 0; max-width: none; }
+.pg-head h1 { font-size: var(--fs-h3); white-space: nowrap; }
+.pg-head .kicker { flex: 0 0 auto; }
+.pg-start { flex: 0 1 auto; }
+.pg-start .label { margin: 0; }
+.pg-toolsbtn { flex: 0 0 auto; min-width: 7rem; }
+/* open point: the settings are not the classic ones (also said in words) */
+.pg-conf.custom #conf-text { background: var(--hot); color: var(--ink); font-weight: 700; padding: 0 var(--s1); }
+.pg-head h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.pg-toolsbtn, main.pg:not(.empty) .pg-start, .pg-conf:not(.custom) { display: none; }
+.pg-conf { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s3); min-width: 0; text-wrap: balance; }
+.pg-conf > button { flex: 0 0 auto; white-space: nowrap; }
+.pg-start { flex: 1 1 100%; }
+
+/* ---- the run bar ---- */
+.pg-run { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); align-items: center; }
+.pg-run > .row { margin: 0; }
+.pg-run > .pg-buttons { display: flex; flex-wrap: nowrap; gap: var(--s2); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: calc(-1 * var(--s2)) 0 calc(-1 * var(--s2)) calc(-1 * var(--s2)); padding: var(--s2); scroll-padding: 0 var(--s2); }
+.pg-buttons::-webkit-scrollbar { display: none; }
+.pg-buttons > button { flex: 0 0 auto; width: auto; min-width: var(--target); padding-left: var(--s3); padding-right: var(--s3); }
+.pg-fast { display: flex; flex-wrap: nowrap; gap: var(--s2); }
+.pg-fast > button { width: auto; white-space: nowrap; padding-left: var(--s3); padding-right: var(--s3); }
+
+.pg-status { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s2); height: clamp(4.75rem, 18vh, 10.5rem); height: clamp(4.75rem, 18dvh, 10.5rem); overflow-y: auto; overscroll-behavior: contain; }
+.pg-status:focus-visible, .pgpage .frame-body:focus-visible, .pgpage [role="tabpanel"]:focus-visible { outline-offset: calc(-1 * var(--ring)); }
+.pg-explain { padding: var(--s2) var(--s3); }
+.pg-explain p { margin: 0; max-width: none; }
+.pg-explain p + p:not(:empty) { margin-top: var(--s1); }
+.pg-app.no-explain .pg-explain { display: none; }
+.pg-app.no-prev .pg-explain .prev { display: none; }
+.pg-peek { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s2); margin: 0; max-width: none; padding: var(--s2) var(--s3); }
+.pg-peek[hidden] { display: none; }
+@media (min-width: 36em) and (min-height: 20em) { main.pg:has(.pane[data-pane="io"].active) .pg-peek { display: none; } }
+.pg-run > .pg-peek { grid-column: 1 / -1; }
+#b-more, #where-toggle { display: none; }
+.pg-fold { all: unset; pointer-events: none; }
+.pg-peek > .bf { flex: 1 1 8rem; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--code); }
+.pg-peek > button { flex: 0 0 auto; min-height: var(--target); margin: calc(-1 * var(--s2)) 0; }
+.pg-where { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s3); }
+.pg-buttons > .pg-speed { flex: 0 0 17rem; width: 17rem; }
+.pg-speed output { min-width: 7.5rem; }
+.pg-state { flex: 1 1 100%; margin: 0; }
+.pg-map { flex: 1 1 8rem; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s3); }
+.pg-map canvas { flex: 1 1 2.5rem; display: block; min-width: 0; height: 30px; border: var(--edge) solid var(--rule); background: var(--bg); }
+.pg-map p { flex: 1 1 100%; margin: 0; max-width: none; }
+
+/* ---- the switch between the panes ---- */
+.pg .pg-views { display: flex; flex-wrap: nowrap; }
+.pg-views > button { flex: 1 1 0; padding-left: var(--s1); padding-right: var(--s1); }
+
+/* ---- a pane: its head keeps its height, its body takes the rest and scrolls ---- */
+.pgpage .frame { position: relative; display: flex; flex-direction: column; min-height: 0; overflow: clip; margin: 0; }
+.pgpage .pane:not(.active) { display: none; }
+.pgpage .frame > .frame-head { flex: 0 0 auto; padding-top: var(--s1); padding-bottom: var(--s1); }
+.pgpage .frame > .frame-body { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--s2); }
+/* SWITCH: the switch says which pane this is, so its own head is left to the outline */
+.pane.frame > .frame-head { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* ---- the program ---- */
+#code-body { display: flex; flex-direction: column; gap: var(--s2); }
+#code-body > * { margin: 0; flex: 0 0 auto; max-width: none; }
+#code-body > .pg-edit-tools { display: flex; flex-wrap: nowrap; gap: var(--s2); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: calc(-1 * var(--s2)); padding: var(--s2); }      /* SWITCH: one row that moves sideways */
+.pg-edit-tools::-webkit-scrollbar { display: none; }
+.pg-edit-tools > button, .pg-edit-tools > .chips > button { flex: 0 0 auto; width: auto; min-width: var(--target); padding-left: var(--s3); padding-right: var(--s3); white-space: nowrap; }
+.pg-edit-tools > .chips { display: contents; }      /* the one toggle of the row: its button lines up with the others */
+.pgpage #editor { flex: 1 1 7rem; min-height: 7rem; display: flex; flex-direction: column; }
+.pgpage .ed-scroll { flex: 1 1 0; height: auto; min-height: 0; resize: none; }
+.pgpage .ed.plain .ed-scroll { overflow: hidden; }
+.pgpage .ed.plain .ed-stack, .pgpage .ed.plain .ed-ta { height: 100%; }
+.pg-summary { display: none; }      /* SWITCH: the same numbers are in the tab Analysis */
+.pgpage .ed-stack { --gut: 2.6rem; }
+
+/* ---- the command keys: the shared .keypad and a row of edit keys ---- */
+.pg-keys .keypad { margin: 0; --key-h: var(--target); }
+.pg-keys .btns { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin: var(--s1) 0 0; }
+.pg-keys .btns > button { min-width: 0; padding-left: 0; padding-right: 0; }
+.pg-keys.docked { position: fixed; left: 0; right: 0; z-index: 60; margin: 0; padding: var(--s1) max(var(--s1), env(safe-area-inset-right, 0px)) var(--s1) max(var(--s1), env(safe-area-inset-left, 0px)); background: var(--bg); border-top: var(--edge) solid var(--ink); }
+@media (min-width: 23.1em) { .pg-keys.docked .keypad { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+@media (min-width: 44em) { .pg-keys.docked { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 7fr); gap: var(--s1); align-items: stretch; } .pg-keys.docked .btns { margin: 0; } .pg-keys.docked .btns > button { min-height: 100%; } }
+@media (min-width: 30em) { .pg-keys:not(.docked) .keypad { grid-template-columns: repeat(8, minmax(0, 1fr)); } .pg-keys .btns { gap: var(--s1); } .pg-keys:not(.docked) { max-width: 30rem; } }
+body.pgpage.kb { height: var(--vvh, 100dvh); }
+body.pgpage.kb > .top, body.kb .pg-head, body.kb .pg-status, body.kb .pg .pg-views, body.kb #code-body > .pg-edit-tools { display: none; }
+body.kb main.pg { grid-template: "run" auto "pane" minmax(0, 1fr) / minmax(0, 1fr); padding-bottom: calc(var(--s2) + var(--keys-h, 0px)); }
+body.kb.pgpage #editor { flex-basis: 3rem; min-height: 3rem; }
+
+/* ---- the tape ---- */
+.pgpage #tape-body { scrollbar-gutter: stable; }
+.pg-tape-tools { margin: 0 0 var(--s2); gap: var(--s2); }
+.pg-tape-tools input { width: 4rem; }
+.pgpage .tp-grid { --cw: 4; }
+.pgpage .tp-range { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* the words for the overview: read out, and explained in the tab Help */
+.pg-tape-opts, .pg-opts { gap: 0 var(--s4); }
+.pg-tape-opts { margin: var(--s2) 0 0; }
+.pg-cell { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: end; margin: var(--s2) 0 var(--s3); }
+.pg-cell h3 { flex: 1 1 100%; margin: 0; }
+.pg-cell input[type="text"] { width: 11rem; }
+.pg-cell input[type="number"] { width: 8rem; }
+.pg-cell p { flex: 1 1 100%; margin: 0; }
+.pgpage .pg-words { margin: 0; }
+
+/* ---- input and output ---- */
+.pg-io { display: grid; grid-template: minmax(0, max-content) minmax(10rem, 1fr) / minmax(0, 1fr); gap: var(--s2) var(--s3); min-height: 0; }      /* the input as high as it needs, the output takes the rest */
+#in-body, .pg-outbox > .frame-body { display: flex; flex-direction: column; gap: var(--s1); }
+#in-body > *, .pg-outbox > .frame-body > * { margin: 0; flex: 0 0 auto; max-width: none; }
+#input { flex: 1 1 clamp(2.75rem, 16vh - 4.5rem, 7rem); min-height: var(--target); resize: none; }
+.pg-in-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s3); }
+.pg-in-foot > * { margin: 0; max-width: none; }
+#in-pos { flex: 1 1 8rem; min-height: 1.5em; }
+.pgpage .pg-in-more { flex: 0 1 auto; margin: 0; }
+.pgpage .pg-in-more[open] { flex: 1 1 100%; }
+.pg-in-opts { align-items: end; gap: var(--s1) var(--s4); margin-top: 0; }
+.pg-in-opts select { max-width: 100%; }
+.pg-ask input { width: 100%; }
+.pg-outbox > .frame-body > .pg-out { flex: 1 1 3.5rem; min-height: 3.5rem; }
+.pg-out-tools { gap: var(--s2); }
+
+/* ---- tools: the strip of tabs keeps its height, the panel under it scrolls ---- */
+.pgpage .frame.pg-tools > .frame-body { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.pg-tabs { flex: 0 0 auto; flex-wrap: nowrap; margin: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }      /* SWITCH: the strip moves sideways */
+.pg-tabs::-webkit-scrollbar { display: none; }
+.pg-tabs > [role="tab"] { flex: 1 0 auto; white-space: nowrap; padding-left: var(--s3); padding-right: var(--s3); }
+.pgpage .pg-tools [role="tabpanel"] { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--s3); scrollbar-gutter: stable; }
+.pg [role="tabpanel"] > :where(p, ul, dl, .scroll, textarea, pre, input) { max-width: var(--measure); }
+.pg [role="tabpanel"] > :where(h3:first-child) { margin-top: 0; }
+.pg-ex h3 { margin-bottom: 0; }
+.pg-ex .tiles { margin-top: var(--s2); }
+.pg .tiles > li > button { display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; }
+.pg-counts { grid-template-columns: repeat(2, auto minmax(0, 1fr)); max-width: var(--measure); }
+.pg-counts > dd { padding-right: var(--s4); }
+.pg-list { margin-top: var(--s2); }
+.pg-saved > li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding: var(--s2) 0; }
+.pg-saved > li > span { flex: 1 1 8rem; min-width: 0; overflow-wrap: anywhere; }
+.pg-saved small { display: block; }
+.pg-saved .empty { margin: 0; }
+.pg-settings .picklist { margin-bottom: var(--s2); }
+.pg-settings > div { margin-bottom: var(--s4); }
+.pg-settings input[type="number"] { width: 9rem; }
+.pg-keys-list dt { line-height: 2; }
+/* the whole page is the place to drop a file */
+.pg-drop { position: fixed; inset: var(--s3); z-index: 80; display: grid; place-items: center; border: var(--edge-strong) dashed var(--ink); background: var(--bg); color: var(--ink); font: 700 var(--fs-h2)/1.3 var(--mono); pointer-events: none; }
+
+@media (max-height: 29.99em) { body.pgpage > .top > .in { min-height: var(--target); } }
+
+/* ---- SWITCH, on its side ---- */
+@media (min-width: 36em) and (max-height: 29.99em) {
+  main.pg { grid-template: "run run" auto "views head" auto "pane status" minmax(0, 1fr) / minmax(0, 1.55fr) minmax(0, 1fr); gap: var(--s1) var(--s3); padding-top: var(--s1); padding-bottom: max(var(--s1), env(safe-area-inset-bottom, 0px)); }
+  .pg-status { height: auto; }
+  .pg-io { grid-template: minmax(0, 1fr) / minmax(0, 1fr) minmax(0, 1.2fr); }
+  .pgpage #editor { flex-basis: 5rem; min-height: 5rem; }
+  .pg-ask { margin: 0; padding-top: var(--s1); padding-bottom: var(--s1); }
+  .pg-ask h3 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }      /* no room for it; it still names the form */
+  .pg-ask .row { margin: var(--s2) 0 0; }
+}
+
+/* ---- ALL: every pane at once (the same query is in app.js) ---- */
+@media (min-width: 48em) and (min-height: 48em), (min-width: 64em) and (min-height: 30em) {
+  .pg-peek { display: none; }      /* the output pane itself is in view */
+  main.pg { padding: var(--s2) max(var(--s3), env(safe-area-inset-right, 0px)) max(var(--s3), env(safe-area-inset-bottom, 0px)) max(var(--s3), env(safe-area-inset-left, 0px)); gap: var(--s2) var(--s3);
+    grid-template: "head head" auto "run run" auto "status status" auto "code code" minmax(0, 1fr) "tape io" minmax(0, 1.15fr) / minmax(0, 1.5fr) minmax(0, 1fr); }
+  main.pg.tools-open { grid-template: "head head" auto "run run" auto "status status" auto "code code" minmax(0, 1fr) "tools tools" minmax(0, 1.15fr) / minmax(0, 1.5fr) minmax(0, 1fr); }
+  .pg .pg-views { display: none; }
+  .pgpage .pane.frame, .pgpage .pane.frame:not(.active) { display: flex; }
+  .pgpage .pg-io, .pgpage .pg-io.pane:not(.active) { display: grid; grid-template: minmax(0, max-content) minmax(10rem, 1fr) / minmax(0, 1fr); }
+  .pg-code { grid-area: code; } .pg-tape { grid-area: tape; } .pg-io { grid-area: io; } .pg-tools { grid-area: tools; }
+  .pgpage main.pg:not(.tools-open) .pg-tools, .pgpage main.pg.tools-open .pg-tape, .pgpage main.pg.tools-open .pg-io { display: none; }
+  .pane.frame > .frame-head { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  .pgpage .frame > .frame-body { padding: var(--s3); }
+  /* the head */
+  .pg-head { flex-wrap: nowrap; }
+  .pg-toolsbtn { display: inline-flex; }
+  main.pg .pg-start, main.pg:not(.empty) .pg-start { display: flex; flex: 0 1 auto; flex-wrap: nowrap; }
+  .pg-start .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .pg-conf.custom { flex: 0 1 30rem; flex-wrap: nowrap; margin-left: auto; justify-content: flex-end; text-align: right; }
+  .pg-head:has(.pg-conf:not(.custom)) .pg-toolsbtn { margin-left: auto; }
+  /* the run bar: everything shows */
+  .pg-run { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); }
+  .pg-run > .pg-buttons { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .pg-run > .pg-buttons { gap: var(--s2); }
+  /* the status: the sentence left, the readout right */
+  .pg-status { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: var(--s2) var(--s4); height: 5.5rem; }
+  .pg-app.no-explain .pg-status { grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
+  .pg-buttons > .pg-speed { flex: 0 1 18rem; width: auto; }
+  .pg-map { flex: 1 1 2.5rem; }
+  .pg-map p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pg-state { grid-template-columns: max-content max-content max-content minmax(0, 1fr); }
+  .pg-state > dt, .pg-state > dd { padding-top: var(--s1); padding-bottom: var(--s1); }
+  .pg-state > dd:first-of-type { padding-right: var(--s4); }
+  /* the program */
+  #code-body > .pg-edit-tools { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; gap: var(--s1); }
+  .pg-edit-tools > button, .pg-edit-tools > .chips > button { padding-left: var(--s2); padding-right: var(--s2); }      /* tight, so that the six stay one row in the column of the program */
+  #code-body > .pg-brackets:empty { min-height: 0; margin-top: calc(-1 * var(--s2)); }      /* no keys under it here that could jump */
+  .pg-summary { display: flex; align-items: center; gap: var(--s1) var(--s3); }      /* the numbers and, beside them, the way to the analysis: one row */
+  .pg-summary > button { flex: 0 0 auto; white-space: nowrap; }
+  .pgpage .ed-stack { --gut: 3.4rem; }
+  /* tools */
+  .pg-tabs { flex-wrap: wrap; overflow: visible; }
+  .pg-tabs > [role="tab"] { flex: 1 1 auto; }
+}
+/* ---- ALL from 64em: program | tape | input over output ---- */
+@media (min-width: 64em) and (min-height: 30em) {
+  main.pg { grid-template: "head head head" auto "run run run" auto "status status status" auto "code tape io" minmax(0, 1fr) / minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, .8fr); }
+  main.pg.tools-open { grid-template: "head head head" auto "run run run" auto "status status status" auto "code tools tools" minmax(0, 1fr) / minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, .8fr); }
+  .pg-buttons > button, .pg-fast > button { padding-left: var(--s4); padding-right: var(--s4); }
+  #b-run { min-width: 6.5rem; }
+  .pg-status { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .pg-head h1 { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  .pg-conf:not(.custom) { display: flex; flex: 0 1 auto; flex-wrap: nowrap; margin-left: auto; justify-content: flex-end; text-align: right; }
+  .pg-conf:not(.custom) #conf-text { display: none; }
+  .pg-head:has(.pg-conf:not(.custom)) .pg-toolsbtn { margin-left: 0; }
+}
+@media (min-width: 75em) and (min-height: 30em) {
+  .pg-start .label { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+}
+/* ---- ALL from 105em ---- */
+@media (min-width: 105em) and (min-height: 30em) {
+  main.pg.tools-open { grid-template: "head head head head" auto "run run run run" auto "status status status status" auto "code tape io tools" minmax(0, 1fr) / minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, .8fr) minmax(20rem, 24rem); }
+  #code-body > .pg-edit-tools { gap: var(--s2); }
+  .pg-edit-tools > button, .pg-edit-tools > .chips > button { padding-left: var(--s3); padding-right: var(--s3); }
+  .pg-conf:not(.custom) #conf-text { display: inline; }
+  .pg-conf:not(.custom), .pg-conf.custom { flex: 0 1 40rem; }
+  .pgpage main.pg.tools-open .pg-tape { display: flex; }
+  .pgpage main.pg.tools-open .pg-io { display: grid; }
+}
+
+@media (max-width: 35.99em), (max-height: 19.99em) {
+  html:has(> body.pgpage) { height: auto; }
+  body.pgpage, body.pgpage.kb { height: auto; overflow: visible; }
+  body.pgpage > .foot { display: block; }
+  /* one column and every pane in it, the program first: nothing is behind a switch */
+  main.pg { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--s3); padding-bottom: var(--s5); }
+  .pg .pg-views { display: none; }
+  .pgpage .pane.frame, .pgpage .pane.frame:not(.active) { display: flex; }
+  .pgpage .pane.pg-io, .pgpage .pane.pg-io:not(.active) { display: grid; }
+  .pg-code { order: 1; } .pg-io { order: 2; } .pg-tape { order: 3; } .pg-tools { order: 4; }
+  .pg-outbox { order: -1; }      /* what the program printed comes before the box for its input */
+  .pgpage .pane, .pgpage .pane .frame { scroll-margin-top: 9rem; }      /* a pane you jump to starts under the run bar */
+  .pg-run { position: sticky; top: 0; z-index: 30; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s1); padding: var(--s2) 0; background: var(--bg); border-bottom: var(--edge) solid var(--ink); }
+  .pg-run > .pg-buttons, .pg-run > .pg-fast { display: contents; }
+  .pg-run button:not(.link) { min-width: 0; width: auto; padding-left: 2px; padding-right: 2px; font-size: .8125rem; white-space: nowrap; }
+  .pg-run #b-reset, .pg-run .pg-fast > #b-fast { order: 1; }
+  .pg-run #b-more { display: inline-flex; order: 2; }
+  .pg-run :is(.pg-speed, #b-over, #b-out, #b-cursor) { order: 3; }
+  .pg-run .pg-speed { grid-column: 1 / -1; width: auto; }
+  .pg-run:not(.more-open) :is(.pg-speed, #b-over, #b-out, #b-cursor) { display: none; }
+  .pg-run .pg-fast > :is(#b-fpause, #b-stop) { order: 4; grid-column: span 3; }
+  .pg-run > .pg-peek { order: 5; }
+  .pg-status { height: auto; overflow: visible; }
+  .pg-status #where-toggle { display: inline-flex; justify-self: start; }
+  .pg-status:not(.where-open) .pg-where { display: none; }
+  /* a pane has its name above it again, and the name is a button that folds the pane */
+  .pane.frame > .frame-head, .pgpage .frame > .frame-head { position: static; width: auto; height: auto; overflow: visible; clip-path: none; padding: 0; }
+  .pg-fold { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); box-sizing: border-box; width: 100%; min-height: var(--target); padding: 0 var(--s2); pointer-events: auto; cursor: pointer; }
+  .pg-fold::after { content: "Hide"; font: 400 var(--fs-small)/1 var(--sans); text-decoration: underline; text-transform: none; letter-spacing: 0; }
+  .frame.folded .pg-fold::after { content: "Show"; }
+  .pg-fold:focus-visible { outline: var(--ring) solid var(--accent); outline-offset: -2px; }
+  .pgpage .frame.folded > .frame-body { display: none; }
+  #code-body > .pg-edit-tools, .pg-tabs { flex-wrap: wrap; overflow: visible; }      /* nothing moves sideways here: every button shows */
+  #code-body > .pg-edit-tools { margin: 0; padding: 0; }
+  .pgpage .frame { overflow: visible; }
+  .pgpage .frame > .frame-body, .pgpage .pg-tools [role="tabpanel"], .pgpage .frame.pg-tools > .frame-body { overflow: visible; }
+  .pg-io { grid-template: auto auto / minmax(0, 1fr); }
+  .pgpage #editor { flex: 0 0 auto; }
+  .pgpage .ed-scroll { flex: 0 0 auto; height: 16rem; }
+  .pgpage .ed.plain .ed-ta { height: 16rem; }
+  .pg-outbox > .frame-body > .pg-out { flex: 0 0 auto; max-height: 16rem; }
+  #input { flex: 0 0 auto; }
+}
+
+/* ---- print: the program, the tape as it stands, the output. Not the controls. ---- */
+@media print {
+  html:has(> body.pgpage) { height: auto; }
+  body.pgpage { display: block; height: auto; overflow: visible; }
+  main.pg { display: block; padding: 0; }
+  main.pg > *, .pg-app > * { margin: 0 0 var(--s4); }
+  .pg-run, .pg-views, .pg-tools, .pg-keys, .pg-drop, .pg-start, .pg-toolsbtn, .pg-conf button, .pg-edit-tools, .pg-summary, .pg-map, .pg-in, .pg-tape-tools, .pg-tape-opts, .pg-cell, .pg-out-tools, .tp-over { display: none !important; }
+  .pg-conf, .pg-conf:not(.custom) { display: block; text-align: left; }
+  .pg-conf #conf-text, .pg-conf:not(.custom) #conf-text { display: inline; }
+  .pg-head { display: block; }
+  .pg-head h1, .pane.frame > .frame-head { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  .pg-status { display: block; height: auto; overflow: visible; }
+  .pgpage .pane.frame, .pgpage .pane.frame:not(.active), .pgpage .pg-io, .pgpage .pg-io.pane:not(.active) { display: block; }
+  .pgpage .frame { display: block; overflow: visible; }
+  .pgpage .frame > .frame-body { display: block; overflow: visible; }
+  #code-body, #in-body, .pg-outbox > .frame-body { display: block; }
+  .pgpage #editor { display: block; flex: none; height: auto; min-height: 0; }
+  .ed { background: none; overflow: visible; }
+  .pgpage .ed-scroll { height: auto; overflow: visible; }
+  .ed-stack { min-height: 0; }
+  .pgpage .ed-hl, .pgpage .ed-hl span, .pgpage .ed-line::before { color: var(--ink); }      /* ink on paper: the colours of the dark ground do not read on white */
+  .pgpage .ed-hl .c { color: var(--muted); }
+  .ed-marks, .ed-gutter { display: none; }
+  .pg-out { max-height: none; overflow: visible; }
+}
+
+/* ---- the embed (embed.html) ---- */
+body.bfe-body { margin: 0; background: transparent; }
+main.bfe { --page: none; margin: 0; padding: 2px; }
+.bfe .frame { margin: 0; }
+.bfe .frame-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+.bfe .frame-body > * { margin: 0; }
+.bfe .ed-scroll { height: auto; min-height: 0; max-height: 16rem; resize: none; }
+.bfe .ed-stack { min-height: 0; }
+.bfe .ed-hl { min-height: 2.875rem; }
+.bfe-next { min-height: 3.2em; }
+.bfe .tp-grid { --cw: 4.4; }
+.bfe-row { --btn-min: 4rem; }
+.bfe-io { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--s2) var(--s3); align-items: start; }
+.bfe-io .label { margin-bottom: var(--s1); }
+.bfe-out { min-height: var(--target); max-height: 9rem; }
+.bfe-foot a { display: inline-flex; align-items: center; min-height: var(--target); }
+.bfe-foot:has(a[hidden]) { display: none; }
+.bfe .state.running { --state: var(--c-in); }
+.bfe .state.error { --state: var(--c-out); }

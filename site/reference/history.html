@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, history</title>
+<meta name="description" content="The history of brainfuck from its sources: Urban Müller, the Amiga and Aminet in 1993, the 240-byte compiler, FALSE, the earlier language P′′ of 1964, how it spread, with a timeline and a list of what cannot be verified.">
+<meta property="og:title" content="The history of brainfuck">
+<meta property="og:description" content="The history of brainfuck from its sources: Urban Müller, the Amiga and Aminet in 1993, the 240-byte compiler, FALSE, the earlier language P′′ of 1964, how it spread, with a timeline and a list of what cannot be verified.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>History</span></p>
+    <h1>History</h1>
+    <p class="lead">In 1993 Urban Müller looked after a large archive of Amiga software. Someone uploaded a language called FALSE whose compiler was only 1,024 bytes long. Müller wanted a smaller one, and got it by making the language simpler <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. The package he published in June 1993 holds a compiler of 240 bytes <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. The language turned out to be nearly the same as one that the logician Corrado Böhm had described in 1964 <a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#origin">1993: a compiler of 1,024 bytes, and a smaller one</a></li>
+          <li><a href="#dist">The original package</a></li>
+          <li><a href="#name">The name</a></li>
+          <li><a href="#ancestors">Ancestors</a></li>
+          <li><a href="#spread">How it spread</a></li>
+          <li><a href="#why">Why this one?</a></li>
+          <li><a href="#timeline">Timeline</a></li>
+          <li><a href="#open">What we could not verify</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="origin" aria-labelledby="origin-h">
+    <h2 id="origin-h">1993: a compiler of 1,024 bytes, and a smaller one</h2>
+    <p>The author tells it himself in a talk he gave in 2017&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. In 1993 he was moderating what he calls the largest Amiga software archive. This was Aminet, which he had founded the year before&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. One day someone uploaded a programming language called FALSE. Its compiler was 1,024 bytes long, which he found "ridiculously small".</p>
+    <p>FALSE was the work of Wouter van Oortmerssen, who designed it in 1993 with a compiler of "just 1024 bytes", written in 68000 assembler, the machine language of the Amiga's processor&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>. It is a language with a stack, variables, functions without names, and conditions and loops&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>.</p>
+    <p>His first reaction: "Can we do better?"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> Improving on the size of the compiler for that language would have been hard. He chose another way: "if the program doesn't fit the problem, change the problem"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. He took things out of the language until almost nothing was left. Numbers written out became "add one, many times". Variables with names became cells on a tape. FALSE's loop became a plain "while"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. What remained were eight commands.</p>
+    <aside class="sidenote"><b>A second witness.</b> Van Oortmerssen's page on FALSE links to Müller's talk and says it explains how seeing FALSE led to brainfuck&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</aside>
+  </section>
+
+  <section id="dist" aria-labelledby="dist-h">
+    <h2 id="dist-h">The original package</h2>
+    <p>The package is still where it was put: the file brainfuck-2.lha on Aminet, dated 9 June 1993&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. It is 10 kilobytes and holds eleven files:</p>
+    <dl class="kv">
+      <dt>README</dt><dd>2,863 bytes: the language, the compiler, the interpreter</dd>
+      <dt>bfc</dt><dd>the compiler, 240 bytes</dd>
+      <dt>bfc.asm</dt><dd>its source, in 68000 assembler</dd>
+      <dt>bfi, bfi.c</dt><dd>an interpreter "for debugging" and its source in C, 1,047 bytes of text</dd>
+      <dt>six programs</dt><dd>hello.b, prime.b, atoi.b, div10.b, mul10.b, varia.b</dd>
+    </dl>
+    <p>The "2" in the name is a version number. Under the heading "WHATS NEW" the README says&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>:</p>
+    <figure class="quote" aria-label="Quotation from the README of 1993">
+      <blockquote><p>"Yes, I squeezed another ridiculous 56 bytes out of the compiler. They have their price, though: The new compiler requires OS 2.0, operates on a byte array instead of longwords, and generates executables that are always 64K in size."</p></blockquote>
+      <figcaption>Urban Müller, README of brainfuck-2.lha&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</figcaption>
+    </figure>
+    <p>Three facts follow from this passage.</p>
+    <ul>
+      <li><b>There was an earlier version, of 296 bytes.</b> 240 plus 56 is 296. That is the figure Wikipedia and a recent book give for the first compiler&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. We found no copy of that first version: Aminet lists only this second one and a port to another language uploaded in 2022.</li>
+      <li><b>The first version had cells of 32 bits.</b> A "longword" on the Amiga is 32 bits. The familiar cell of one byte came with the second version, as a way to save space in the compiler.</li>
+      <li><b>The small size had a price.</b> Every compiled program is 65,536 bytes long, whatever it does, and needs version 2.0 of the Amiga's operating system.</li>
+    </ul>
+    <p>The README thanks Chris Schneider "for his ideas how to make the compiler shorter", and the short description on Aminet ends with a question that people have been answering ever since: "Who can program anything useful with it? :)"&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a></p>
+    <dl class="facts">
+      <div><dt>date of the package&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a></dt><dd>9 June 1993</dd></div>
+      <div><dt>bytes in the compiler&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a></dt><dd>240</dd></div>
+      <div><dt>bytes in the first version <span class="ev">worked out</span></dt><dd>296</dd></div>
+      <div><dt>bytes in FALSE's compiler&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a></dt><dd>1,024</dd></div>
+    </dl>
+    <h3>When exactly?</h3>
+    <p>The oldest files in the package, two of the example programs, are dated 21 May 1993, and the package itself 9 June 1993&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. So the language existed in May 1993 at the latest, and the first version came out before 9 June. Wikipedia's summary box gives "September 1993" as the first appearance&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>. The archive does not support that date.</p>
+    <h3>Later sizes</h3>
+    <p>Müller says in his talk that the compiler was "later reduced to 200" bytes&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, and Brian Raiter's page says he got it under 200&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>. We did not find such a version to check.</p>
+  </section>
+
+  <section id="name" aria-labelledby="name-h">
+    <h2 id="name-h">The name</h2>
+    <p>The name came last, when the compiler was done. Müller says he was trying, and failing, to express uselessness and confusion, and that it "turned out to be a better name than I had originally intended"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. He wrote it in lower case throughout the README&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>, and that is still the convention, though the name is now often written with a capital&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. Because of the swear word, many texts write it another way: see <a href="questions.html#name">the questions page</a>.</p>
+  </section>
+
+  <section id="ancestors" aria-labelledby="ancestors-h">
+    <h2 id="ancestors-h">Ancestors</h2>
+    <h3>P′′, 1964</h3>
+    <p>Twenty-nine years earlier the Italian computer scientist Corrado Böhm had described a language he called P′′ ("P double prime"), to study a family of Turing machines&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. It has a tape of cells, one command that moves right, one that adds one to a cell and moves left, and a pair of brackets that repeat a piece of program while the current cell is not zero. Böhm showed that these are enough to compute anything that can be computed&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</p>
+    <p>Brainfuck without its input and output commands is almost the same thing. The Esolang wiki calls brainfuck "a minor variation" of P′′ and notes that Böhm's paper already used six symbols that match <code>+ - &lt; &gt; [ ]</code>&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. Frans Faase, who keeps a set of pages about the language, also points out that the result was known in 1964&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>.</p>
+    <p>Did Müller know P′′? The Esolang wiki says it is not known&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. In his own account he does not mention it: he describes getting there by cutting down FALSE&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. That is all we can say.</p>
+    <aside class="sidenote"><b>The structured program theorem.</b> In 1966 Böhm and Giuseppe Jacopini published the result that made the idea famous: sequence, choice and repetition are enough to write any program, with no jumps&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. Brainfuck is a small living proof.</aside>
+    <h3>The Turing machine, 1936</h3>
+    <p>Both languages descend from the machine that Alan Turing described in 1936 to define what "computing" means: a tape, a head that reads and writes one square, and a table of rules&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. Brainfuck's tape and pointer are that tape and that head. The page on <a href="theory.html">theory</a> explains the connection.</p>
+    <h3>Strange languages before 1993</h3>
+    <p>Languages made as a joke or an experiment were not new. The earliest known one made deliberately so is INTERCAL, designed in 1972 by Donald Woods and James Lyon&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>. But 1993 was a remarkable year: FALSE, brainfuck and Befunge all appeared. Befunge, by Chris Pressey, lays its program out on a grid and was made to be as hard to compile as possible&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>, the opposite of Müller's aim.</p>
+  </section>
+
+  <section id="spread" aria-labelledby="spread-h">
+    <h2 id="spread-h">How it spread</h2>
+    <p>The language left the Amiga within a few years. A program that reads eight symbols is quick to write on any machine, and the package held an interpreter in portable C that anyone could compile&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. What follows is what we can date.</p>
+    <ul>
+      <li><b>Small implementations.</b> In 1999 Brian Raiter published a compiler for Linux of 166 bytes&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>, and the Hugi size-coding competition asked for the smallest interpreter; the winning program for DOS had 98 bytes&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a>.</li>
+      <li><b>Personal pages.</b> Raiter, Frans Faase and Daniel Cristofani each kept pages with descriptions, programs and proofs&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>&nbsp;<a class="cite" href="#ref-18" aria-label="Source 18">[18]</a>. Cristofani's became brainfuck.org.</li>
+      <li><b>An archive.</b> Jeff Johnston collected programs and tools in the Brainfuck Archive, later kept by Panu Kalliokoski; most of its files date from 2002 to 2005&nbsp;<a class="cite" href="#ref-19" aria-label="Source 19">[19]</a>.</li>
+      <li><b>A community.</b> A chat channel for esoteric languages has existed since December 2002&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>. The Esolang wiki became the place where conventions and results are written down&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>.</li>
+      <li><b>Ambitious programs.</b> In 2003 came Erik Bosman's Mandelbrot viewer&nbsp;<a class="cite" href="#ref-21" aria-label="Source 21">[21]</a>, a compiler from BASIC&nbsp;<a class="cite" href="#ref-22" aria-label="Source 22">[22]</a> and a paper on a very short interpreter written in brainfuck itself&nbsp;<a class="cite" href="#ref-23" aria-label="Source 23">[23]</a>. In 2005 Jon Ripley published a text adventure of two megabytes&nbsp;<a class="cite" href="#ref-24" aria-label="Source 24">[24]</a>.</li>
+      <li><b>Outside notice.</b> In 2005 a paper on the aesthetics of code called brainfuck "an archetypically minimalist language"&nbsp;<a class="cite" href="#ref-25" aria-label="Source 25">[25]</a>. In 2022 a book on unusual languages gave it a chapter&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. In 2024 a research group used a variant of it to study how self-copying programs can arise from random ones&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</li>
+    </ul>
+  </section>
+
+  <section id="why" aria-labelledby="why-h">
+    <h2 id="why-h">Why this one?</h2>
+    <p>The Esolang wiki says that the most popular esoteric languages are "probably Brainfuck and Befunge", and that many newer ones are heavily influenced by the two&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>. Its author found 700,000 pages on Google that mention it in 2017 and was surprised: he had "semi-expected" that people would write compilers and interpreters, "because it's very easy", but not the rest&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Nobody has measured why. These reasons seem likely to us; they are an interpretation, not a finding.</p>
+    <ul>
+      <li><b>You can hold all of it in your head.</b> Eight commands, one table. You know the language after five minutes.</li>
+      <li><b>You can implement it in an evening.</b> The original interpreter is about a thousand characters of C&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. So it became a standard first exercise, and a standard test for comparing languages&nbsp;<a class="cite" href="#ref-27" aria-label="Source 27">[27]</a> and for teaching how interpreters and compilers work&nbsp;<a class="cite" href="#ref-28" aria-label="Source 28">[28]</a>.</li>
+      <li><b>It is a real language.</b> Anything computable can be written in it (see <a href="theory.html">Theory</a>). That turns every program into a puzzle with a guaranteed solution.</li>
+      <li><b>The name is hard to forget.</b></li>
+      <li><b>It is easy to vary.</b> Change the symbols or add a command and you have a new language. Many people did (see <a href="relatives.html">Relatives</a>).</li>
+    </ul>
+  </section>
+
+  <section id="timeline" aria-labelledby="timeline-h">
+    <h2 id="timeline-h">Timeline</h2>
+    <p>Dated events in the story of brainfuck, each with its source:</p>
+    <ol class="timeline years" id="fig-time">
+        <li><b><time>1936</time> The Turing machine</b><span>Alan Turing defines computing with a tape and a head&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>.</span></li>
+        <li><b><time>1964</time> P′′</b><span>Corrado Böhm describes a language of four instructions on a tape and shows it can compute anything computable&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</span></li>
+        <li><b><time>1972</time> INTERCAL</b><span>The earliest known deliberately esoteric language&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</span></li>
+        <li><b><time>1982</time> "Turing tar-pit"</b><span>Alan Perlis warns of systems "in which everything is possible but nothing of interest is easy"&nbsp;<a class="cite" href="#ref-29" aria-label="Source 29">[29]</a>.</span></li>
+        <li><b><time>1992</time> Aminet</b><span>Urban Müller founds the archive of Amiga software&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</span></li>
+        <li><b><time>1993</time> FALSE</b><span>Wouter van Oortmerssen's language with a compiler of 1,024 bytes&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</span></li>
+        <li class="key"><b><time>1993</time> brainfuck</b><span>Example programs dated 21 May; the second version of the package, with a compiler of 240 bytes, dated 9 June&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</span></li>
+        <li><b><time>1993</time> Befunge</b><span>Chris Pressey's language on a grid&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>.</span></li>
+        <li><b><time>1999</time> Smaller and smaller</b><span>A Linux compiler of 166 bytes&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>; a DOS interpreter of 98 bytes&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>.</span></li>
+        <li><b><time>2001</time> Ook!</b><span>David Morgan-Mar's version in the words of an orang-utan, an early renaming of the commands&nbsp;<a class="cite" href="#ref-30" aria-label="Source 30">[30]</a>.</span></li>
+        <li><b><time>2002</time> A meeting place</b><span>The chat channel for esoteric languages starts on 9 December&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>.</span></li>
+        <li><b><time>2003</time> Mandelbrot, BFBASIC, a self-interpreter on arXiv</b><span>Erik Bosman's fractal viewer (June)&nbsp;<a class="cite" href="#ref-21" aria-label="Source 21">[21]</a>; Jeffry Johnston's compiler from BASIC (March)&nbsp;<a class="cite" href="#ref-22" aria-label="Source 22">[22]</a>; Mazonka and Cristofani's paper (November)&nbsp;<a class="cite" href="#ref-23" aria-label="Source 23">[23]</a>.</span></li>
+        <li><b><time>2005</time> Lost Kingdom</b><span>Jon Ripley's text adventure, 2.08 megabytes of brainfuck&nbsp;<a class="cite" href="#ref-24" aria-label="Source 24">[24]</a>.</span></li>
+        <li><b><time>2005</time> "A Box, Darkly"</b><span>Mateas and Montfort write about brainfuck as minimalism&nbsp;<a class="cite" href="#ref-25" aria-label="Source 25">[25]</a>.</span></li>
+        <li><b><time>2015</time> Optimisation written up</b><span>Mats Linander measures the standard techniques one by one&nbsp;<a class="cite" href="#ref-31" aria-label="Source 31">[31]</a>.</span></li>
+        <li><b><time>2017</time> The author looks back</b><span>Müller's talk at Tamedia TX&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</span></li>
+        <li><b><time>2018</time> Hello, World! in 72</b><span>KSab finds the shortest known program by exhaustive search&nbsp;<a class="cite" href="#ref-32" aria-label="Source 32">[32]</a>.</span></li>
+        <li><b><time>2024</time> Computational Life</b><span>A variant of brainfuck as the world of an experiment on self-copying programs&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</span></li>
+      </ol>
+    <p>Three languages appeared in 1993: FALSE, brainfuck and Befunge.</p>
+  </section>
+
+  <section id="open" aria-labelledby="open-h">
+    <h2 id="open-h">What we could not verify</h2>
+    <ul>
+      <li><b>The first version.</b> We know it existed and that its compiler was 56 bytes larger, from the README of the second&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. We did not find the file or its date.</li>
+      <li><b>The day the language was made.</b> The oldest dated file is from 21 May 1993. Anything more exact is a guess.</li>
+      <li><b>"September 1993".</b> Wikipedia's date for the first appearance&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a> is later than the package on Aminet. We could not find where it comes from.</li>
+      <li><b>A compiler under 200 bytes.</b> Stated by Müller and by Raiter&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>; we did not find the program.</li>
+      <li><b>Whether Müller knew Böhm's P′′.</b> Unknown&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. His own account does not mention it&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</li>
+      <li><b>The talk itself.</b> We read a community transcript, which says its last page is missing&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. We did not watch the recording.</li>
+      <li><b>Böhm's paper of 1964.</b> We rely on descriptions of it&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a> and did not read the paper.</li>
+      <li><b>Why it became the best known.</b> The reasons given under <a href="#why">&ldquo;Why this one?&rdquo;</a> are our interpretation.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="relatives.html"><b>Relatives and derivatives</b><span>The languages that came before and the many that came after.</span></a></li>
+      <li><a href="culture.html"><b>Culture</b><span>Why people still write it, and where they meet.</span></a></li>
+      <li><a href="programs.html"><b>Notable programs and feats</b><span>What people have made with eight commands.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Wikipedia, "P′′"</b>: <a href="https://en.wikipedia.org/wiki/P%E2%80%B2%E2%80%B2">the Wikipedia article on P′′</a>. Our source for Corrado Böhm, "On a family of Turing machines and the related programming language", <i>ICC Bulletin</i> 3 (1964), 185 to 194, and for C. Böhm and G. Jacopini, "Flow Diagrams, Turing Machines and Languages with Only Two Formation Rules", <i>Communications of the ACM</i> 9(5) (1966), 366 to 371. We did not open the two papers themselves. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Esolang wiki, "Urban Müller"</b>: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller">the wiki page on the author</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Wouter van Oortmerssen, "The FALSE Programming Language"</b>: <a href="https://strlen.com/false-language/">the author's page on FALSE</a>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Esolang wiki, "FALSE"</b>: <a href="https://esolangs.org/wiki/FALSE">the wiki article on FALSE</a>. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Wikipedia, "Brainfuck"</b>: <a href="https://en.wikipedia.org/wiki/Brainfuck">the Wikipedia article</a>. Used for orientation and for its list of references, not as evidence. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Ronald T. Kneusel, <i>Strange Code</i></b>, No Starch Press, 2022, chapter 10, read as the publisher's sample: <a href="https://nostarch.com/download/samples/StrangeCode_Chapter10.pdf">chapter 10 on nostarch.com (PDF)</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Brian Raiter, "Brainfuck: An Eight-Instruction Turing-Complete Programming Language"</b>: <a href="https://muppetlabs.com/~breadbox/bf/">the brainfuck page on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>Frans Faase, "Brainf***"</b>: <a href="https://www.iwriteiam.nl/Ha_BF.html">the brainfuck pages on iwriteiam.nl</a>. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>Wikipedia, "Halting problem"</b>: <a href="https://en.wikipedia.org/wiki/Halting_problem">the Wikipedia article on the halting problem</a>. Our source for the statement of Turing's result (A. M. Turing, "On Computable Numbers, with an Application to the Entscheidungsproblem", <i>Proceedings of the London Mathematical Society</i>, 1936 to 1937), which we did not open. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>Esolang wiki, "Esoteric programming language"</b>: <a href="https://esolangs.org/wiki/Esoteric_programming_language">the wiki article on esoteric languages</a>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>Esolang wiki, "Befunge"</b>: <a href="https://esolangs.org/wiki/Befunge">the wiki article on Befunge</a>. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>Brian Raiter, <i>bf.asm</i></b>, copyright 1999: <a href="https://www.muppetlabs.com/~breadbox/software/tiny/bf.asm.txt">the assembly source on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Hugi Size Coding Competition</b>, list of past competitions: <a href="https://www.hugi.scene.org/compo/compoold.htm">the competition archive on hugi.scene.org</a>. Competition 6 (1999) asked for a brainfuck interpreter. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>Esolang wiki, "Brainfuck implementations"</b>: <a href="https://esolangs.org/wiki/Brainfuck_implementations">the wiki's list of implementations</a>. Opened 11 October 2026.</li>
+      <li id="ref-18"><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0. Opened 11 October 2026.</li>
+      <li id="ref-19"><b>The Brainfuck Archive</b>, maintained by Panu Kalliokoski, first collected by Jeff Johnston: <a href="https://esoteric.sange.fi/brainfuck/">the archive at esoteric.sange.fi</a> and its <code>README.txt</code>. Opened 11 October 2026.</li>
+      <li id="ref-20"><b>Esolang wiki, "Community portal"</b>: <a href="https://esolangs.org/wiki/Esolang:Community_portal">the wiki's community portal</a>. Opened 11 October 2026.</li>
+      <li id="ref-21"><b>Erik Bosman, Mandelbrot set viewer</b>, files dated 1 June 2003, in the Brainfuck Archive: <a href="http://esoteric.sange.fi/brainfuck/utils/mandelbrot/">the mandelbrot directory</a> with its <code>README.txt</code>. Opened 11 October 2026.</li>
+      <li id="ref-22"><b>Esolang wiki, "BFBASIC"</b>: <a href="https://esolangs.org/wiki/BFBASIC">the wiki article on BFBASIC</a>. Opened 11 October 2026.</li>
+      <li id="ref-23"><b>Oleg Mazonka and Daniel B. Cristofani, "A Very Short Self-Interpreter"</b>, arXiv:cs/0311032, 21 November 2003: <a href="https://arxiv.org/abs/cs/0311032">the abstract on arXiv</a>. We read the abstract only. Opened 11 October 2026.</li>
+      <li id="ref-24"><b>Jon Ripley, "The Lost Kingdom Brainfuck Edition"</b>, 2004 to 2005: <a href="http://jonripley.com/i-fiction/games/LostKingdomBF.html">the game's page on jonripley.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-25"><b>Michael Mateas and Nick Montfort, "A Box, Darkly: Obfuscation, Weird Languages, and Code Aesthetics"</b>, <i>Proceedings of the 6th Digital Arts and Culture Conference</i>, IT University of Copenhagen, 1 to 3 December 2005, pages 144 to 153: <a href="https://nickm.com/cis/a_box_darkly.pdf">the paper on nickm.com (PDF)</a>. Opened 11 October 2026.</li>
+      <li id="ref-26"><b>Blaise Agüera y Arcas and others, "Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction"</b>, arXiv:2406.19108, 2024: <a href="https://arxiv.org/abs/2406.19108">the abstract on arXiv</a> and <a href="https://arxiv.org/html/2406.19108v2">the full text</a>. Opened 11 October 2026.</li>
+      <li id="ref-27"><b>kostya, <i>benchmarks</i></b>: <a href="https://github.com/kostya/benchmarks">kostya/benchmarks on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-28"><b>Eli Bendersky, "Adventures in JIT compilation: Part 1, an interpreter"</b>, 20 March 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-1-an-interpreter/">part 1 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-29"><b>Alan J. Perlis, "Epigrams on Programming"</b>, <i>ACM SIGPLAN Notices</i> 17(9), September 1982, read in the copy at Yale: <a href="https://www.cs.yale.edu/homes/perlis-alan/quotes.html">the epigrams at cs.yale.edu</a>. Opened 11 October 2026.</li>
+      <li id="ref-30"><b>Esolang wiki, "Ook!"</b>: <a href="https://esolangs.org/wiki/Ook!">the wiki article on Ook!</a>. Opened 11 October 2026.</li>
+      <li id="ref-31"><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-32"><b>Code Golf Stack Exchange, answers to the "Hello, World!" challenge</b>: <a href="https://codegolf.stackexchange.com/a/163590">the answer by KSab</a> (27 April 2018, 72 bytes) and <a href="https://codegolf.stackexchange.com/a/68494">the answer by primo</a> (3 January 2016, 78 bytes). Read through the Stack Exchange API. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html" aria-current="page"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>4</b> of 13</p>
+    <a class="prev" href="portability.html" rel="prev"><span>Previous</span>Differences</a>
+    <a class="next" href="theory.html" rel="next"><span>Next</span>Theory</a>
+  </nav>
+</main>
+</body>
+</html>

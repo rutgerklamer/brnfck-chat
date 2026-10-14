@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: What costs what</title>
+<meta name="description" content="Why some things are cheap and expensive in brainfuck: the only test is &quot;is this cell zero?&quot;. What an optimising interpreter folds and what it cannot, with live counters.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-cost" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><span>What costs what</span></p>
+    <h1>What costs what</h1>
+    <p class="lead">Why some things are nearly free in brainfuck and others take millions of steps.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#one-question">One question</a></li>
+          <li><a href="#folding">What folds</a></li>
+          <li><a href="#measure">Cheap and expensive</a></li>
+          <li><a href="#not-folded">What cannot be folded</a></li>
+          <li><a href="#bits">Bits, not units</a></li>
+          <li><a href="#length">Length</a></li>
+          <li><a href="#rules">Rules of thumb</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="one-question" aria-labelledby="one-question-h">
+    <h2 id="one-question-h">One question</h2>
+    <p>The program below empties a cell that holds 5. Press <em>Play</em> and count how often it asks “is this cell zero?”. Then open <em>More controls</em>, choose “flat loops as one step”, and count again:</p>
+
+    <figure class="fig col" id="fig-one-question" data-p="clear" data-v="minus" aria-label="The program that empties a cell, run one command at a time">
+      <p class="measured">The figure needs JavaScript.</p>
+    </figure>
+
+    <p>Brainfuck has one way to look at a cell: a bracket asks “is this cell zero?”. It cannot ask “is it 5?” or “is it more than that one?”. So a program finds out how large a number is by counting it down to zero, and that takes time for every unit. Emptying a cell that holds 200 is 401 commands.</p>
+    <p class="next-q">An interpreter that is allowed to look at the whole program first can skip some of that counting. Which loops can it skip?</p>
+  </section>
+
+  <section id="folding" aria-labelledby="folding-h">
+    <h2 id="folding-h">What an optimising interpreter folds</h2>
+    <p>Type a piece of brainfuck below and see what an optimising interpreter makes of it. The list has one line for each step it takes. Try <code class="bf">[-&gt;+&lt;]</code>, then <code class="bf">[-&gt;+&lt;.]</code>, then <code class="bf">[&gt;]</code>, then <code class="bf">[+]</code>:</p>
+
+    <figure class="fig col" id="f-flat" aria-label="How the optimising interpreter reads a piece of program">
+      <div data-cost="flat">
+        <label class="stacked" for="flat-in">A piece of brainfuck
+        <input id="flat-in" type="text" value="[-&gt;+++&lt;]&gt;[-&lt;+&gt;]&lt;" spellcheck="false" autocomplete="off" autocapitalize="off"></label>
+        <div id="flat-out" role="status"><p class="measured">This figure needs JavaScript.</p></div>
+      </div>
+    </figure>
+
+    <p>A fast interpreter reads the program first and replaces three things by one step each:</p>
+    <ul>
+      <li>A run of the same command. <code class="bf">+++++</code> is “add 5”.</li>
+      <li>A move followed by something. <code class="bf">&gt;&gt;&gt;+</code> is “add 1 three cells to the right”.</li>
+      <li>A <b>flat loop</b>: a loop that only adds and moves, comes back to where it started, and takes exactly 1 off its own cell each round. <code class="bf">[-&gt;+++&lt;]</code> is “add 3 times this cell to the next one, and empty this cell”. One multiplication.</li>
+    </ul>
+    <p>That is all. A flat loop costs one step whether its cell holds 2 or 2 billion. Every other loop still goes round, once per unit.</p>
+    <p>Look at <code class="bf">[+]</code> in the list. It empties a wrapping cell just as <code class="bf">[-]</code> does, but this interpreter does not fold it: its rule asks for “takes 1 off”. Other interpreters know other tricks. A pattern that needs a certain trick to be fast says so on its page.</p>
+    <p class="next-q">Which of the patterns are flat, and which are not?</p>
+  </section>
+
+  <section id="measure" aria-labelledby="measure-h">
+    <h2 id="measure-h">Cheap and expensive, measured</h2>
+    <p>Eight patterns run below on 8-bit cells, for the x and y you choose. The ink bar counts plain steps and the hatched bar counts optimised steps; each row has its own scale. Move the sliders and watch which hatched bars stay still and which grow:</p>
+
+    <figure class="fig col" id="f-table" aria-label="Steps for eight patterns, for the x and y you choose">
+      <div data-cost="table">
+        <div class="ctl vals" id="ct-ctl"></div>
+        <div id="ct-out" role="status"><p class="measured">This figure needs JavaScript.</p></div>
+      </div>
+      <p class="measured">Run in your browser, on 8-bit cells. <span class="ev">measured</span></p>
+    </figure>
+
+    <p>The first four rows are flat loops. Their optimised cost does not move. The last four hold a loop inside a loop, or a decision inside a loop. No interpreter can fold those without understanding what the program means, so their cost grows with the numbers.</p>
+  </section>
+
+  <section id="not-folded" aria-labelledby="not-folded-h">
+    <h2 id="not-folded-h">What cannot be folded</h2>
+    <ul>
+      <li><b>A loop with a loop inside.</b> <a href="mul-cells.html">Multiplying two cells</a> is “add y, x times”. The inner loop is one step; the outer one goes round x times.</li>
+      <li><b>A loop with a decision inside.</b> <a href="compare-less.html">Less than</a>, <a href="satsub.html">saturating subtract</a> and <a href="divmod.html">divide, with remainder</a> look at a cell every round.</li>
+      <li><b>A loop that does not come back.</b> A scan (<a href="scan.html">find a zero cell or a marker</a>) such as <code class="bf">[&gt;]</code> ends on another cell than it started on. It costs one step per cell it passes.</li>
+      <li><b>A loop that reads or prints.</b> The outside world wants every letter one at a time.</li>
+    </ul>
+    <p>All of these count in units: one round for every 1 in the number. That is fine for a letter code. It is hopeless for the sums of a chat model, which run into millions.</p>
+    <p class="next-q">Is there a way to count something smaller than units?</p>
+  </section>
+
+  <section id="bits" aria-labelledby="bits-h">
+    <h2 id="bits-h">The way out: count bits, not units</h2>
+    <p>Below, X is divided by 128 and rounded in two ways on 32-bit cells: by counting down in units, and by the pattern <a href="shift-round-clamp.html">shift, round and clamp</a>. Both are run in your browser. Drag X and compare the two bars, then make X ten times larger:</p>
+
+    <figure class="fig col" id="f-bits" aria-label="X divided by 128 by counting and by peeling bits, in optimised steps">
+      <div data-cost="bits">
+        <div class="ctl vals" id="cb-ctl"></div>
+        <div id="cb-out" role="status"><p class="measured">This figure needs JavaScript and the files emit.js and patterns.js.</p></div>
+      </div>
+      <p class="measured">Optimised steps, run in your browser. <span class="ev">measured</span></p>
+    </figure>
+
+    <p>A number below a million has a million units but only 20 bits. A program that can read a number bit by bit needs 20 rounds instead of a million.</p>
+    <p>On cells that wrap at a known width it can. Multiplying by 2 is a flat loop, and it pushes the top bit out of the cell. That turns “is this bit set?” into “is this cell zero?”: the <a href="bit-peel.html">bit peel</a>.</p>
+    <p>This one idea carries the chat models of this site. Their division, their multiplication of two numbers from the tape and their table lookups are all “peel some bits, and do something for each set bit”: see the group <a href="./#advanced">Advanced: wrapping cells of a known width</a> on the front page of the patterns, and <a href="../how/">How it works</a>.</p>
+    <p>It has a price. The program text is made for one cell width and is wrong on any other. And it is only fast on an interpreter that folds flat loops: counted in plain steps the shifts are long loops.</p>
+  </section>
+
+  <section id="length" aria-labelledby="length-h">
+    <h2 id="length-h">Length is a cost too</h2>
+    <p>A brainfuck program is a text. Every constant in it is written out, and a long text takes long to load and to read in. Several patterns exist only to make the text shorter. The table gives the length of the same result written two ways, for four jobs:</p>
+    <div class="scroll" tabindex="0" role="region" aria-label="Lengths of program texts"><table id="t-length">
+      <caption><b>Table 1.</b> The same result, two texts. Lengths in characters, measured when this page was written.</caption>
+      <thead><tr><th>What</th><th>Long form</th><th class="n">Characters</th><th>Short form</th><th class="n">Characters</th></tr></thead>
+      <tbody><tr><td>The number 200</td><td>one plus per unit</td><td class="n">200</td><td>a product and a rest</td><td class="n">37</td></tr>
+<tr><td>“Hello, World!”</td><td>every letter from zero</td><td class="n">1,181</td><td>a few seeded cells</td><td class="n">126</td></tr>
+<tr><td>Twelve numbers of 262</td><td>one plus per unit</td><td class="n">3,156</td><td>as digits</td><td class="n">255</td></tr>
+<tr><td>One job in 64 frames</td><td>written out 64 times</td><td class="n">1,473</td><td>one copy, walked</td><td class="n">610</td></tr></tbody></table></div>
+    <p>The four rows are these patterns: <a href="constant.html">set a constant</a>, <a href="print-string.html">print a constant string</a>, <a href="digit-planes.html">write many numbers compactly as digits</a> and <a href="frames.html">one copy of code over many frames</a>.</p>
+  </section>
+
+  <section id="rules" aria-labelledby="rules-h">
+    <h2 id="rules-h">Rules of thumb</h2>
+    <ul>
+      <li>Moving, copying, adding, subtracting and multiplying by a constant are flat. Use them freely.</li>
+      <li>Anything that must look at a value on the way (compare, divide, stop at zero) costs a round per unit. Keep those numbers small, or put the smaller number in the loop.</li>
+      <li>A walk costs a step per cell. Keep things that work together next to each other.</li>
+      <li>When the numbers get large and the cells wrap at a known width, switch from units to bits.</li>
+      <li>Say what you count. “Fast” on an optimising interpreter and “fast” in plain steps are different claims.</li>
+    </ul>
+  </section>
+
+  <nav class="lesson end" aria-label="Pages of the code patterns">
+    <p class="course">Code patterns</p>
+    <p class="count">What costs what</p>
+    <a class="prev" href="./" rel="prev"><span>Back to</span>All patterns</a>
+    <a class="next" href="bit-peel.html" rel="next"><span>Next</span>The bit peel</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

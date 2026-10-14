@@ -1,0 +1,56 @@
+/* The layout of what the Challenges have of their own. */
+
+/* ---- the row of command keys ---- */
+.study .keyrow { margin: var(--s2) 0 var(--s3); max-width: 32rem; }
+.study .keyrow .keypad { margin-bottom: var(--s2); }
+.study .keyrow .row { margin: 0; }
+
+/* ---- choices and fields ---- */
+.study .picklist + .verdict { margin-top: var(--s3); }
+.study .ask { align-items: flex-end; margin: var(--s2) 0; }
+.study .ask input[type="number"] { width: 7rem; }
+.study .ask input[type="text"] { width: 14rem; max-width: 100%; }
+.study .ask select, .study .ask textarea { max-width: 100%; }
+
+/* ---- the list of challenges ---- */
+.study ol.toc.clist { columns: 1; margin-top: 0; max-width: none; }
+.study ol.toc.clist a { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) auto; column-gap: var(--s3); align-items: center; }
+.study ol.toc.clist a::before { grid-row: 1 / span 2; }
+.study ol.toc.clist .st { grid-column: 2 / -1; }
+.study #tally { max-width: none; }
+.study #projcards { --tile-min: 16rem; }
+.study .filebar input[type="file"] { max-width: 100%; min-height: var(--target); }
+/* the last box of the flow figure holds two outcomes, one above the other */
+.study ol.flow .fl-out { display: flex; flex-direction: column; gap: 2px; }
+.study ol.flow .fl-out + .fl-out { margin-top: var(--s2); padding-top: var(--s2); border-top: var(--edge) dashed var(--rule); }
+
+/* ---- one challenge ---- */
+.study .statement { margin: var(--s4) 0 var(--s5); max-width: 44rem; }
+.study dl.settings, .study table.io, .study .summary, .study .hintlist, .study .checklist, .study .casedetail .why { max-width: 44rem; }
+.study .io code, .study code.io { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all; }
+/* a character you cannot see, made visible (common.js) */
+.study .inv { background: var(--sunk); padding: 0 2px; margin: 0 1px; font-weight: 600; }
+.study textarea.code { min-height: 9rem; tab-size: 2; max-width: none; }
+.study .count { margin: var(--s1) 0 var(--s3); }
+/* the test cases: a row of the shared .chips, a mark over the number of the case */
+.study .caseblocks > button { flex-direction: column; gap: 2px; min-width: 3.25rem; min-height: 3.25rem; padding-left: var(--s1); padding-right: var(--s1); }
+.study .casedetail { margin: var(--s3) 0 var(--s5); }
+.study .casedetail h3 { margin-top: 0; }
+.study .sidebyside { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); margin: var(--s3) 0; }
+.study .sidebyside > .card { min-width: 0; }
+.study .sidebyside .val { display: block; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-all; max-height: 12rem; overflow-y: auto; }
+.study .hintlist .callout { margin: 0 0 var(--s2); }
+.study pre.solution { white-space: pre; }
+.study .lesson-links a { display: inline-flex; align-items: center; min-height: var(--target); padding: 0 2px; }
+@media (max-width: 38.75em) { .study .sidebyside { grid-template-columns: 1fr; } }
+@media (max-width: 30em) {
+  .study ol.toc.clist a { grid-template-columns: 2.2em minmax(0, 1fr); }
+  .study ol.toc.clist .lv { grid-column: 2; }
+  .study dl.settings { grid-template-columns: 1fr; }
+  .study dl.settings dt { border-bottom: 0; padding-bottom: 0; }
+  .study dl.settings dd { text-align: left; }
+}
+@media print {
+  .study .keyrow, .study .filebar, .study .caseblocks { display: none !important; }
+  .study figure.flowfig { break-inside: avoid; }
+}

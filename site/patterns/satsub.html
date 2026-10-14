@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Saturating subtract</title>
+<meta name="description" content="Subtracts, but stops at zero instead of wrapping round. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#arithmetic">Arithmetic</a><span>Saturating subtract</span></p>
+    <h1>Saturating subtract</h1>
+    <p class="lead">Subtracts, but stops at zero instead of wrapping round.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>21</b> of 38</p>
+    <a class="prev" href="powers-of-two.html" rel="prev"><span>Previous</span>Powers of two, and powers</a>
+    <a class="next" href="records.html" rel="next"><span>Next</span>Walk an array of records</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Two cells” works on 4 cells, named “x”, “y”, “flag” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+
+    <figure class="fig col" id="fig-satsub-cells" data-p="satsub" data-v="cells" aria-label="The form Two cells of saturating subtract, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>A plain subtraction cannot stop at zero, because nothing in a flat loop looks at the cell. So we take single steps and look each time.</p>
+    <p>Each round takes 1 from the amount to subtract. Then an <a href="if-else.html">if and else</a>: if the value still has something, take 1 from it; if it is empty already, clear what is left of the amount.</p>
+    <p>The cost is one round per unit actually subtracted. That is the price of every "do not go below zero" by counting.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-satsub-cells">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;+&lt;[-&gt;-]&gt;[&lt;&lt;[-]&gt;&gt;-&gt;]&lt;&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%2B%3C%5B-%3E-%5D%3E%5B%3C%3C%5B-%5D%3E%3E-%3E%5D%3C%3C%3C%5D&amp;names=0:x,1:y,2:flag,3:zero">Open in the playground</a><span class="count" data-len>27 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Two zero cells to the right of the value. The amount is used up.</li>
+      <li>Any cell size, wrapping or not. The numbers are unsigned.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Looping on the value instead of on the amount: then the loop ends too early when the value is smaller.</li>
+      <li>Using this on large numbers. With wrapping cells of a known width, the clamp by bits (see <a href="shift-round-clamp.html">shift, round and clamp</a>) costs the same for every number.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-satsub-cells-cost" data-p="satsub" data-v="cells" data-cost-fig aria-label="Steps taken by the form Two cells, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Two cells</td><td>about 16 per unit taken off</td><td>about 8 per unit taken off</td></tr>
+<tr><td>By a constant</td><td>about 17 per unit of the amount</td><td>about 8 per unit of the amount</td></tr>
+<tr><td>The project form</td><td>grows with n × value</td><td>about 8 per unit of n</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Two cells</td><td>x = 5; y = 3</td><td class="n">8</td><td class="n">27</td><td class="n">71</td><td class="n">33</td></tr>
+<tr><td>Two cells</td><td>x = 3; y = 5</td><td class="n">8</td><td class="n">27</td><td class="n">49</td><td class="n">25</td></tr>
+<tr><td>Two cells</td><td>x = 100; y = 250</td><td class="n">8</td><td class="n">27</td><td class="n">1,601</td><td class="n">801</td></tr>
+<tr><td>By a constant</td><td>amount n = 4; value = 3</td><td class="n">8</td><td class="n">31</td><td class="n">73</td><td class="n">34</td></tr>
+<tr><td>The project form</td><td>amount n = 4; value = 3</td><td class="n">8</td><td class="n">45</td><td class="n">197</td><td class="n">31</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-const" aria-labelledby="v-const-h">
+      <h3 id="v-const-h">By a constant</h3>
+      <p>The amount is written into the program, in cell 0. The value is in cell 1.</p>
+      <div class="code" data-fig="fig-satsub-const">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">++++[-&gt;&gt;+&lt;[-&gt;-]&gt;[&lt;&lt;[-]&gt;&gt;-&gt;]&lt;&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%2B%2B%2B%2B%5B-%3E%3E%2B%3C%5B-%3E-%5D%3E%5B%3C%3C%5B-%5D%3E%3E-%3E%5D%3C%3C%3C%5D&amp;names=0:amount,1:value,2:flag,3:zero">Open in the playground</a><span class="count" data-len>31 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-const"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “By a constant” works on 4 cells, named “amount”, “value”, “flag” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or change amount n and value with the sliders:</p>
+        <figure class="fig col" id="fig-satsub-const" data-p="satsub" data-v="const" aria-label="The form By a constant of saturating subtract, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-project" aria-labelledby="v-project-h">
+      <h3 id="v-project-h">The project form</h3>
+      <p>Tests a copy of the value each round, so the cells may lie anywhere. Layout: value, counter, two scratch cells.</p>
+      <div class="code" data-fig="fig-satsub-project">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;++++[-&lt;[-&gt;&gt;+&gt;+&lt;&lt;&lt;]&gt;&gt;&gt;[-&lt;&lt;&lt;+&gt;&gt;&gt;]&lt;[&lt;&lt;-&gt;&gt;[-]]&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%2B%2B%2B%5B-%3C%5B-%3E%3E%2B%3E%2B%3C%3C%3C%5D%3E%3E%3E%5B-%3C%3C%3C%2B%3E%3E%3E%5D%3C%5B%3C%3C-%3E%3E%5B-%5D%5D%3C%5D&amp;names=0:value,1:counter,2:scratch,3:scratch">Open in the playground</a><span class="count" data-len>45 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-project"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The project form” works on 4 cells; the named ones are “value”, “counter” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change amount n and value with the sliders:</p>
+        <figure class="fig col" id="fig-satsub-project" data-p="satsub" data-v="project" aria-label="The form The project form of saturating subtract, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="compare-less.html">Less than</a>: "is something left?".</li>
+      <li>In the project: <code>satSub</code> in emit.js.</li>
+      <li><a href="../learn/04-zero.html">Build toward a chatbot, lesson 4, "Only one question"</a>, is about this one question and what follows from it.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: satSub; the two-cell loop here is our own.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>21</b> of 38</p>
+    <a class="prev" href="powers-of-two.html" rel="prev"><span>Previous</span>Powers of two, and powers</a>
+    <a class="next" href="records.html" rel="next"><span>Next</span>Walk an array of records</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

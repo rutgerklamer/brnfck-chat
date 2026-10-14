@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Find a zero cell or a marker</title>
+<meta name="description" content="Moves the pointer to the nearest cell with a given value, however far away it is. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#control">Control</a><span>Find a zero cell or a marker</span></p>
+    <h1>Find a zero cell or a marker</h1>
+    <p class="lead">Moves the pointer to the nearest cell with a given value, however far away it is.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>15</b> of 38</p>
+    <a class="prev" href="compare-less.html" rel="prev"><span>Previous</span>Less than</a>
+    <a class="next" href="mul-const.html" rel="next"><span>Next</span>Multiply by a constant</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “The first zero to the right” works on 6 cells, named “cell 0”, “cell 1”, “cell 2”, “cell 3”, “cell 4” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or edit cells:</p>
+
+    <figure class="fig col" id="fig-scan-right" data-p="scan" data-v="right" aria-label="The form The first zero to the right of find a zero cell or a marker, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p><code class="bf">[&gt;]</code> is a loop whose whole body is one step to the right. It asks "is this cell zero?" and, if not, moves on. It stops on the first zero cell.</p>
+    <p>To stop on another value, change the question: take the value off, ask, and put it back before moving on.</p>
+    <p>A scan is the one loop here that does not come back to where it started. The program no longer knows the number of the cell it stands on, only what kind of cell it is. That is how brainfuck does without addresses.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-scan-right">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3E%5D&amp;names=0:cell-0,1:cell-1,2:cell-2,3:cell-3,4:cell-4,5:zero">Open in the playground</a><span class="count" data-len>3 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>There must be a cell to stop on, or the pointer runs off the tape.</li>
+      <li>The marker forms need wrapping cells (0 − 1 has to be a number).</li>
+      <li>The scan for a non-zero cell needs one spare zero cell to the <em>left</em> of where it starts.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Data that may contain a zero inside a <code class="bf">[&gt;]</code> scan: the scan stops there.</li>
+      <li>Starting the non-zero scan on the first cell of the tape. As usually given, it says only "the start cell must be zero"; it also touches the cell to the left of it.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-scan-right-cost" data-p="scan" data-v="right" data-cost-fig aria-label="Steps taken by the form The first zero to the right, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>The first zero to the right</td><td>1 + 2 per cell passed</td><td>1 + 1 per cell passed</td></tr>
+<tr><td>The first zero to the left</td><td>1 + 2 per cell passed</td><td>1 + 1 per cell passed</td></tr>
+<tr><td>The first cell that holds 1</td><td>3 + 4 per cell passed</td><td>3 + 3 per cell passed</td></tr>
+<tr><td>The first cell that is not zero</td><td>about 11 per cell passed</td><td>about 4 per cell passed</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>The first zero to the right</td><td>cells = none</td><td class="n">8</td><td class="n">3</td><td class="n">1</td><td class="n">1</td></tr>
+<tr><td>The first zero to the right</td><td>cells = 3, 1, 4, 1, 5</td><td class="n">8</td><td class="n">3</td><td class="n">11</td><td class="n">6</td></tr>
+<tr><td>The first zero to the left</td><td>cells = 3, 1, 4</td><td class="n">8</td><td class="n">3</td><td class="n">7</td><td class="n">4</td></tr>
+<tr><td>The first cell that holds 1</td><td>m = 4</td><td class="n">8</td><td class="n">7</td><td class="n">19</td><td class="n">15</td></tr>
+<tr><td>The first cell that is not zero</td><td>m = 3</td><td class="n">8</td><td class="n">17</td><td class="n">45</td><td class="n">17</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-left" aria-labelledby="v-left-h">
+      <h3 id="v-left-h">The first zero to the left</h3>
+      <p>The pointer starts on the last cell.</p>
+      <div class="code" data-fig="fig-scan-left">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%3C%5D&amp;names=0:zero,1:cell-1,2:cell-2,3:cell-3">Open in the playground</a><span class="count" data-len>3 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-left"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The first zero to the left” works on 4 cells, named “zero”, “cell 1”, “cell 2” and “cell 3”. Press <em>Play</em>, drag the step slider forwards and back, or edit cells:</p>
+        <figure class="fig col" id="fig-scan-left" data-p="scan" data-v="left" aria-label="The form The first zero to the left of find a zero cell or a marker, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-marker" aria-labelledby="v-marker-h">
+      <h3 id="v-marker-h">The first cell that holds 1</h3>
+      <p>Takes 1 off, asks, puts it back. The other cells may hold anything, zero too.</p>
+      <div class="code" data-fig="fig-scan-marker">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">-[+&gt;-]+</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=-%5B%2B%3E-%5D%2B&amp;names=4:marker">Open in the playground</a><span class="count" data-len>7 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-marker"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The first cell that holds 1” works on 5 cells; the named ones are “marker”. Press <em>Play</em>, drag the step slider forwards and back, or change where the 1 is with the slider:</p>
+        <figure class="fig col" id="fig-scan-marker" data-p="scan" data-v="marker" aria-label="The form The first cell that holds 1 of find a zero cell or a marker, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-nonzero" aria-labelledby="v-nonzero-h">
+      <h3 id="v-nonzero-h">The first cell that is not zero</h3>
+      <p>Carries a 1 along over the empty cells. Starts on cell 1, because it uses the cell to its left.</p>
+      <div class="code" data-fig="fig-scan-nonzero">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">+[&gt;[&lt;-]&lt;[-&gt;+&lt;]&gt;]&gt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%2B%5B%3E%5B%3C-%5D%3C%5B-%3E%2B%3C%5D%3E%5D%3E&amp;names=0:spare,1:start,5:target">Open in the playground</a><span class="count" data-len>17 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-nonzero"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “The first cell that is not zero” works on 6 cells; the named ones are “spare”, “start” and “target”. Press <em>Play</em>, drag the step slider forwards and back, or change empty cells in between with the slider:</p>
+        <figure class="fig col" id="fig-scan-nonzero" data-p="scan" data-v="nonzero" aria-label="The form The first cell that is not zero of find a zero cell or a marker, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li>Every walk over data ends in a scan: a row of records (<a href="records.html">walk an array of records</a>), a string (<a href="read-line.html">read a line into memory</a>).</li>
+      <li><a href="argmax.html">Pick the largest by a race</a> uses a scan as its "did anyone reach zero?" test.</li>
+      <li><a href="../learn/07-walking.html">Build toward a chatbot, lesson 7, "No addresses"</a>, is about working without addresses.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: sections "Find a zeroed cell" and "Find a non-zeroed cell" (Epsilon).</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>15</b> of 38</p>
+    <a class="prev" href="compare-less.html" rel="prev"><span>Previous</span>Less than</a>
+    <a class="next" href="mul-const.html" rel="next"><span>Next</span>Multiply by a constant</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

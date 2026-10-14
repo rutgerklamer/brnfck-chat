@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, questions</title>
+<meta name="description" content="Plain answers about brainfuck: Is it useful? Is it hard? What is the name about and how do people write it politely? Can it do anything? How fast is it? Is there a standard? Where do I start?">
+<meta property="og:title" content="Questions people ask about brainfuck">
+<meta property="og:description" content="Plain answers about brainfuck: Is it useful? Is it hard? What is the name about and how do people write it politely? Can it do anything? How fast is it? Is there a standard? Where do I start?">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Questions</span></p>
+    <h1>Questions people ask</h1>
+    <p class="lead">Plain answers to what people wonder about first, each with a link to the longer story. Where an answer rests on a fact, the fact has a source; where it is our opinion, we say so.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#about">About the language</a></li>
+          <li><a href="#use">What it can and cannot do</a></li>
+          <li><a href="#start">Getting started</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="about" class="qa" aria-labelledby="about-h">
+    <h2 id="about-h">About the language</h2>
+
+    <h3 id="what">What is brainfuck?</h3>
+    <p>A programming language with eight commands, each one character. A program moves a pointer along a row of cells, adds to and takes from the cell under it, reads and prints characters, and repeats pieces of itself. Urban Müller made it in 1993&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. <a href="language.html">The language, precisely</a>.</p>
+
+    <h3 id="joke">Is it a joke?</h3>
+    <p>Partly. It was made to win a private contest: a compiler smaller than the 1,024 bytes of another language's&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. The author thought the language itself "pretty useless" and said so in its README&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. But it is a complete, working language, and people have taken it seriously enough to write compilers, proofs and papers about it. <a href="history.html">History</a>.</p>
+
+    <h3 id="name">What is the name about, and how do people write it politely?</h3>
+    <p>The author says he wanted a name for uselessness and confusion, and that this one "turned out to be a better name than I had originally intended"&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. It is written in lower case.</p>
+    <p>Because of the swear word, many texts avoid spelling it out. You will meet: <b>brainf***</b>&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>, <b>brainf*ck</b>&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>, <b>Brainf_ck</b>&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, and most often simply <b>BF</b>&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a> or <b>bf</b>. Program files end in <code>.b</code> or <code>.bf</code>. All of these mean the same language. This site uses the name as it is.</p>
+
+    <h3 id="standard">Is there an official definition?</h3>
+    <p>No. There is the README of 1993, which is a table and three sentences&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, and there are careful descriptions by others. The author says he never submitted it to a committee, and that this is why there are "lots and lots of variants"&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. <a href="portability.html">Where implementations differ</a>.</p>
+
+    <h3 id="why30000">Why 30,000 cells?</h3>
+    <p>Because the original had that many&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Why Müller chose that number we do not know; we found no statement by him. Many implementations offer more.</p>
+  </section>
+
+  <section id="use" class="qa" aria-labelledby="use-h">
+    <h2 id="use-h">What it can and cannot do</h2>
+
+    <h3 id="useful">Is it useful?</h3>
+    <p>Not for getting work done. Nobody should write a payroll system in it, and nobody does. It is useful for other things: for learning how a computer works underneath, as a first language to write an interpreter or a compiler for, as a test of speed for other languages&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>, and as a puzzle. Those uses are real, and they are why it is still alive after thirty years. <a href="culture.html">Culture</a>.</p>
+
+    <h3 id="anything">Can it do anything?</h3>
+    <p>It can <em>compute</em> anything that any computer can compute, if the tape is long enough. That is proved&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>. It cannot <em>do</em> everything: it reads characters and prints characters, and has no way to open a file, draw a picture or use a network. And being able to compute something says nothing about how long it takes. <a href="theory.html">Theory</a>.</p>
+
+    <h3 id="hard">Is it hard?</h3>
+    <p>To learn: no. Eight commands, five minutes. It is one of the easiest languages there is to learn completely.</p>
+    <p>To write something in: yes, and that is the point of it. There are no names, no numbers written out, no ready-made arithmetic. Everything is built from counting. A small set of idioms takes you a long way, and for anything large people let a program write the brainfuck. <a href="writing.html">Writing real programs</a>.</p>
+
+    <h3 id="fast">How fast is it?</h3>
+    <p>That depends almost entirely on what runs it. A simple interpreter is slow: one small step for every command. An optimising one merges those steps. In one published comparison, the same program took 38.6 seconds on a simple interpreter and 0.93 seconds when translated to optimised machine code&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>. That is still far slower than the same task written in an ordinary language, because a brainfuck program has to build even multiplication out of adding.</p>
+    <p>A measure from this site: one word piece of an answer from its chat model brnfck-135m costs 1.6 to 1.9 billion steps, and takes 0.6 to 1.0 seconds on a desktop computer with an optimising executor <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. <a href="implementations.html">Implementations</a>.</p>
+
+    <h3 id="ai">Can a chat model really run in it?</h3>
+    <p>Yes, with honest limits. This site runs three, as programs of 1 to 11.4 billion commands. Brainfuck only runs them: the models were trained elsewhere, their numbers were rounded to whole numbers, the programs need 32-bit cells and an optimising executor, and their answers can be wrong&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. <a href="programs.html#chat">Notable programs: this site's project</a>.</p>
+
+    <h3 id="biggest">What is the largest brainfuck program?</h3>
+    <p>We do not know of a record that anyone keeps. The largest we can vouch for is this site's biggest chat program: 11,430,468,880 commands, counted in the file&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. A text adventure of 2005 was called "probably the largest" of its day by its author, at 2.08 megabytes&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>. <a href="programs.html">Notable programs</a>.</p>
+  </section>
+
+  <section id="start" class="qa" aria-labelledby="start-h">
+    <h2 id="start-h">Getting started</h2>
+
+    <h3 id="install">Do I need to install anything?</h3>
+    <p>No. The programs on these pages run in your browser, and so does the <a href="../playground/">playground</a>. If you want one on your own computer, there are many to choose from. <a href="implementations.html#list">Well-known implementations</a>.</p>
+
+    <h3 id="begin">Where do I start?</h3>
+    <ol>
+      <li>Open <a href="../brainfuck/">Start here</a>. It has one path in three parts.</li>
+      <li>Begin with <a href="../challenges/basics/">Brainfuck basics</a>: ten short lessons on the language, one small task at a time.</li>
+      <li>Go on to <a href="../learn/">Build toward a chatbot</a>: eleven lessons, from the eight commands to one number of a chat model. The last part is reading the real program.</li>
+      <li>Play as you go: write in the <a href="../playground/">playground</a>, try the <a href="../challenges/">challenges</a>, and copy a building block from the <a href="../patterns/">patterns</a>.</li>
+      <li>Then read good programs by others. Daniel Cristofani's commented programs and his series "get good at brainfuck" are the best we know&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a>.</li>
+    </ol>
+
+    <p>In a hurry? <a href="./#five">Brainfuck in five minutes</a>, on the overview page of the Reference, has the whole language on one screen, with a program to run.</p>
+
+    <h3 id="works">My program works here and not there. Why?</h3>
+    <p>Most likely one of three things: the size of a cell, what happens when you move left of the first cell, or what the read command does at the end of the input. <a href="portability.html">Where implementations differ</a> shows each and how to avoid it.</p>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="../challenges/basics/"><b>Brainfuck basics</b><span>Start writing, one small task at a time.</span></a></li>
+      <li><a href="language.html"><b>The language, precisely</b><span>The whole language on one page.</span></a></li>
+      <li><a href="glossary.html"><b>Glossary</b><span>Every term in a sentence or two.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Erik Bosman, Mandelbrot set viewer</b>, files dated 1 June 2003, in the Brainfuck Archive: <a href="http://esoteric.sange.fi/brainfuck/utils/mandelbrot/">the mandelbrot directory</a> with its <code>README.txt</code>. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Frans Faase, "Brainf***"</b>: <a href="https://www.iwriteiam.nl/Ha_BF.html">the brainfuck pages on iwriteiam.nl</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Hugi Size Coding Competition</b>, list of past competitions: <a href="https://www.hugi.scene.org/compo/compoold.htm">the competition archive on hugi.scene.org</a>. Competition 6 (1999) asked for a brainfuck interpreter. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>mrjameshamilton, <i>bf</i></b>: <a href="https://github.com/mrjameshamilton/bf">mrjameshamilton/bf on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Surma, <i>bfwasm</i></b>: <a href="https://github.com/surma/bfwasm">surma/bfwasm on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Ronald T. Kneusel, <i>Strange Code</i></b>, No Starch Press, 2022, chapter 10, read as the publisher's sample: <a href="https://nostarch.com/download/samples/StrangeCode_Chapter10.pdf">chapter 10 on nostarch.com (PDF)</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>kostya, <i>benchmarks</i></b>: <a href="https://github.com/kostya/benchmarks">kostya/benchmarks on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Frans Faase, "BF is Turing-complete"</b>: <a href="https://www.iwriteiam.nl/Ha_bf_Turing.html">the proof page on iwriteiam.nl</a>. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>Daniel B Cristofani, <i>utm.b</i></b>: <a href="https://brainfuck.org/utm.b">the universal Turing machine on brainfuck.org</a>. Its comments name the machine it implements: Yurii Rogozhin, "Small universal Turing machines", <i>Theoretical Computer Science</i> 168(2) (1996), 215 to 240, which we did not open. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>Eli Bendersky, "Adventures in JIT compilation: Part 1, an interpreter"</b>, 20 March 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-1-an-interpreter/">part 1 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>Eli Bendersky, "Adventures in JIT compilation: Part 2, an x64 JIT"</b>, 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-2-an-x64-jit/">part 2 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>This site's own project.</b> Counts and measurements are on <a href="../how/#numbers">How it works: the numbers</a> and <a href="../how/#real">How do I know it is real?</a>; the earlier work we know of is under <a href="../how/#prior">Has this been done before?</a>. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>Jon Ripley, "The Lost Kingdom Brainfuck Edition"</b>, 2004 to 2005: <a href="http://jonripley.com/i-fiction/games/LostKingdomBF.html">the game's page on jonripley.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>Daniel B Cristofani, "get good at brainfuck"</b>: <a href="https://brainfuck.org/ggab.html">the series on brainfuck.org</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html" aria-current="page"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>12</b> of 13</p>
+    <a class="prev" href="glossary.html" rel="prev"><span>Previous</span>Glossary</a>
+    <a class="next" href="reading.html" rel="next"><span>Next</span>Further reading</a>
+  </nav>
+</main>
+</body>
+</html>

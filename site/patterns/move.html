@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Move a value</title>
+<meta name="description" content="Adds a cell to another cell and leaves the first one empty. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#basics">First moves</a><span>Move a value</span></p>
+    <h1>Move a value</h1>
+    <p class="lead">Adds a cell to another cell and leaves the first one empty.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>3</b> of 38</p>
+    <a class="prev" href="constant.html" rel="prev"><span>Previous</span>Set a constant</a>
+    <a class="next" href="copy.html" rel="next"><span>Next</span>Copy a value</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “To the next cell” works on 2 cells, named “x” and “y”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+
+    <figure class="fig col" id="fig-move-right" data-p="move" data-v="right" aria-label="The form To the next cell of move a value, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>Each round takes 1 from the source and gives 1 to the target. The loop stops when the source is zero, so by then everything has arrived.</p>
+    <p>The target gets the value <em>added</em>. If it held 2 before, it holds 2 more than the source did.</p>
+    <p>A loop like this one only adds and moves and comes back to where it started. That is called a flat loop. An optimising interpreter does it in one step.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-move-right">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;+&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%3C%5D&amp;names=0:x,1:y">Open in the playground</a><span class="count" data-len>6 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Any cell size. No scratch cell.</li>
+      <li>The loop must end on the cell it started on: as many <code class="bf">&gt;</code> as <code class="bf">&lt;</code>.</li>
+      <li>Clear the target first if you want "set", not "add".</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Unequal numbers of <code class="bf">&gt;</code> and <code class="bf">&lt;</code>. The loop then tests a different cell every round and wanders off.</li>
+      <li>Expecting the source to survive. Use <a href="copy.html">copy a value</a> for that.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-move-right-cost" data-p="move" data-v="right" data-cost-fig aria-label="Steps taken by the form To the next cell, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>To the next cell</td><td>1 + 5x</td><td>1</td></tr>
+<tr><td>Two cells away</td><td>1 + 7x</td><td>1</td></tr>
+<tr><td>Into two cells at once</td><td>1 + 8x</td><td>1</td></tr>
+<tr><td>To the left</td><td>1 + 5x</td><td>1</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>To the next cell</td><td>x = 0; y = 0</td><td class="n">8</td><td class="n">6</td><td class="n">1</td><td class="n">1</td></tr>
+<tr><td>To the next cell</td><td>x = 4; y = 0</td><td class="n">8</td><td class="n">6</td><td class="n">21</td><td class="n">1</td></tr>
+<tr><td>To the next cell</td><td>x = 200; y = 3</td><td class="n">8</td><td class="n">6</td><td class="n">1,001</td><td class="n">1</td></tr>
+<tr><td>Two cells away</td><td>x = 4</td><td class="n">8</td><td class="n">8</td><td class="n">29</td><td class="n">1</td></tr>
+<tr><td>Into two cells at once</td><td>x = 4</td><td class="n">8</td><td class="n">9</td><td class="n">33</td><td class="n">1</td></tr>
+<tr><td>To the left</td><td>x = 4</td><td class="n">8</td><td class="n">6</td><td class="n">21</td><td class="n">1</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-far" aria-labelledby="v-far-h">
+      <h3 id="v-far-h">Two cells away</h3>
+      <p>The same, with a longer walk. Every round pays for the distance twice.</p>
+      <div class="code" data-fig="fig-move-far">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;+&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%2B%3C%3C%5D&amp;names=0:x,1:other,2:target">Open in the playground</a><span class="count" data-len>8 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-far"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Two cells away” works on 3 cells, named “x”, “other” and “target”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-move-far" data-p="move" data-v="far" aria-label="The form Two cells away of move a value, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-two" aria-labelledby="v-two-h">
+      <h3 id="v-two-h">Into two cells at once</h3>
+      <p>Both targets get the value. This is the first half of <a href="copy.html">copy a value</a>.</p>
+      <div class="code" data-fig="fig-move-two">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;+&gt;+&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%2B%3E%2B%3C%3C%5D&amp;names=0:x,1:first,2:second">Open in the playground</a><span class="count" data-len>9 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-two"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Into two cells at once” works on 3 cells, named “x”, “first” and “second”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-move-two" data-p="move" data-v="two" aria-label="The form Into two cells at once of move a value, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-left" aria-labelledby="v-left-h">
+      <h3 id="v-left-h">To the left</h3>
+      <p>The pointer starts on the right cell.</p>
+      <div class="code" data-fig="fig-move-left">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&lt;+&gt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3C%2B%3E%5D&amp;names=0:target,1:x">Open in the playground</a><span class="count" data-len>6 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-left"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “To the left” works on 2 cells, named “target” and “x”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-move-left" data-p="move" data-v="left" aria-label="The form To the left of move a value, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="../challenges/basics/07-copy.html">Brainfuck basics, lesson 7, "Moving and copying"</a>, teaches it first. <a href="../learn/02-copy.html">Build toward a chatbot, lesson 2, "Moving and copying"</a>, builds it step by step, starting from an empty tape.</li>
+      <li>In the project it is <code>move</code> in emit.js, a special case of <code>scatter</code>. Almost everything in the chat program is made of scatters.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: move and scatter in emit.js.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>3</b> of 38</p>
+    <a class="prev" href="constant.html" rel="prev"><span>Previous</span>Set a constant</a>
+    <a class="next" href="copy.html" rel="next"><span>Next</span>Copy a value</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

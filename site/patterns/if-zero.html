@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: If zero</title>
+<meta name="description" content="Runs a piece of program once when a cell is zero. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#control">Control</a><span>If zero</span></p>
+    <h1>If zero</h1>
+    <p class="lead">Runs a piece of program once when a cell is zero.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>8</b> of 38</p>
+    <a class="prev" href="if-nonzero.html" rel="prev"><span>Previous</span>If non-zero</a>
+    <a class="next" href="if-else.html" rel="next"><span>Next</span>If and else</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Flag next to x” works on 4 cells, named “x”, “flag”, “zero” and “out”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+
+    <figure class="fig col" id="fig-if-zero-next" data-p="if-zero" data-v="next" aria-label="The form Flag next to x of if zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>A loop runs when a cell is <em>not</em> zero. For the opposite we need a second cell, a flag, that starts at 1.</p>
+    <p>If x is not zero, a loop on x knocks the flag down to 0. Then a loop on the flag runs the body: it runs exactly when x was zero.</p>
+    <p>In the main form the flag sits right next to x, and the two loops are arranged so that the pointer ends on the same cell both ways.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-if-zero-next">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;+&lt;[&gt;-]&gt;[&gt;&gt;+&lt;&lt;-&gt;]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%3C%5B%3E-%5D%3E%5B%3E%3E%2B%3C%3C-%3E%5D%3C%3C&amp;names=0:x,1:flag,2:zero,3:out">Open in the playground</a><span class="count" data-len>19 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Main form: the two cells to the right of x must be zero. They are zero again at the end, and x is kept.</li>
+      <li>The body starts and ends on the flag cell.</li>
+      <li>Any cell size.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Putting the flag anywhere else than directly right of x: the moves <code class="bf">&gt;-]&gt;</code> depend on it.</li>
+      <li>A body that leaves the pointer on another cell.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-if-zero-next-cost" data-p="if-zero" data-v="next" data-cost-fig aria-label="Steps taken by the form Flag next to x, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Flag next to x</td><td>11 when x is not 0, else 16</td><td>6 when x is not 0, else 7</td></tr>
+<tr><td>Flag anywhere, testing a copy</td><td>22 + 25x</td><td>9 when x is not 0, else 6</td></tr>
+<tr><td>Using up x</td><td>12 + 2x</td><td>7 when x is not 0, else 4</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Flag next to x</td><td>x = 0</td><td class="n">8</td><td class="n">19</td><td class="n">16</td><td class="n">7</td></tr>
+<tr><td>Flag next to x</td><td>x = 5</td><td class="n">8</td><td class="n">19</td><td class="n">11</td><td class="n">6</td></tr>
+<tr><td>Flag anywhere, testing a copy</td><td>x = 0</td><td class="n">8</td><td class="n">52</td><td class="n">22</td><td class="n">6</td></tr>
+<tr><td>Using up x</td><td>x = 0</td><td class="n">8</td><td class="n">19</td><td class="n">12</td><td class="n">4</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-flag" aria-labelledby="v-flag-h">
+      <h3 id="v-flag-h">Flag anywhere, testing a copy</h3>
+      <p>Layout: x, out, flag, two scratch cells. Longer, but the cells may be anywhere.</p>
+      <div class="code" data-fig="fig-if-zero-flag">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;+&lt;&lt;[-&gt;&gt;&gt;+&gt;+&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;[-&lt;&lt;&lt;&lt;+&gt;&gt;&gt;&gt;]&lt;[&lt;-&gt;[-]]&lt;[&lt;+&gt;-]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%2B%3C%3C%5B-%3E%3E%3E%2B%3E%2B%3C%3C%3C%3C%5D%3E%3E%3E%3E%5B-%3C%3C%3C%3C%2B%3E%3E%3E%3E%5D%3C%5B%3C-%3E%5B-%5D%5D%3C%5B%3C%2B%3E-%5D%3C%3C&amp;names=0:x,1:out,2:flag,3:scratch,4:scratch">Open in the playground</a><span class="count" data-len>52 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-flag"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Flag anywhere, testing a copy” works on 5 cells; the named ones are “x”, “out”, “flag” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-if-zero-flag" data-p="if-zero" data-v="flag" aria-label="The form Flag anywhere, testing a copy of if zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-destroy" aria-labelledby="v-destroy-h">
+      <h3 id="v-destroy-h">Using up x</h3>
+      <p>Layout: x, flag, out.</p>
+      <div class="code" data-fig="fig-if-zero-destroy">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;+&lt;[[-]&gt;-&lt;]&gt;[&gt;+&lt;-]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%3C%5B%5B-%5D%3E-%3C%5D%3E%5B%3E%2B%3C-%5D%3C&amp;names=0:x,1:flag,2:out">Open in the playground</a><span class="count" data-len>19 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-destroy"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Using up x” works on 3 cells, named “x”, “flag” and “out”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-if-zero-destroy" data-p="if-zero" data-v="destroy" aria-label="The form Using up x of if zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li>In the project: <code>whenZero</code> in emit.js (the flag form).</li>
+      <li>The "not" of <a href="logic.html">not, and, or on flags</a> is this pattern with "set a flag" as its body.</li>
+      <li><a href="../learn/04-zero.html">Build toward a chatbot, lesson 4, "Only one question"</a>, measures what counting down costs.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: section "if (x) { code1 } else { code2 }", the form by Ben-Arba with an empty first part.</li>
+      <li>Source: <a href="../how/">This project: emit.js and patterns.js</a>: whenZero.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>8</b> of 38</p>
+    <a class="prev" href="if-nonzero.html" rel="prev"><span>Previous</span>If non-zero</a>
+    <a class="next" href="if-else.html" rel="next"><span>Next</span>If and else</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

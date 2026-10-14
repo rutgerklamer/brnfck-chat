@@ -1,0 +1,66 @@
+/* The article, lesson and reference pages: the shared look on top of site.css. */
+
+/* ---- tokens ---- */
+:root {
+  color-scheme: light;
+  --bg: #f5f3ec; --panel: #fffefa; --sunk: #eae7dd; --hot: #e2ded1;
+  --ink: #111; --ink-2: #33312c; --muted: #57544d; --mine: #57544d;
+  --line: #cdc9bc; --rule: #6c6961; --shade: rgba(17, 17, 17, .14);
+  --accent: #111; --on-accent: #fff; --loud: #e2ded1; --on-loud: #111;
+  --night: #0d0e10; --night-ink: #f4f3ee; --night-muted: #a9a79f; --night-line: #3b3c40;
+  --pink: #cc79a7; --yellow: #e69f00;
+  --go: #f2b01e; --on-go: #111; --drop-c: #111;
+  --edge: 2px; --edge-strong: 2px; --ring: 3px;
+  --drop: 5px 5px 0 var(--drop-c);
+  --sec: var(--c-in);
+
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: var(--sans);
+  --display: var(--mono);
+  --fs-body: 1.0625rem; --lh: 1.65;
+  --fs-h1: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem); --fs-h2: 1.375rem; --fs-h3: 1.0625rem;
+  --lab: 600 .75rem/1.4 var(--mono); --kick: 600 .75rem/1.5 var(--mono); --ctl: 600 .875rem/1.2 var(--mono);
+  --measure: 40rem; --page: 68rem; --wide: 68rem;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121316; --panel: #1b1c20; --sunk: #25272c; --hot: #30333a;
+  --ink: #f4f3ee; --ink-2: #dddbd3; --muted: #aeaca4; --mine: #aeaca4;
+  --line: #3a3c42; --rule: #8d8b83; --shade: rgba(0, 0, 0, .5);
+  --accent: #f4f3ee; --on-accent: #111; --loud: #30333a; --on-loud: #f4f3ee;
+  --code: #58d3ae; --good: #58d3ae; --goodbg: #14362c;
+  --d1: #6db7e8; --d2: #ff8a4c; --d3: #58d3ae; --d4: #e39cc4; --d5: #f0b429; --d6: #aeaca4;
+  --t-plus: #f0b429; --t-minus: #6db7e8; --t-mv: #b3b9c6; --t-br: #e39cc4; --t-in: #3fd0a6; --t-out: #ff8a4c;
+  /* the dark band stays a band: blacker than the page, and it gets an edge */
+  --night: #000; --night-line: #4a4c52;
+  --drop-c: #000;
+}
+
+body { -webkit-font-smoothing: antialiased; }
+:where(.doc) :where(h1, h2, h3) { font-family: var(--display); font-weight: 700; letter-spacing: -.035em; }
+:where(.doc) :where(h2) { margin-top: var(--s7); padding-top: var(--s3); border-top: var(--edge) solid var(--ink); }
+:where(.doc) :where(h2)::before { content: "# "; color: var(--muted); font-weight: 400; }
+:where(.doc) :where(.label) { text-transform: uppercase; color: var(--muted); }
+::selection { background: var(--go); color: var(--on-go); }
+
+/* the primary action: the one yellow thing on a screen */
+:where(.doc) :where(button.primary, a.btn.primary) { background: var(--go); color: var(--on-go); border-color: var(--ink); }
+:where(.doc) :where(button.primary:hover:not(:disabled), a.btn.primary:hover) { background: var(--on-go); color: var(--go); border-color: var(--on-go); }
+
+/* ---- cards that lead to a part of the site ---- */
+.dest { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--s4); margin: var(--s4) 0 0; padding: 0; max-width: none; }
+.dest > li { display: flex; margin: 0; min-width: 0; }
+.dest a { flex: 1 1 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; gap: var(--s1) var(--s3); padding: var(--s4); border: var(--edge) solid var(--ink); border-top: 8px solid var(--c, var(--ink)); background: var(--panel); color: var(--ink); text-decoration: none; transition: transform var(--ease), box-shadow var(--ease); }
+.dest a > i { grid-row: span 2; align-self: start; display: grid; place-items: center; min-width: 2.75rem; height: 2.75rem; padding: 0 .3em; border: var(--edge) solid var(--ink); background: var(--c, var(--hot)); color: #111; font: 700 1.25rem/1 var(--mono); font-style: normal; }
+.dest a > b { align-self: end; font: 700 1.0625rem/1.25 var(--mono); letter-spacing: -.03em; }
+.dest a > b::after { content: "\00a0\2192"; }
+.dest a > small { color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+.dest a > span { grid-column: 1 / -1; margin-top: var(--s2); color: var(--ink-2); font: var(--fs-ui)/1.5 var(--sans); }
+.dest a:hover { transform: translate(-2px, -2px); box-shadow: var(--drop); }
+.dest a:focus-visible { outline-offset: 2px; }
+
+/* ---- the bar and the footer (site.js): a lower sub-bar, wider footer columns ---- */
+.top .sub nav a { min-height: 2.5rem; }
+.foot .in { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+.foot a { min-height: 2rem; }

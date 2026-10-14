@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 2, moving</title>
+<meta name="description" content="Lesson 2 of Brainfuck basics: two more commands move the pointer along the tape, so that you can fill several cells.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Moving</h1>
+    <p class="lead">By the end of this lesson you can fill several cells, and you know why it matters where the pointer stands.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>2</b> of 10</p>
+    <a class="prev" href="01-machine.html" rel="prev"><span>Previous</span>The machine</a>
+    <a class="next" href="03-letters.html" rel="next"><span>Next</span>Numbers are letters</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Walk along the tape</h2>
+    <p>The tape has five cells again, now with two more buttons, Left and Right. Make cell 0 hold 2 and cell 2 hold 3, and leave the other cells at 0:</p>
+    <figure class="fig col" id="f1" aria-label="Five boxes that hold 0, and four buttons: left, right, add one, take one off">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that <code>+</code> and <code>−</code> changed only the cell with the outline, and that Left and Right changed no number: they moved the outline. To put 3 in cell 2 you first had to walk there, one cell at a time.</p>
+      <p>In a program, the two new buttons are the commands <code>&gt;</code>, one cell to the right, and <code>&lt;</code>, one cell to the left. They move the pointer. There is no command for "go to cell 2".</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">One, two, three</h2>
+    <p>Now you write the line. Make cell 0 hold 1, cell 1 hold 2 and cell 2 hold 3. The tape under the box shows what your program leaves, and the line under the figure says what is still wrong:</p>
+    <figure class="fig col" id="f2" aria-label="A box for your own program, and the tape it leaves">
+      <div id="m2"></div>
+      <div class="callout hint" id="h2a" hidden><h3>Hint</h3><p>After the plus for cell 0, move right before you add again.</p></div>
+      <div class="row"><button class="quiet" id="h2">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Read the answer aloud: <code>+&gt;++&gt;+++</code> is one here, step right, two here, step right, three here. Notice that most of a brainfuck program has this beat: walk, change, walk, change.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">One step too many</h2>
+    <p>This program was meant to leave 3 in cell 0 and 2 in cell 1. It does not. Drag the slider back to the start and step through it, watching where the pointer goes, then repair the line in the box:</p>
+    <figure class="fig col" id="f3" aria-label="A program with a mistake, and the tape it leaves">
+      <div id="m3"></div>
+      <div class="callout hint" id="h3a" hidden><h3>Hint</h3><p>Step through the program and watch where the last two plus signs land.</p></div>
+      <div class="row"><button class="quiet" id="h3">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that one <code>&gt;</code> too many sent the 2 to cell 2. The machine did not complain: every line made of these four commands is a correct program. It just did something other than you meant.</p>
+      <p>Most mistakes in brainfuck are this one: the pointer is not where you think it is. The cure is the one you just used. Step through the program and watch the pointer.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">The edge</h2>
+    <p>The pointer stands on cell 0, and the program is a single <code>&lt;</code>. Press <em>Step</em> once and read the line under the tape:</p>
+    <figure class="fig col" id="f4" aria-label="One move to the left from the first cell">
+      <div id="m4"></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>Notice that the program stopped: there is nothing to the left of cell 0. Here the machine says so. Some brainfuck machines quietly do something odd instead; either way it is a mistake in the program.</p>
+      <p>To the right there is room. The tape in these figures has six cells to keep it small; in the <a href="../">Challenges</a> it has 30,000. How long the tape is, and what happens at its ends, differs from one brainfuck machine to the next; the <a href="../../reference/">Reference</a> lists them.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Write 1, 0, 1, 0, 1 into the first five cells, and make the program end with the pointer back on cell 0. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can walk along the tape and put numbers in several cells. These are the commands you know:</p>
+    <div class="scroll"><table>
+      <caption>The commands of Lessons 1 and 2.</caption>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>+</code> <code>−</code></td><td>Add 1 to the cell under the pointer, or take 1 off.</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Move the pointer one cell to the right or to the left.</td></tr>
+    </table></div>
+    <p class="next-q">Numbers in cells are fine, but a program should say something. <a href="03-letters.html">Lesson 3</a> makes the machine print.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>2</b> of 10</p>
+    <a class="prev" href="01-machine.html" rel="prev"><span>Previous</span>The machine</a>
+    <a class="next" href="03-letters.html" rel="next"><span>Next</span>Numbers are letters</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const L = Basics.lesson(2);
+  // ---- 1. walk along the tape
+  Basics.pad('m1', { cells: 5, move: true, judge: (tape, ptr, presses) => {
+    if (tape[0] === 2 && tape[1] === 0 && tape[2] === 3 && tape[3] === 0 && tape[4] === 0) L.done(1, 'Cell 0 holds 2 and cell 2 holds 3. You pressed ' + presses + ' buttons.');
+    else L.note(1, tape[1] || tape[3] || tape[4] ? 'A cell that should stay empty holds something. Take it off again.' : 'Cell 0 holds ' + tape[0] + ' and cell 2 holds ' + tape[2] + ' now.');
+  } });
+  // ---- 2. one, two, three
+  Basics.task(L, 2, 'm2', 't2s2', { button: 'h2', hints: ['h2a'], said: (r) => 'Cells 0, 1 and 2 hold 1, 2 and 3, with ' + r.n + ' commands.' });
+  // ---- 3. one step too many
+  Basics.task(L, 3, 'm3', 't2s3', { button: 'h3', hints: ['h3a'], said: () => 'Repaired: 3 in cell 0 and 2 in cell 1.' });
+  // ---- 4. the edge
+  Basics.demo(L, 4, 'm4', 'd2s4', { when: (m) => m.error === 'left', text: () => 'The pointer fell off the left end of the tape.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(2, 'quiz', "After the program >>+<+ which cells are not zero?", [["Cells 0 and 1",false,"The program starts with two steps to the right, so nothing lands in cell 0."],["Cells 1 and 2",true,"Two steps right, a plus in cell 2, one step back, a plus in cell 1."],["Cells 2 and 3",false,"The &lt; moves back to the left, to cell 1."]]);
+  Basics.free('mf', {});
+})();
+</script>
+</body>
+</html>

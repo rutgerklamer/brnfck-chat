@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 11: choosing the word · brnfck.chat</title>
+<meta name="description" content="Lesson 11: the last part. A race finds the highest score without comparing, and one brainfuck program does the whole goal: three scores, the winner, and the printed word.">
+<meta property="og:title" content="Lesson 11: choosing the word">
+<meta property="og:description" content="Lesson 11: the last part. A race finds the highest score without comparing, and one brainfuck program does the whole goal: three scores, the winner, and the printed word.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Choosing the word</span></p>
+    <h1>Choosing the word</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson one brainfuck program does the whole sum: it works out three scores, finds the highest and prints the word piece.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>11</b> of 11</p>
+    <a class="prev" href="10-attention.html" rel="prev"><span>Previous</span>Looking back</a>
+    <a class="next" href="../inside/" rel="next"><span>Next</span>Inside the program</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>You can make every number of the model (<a href="09-neuron.html">lesson 9</a>). After its last layer a model has one number for each word piece it knows: a score. The piece with the highest score is the next piece of the answer. Finding the highest is the last part.</p>
+  </section>
+
+  <h2 id="s1">A race in place of a comparison</h2>
+  <p class="try"><b>Try it:</b> six word pieces, six scores. Go to the last step. Which piece does the program print?</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div class="scroll" tabindex="0" role="group" aria-label="Six word pieces with a score each; scrolls sideways on a narrow screen"><table id="sc"></table></div>
+    <div id="m1"></div>
+  <figcaption id="c1"><b>Figure 1.</b> Six scores and the race between them. Watch the line "Printed so far" at the end. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>The program cannot ask which score is highest. So it holds a race. All six scores get 1 added, in one loop, round after round. After each round the pointer slides along the row until it meets an empty cell: a score that has just gone round to zero (<a href="01-machine.html#s7">step 7 of lesson 1</a>). The highest score gets there first.</p>
+    <p>To keep the race short, every score is first split into two digits (a peel: <a href="05-peel.html#s3">step 3 of lesson 5</a>). The race is run on the first digit, and only the winners race again on the second.</p>
+    <p>Then the program prints the letters of the winner with the <code>.</code> command of <a href="01-machine.html#s6">step 6 of lesson 1</a>.</p>
+  </section>
+
+  <h2 id="s2">The whole sum in one program</h2>
+  <p class="try"><b>Try it:</b> go to the last step. The tape holds only the four inputs 90, −25, 40 and 12. What does the program print?</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div id="m2"></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="The three scores the program worked out; scrolls sideways on a narrow screen"><table id="t2"></table></div>
+  <figcaption id="c2"><b>Figure 2.</b> One program for the whole sum. The table underneath fills in with the three scores it worked out. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>That was the whole sum, in one program of 45,360 characters. It multiplied and added (<a href="03-multiply.html#s4">step 4 of lesson 3</a>): 11,868 for " Paris". It divided, rounded and clamped (<a href="05-peel.html#s5">step 5 of lesson 5</a>): 93, 41 and −49. It held the race, and it printed " Paris".</p>
+    <p>The program has no comma in it. It reads nothing. Everything it knows about the three word pieces stands in its own text.</p>
+  </section>
+
+  <h2 id="s3">Other inputs, another word</h2>
+  <p class="try"><b>Try it:</b> change the inputs so that the same program prints " London". Go to the last step after each change:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div class="scroll" tabindex="0" role="group" aria-label="Four inputs with a slider each, and the two columns of weights; scrolls sideways on a narrow screen"><table id="in3">
+      <tr><th></th><th>Input</th><th class="n">Weight for " Paris"</th><th class="n">Weight for " London"</th></tr>
+    </table></div>
+    <div id="m3"></div>
+    <div class="callout hint" id="h3" hidden><h3>Hint</h3><p>Compare the two columns of weights. Input 4 counts 100 times for " London" and only 14 times for " Paris". Make input 4 large.</p></div>
+    <div class="ctl"><button class="quiet" id="h3b">Give me a hint</button></div>
+  <figcaption id="c3"><b>Figure 3.</b> The same program with inputs you choose. Compare the two columns of weights before you move a slider. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>The program did not change. Only the numbers on the tape did, and a different word came out.</p>
+    <p>That is what happens in a chat model. The weights are always the same. The inputs come from the word pieces of your question, by looking back (<a href="10-attention.html">lesson 10</a>). Other question, other inputs, other word.</p>
+  </section>
+
+  <h2 id="s4">The real thing</h2>
+  <p class="try"><b>Try it:</b> this is what the chat program does when you ask a question. Press the six stages, one after the other:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <ul class="tiles pipeline" id="pipe" aria-label="The six stages"></ul>
+    <div class="card" id="stage" aria-live="polite"></div>
+  <figcaption id="c4"><b>Figure 4.</b> The six stages of the chat program. Each one names the lesson in which you built it. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>Each stage is a larger version of something you ran. The chat program does the same kind of work as your program of step 2, with far more of everything: 135 million weights where you had 12, 30 layers where you had one, 49,152 word pieces where you had three.</p>
+    <p>One word piece costs it 1.6 to 1.9 billion steps. In the browser that takes 0.6 to 1.0 seconds <span class="ev">measured</span>.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>You have built a small version of every part that a program needs to work out a number of the model and to choose a word. The four obstacles were: only "is it zero?" (<a href="04-zero.html">lesson 4</a>), two numbers from the tape (<a href="06-product.html">lesson 6</a>), no addresses (<a href="07-walking.html">lesson 7</a>), and size (<a href="08-size.html">lesson 8</a>).</p>
+    <p class="exchange io"><span class="q">What is the capital of France?</span><span class="a">The capital of France is Paris.</span></p>
+    <p class="next-q">That is the route of one answer. <a href="../inside/">Inside the program</a> takes the real program apart, the <a href="../map/">program map</a> shows every character of it, and the <a href="../?m=small">chat page</a> lets you ask it a question of your own.</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p><b>The race, measured.</b> In the chat program, finding the highest of 512 scores took 119,000 to 595,000 steps with a simple countdown, and about 5,000 with this race. The 49,152 scores are handled in groups, and a "best so far" travels from group to group.</p>
+    <p><b>Equal scores.</b> The slide stops at the first empty cell it meets. So when two scores are equal, the one that lies first on the tape wins. Try it in step 1.</p>
+    <p><b>Scores below zero.</b> In step 2 the program adds 128 to each of the three results before the race, so that the scores run from 0 to 255. That is a choice of this lesson.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="The chat program of brnfck-135m in numbers; scrolls sideways on a narrow screen"><table>
+      <caption><b>Table 1.</b> The chat program of brnfck-135m in numbers (counted in the program file; times measured on one desktop computer).</caption>
+      <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td></tr>
+      <tr><td>Weights</td><td class="n">about 135 million</td></tr>
+      <tr><td>Layers</td><td class="n">30</td></tr>
+      <tr><td>Word pieces it knows</td><td class="n">49,152</td></tr>
+      <tr><td>Program length</td><td class="n">1,030,902,380 characters</td></tr>
+      <tr><td>Input</td><td class="n">your question, nothing else</td></tr>
+      <tr><td>Tape</td><td class="n">188,012,789 cells of 32 bits</td></tr>
+      <tr><td>Work for one word piece</td><td class="n">1.6 to 1.9 billion steps</td></tr>
+      <tr><td>Time for one word piece</td><td class="n">about 0.6 to 1.0 seconds</td></tr>
+    </table></div>
+    <p><b>brnfck-0.5b and brnfck-1.5b.</b> The site also runs Qwen2.5-0.5B-Instruct (about 494 million weights) and Qwen2.5-1.5B-Instruct (about 1.54 billion weights) as brainfuck programs, of 4,169,659,608 and 11,430,468,880 characters. They use the same tricks. <a href="../?m=0.5b">brnfck-0.5b</a> runs in the browser at about 2.3 seconds for a word piece; <a href="../?m=1.5b">brnfck-1.5b</a> runs from the command line at 7 to 12 seconds for a word piece, and ran in one desktop Chromium browser at about 9 seconds for a word piece (measured). Unlike brnfck-135m, they get simple sums right.</p>
+    <p><b>What "one brainfuck program" does not mean.</b> The model was not made in brainfuck: it was trained in the usual way, and brainfuck only runs it. Its numbers were rounded to whole numbers first (<a href="09-neuron.html#s2">step 2 of lesson 9</a>). It needs a fast interpreter (<a href="03-multiply.html#s3">step 3 of lesson 3</a>) and cells of 32 bits (<a href="05-peel.html#note-honest">the note "Two honest notes" of lesson 5</a>). And nobody typed a billion characters: a generator wrote them. These lessons build small versions of the parts; the chat program is far larger and was not written by hand. The full list is in How it works, under the question <a href="../how/#pure">What does "pure brainfuck" mean, and what does it not mean?</a> The question <a href="../how/#real">How do I know the program does what it says?</a> on that page has a button that counts every character of the program in your browser.</p>
+    <p><b>Has this been done before?</b> An earlier public project ran a neural network of 7 neurons in brainfuck, for the XOR function. A search for an earlier language model in brainfuck found none. The search was limited, so this is not a claim to be the first.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>11</b> of 11</p>
+    <a class="prev" href="10-attention.html" rel="prev"><span>Previous</span>Looking back</a>
+    <a class="next" href="../inside/" rel="next"><span>Next</span>Inside the program</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(11);
+  const printed = (m) => String.fromCharCode(...m.out);
+  const frameNames = ['marker', 'flag', 'winner', 'first digit', 'second digit'];
+
+  // ---- 1. the race
+  const words = [' Paris', ' London', ' Rome', ' cheese', ' the', '!'], start = [200, 120, 150, 30, 90, 10];
+  const P = D.pick(words), sliders = [], tb = $('sc');
+  words.forEach((w, i) => {
+    const tr = el('tr'), s = el('input'), o = el('output', 'val'), td = el('td'), l = el('label');
+    s.type = 'range'; s.min = 0; s.max = 255; s.value = start[i]; s.setAttribute('aria-label', 'score of' + w);
+    l.append(s, o); td.append(l); tr.append(el('td', '', '"' + w + '"'), td); tb.append(tr); sliders.push(s); s._o = o;
+  });
+  const frameLabel = (fr, a, n) => { const f = (a - fr.base) % 5, i = Math.floor((a - fr.base) / 5) - 1; return frameNames[f] + ' ' + (i >= 0 && i < n ? i + 1 : 'edge'); };
+  const label1 = (a) => (a >= P.SCORE && a < P.SCORE + 6 ? 'score' + words[a - P.SCORE] : a < P.fr.base ? 'scratch' : frameLabel(P.fr, a, 6));
+  const m1 = Learn.machine($('m1'), { code: P.code, bits: 32, size: P.size, cells: 12, follow: true, labels: label1, fast: true, delay: 70,
+    result: (m) => 'It printed "' + printed(m) + '".',
+    onEnd: (m) => L.done(1, 'The program printed "' + printed(m) + '", the piece with the highest score, in ' + fmt(m.steps) + ' steps.') });
+  function setScores() { const init = {}; sliders.forEach((s, i) => { init[P.SCORE + i] = num(s); s._o.textContent = num(s); }); m1.set({ init }); }
+  sliders.forEach((s) => s.addEventListener('input', setScores)); setScores();
+
+  // ---- 2 and 3. the whole goal: a layer, the race, the printing
+  const W = [[100, -60, 30, 14], [60, 30, -14, 100], [-30, 14, -100, 60]], w3 = [' Paris', ' London', ' cheese'], X0 = [90, -25, 40, 12];
+  const O = D.oneWord(W, 7, w3);
+  const label2 = (a) => (a >= O.SCORE && a < O.SCORE + 3 ? 'score' + w3[a - O.SCORE] : a >= O.X && a < O.X + 4 ? 'input ' + (a - O.X + 1) : a >= O.ACC && a < O.ACC + 3 ? 'total' + w3[a - O.ACC]
+    : a < O.fr.base ? 'scratch' : a < O.fr.end ? frameLabel(O.fr, a, 3) : 'scratch');
+  const scores = (m) => [0, 1, 2].map((o) => m.tape[O.SCORE + o] - 128);
+  const initOf = (xs) => { const init = {}; xs.forEach((x, i) => { init[O.X + i] = x >>> 0; }); return init; };
+  const whole = (box, opts) => Learn.machine(box, Object.assign({ code: O.code, bits: 32, size: O.size, cells: 12, from: 0, follow: true, labels: label2, signed: true, fast: true, delay: 40,
+    result: (m) => 'Scores ' + scores(m).map(fmt).join(', ') + '. It printed "' + printed(m) + '".' }, opts));
+  whole($('m2'), { init: initOf(X0), onEnd: (m) => {
+    const t = $('t2'); t.textContent = '';
+    const head = el('tr'); for (const h of ['Word piece', 'Score worked out by the program']) head.append(el('th', h === 'Word piece' ? '' : 'n', h)); t.append(head);
+    scores(m).forEach((s, o) => { const tr = el('tr'); tr.append(el('td', '', '"' + w3[o] + '"'), el('td', 'n', fmt(s))); t.append(tr); });
+    L.done(2, 'One program, ' + fmt(m.steps) + ' steps: it printed "' + printed(m) + '".');
+  } });
+
+  const ins = [], in3 = $('in3');
+  X0.forEach((x, i) => {
+    const tr = el('tr'), s = el('input'), o = el('output', 'val'), td = el('td'), l = el('label');
+    s.type = 'range'; s.min = -128; s.max = 127; s.value = x; s.setAttribute('aria-label', 'input ' + (i + 1));
+    l.append(s, o); td.append(l); tr.append(el('td', 'muted', String(i + 1)), td, el('td', 'n', fmt(W[0][i])), el('td', 'n', fmt(W[1][i]))); in3.append(tr); ins.push(s); s._o = o;
+  });
+  const m3 = whole($('m3'), { onEnd: (m) => {
+    const s = scores(m).map(fmt), what = 'Scores: ' + s[0] + ' for " Paris", ' + s[1] + ' for " London", ' + s[2] + ' for " cheese". ';
+    if (printed(m) === ' London') L.done(3, what + 'It printed " London".');
+    else L.note(3, what + 'It printed "' + printed(m) + '". Change an input and run it again.');
+  } });
+  function setIns() { ins.forEach((s) => { s._o.textContent = fmt(num(s)); }); m3.set({ init: initOf(ins.map(num)) }); }
+  ins.forEach((s) => s.addEventListener('input', setIns)); setIns();
+  Learn.hints($('h3b'), ['h3']);
+
+  // ---- 4. the stages of the real program
+  const stages = [
+    ['Write the model onto the tape', 'Before anything else the program writes its own weights and its list of word pieces onto the tape, with digits and one loop per row. This part is a billion characters long and reads nothing.', [[8, '#s2']]],
+    ['Read the question and cut it into word pieces', 'Your text comes in letter by letter, with the comma command. The program joins the letters into word pieces by looking up pairs in a large table on the tape, which it reaches with long and short hops.', [[1, '#s6'], [7, '#s4']]],
+    ['Run 30 layers for a word piece', 'Each layer first looks back at the earlier word pieces and mixes in what they say. Then a set of sums works on the result. Between the sums, numbers are divided, rounded and clamped by peeling bits.', [[5, ''], [6, ''], [9, ''], [10, '']]],
+    ['Give every word piece a score', 'One last, very wide layer makes a score for each of the 49,152 word pieces: how well would it fit as the next one?', [[9, '#s3']], ', for three word pieces'],
+    ['Find the highest score', 'A race between the scores, without a single comparison.', [[11, '#s1']]],
+    ['Print it, and go round again', 'The program walks to the letters of the winning word piece and prints them with the full-stop command. The piece then goes back in, as if you had typed it, and the layers run again for the next piece. This repeats until the winner is a special "end" piece.', [[1, '#s6'], [7, '#s4']]],
+  ];
+  const pipe = $('pipe'), stage = $('stage'), seen = new Set();
+  const showStage = (i, byReader) => {
+    const keys = [...pipe.querySelectorAll('button')];
+    keys.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
+    stage.textContent = '';
+    const h = el('h3', '', (i + 1) + '. ' + stages[i][0]); h.style.marginTop = 0;
+    const from = el('p', 'muted small', 'You built this in ');
+    stages[i][2].forEach(([n, hash], k, all) => {
+      const l = Learn.LESSONS[n - 1], a = el('a', '', n === L.n ? 'step ' + hash.slice(2) + ' of this lesson' : (hash ? 'step ' + hash.slice(2) + ' of ' : '') + 'lesson ' + n + ', ' + l.title);
+      a.href = l.file + hash;
+      if (k) from.append(k === all.length - 1 ? ' and ' : '; ');
+      from.append(a);
+    });
+    from.append((stages[i][3] || '') + '.');
+    stage.append(h, el('p', '', stages[i][1]), from);
+    stage.lastChild.style.marginBottom = 0;
+    if (!byReader) return;
+    seen.add(i);
+    keys.forEach((b, k) => { b.lastChild.textContent = seen.has(k) ? 'seen ✓' : 'not seen yet'; });
+    if (seen.size === stages.length) L.done(4, 'Those are the six stages. Every one of them is made of parts you have built.');
+    else L.note(4, (stages.length - seen.size) + ' to go.');
+  };
+  stages.forEach((s, i) => { const li = el('li'), b = el('button'); b.type = 'button'; b.append(el('b', '', (i + 1) + '. ' + s[0]), el('span', '', 'not seen yet')); b.addEventListener('click', () => showStage(i, true)); li.append(b); pipe.append(li); });
+  showStage(0, false);
+});
+</script>
+</body>
+</html>

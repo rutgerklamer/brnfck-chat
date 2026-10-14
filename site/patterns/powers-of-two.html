@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Powers of two, and powers</title>
+<meta name="description" content="Works out 2 to the power n, or x to the power y. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#arithmetic">Arithmetic</a><span>Powers of two, and powers</span></p>
+    <h1>Powers of two, and powers</h1>
+    <p class="lead">Works out 2 to the power n, or x to the power y.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>20</b> of 38</p>
+    <a class="prev" href="square.html" rel="prev"><span>Previous</span>Square</a>
+    <a class="next" href="satsub.html" rel="next"><span>Next</span>Saturating subtract</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “2 to the power n” works on 3 cells, named “n”, “result” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change n with the slider:</p>
+
+    <figure class="fig col" id="fig-powers-of-two-two" data-p="powers-of-two" data-v="two" aria-label="The form 2 to the power n of powers of two, and powers, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>Start at 1 and double it n times. Doubling is multiplying by the constant 2 (see <a href="mul-const.html">multiply by a constant</a>), into a scratch cell and back.</p>
+    <p>A general power is the same loop round a multiplication (see <a href="mul-cells.html">multiply two cells</a>) instead of a doubling.</p>
+    <p>Doubling a number moves all its bits one place up. On a wrapping cell the top bit falls out. That is the idea <a href="bit-peel.html">the bit peel</a> turns into a tool.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-powers-of-two-two">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;+&lt;[-&gt;[-&gt;++&lt;]&gt;[-&lt;+&gt;]&lt;&lt;]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%3C%5B-%3E%5B-%3E%2B%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3C%3C%5D&amp;names=0:n,1:result,2:scratch">Open in the playground</a><span class="count" data-len>23 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>One scratch cell for 2ⁿ, three for x to the power y. n and y are used up.</li>
+      <li>Any cell size. The result wraps: 2⁸ is 0 on 8-bit cells.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Expecting 0 to the power 0 to be 0. The loop never runs, so the answer is the 1 it started with.</li>
+      <li>Leaving the base behind: the general form keeps a copy of x in a scratch cell and must clear it at the end. The snippet on the wiki does not.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-powers-of-two-two-cost" data-p="powers-of-two" data-v="two" data-cost-fig aria-label="Steps taken by the form 2 to the power n, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>2 to the power n</td><td>grows with 2ⁿ</td><td>2 + 4n</td></tr>
+<tr><td>x to the power y</td><td>grows with the result</td><td>grows with the result ÷ x</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>2 to the power n</td><td>n = 0</td><td class="n">8</td><td class="n">23</td><td class="n">4</td><td class="n">2</td></tr>
+<tr><td>2 to the power n</td><td>n = 5</td><td class="n">8</td><td class="n">23</td><td class="n">540</td><td class="n">22</td></tr>
+<tr><td>2 to the power n</td><td>n = 12</td><td class="n">8</td><td class="n">23</td><td class="n">2,900</td><td class="n">50</td></tr>
+<tr><td>x to the power y</td><td>x = 3; y = 4</td><td class="n">8</td><td class="n">63</td><td class="n">2,643</td><td class="n">181</td></tr>
+<tr><td>x to the power y</td><td>x = 2; y = 5</td><td class="n">8</td><td class="n">63</td><td class="n">1,605</td><td class="n">149</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-power" aria-labelledby="v-power-h">
+      <h3 id="v-power-h">x to the power y</h3>
+      <p>Layout: x, y, three scratch cells. x becomes the result.</p>
+      <div class="code" data-fig="fig-powers-of-two-power">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-&gt;&gt;+&lt;&lt;]+&gt;[&lt;[-&gt;&gt;&gt;&gt;+&lt;&lt;&lt;&lt;]&gt;&gt;&gt;&gt;[&lt;&lt;[-&lt;&lt;+&gt;&gt;&gt;+&lt;]&gt;[-&lt;+&gt;]&gt;-]&lt;&lt;&lt;-]&gt;[-]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%3E%3E%2B%3C%3C%5D%2B%3E%5B%3C%5B-%3E%3E%3E%3E%2B%3C%3C%3C%3C%5D%3E%3E%3E%3E%5B%3C%3C%5B-%3C%3C%2B%3E%3E%3E%2B%3C%5D%3E%5B-%3C%2B%3E%5D%3E-%5D%3C%3C%3C-%5D%3E%5B-%5D%3C%3C&amp;names=0:x,1:y,2:base,3:scratch,4:counter">Open in the playground</a><span class="count" data-len>63 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-power"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “x to the power y” works on 5 cells, named “x”, “y”, “base”, “scratch” and “counter”. Press <em>Play</em>, drag the step slider forwards and back, or change x and y with the sliders:</p>
+        <figure class="fig col" id="fig-powers-of-two-power" data-p="powers-of-two" data-v="power" aria-label="The form x to the power y of powers of two, and powers, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li><a href="bit-peel.html">The bit peel</a> multiplies by a power of two to push bits out of the cell.</li>
+      <li>In the project: <code>pow2</code> and <code>shl</code> in patterns.js build large powers of two from short loops.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: section "x = x^y" (chad3814); here with its scratch cell cleared at the end.</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>20</b> of 38</p>
+    <a class="prev" href="square.html" rel="prev"><span>Previous</span>Square</a>
+    <a class="next" href="satsub.html" rel="next"><span>Next</span>Saturating subtract</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, culture</title>
+<meta name="description" content="The culture around brainfuck: the joy of constraints, code golf and its records, obfuscation, contests, the game BF Joust, and where the community lives, with links and sources.">
+<meta property="og:title" content="The culture around brainfuck">
+<meta property="og:description" content="The culture around brainfuck: the joy of constraints, code golf and its records, obfuscation, contests, the game BF Joust, and where the community lives, with links and sources.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Culture</span></p>
+    <h1>Culture</h1>
+    <p class="lead">Müller made brainfuck to get a small compiler and &ldquo;moved on to other things&rdquo;, in his words. The language &ldquo;had served its purpose. Or so I thought&rdquo; <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. What happened next was done by other people, for their own reasons: the pleasure of a hard puzzle with simple rules, the sport of making programs as short as possible, and the wish to understand how computers work underneath.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#why">Why people do this</a></li>
+          <li><a href="#golf">Code golf: as short as possible</a></li>
+          <li><a href="#contests">Contests</a></li>
+          <li><a href="#games">A game: BF Joust</a></li>
+          <li><a href="#speech">Obfuscation, and code as speech</a></li>
+          <li><a href="#where">Where the community lives</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="why" aria-labelledby="why-h">
+    <h2 id="why-h">Why people do this</h2>
+    <h3>A puzzle with a guaranteed answer</h3>
+    <p>The README of 1993 ends its description with a dare: "Who can program anything useful with it? :)"&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> Because the language can compute anything computable (see <a href="theory.html">Theory</a>), every task has a solution. Finding it is the game. Mats Linander ends a long technical article on the subject with the plainest statement of the motive we found: "mucking around with brainfuck is just plain fun"&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</p>
+    <h3>Constraints</h3>
+    <p>Taking nearly everything away makes ordinary things interesting again. Adding two numbers is a small invention. Printing a number in decimal is a real program. People who like sonnets or chess problems will know the feeling.</p>
+    <h3>A way of thinking about computing</h3>
+    <p>Michael Mateas and Nick Montfort, who studied such "weird languages" as an art form, put it this way: minimal languages "comment on the space of computation". They draw attention to how little structure a universal machine needs&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. For them brainfuck is the model case: "an archetypically minimalist language".</p>
+    <h3>Learning</h3>
+    <p>The language is small enough to implement in an evening and real enough to be worth it. Müller: "you can write that one in half an hour"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. So it is a common first project for people learning how interpreters and compilers work. Eli Bendersky built a whole series on just-in-time compilation around it&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>, and a brainfuck interpreter is one of the standard tasks in a widely used comparison of programming languages&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>.</p>
+    <p>The author looks at all this with amused surprise. On an implementation of brainfuck inside the game Minecraft: "People are weird." On the programs: "these people scare me"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
+  </section>
+
+  <section id="golf" aria-labelledby="golf-h">
+    <h2 id="golf-h">Code golf: as short as possible</h2>
+    <p>Code golf is the sport of solving a task in the fewest characters. Brainfuck is a natural course for it: programs are long by nature, so every saving counts, and the tricks are strange and deep.</p>
+    <p>The best-documented case is "Hello, World!". On the Code Golf site of Stack Exchange, the user primo posted a program of 78 commands in January 2016 and offered a standing reward to anyone who could beat it. In April 2018 the user KSab answered with 72, found by a search program written for the purpose&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>. Details are under <a href="programs.html#hello">Notable programs</a>.</p>
+    <p>Other standing records:</p>
+    <ul>
+      <li><b>Numbers.</b> The Esolang wiki keeps the shortest known program for every number from 0 to 255, with and without wrapping&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>.</li>
+      <li><b>The interpreter in itself.</b> Cristofani's dbfi, 423 commands, described in a paper as possibly the shortest of its kind&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>.</li>
+      <li><b>Implementations.</b> The smallest compiler and interpreter in machine code, a contest as old as the language. See <a href="implementations.html#small">The smallest</a>.</li>
+    </ul>
+  </section>
+
+  <section id="contests" aria-labelledby="contests-h">
+    <h2 id="contests-h">Contests</h2>
+    <p>Organised contests have been held since at least 1999, when the Hugi size-coding competition set the task of the smallest interpreter and received entries of 98, 100 and 102 bytes&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>.</p>
+    <p>The community held its own. brainfuck.org keeps the results of several "Brainfuck Golf" contests (shortest program for a task such as sorting bytes), of a "Brainfuck Component Competition" and of a "Logical Brainfuck Competition", and photographs of a prize: an abacus with an inscription&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. The Brainfuck Archive has a folder of golf results too&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</p>
+  </section>
+
+  <section id="games" aria-labelledby="games-h">
+    <h2 id="games-h">A game: BF Joust</h2>
+    <p>BF Joust turns the language into a fight. Two programs run at the same time on one tape of 10 to 30 cells, starting at opposite ends. Each guards a "flag" in its own first cell and wins by bringing the other's flag to zero or by making the other leave the tape. A match is played over every tape length. The game was invented by Kerim Aydin in a community that plays a game of changing rules, and it has a permanent tournament ("hill") run by a chat robot, to which anyone can send a program&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>.</p>
+  </section>
+
+  <section id="speech" aria-labelledby="speech-h">
+    <h2 id="speech-h">Obfuscation, and code as speech</h2>
+    <p>A program in brainfuck is hard to read, and that is an attraction too. It stands in the tradition of obfuscated programming, which Mateas and Montfort discuss alongside weird languages&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</p>
+    <p>Once it served an argument. David Touretzky of Carnegie Mellon University collected versions of a legally disputed program in as many forms as he could find, among them a version in brainfuck, to show that program code cannot be cleanly separated from other kinds of expression. The gallery describes the brainfuck exhibit as "a truly minimalist description of the algorithm"&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>.</p>
+    <p>And there is a T-shirt. Müller wore one to his talk with a short brainfuck program on it. Run it and it prints "GEEK"&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
+  </section>
+
+  <section id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the community lives</h2>
+    <div class="scroll" tabindex="0" role="group" aria-label="Places to find people and material, with what each is for; scrolls sideways on a narrow screen">
+    <table id="tab-places" class="cmp">
+      <caption>Places to find people and material, with what each is for.</caption>
+      <thead><tr><th scope="col">Place</th><th scope="col">What it is</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><a href="https://esolangs.org/wiki/Brainfuck">The Esolang wiki</a></th><td>The shared notebook of the esoteric-languages community: conventions, algorithms, constants, implementations, derivatives. Free to edit; its content is in the public domain&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a></td></tr>
+        <tr><th scope="row"><a href="https://esolangs.org/wiki/Esolang:Community_portal">The chat channel #esolangs</a></th><td>A live chat on the Libera.Chat network, with public logs. It gives 9 December 2002 as its birthday and moved to its present home in 2021. The portal also lists other chat groups&nbsp;<a class="cite" href="#ref-18" aria-label="Source 18">[18]</a></td></tr>
+        <tr><th scope="row"><a href="https://brainfuck.org/">brainfuck.org</a></th><td>Daniel Cristofani's site: programs, a reference, advice to implementors, contest results, and the series "get good at brainfuck"&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>&nbsp;<a class="cite" href="#ref-19" aria-label="Source 19">[19]</a></td></tr>
+        <tr><th scope="row"><a href="https://codegolf.stackexchange.com/">Code Golf Stack Exchange</a></th><td>A question-and-answer site for golf in every language. Home of the "Hello, World!" records&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>&nbsp;<a class="cite" href="#ref-18" aria-label="Source 18">[18]</a></td></tr>
+        <tr><th scope="row"><a href="https://esoteric.sange.fi/brainfuck/">The Brainfuck Archive</a></th><td>An older file archive of programs, implementations and tools, collected by Jeff Johnston and kept by Panu Kalliokoski&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a></td></tr>
+        <tr><th scope="row"><a href="https://www.iwriteiam.nl/Ha_BF.html">Frans Faase's pages</a> and <a href="https://muppetlabs.com/~breadbox/bf/">Brian Raiter's page</a></th><td>Two long-standing personal collections: proofs, an interpreter in brainfuck, a tiny compiler, links&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>&nbsp;<a class="cite" href="#ref-21" aria-label="Source 21">[21]</a></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>On this site the way in is <a href="../brainfuck/">Start here</a>, which leads to <a href="../challenges/basics/">Brainfuck basics</a>, ten short lessons on the language. The <a href="../playground/">playground</a>, the <a href="../challenges/">challenges</a> and the <a href="../patterns/">code patterns</a> are for playing: write, practise, copy.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>The reasons under <a href="#why">&ldquo;Why people do this&rdquo;</a> are drawn from what people say about their own work. Nobody has surveyed brainfuck programmers.</li>
+      <li>Communities move. The places in <a href="#tab-places">the table</a> were there on 11 October 2026. We list only places whose pages we opened; there are active groups elsewhere that we did not look at.</li>
+      <li>We took the rules of BF Joust from the wiki and did not play it.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="programs.html"><b>Notable programs and feats</b><span>What all this effort has produced.</span></a></li>
+      <li><a href="relatives.html"><b>Relatives and derivatives</b><span>The other favourite pastime: making new languages from this one.</span></a></li>
+      <li><a href="../challenges/"><b>Challenges</b><span>Try it yourself: exercises from easy to hard.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Michael Mateas and Nick Montfort, "A Box, Darkly: Obfuscation, Weird Languages, and Code Aesthetics"</b>, <i>Proceedings of the 6th Digital Arts and Culture Conference</i>, IT University of Copenhagen, 1 to 3 December 2005, pages 144 to 153: <a href="https://nickm.com/cis/a_box_darkly.pdf">the paper on nickm.com (PDF)</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Eli Bendersky, "Adventures in JIT compilation: Part 1, an interpreter"</b>, 20 March 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-1-an-interpreter/">part 1 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>kostya, <i>benchmarks</i></b>: <a href="https://github.com/kostya/benchmarks">kostya/benchmarks on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Code Golf Stack Exchange, answers to the "Hello, World!" challenge</b>: <a href="https://codegolf.stackexchange.com/a/163590">the answer by KSab</a> (27 April 2018, 72 bytes) and <a href="https://codegolf.stackexchange.com/a/68494">the answer by primo</a> (3 January 2016, 78 bytes). Read through the Stack Exchange API. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Esolang wiki, "Brainfuck constants"</b>: <a href="https://esolangs.org/wiki/Brainfuck_constants">the wiki's table of constants</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Daniel B Cristofani, <i>dbfi.b</i></b>: <a href="https://brainfuck.org/dbfi.b">the self-interpreter on brainfuck.org</a>. The count of 423 commands is ours, of the file without its closing comment. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Oleg Mazonka and Daniel B. Cristofani, "A Very Short Self-Interpreter"</b>, arXiv:cs/0311032, 21 November 2003: <a href="https://arxiv.org/abs/cs/0311032">the abstract on arXiv</a>. We read the abstract only. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>Hugi Size Coding Competition</b>, list of past competitions: <a href="https://www.hugi.scene.org/compo/compoold.htm">the competition archive on hugi.scene.org</a>. Competition 6 (1999) asked for a brainfuck interpreter. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>The Brainfuck Archive</b>, maintained by Panu Kalliokoski, first collected by Jeff Johnston: <a href="https://esoteric.sange.fi/brainfuck/">the archive at esoteric.sange.fi</a> and its <code>README.txt</code>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>Esolang wiki, "BF Joust"</b>: <a href="https://esolangs.org/wiki/BF_Joust">the wiki article on BF Joust</a>. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>David S. Touretzky, "Gallery of CSS Descramblers"</b>, Carnegie Mellon University: <a href="https://www.cs.cmu.edu/~dst/DeCSS/Gallery/">the gallery at cs.cmu.edu</a>. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>Esolang wiki, "Brainfuck algorithms"</b>: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">the wiki's collection of algorithms</a>. Opened 11 October 2026.</li>
+      <li id="ref-18"><b>Esolang wiki, "Community portal"</b>: <a href="https://esolangs.org/wiki/Esolang:Community_portal">the wiki's community portal</a>. Opened 11 October 2026.</li>
+      <li id="ref-19"><b>Daniel B Cristofani, "get good at brainfuck"</b>: <a href="https://brainfuck.org/ggab.html">the series on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-20"><b>Frans Faase, "Brainf***"</b>: <a href="https://www.iwriteiam.nl/Ha_BF.html">the brainfuck pages on iwriteiam.nl</a>. Opened 11 October 2026.</li>
+      <li id="ref-21"><b>Brian Raiter, "Brainfuck: An Eight-Instruction Turing-Complete Programming Language"</b>: <a href="https://muppetlabs.com/~breadbox/bf/">the brainfuck page on muppetlabs.com</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html" aria-current="page"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>10</b> of 13</p>
+    <a class="prev" href="relatives.html" rel="prev"><span>Previous</span>Relatives</a>
+    <a class="next" href="glossary.html" rel="next"><span>Next</span>Glossary</a>
+  </nav>
+</main>
+</body>
+</html>

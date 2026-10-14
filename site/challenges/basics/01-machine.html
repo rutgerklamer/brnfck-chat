@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 1, the machine</title>
+<meta name="description" content="Lesson 1 of Brainfuck basics: a row of cells and two commands, plus and minus. You write your first brainfuck program.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>The machine</h1>
+    <p class="lead">By the end of this lesson you can put any number in a cell, using two of the eight commands of brainfuck.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>1</b> of 10</p>
+    <a class="prev" href="./" rel="prev" aria-disabled="true"><span>Previous</span>All lessons</a>
+    <a class="next" href="02-moving.html" rel="next"><span>Next</span>Moving</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">A box with a number</h2>
+    <p>Here are four boxes in a row, all holding 0. Press the buttons until the box numbered 0 holds 5:</p>
+    <figure class="fig col" id="f1" aria-label="Four boxes that hold 0, and two buttons that change the first one">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that every press changed the first box by exactly 1, and that the other three stayed at 0. The outline marks the box you are working on.</p>
+      <p>The row of boxes is called the <b>tape</b>, a box is a <b>cell</b>, and the outlined one is where the <b>pointer</b> stands. Cells are counted from 0, so the first one is cell 0. The two buttons are <b>commands</b>, written <code>+</code> and <code>−</code>. This tape has four cells to keep it small; a real one has thousands.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">A program is a list of presses</h2>
+    <p>Now nobody presses. The seven presses are written out above the boxes as one line, and the marked one comes next. Press <em>Step</em> until the line ends, then drag the slider back and forth to go through it again:</p>
+    <figure class="fig col" id="f2" aria-label="A line of seven commands, run on a tape of six cells">
+      <div id="m2"></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Notice that the line held five <code>+</code> and two <code>−</code>, and that the first cell ended at 3. Nobody pressed a button: the machine read the line from left to right, one command at a time.</p>
+      <p>A list of commands written down like this is a <b>program</b>.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Write a number</h2>
+    <p>Now you write the line. Make cell 0 hold 7, by typing in the box or with the keys under it. Anything that is not one of the eight commands is skipped, so you may add spaces or words. The tape shows where your program ends:</p>
+    <figure class="fig col" id="f3" aria-label="A box for your own program, and the tape it leaves">
+      <div id="m3"></div>
+      <div class="callout hint" id="h3a" hidden><h3>Hint</h3><p>A number is that many plus signs.</p></div>
+      <div class="row"><button class="quiet" id="h3">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Seven plus signs, and nothing else. Brainfuck has no way to write 7: a number is that many <code>+</code>. For large numbers that gets long. <a href="04-loops.html">Lesson 4</a> and <a href="05-numbers.html">Lesson 5</a> show the way out.</p>
+      <p>The words and spaces you may have typed did nothing, because the machine skips every character that is not a command.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">Below zero</h2>
+    <p>The cell holds 0, and the program is a single <code>−</code>. Press <em>Step</em> once and watch the first box:</p>
+    <figure class="fig col" id="f4" aria-label="One minus on a cell that holds 0">
+      <div id="m4"></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>Not −1, but 255. Notice that the box jumped from the lowest number to the highest. A cell is like the mileage counter of an old car: after the highest number comes 0 again, and before 0 comes the highest number. We say the cell <b>wraps round</b>.</p>
+      <p>The cells in this course hold 0 to 255. That is called an 8 bit cell. Other brainfuck machines have larger cells; the <a href="../../reference/">Reference</a> lists them.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Make cell 0 hold 250. Typing 250 plus signs would work, but six commands are enough if you remember what the last figure did. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can put any number from 0 to 255 in a cell with <code>+</code> and <code>−</code>, and read a program one command at a time. These are the commands you know:</p>
+    <div class="scroll"><table>
+      <caption>The commands of Lesson 1.</caption>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>+</code> <code>−</code></td><td>Add 1 to the cell under the pointer, or take 1 off.</td></tr>
+    </table></div>
+    <p class="measured">Type the minus with the ordinary hyphen key. The pages draw it as − so that it is easier to see; both work in every box.</p>
+    <p class="next-q">One cell is not much, and the tape has thousands. <a href="02-moving.html">Lesson 2</a> moves the pointer along them.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>1</b> of 10</p>
+    <a class="prev" href="./" rel="prev" aria-disabled="true"><span>Previous</span>All lessons</a>
+    <a class="next" href="02-moving.html" rel="next"><span>Next</span>Moving</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const L = Basics.lesson(1);
+  // ---- 1. a box with a number
+  Basics.pad('m1', { cells: 4, move: false, judge: (tape, ptr, presses) => {
+    if (tape[0] === 5) L.done(1, 'Cell 0 holds 5. You pressed ' + presses + ' buttons.'); else L.note(1, 'Cell 0 holds ' + tape[0] + ' now.');
+  } });
+  // ---- 2. a program runs by itself
+  Basics.demo(L, 2, 'm2', 'd1s2', { text: () => 'The program has ended: five up and two down leave 3.' });
+  // ---- 3. write a number
+  Basics.task(L, 3, 'm3', 't1s3', { button: 'h3', hints: ['h3a'], said: (r) => 'Cell 0 holds 7, with ' + r.n + ' commands.' });
+  // ---- 4. below zero
+  Basics.demo(L, 4, 'm4', 'd1s4', { text: (m) => 'The cell went round: it holds ' + m.tape[0] + '.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(1, 'quiz', "What does the program ++++−−+ leave in cell 0?", [["7",false,"There are seven commands, but two of them take one off."],["3",true,"Four up, two down, one up: 4 − 2 + 1 = 3."],["1",false,"Count again: four plus signs, two minus signs, and one more plus."]]);
+  Basics.free('mf', {});
+})();
+</script>
+</body>
+</html>

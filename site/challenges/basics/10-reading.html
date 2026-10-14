@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 10, reading brainfuck</title>
+<meta name="description" content="Lesson 10 of Brainfuck basics: read brainfuck that somebody else wrote. Comments, the pieces that come back all the time, and tracing a program by hand.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Reading brainfuck</h1>
+    <p class="lead">By the end of this lesson you can read a program somebody else wrote: tell comments from commands, recognise the common pieces, and trace a program by hand.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>10</b> of 10</p>
+    <a class="prev" href="09-program.html" rel="prev"><span>Previous</span>A small program</a>
+    <a class="next" href="../../learn/" rel="next"><span>Next</span>Build toward a chatbot</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Comments that bite</h2>
+    <p>This program has a line of explanation above it, and it prints more than the letter H. Press <em>Step</em> a few times and watch which command runs first, then repair the program:</p>
+    <figure class="fig col" id="f1" aria-label="A program with a sentence of explanation above it, in a box that you change">
+      <div id="m1"></div>
+      <div class="callout hint" id="h1a" hidden><h3>Hint</h3><p>Press Step and look at the very first command the machine runs.</p></div>
+      <div class="callout hint" id="h1b" hidden><h3>Hint</h3><p>The full stops and the comma of the sentence are commands. Take them out.</p></div>
+      <div class="row"><button class="quiet" id="h1">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that the sentence itself ran: its full stops printed and its comma read. The machine skips every character that is not one of the eight symbols, so you can write an explanation anywhere. Such text is called a <b>comment</b>. But a full stop, a comma or a hyphen in a comment is a command, and it runs.</p>
+      <p>Writers of brainfuck therefore keep these eight out of their comments: <code>.</code> <code>,</code> <code>−</code> <code>+</code> <code>&lt;</code> <code>&gt;</code> <code>[</code> <code>]</code>. Some put a comment inside a loop that never runs, at the very start of the program, where the cell is still zero. Inside such a loop anything goes, as long as the brackets match.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Pieces you know</h2>
+    <p>Here are three short pieces of program, each one you have met before. Choose what each of them does:</p>
+    <figure class="fig col" id="f2" aria-label="Three short pieces of program, each with a list of descriptions to choose from">
+      <div id="m2"></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Notice that you probably did not read <code>[−]</code> as three commands, but as one word: <q>clear</q>. An experienced reader does the same, and a small stock of such pieces makes up most of every program.</p>
+      <p>They are called <b>idioms</b> or <b>patterns</b>. <a href="../../patterns/">Patterns</a> collects them, one page per pattern, each with a machine to step through.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Trace it by hand</h2>
+    <p>Work out on paper, without running anything, what cell 1 holds when the program <code>++[&gt;+++&lt;−]&gt;+</code> has ended. Type your answer and press <em>Check</em>. A machine then appears to check it with:</p>
+    <figure class="fig col" id="f3" aria-label="A question to answer on paper, with a box for the number; a machine appears after your answer">
+      <div id="m3"></div>
+      <div class="row ask"><label class="stacked">Cell 1 holds<input type="number" id="guess" min="0" max="255" inputmode="numeric"></label><button type="button" id="guessb">Check</button></div>
+      <div id="m3b" hidden></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that the machine shows the numbers you could have written down. That is tracing by hand: keep a row of numbers on paper, one per cell, and a mark for the pointer. For a loop, work out one round and count the rounds. Two rounds of three is 6, and the plus after the loop makes 7.</p>
+      <p>When a program is too long for that, trace it in parts, or let a machine do the stepping while you watch. The <a href="../../playground/">Playground</a> has a stepper for programs of any size.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">A stranger’s program</h2>
+    <p>Here is a program without a word of explanation, with a box for its input. Try a few short inputs and watch the tape, then say what it does:</p>
+    <figure class="fig col" id="f4" aria-label="An unknown program with a box for its input, and three descriptions to choose from">
+      <div id="m4"></div>
+      <div id="pick4"></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>Notice that the input came out backwards. <code>&gt;,[&gt;,]</code> lays the input out along the tape, one character per cell, and leaves cell 0 empty. Then <code>&lt;[.&lt;]</code> walks back, printing, until it meets that empty cell.</p>
+      <p>You found that out the way everybody does: by feeding the program small inputs and watching. Reading and trying go together.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Take a program you wrote in <a href="09-program.html">Lesson 9</a>, give every part its own line and a comment, and check that it still does the same. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, with an input box, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="more" aria-labelledby="more-h">
+    <h2 id="more-h">For when you need them</h2>
+    <p>Four places that help once you write programs of your own:</p>
+    <ul class="linklist">
+      <li><a href="../../playground/"><b>Playground</b><span>An editor and a machine for programs of any size, to write and step through your own.</span></a></li>
+      <li><a href="../../patterns/"><b>Patterns</b><span>The pieces that come back in every program, one page each: clear, move, copy, if, compare, divide, print a number.</span></a></li>
+      <li><a href="../"><b>Challenges</b><span>Tasks from two commands to a few hundred, checked for you case by case, with hints, a worked solution after you solve one, and a score to beat if you like that.</span></a></li>
+      <li><a href="../../reference/"><b>Reference</b><span>The exact rules, the character table, and how brainfuck machines differ from each other.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can tell comments from commands, recognise clear, move and copy at a glance, and trace a short program on paper. These are the pieces to recognise:</p>
+    <div class="scroll"><table>
+      <caption>The pieces of Lesson 10.</caption>
+      <tr><th>Piece</th><th>What it does</th></tr>
+      <tr><td><code>[−]</code></td><td>Clear: empty the cell.</td></tr>
+      <tr><td><code>[−&gt;+&lt;]</code></td><td>Move: add the cell to the cell on its right, and empty it.</td></tr>
+      <tr><td><code>,[.,]</code></td><td>Copy the input to the output.</td></tr>
+    </table></div>
+    <p class="next-q">That was the last lesson of Brainfuck basics. <a href="../../learn/">Build toward a chatbot</a> is the next course: it makes brainfuck do real arithmetic, lesson by lesson, towards one number of a chat model.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>10</b> of 10</p>
+    <a class="prev" href="09-program.html" rel="prev"><span>Previous</span>A small program</a>
+    <a class="next" href="../../learn/" rel="next"><span>Next</span>Build toward a chatbot</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const { $, el } = Learn, P = BasicsPrograms;
+  const L = Basics.lesson(10);
+  // ---- 1. comments that bite
+  Basics.task(L, 1, 'm1', 't10s1', { button: 'h1', hints: ['h1a', 'h1b'], machine: { at: '' }, said: () => 'It prints H and nothing else.' });
+  // ---- 2. pieces you know
+  (function () {
+    const PIECES = [['[-]', 1], ['[->+<]', 2], [',[.,]', 3]];
+    const SAYS = ['choose …', 'empties the cell', 'moves the value one cell to the right', 'copies the input to the output', 'prints the cell two times'];
+    const box = el('div', 'pieces'), sels = [];
+    const judge = () => {
+      const right = PIECES.filter((p, k) => Number(sels[k].value) === p[1]).length, chosen = sels.filter((s) => s.value !== '0').length;
+      if (right === 3) L.done(2, 'All three are right.'); else if (chosen) L.note(2, chosen < 3 ? 'Choose a description for each of the three.' : right + ' of 3 right. Look again at the others.');
+    };
+    PIECES.forEach(([code]) => {
+      const lab = el('label'), sel = el('select'), cd = el('code', 'bf', code.replace(/-/g, '−'));
+      SAYS.forEach((t, k) => { const o = el('option', '', t); o.value = String(k); sel.append(o); });
+      sel.addEventListener('change', judge);
+      lab.append(cd, sel); box.append(lab); sels.push(sel);
+    });
+    $('m2').append(box);
+  })();
+  // ---- 3. trace it by hand
+  (function () {
+    const go = () => {
+      const v = $('guess').value.trim();
+      if (v === '') return L.note(3, 'Type a number first.');
+      if ($('m3b').hidden) { $('m3b').hidden = false; Learn.machine($('m3b'), { code: P.byId.d10s3.code, bits: 8, cells: 6 }); }
+      if (Number(v) === 7) L.done(3, 'Cell 1 holds 7. Run the machine to see it happen.');
+      else L.note(3, Number(v) === 6 ? 'That is the loop alone: two rounds of three. Look at what comes after the loop.' : 'Not that. Write down both cells after every round of the loop, or step through the machine that has appeared.');
+    };
+    $('guessb').addEventListener('click', go);
+    $('guess').addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+  })();
+  // ---- 4. a stranger's program
+  (function () {
+    Learn.machine($('m4'), { code: P.byId.d10s4.code, bits: 8, cells: 6, inputBox: true, inputText: 'abc', max: 2e5 });
+    const fs = el('fieldset', 'picklist quiz'), ask = el('p', 'ask-q'); ask.append(el('b', '', 'What does this program do?')); ask.id = 'pick4-q'; fs.setAttribute('aria-labelledby', ask.id); $('pick4').append(ask);
+    [['It prints the input two times', false], ['It prints the input backwards', true], ['It prints only the last character', false]].forEach(([t, right], k) => {
+      const lab = el('label', 'opt'), inp = el('input'); inp.type = 'radio'; inp.name = 'pick4'; inp.value = String(k);
+      lab.append(inp, el('span', '', t)); fs.append(lab);
+      inp.addEventListener('change', () => { if (right) L.done(4, 'It stores the input and prints it walking back.'); else L.note(4, 'Try the input ab and compare the output with it.'); });
+    });
+    $('pick4').append(fs);
+  })();
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(10, 'quiz', "Which of these lines is safe to use as a comment?", [["add 3, then print.",false,"The comma reads a character and the full stop prints one. Both run."],["add 3 and then print",true,"No symbol in it is a command, so the machine skips all of it."],["counter - 1",false,"The hyphen is the minus command."]]);
+  Basics.free('mf', { inputBox: true, inputText: '3' });
+})();
+</script>
+</body>
+</html>

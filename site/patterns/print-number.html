@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Print a number in decimal</title>
+<meta name="description" content="Prints the value of a cell as digits, for example 173. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#io">Input and output</a><span>Print a number in decimal</span></p>
+    <h1>Print a number in decimal</h1>
+    <p class="lead">Prints the value of a cell as digits, for example 173.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>29</b> of 38</p>
+    <a class="prev" href="print-string.html" rel="prev"><span>Previous</span>Print a constant string</a>
+    <a class="next" href="read-number.html" rel="next"><span>Next</span>Read a decimal number</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “A value from 0 to 255” works on 9 cells; the named ones are “x”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+
+    <figure class="fig col" id="fig-print-number-byte" data-p="print-number" data-v="byte" aria-label="The form A value from 0 to 255 of print a number in decimal, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>A cell holds a number; the screen wants letters. The digits are found by dividing by 10 (see <a href="divmod.html">divide, with remainder</a>): the remainder is the last digit, the quotient is the rest.</p>
+    <p>So the last digit comes first. The digits are stored and then printed in the other order. Adding 48 turns a digit into its letter.</p>
+    <p>The 8-bit form knows there are at most three digits and writes the two divisions out. The form for any cell size loops: divide, store a digit, go on with the quotient until it is zero, then walk back printing (see <a href="scan.html">find a zero cell or a marker</a>).</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-print-number-byte">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;&gt;++++++++++&lt;&lt;[-&gt;+&gt;-[&gt;+&gt;&gt;]&gt;[+[-&lt;+&gt;]&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;&lt;]&gt;&gt;[-]&gt;&gt;&gt;++++++++++&lt;[-&gt;-[&gt;+&gt;&gt;]&gt;[+[-&lt;+&gt;]&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;[-]&gt;&gt;[&gt;++++++[-&lt;++++++++&gt;]&lt;.&lt;&lt;+&gt;+&gt;[-]]&lt;[&lt;[-&gt;-&lt;]++++++[-&gt;++++++++&lt;]&gt;.[-]]&lt;&lt;++++++[-&lt;++++++++&gt;]&lt;.[-]&lt;&lt;[-&lt;+&gt;]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%3C%5B-%3E%2B%3E-%5B%3E%2B%3E%3E%5D%3E%5B%2B%5B-%3C%2B%3E%5D%3E%2B%3E%3E%5D%3C%3C%3C%3C%3C%3C%5D%3E%3E%5B-%5D%3E%3E%3E%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3C%5B-%3E-%5B%3E%2B%3E%3E%5D%3E%5B%2B%5B-%3C%2B%3E%5D%3E%2B%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%5B-%5D%3E%3E%5B%3E%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C.%3C%3C%2B%3E%2B%3E%5B-%5D%5D%3C%5B%3C%5B-%3E-%3C%5D%2B%2B%2B%2B%2B%2B%5B-%3E%2B%2B%2B%2B%2B%2B%2B%2B%3C%5D%3E.%5B-%5D%5D%3C%3C%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C.%5B-%5D%3C%3C%5B-%3C%2B%3E%5D%3C&amp;names=0:x">Open in the playground</a><span class="count" data-len>204 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>8-bit form: eight cells; the value is kept; made for cells that hold 0 to 255.</li>
+      <li>Any-size form: the value, a zero cell, then about three cells per digit, all cleared at the end. The value is kept.</li>
+      <li>A single digit needs one scratch cell.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Printing the cell itself with <code class="bf">.</code>: that prints the letter with that code, not the number.</li>
+      <li>Forgetting that the cost grows with the value, because division counts. Printing 1,000,000 on 32-bit cells takes millions of steps.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-print-number-byte-cost" data-p="print-number" data-v="byte" data-cost-fig aria-label="Steps taken by the form A value from 0 to 255, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>A value from 0 to 255</td><td>about 260 + 34 per unit of x</td><td>about 14 + 9 per unit of x</td></tr>
+<tr><td>Any cell size</td><td>about 270 + 41 per unit of x</td><td>about 30 + 8 per unit of x</td></tr>
+<tr><td>One digit</td><td>82</td><td>3</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>A value from 0 to 255</td><td>x = 0</td><td class="n">8</td><td class="n">204</td><td class="n">264</td><td class="n">14</td></tr>
+<tr><td>A value from 0 to 255</td><td>x = 7</td><td class="n">8</td><td class="n">204</td><td class="n">439</td><td class="n">70</td></tr>
+<tr><td>A value from 0 to 255</td><td>x = 173</td><td class="n">8</td><td class="n">204</td><td class="n">6,188</td><td class="n">1,566</td></tr>
+<tr><td>A value from 0 to 255</td><td>x = 255</td><td class="n">8</td><td class="n">204</td><td class="n">8,844</td><td class="n">2,296</td></tr>
+<tr><td>Any cell size</td><td>x = 0</td><td class="n">8</td><td class="n">160</td><td class="n">272</td><td class="n">31</td></tr>
+<tr><td>Any cell size</td><td>x = 173</td><td class="n">8</td><td class="n">160</td><td class="n">7,403</td><td class="n">1,440</td></tr>
+<tr><td>Any cell size</td><td>x = 255</td><td class="n">8</td><td class="n">160</td><td class="n">10,554</td><td class="n">2,095</td></tr>
+<tr><td>One digit</td><td>x = 7</td><td class="n">8</td><td class="n">22</td><td class="n">82</td><td class="n">3</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-any" aria-labelledby="v-any-h">
+      <h3 id="v-any-h">Any cell size</h3>
+      <p>Loops until the quotient is zero. Layout: value, zero, then working cells.</p>
+      <div class="code" data-fig="fig-print-number-any">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;[-]&gt;[-]+&gt;[-]+&lt;[&gt;[-&lt;-&lt;&lt;[-&gt;+&gt;+&lt;&lt;]&gt;[-&lt;+&gt;]&gt;&gt;]++++++++++&gt;[-]+&gt;[-]&gt;[-]&gt;[-]&lt;&lt;&lt;&lt;&lt;[-&gt;-[&gt;+&gt;&gt;]&gt;[[-&lt;+&gt;]+&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]&gt;&gt;-[-&lt;&lt;+&gt;&gt;]&lt;[-]++++++++[-&lt;++++++&gt;]&gt;&gt;[-&lt;&lt;+&gt;&gt;]&lt;&lt;]&lt;[.[-]&lt;]&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%5B-%5D%3E%5B-%5D%2B%3E%5B-%5D%2B%3C%5B%3E%5B-%3C-%3C%3C%5B-%3E%2B%3E%2B%3C%3C%5D%3E%5B-%3C%2B%3E%5D%3E%3E%5D%2B%2B%2B%2B%2B%2B%2B%2B%2B%2B%3E%5B-%5D%2B%3E%5B-%5D%3E%5B-%5D%3E%5B-%5D%3C%3C%3C%3C%3C%5B-%3E-%5B%3E%2B%3E%3E%5D%3E%5B%5B-%3C%2B%3E%5D%2B%3E%2B%3E%3E%5D%3C%3C%3C%3C%3C%5D%3E%3E-%5B-%3C%3C%2B%3E%3E%5D%3C%5B-%5D%2B%2B%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%3E%5D%3E%3E%5B-%3C%3C%2B%3E%3E%5D%3C%3C%5D%3C%5B.%5B-%5D%3C%5D%3C&amp;names=0:x,1:zero">Open in the playground</a><span class="count" data-len>160 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-any"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Any cell size” works on 10 cells; the named ones are “x” and “zero”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-print-number-any" data-p="print-number" data-v="any" aria-label="The form Any cell size of print a number in decimal, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-digit" aria-labelledby="v-digit-h">
+      <h3 id="v-digit-h">One digit</h3>
+      <p>Adds 48 and prints. For a value from 0 to 9. The cell is left holding the letter.</p>
+      <div class="code" data-fig="fig-print-number-digit">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">&gt;++++++[-&lt;++++++++&gt;]&lt;.</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%3E%2B%2B%2B%2B%2B%2B%5B-%3C%2B%2B%2B%2B%2B%2B%2B%2B%3E%5D%3C.&amp;names=0:digit,1:scratch">Open in the playground</a><span class="count" data-len>22 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-digit"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “One digit” works on 2 cells, named “digit” and “scratch”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-print-number-digit" data-p="print-number" data-v="digit" aria-label="The form One digit of print a number in decimal, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li>Any program that shows a result.</li>
+      <li>The chat program never prints numbers: it prints the bytes of word pieces directly.</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://stackoverflow.com/questions/12569444/printing-a-number-in-brainfuck/13946554#13946554">Stack Overflow: &quot;Printing a number in brainfuck&quot;, answer by itchyny</a>: the 8-bit form, tested here for all 256 values.</li>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: sections "Print value of cell x as number (8-bit)" and "… for ANY sized cell".</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>29</b> of 38</p>
+    <a class="prev" href="print-string.html" rel="prev"><span>Previous</span>Print a constant string</a>
+    <a class="next" href="read-number.html" rel="next"><span>Next</span>Read a decimal number</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

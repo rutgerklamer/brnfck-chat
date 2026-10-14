@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, where implementations differ</title>
+<meta name="description" content="What the brainfuck definition leaves open and where implementations differ: cell size and wrapping, tape length and edges, end of input, newlines. A compatibility table and rules for portable programs.">
+<meta property="og:title" content="Where brainfuck implementations differ">
+<meta property="og:description" content="What the brainfuck definition leaves open and where implementations differ: cell size and wrapping, tape length and edges, end of input, newlines. A compatibility table and rules for portable programs.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Portability</span></p>
+    <h1>Where implementations differ</h1>
+    <p class="lead">The original definition of brainfuck is a table and three sentences. It does not say how large a number a cell can hold, what happens at the ends of the tape, or what the read command does when the input has run out. Implementations fill these gaps in different ways, and already did so in 1993: the compiler and the interpreter in the original package do not agree with each other <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#why">Why there are differences</a></li>
+          <li><a href="#cells">Cell size and wrapping</a></li>
+          <li><a href="#tape">The length of the tape and its ends</a></li>
+          <li><a href="#eof">The end of the input</a></li>
+          <li><a href="#newline">New lines</a></li>
+          <li><a href="#small">Smaller differences</a></li>
+          <li><a href="#table">Compatibility table</a></li>
+          <li><a href="#rules">Programs that work everywhere</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="why" aria-labelledby="why-h">
+    <h2 id="why-h">Why there are differences</h2>
+    <p>Nobody ever wrote a standard. The author says so: there is no formal standard, and people disagree about how large a cell is and about what happens at the end of the input&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>. What exists are three careful descriptions by other people, which mostly agree: Brian Raiter's "Portable Brainfuck"&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>, Daniel Cristofani's reference and his letter to implementors&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>, and the conventions on the Esolang wiki&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>.</p>
+    <p>The differences are as old as the language. The 1993 package holds a compiler and an interpreter, and reading their sources shows that they differ&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>:</p>
+    <ul>
+      <li>The compiler gives a program 30,000 cells. The interpreter declares 5,000 and stops with "RANGE ERROR" as soon as the pointer goes past cell 100.</li>
+      <li>The compiler of this second version works on bytes. The README says that the first version worked on "longwords", which on the Amiga are numbers of 32 bits.</li>
+      <li>At the end of the input the interpreter stores whatever C's <code>getchar()</code> returns. As we read the compiler's source, a compiled program asks the system for one byte and, when none comes, leaves the cell as it was.</li>
+    </ul>
+    <p>So "what the original did" is not one answer.</p>
+  </section>
+
+  <section id="cells" aria-labelledby="cells-h">
+    <h2 id="cells-h">Cell size and wrapping</h2>
+    <p>The program below is one command, run on cell 0. Choose the cell size and the command, and slide the number cell 0 starts at: to 255 for <code>+</code>, or to 0 for <code>-</code>. Press <em>Play</em>:</p>
+
+    <figure class="fig col" id="fig-wrap" aria-label="One command on a cell, for cells of 8, 16 and 32 bits"></figure>
+
+    <p>With 8 bits and a start of 255, the one <code>+</code> left 0: the cell went round. Below 0 comes the largest number the cell can hold, and one more than the largest number is 0. This is called <b>wrapping</b>. With cells of 8 bits the largest number is 255, so 255 + 1 = 0 and 0 − 1 = 255; choose 16 bits and the same commands give 256 and 65,535. The values of a cell are a ring.</p>
+    <p>What the descriptions say:</p>
+    <ul>
+      <li>Cells of 8 bits that wrap are by far the most common, and the Esolang wiki gives them as the normal case&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. Cristofani: a cell holds a whole number, "minimally and usually one byte"&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</li>
+      <li>Raiter's minimum is smaller: a cell must at least hold 0 to 127, and wrapping "is not required"&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</li>
+      <li>Implementations with 16-bit and 32-bit cells exist, and some let you choose&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>. A few have cells without any limit.</li>
+    </ul>
+    <p>Why it matters:</p>
+    <ul>
+      <li><b>Short programs lean on wrapping.</b> The shortest known ways to make many numbers go below zero on purpose: 255 is one <code>-</code> with wrapping and 33 commands without&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>.</li>
+      <li><b>Speed.</b> The loop <span class="bf">[-]</span> empties a cell by counting down. On 8-bit cells that is at most 255 rounds. On 32-bit cells it can be four billion, unless the implementation recognises the loop (see <a href="implementations.html#clear">clear loops</a>).</li>
+      <li><b>Large programs may need large cells.</b> The <a href="programs.html#chat">chat models of this site</a> need wrapping cells of 32 bits and print nonsense on 8-bit cells. A tool chain that compiles C to brainfuck, ELVM, needs the opposite: its README says "you need implementations with 8bit cells"&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>.</li>
+    </ul>
+    <p>A program can find out the size of its cells by counting how often it can double a number before it becomes 0. A well-known test program, bitwidth.b, does this and reports what it found&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>.</p>
+  </section>
+
+  <section id="tape" aria-labelledby="tape-h">
+    <h2 id="tape-h">The length of the tape and its ends</h2>
+    <p>The original gives 30,000 cells&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, and that number became the custom: Cristofani and the Esolang wiki both ask for at least 30,000&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. Raiter's minimum is 9,999, so that very small interpreters can keep the pointer in four digits&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. Many implementations give more, or let the tape grow.</p>
+    <p>The pointer starts on the leftmost cell. The tape below has six cells (I'm showing six; the original has 30,000). Slide the number of moves to the right, then the number of moves to the left, and press <em>Play</em>:</p>
+
+    <figure class="fig col" id="fig-edge" aria-label="A pointer that moves right and then left on a tape of six cells, and what happens at an end"></figure>
+
+    <p>Five moves to the right bring the pointer to the last cell. A sixth, or one move left of the first cell, takes it off the tape, and this machine stops with a message. Moving left from the leftmost cell is an error in the program. What happens then is "unpredictable" in Cristofani's word&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a> and undefined in Raiter's&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. In practice an implementation does one of these:</p>
+    <ul>
+      <li>stops with an error (the machine on these pages does this);</li>
+      <li>goes round to the other end of the tape;</li>
+      <li>has cells on the left as well;</li>
+      <li>writes outside its memory and crashes, or worse.</li>
+    </ul>
+    <p>Some very short programs use cells to the left of the start on purpose. The shortest known "Hello, World!" needs five of them&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. Such a program is short, not portable.</p>
+  </section>
+
+  <section id="eof" aria-labelledby="eof-h">
+    <h2 id="eof-h">The end of the input</h2>
+    <p>The program below copies its input to its output: read, and while the cell is not 0, print and read again. The input is "hello", and you can change it. Choose what the read command does at the end of the input, and press <em>Play</em>:</p>
+
+    <figure class="fig col" id="fig-cat" aria-label="A program that copies its input, under the three ways the read command can end"></figure>
+
+    <p>The loop ends when a read gives 0. That works only where the read command stores 0 at the end of the input. Where it stores −1 the cell becomes 255 and the program prints that for ever. Where the cell is left as it was, the program prints the last letter for ever. The figure follows a run for at most 5,000 steps and says so when the program is still going, because that run would never reach its end.</p>
+    <p>These are the three behaviours you will meet: store 0, store −1, or leave the cell unchanged&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. Raiter calls it "frequently the most problematic issue" for a programmer who wants a program to run everywhere&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>. Cristofani prefers "unchanged", because a program can then choose its own value by setting the cell just before it reads; he asks implementations to offer all three&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>The next program does the same job but is written to stop under all three. Run it under each of them in turn:</p>
+
+    <figure class="fig col" id="fig-cat2" aria-label="The same job, written to stop under all three settings"></figure>
+
+    <p>Now the status line always says it finished. Before every read the program empties the cell with <span class="bf">[-]</span>. After the read the cell is 0 in two of the three cases. Then it adds one: in the third case, −1 becomes 0. It goes on only if the cell was neither. The price: the program also stops at a character with code 0 or 255. Ordinary text has neither.</p>
+  </section>
+
+  <section id="newline" aria-labelledby="newline-h">
+    <h2 id="newline-h">New lines</h2>
+    <p>Operating systems mark the end of a line in different ways: one character with code 10, or a 13 followed by a 10. Brainfuck programs almost always use 10 alone, as Müller's own example programs do&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Cristofani asks implementations to make this work on every system: a program should receive a 10 for each end of line in its input, and a 10 it prints should end a line, with an option to switch that translation off for input that is not text&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>For a program this means: print 10 for a new line and expect 10 at the end of a line you read. If you run it somewhere that sends 13 as well, treat 13 as a character to skip.</p>
+  </section>
+
+  <section id="small" aria-labelledby="small-h">
+    <h2 id="small-h">Smaller differences</h2>
+    <dl class="glossary">
+      <dt>Brackets that do not match</dt><dd>The original compiler does not check; the original interpreter reports them&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Most implementations today refuse to run such a program.</dd>
+      <dt>The debug command <code>#</code></dt><dd>The original interpreter prints the first ten cells when it meets a <code>#</code>, if it was started with an extra argument&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Some implementations kept this. Everywhere else <code>#</code> is a comment. Müller's own "Hello World!" has one in it.</dd>
+      <dt>The separator <code>!</code></dt><dd>An interpreter that reads the program and its input from the same stream needs to know where one ends. The custom is an exclamation mark&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>. In a program file it is a comment.</dd>
+      <dt>When output appears</dt><dd>A program that asks a question and waits for an answer needs its output shown at once, not saved up until the end. Cristofani asks for this&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>; not every implementation does it.</dd>
+      <dt>Characters above 127</dt><dd>The original worked with single bytes. What a byte above 127 looks like on screen depends on the system; today it is usually read as part of a UTF-8 character&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>. A program that prints only codes 10 and 32 to 126 is safe.</dd>
+    </dl>
+  </section>
+
+  <section id="table" aria-labelledby="table-h">
+    <h2 id="table-h">Compatibility table</h2>
+    <p><a href="#tab-compat">The table</a> below puts the answers side by side. The first two columns are the two programs of the 1993 package, read from their sources. The next three are the written descriptions. The last is the machine in the figures of this reference.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="What six implementations and descriptions say about each open point; scrolls sideways on a narrow screen">
+    <table id="tab-compat" class="cmp wide">
+      <caption>What six implementations and descriptions say about each open point. Read along a row. "Not said" means the source is silent. Sources: the 1993 package&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, Raiter&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>, Cristofani&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>, the Esolang wiki&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>.</caption>
+      <thead><tr><th scope="col">Open point</th><th scope="col">1993 compiler</th><th scope="col">1993 interpreter</th><th scope="col">Raiter, "Portable Brainfuck"</th><th scope="col">Cristofani</th><th scope="col">Esolang wiki</th><th scope="col">The figures here</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Cell size</th><td>one byte (the first version: 32 bits)</td><td>one C <code>char</code></td><td>at least 0 to 127</td><td>at least one byte, usually one byte</td><td>normally 8 bits</td><td>8 bits; 16 or 32 where offered</td></tr>
+        <tr><th scope="row">Past the largest value</th><td>wraps (a byte addition)</td><td>whatever a <code>char</code> does</td><td>usually wraps; not required</td><td>may or may not wrap</td><td>should wrap</td><td>wraps</td></tr>
+        <tr><th scope="row">Cells</th><td>30,000 (README)</td><td>5,000 declared; error past cell 100</td><td>at least 9,999</td><td>at least 30,000</td><td>at least 30,000</td><td>a short tape, as many cells as are drawn</td></tr>
+        <tr><th scope="row">Pointer off the tape</th><td>not checked</td><td>"RANGE ERROR", stops</td><td>undefined</td><td>unpredictable</td><td>no cells left of the start</td><td>stops with a message</td></tr>
+        <tr><th scope="row">Read at end of input</th><td>cell unchanged (our reading of the source)</td><td>stores the value of <code>getchar()</code>, in C normally −1</td><td>one of: 0, −1, unchanged</td><td>prefers unchanged; offer all three</td><td>offer all three</td><td>0; or −1 or unchanged where offered</td></tr>
+        <tr><th scope="row">New line</th><td>not said; the examples print 10</td><td>not said</td><td>not said</td><td>10, translated for the system</td><td>10</td><td>10</td></tr>
+        <tr><th scope="row">Unmatched brackets</th><td>not checked</td><td>"UNBALANCED BRACKETS"</td><td>undefined</td><td>not said</td><td>not said</td><td>refuses to run</td></tr>
+        <tr><th scope="row">Other characters</th><td>ignored</td><td>ignored; <code>#</code> prints cells</td><td>ignored</td><td>ignored; <code>#</code> and <code>!</code> allowed</td><td>ignored</td><td>ignored</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="small muted">The chat programs of this site are outside this table on purpose: they need 32-bit wrapping cells and a tape of 188 million cells or more. See <a href="programs.html#chat">Notable programs</a>.</p>
+  </section>
+
+  <section id="rules" aria-labelledby="rules-h">
+    <h2 id="rules-h">Programs that work everywhere</h2>
+    <p>Seven rules. A program that keeps them runs the same on almost every implementation.</p>
+    <ol>
+      <li><b>Keep every cell between 0 and 127</b> if you can; never above 255. Then the size of a cell does not matter.</li>
+      <li><b>Do not count on wrapping.</b> Never take one off a cell that holds 0, and never empty a cell with <span class="bf">[+]</span>. If you do use wrapping, say so in a comment.</li>
+      <li><b>Never move left of the cell you started on.</b></li>
+      <li><b>Use fewer than 9,999 cells</b>, or at least fewer than 30,000.</li>
+      <li><b>Empty a cell before you read into it</b>, and treat both 0 and "all ones" as the end of the input, as the second program under <a href="#eof">the end of the input</a> does.</li>
+      <li><b>Print 10 for a new line</b>, and print only codes 10 and 32 to 126.</li>
+      <li><b>Match your brackets, and keep punctuation out of comments.</b></li>
+    </ol>
+    <p>To see what an implementation does, run Cristofani's small test programs on it. They report how new lines and the end of the input are handled and how far the tape reaches&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>.</p>
+    <p>And when a program does need something special, as many good ones do, say what it needs at the top: the cell size, the tape length, the behaviour at the end of the input.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li>The two "1993" columns are our own reading of the source files <code>bfc.asm</code> and <code>bfi.c</code>. We did not run them on an Amiga.</li>
+      <li>"Most common" is the judgement of the descriptions we cite. We know of no count of implementations.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="implementations.html"><b>Implementations</b><span>How interpreters and compilers work, and a list of well-known ones.</span></a></li>
+      <li><a href="writing.html"><b>Writing real programs</b><span>Idioms and layouts, with the portable choices pointed out.</span></a></li>
+      <li><a href="../playground/"><b>The playground</b><span>Try a program under different settings.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Brian Raiter, "Portable Brainfuck"</b>: <a href="https://muppetlabs.com/~breadbox/bf/standards.html">the portability page on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Daniel B Cristofani, "Yet another brainfuck reference"</b>: <a href="https://brainfuck.org/brainfuck.html">the reference on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Daniel B Cristofani, "The Epistle to the Implementors"</b>: <a href="https://brainfuck.org/epistle.html">the epistle on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>rdebath, <i>Brainfuck</i> repository</b>: <a href="https://github.com/rdebath/Brainfuck">rdebath/Brainfuck on GitHub</a>. Holds the Tritium interpreter, translators to many languages, test programs and a copy of Müller's 1993 compiler. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Esolang wiki, "Brainfuck constants"</b>: <a href="https://esolangs.org/wiki/Brainfuck_constants">the wiki's table of constants</a>. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>shinh, <i>ELVM Compiler Infrastructure</i></b>, README: <a href="https://github.com/shinh/elvm">shinh/elvm on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Daniel B Cristofani, <i>tests.b</i></b>: <a href="https://brainfuck.org/tests.b">test programs for implementations on brainfuck.org</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html" aria-current="page"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>3</b> of 13</p>
+    <a class="prev" href="language.html" rel="prev"><span>Previous</span>The language</a>
+    <a class="next" href="history.html" rel="next"><span>Next</span>History</a>
+  </nav>
+</main>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ref.js?v=r7"></script>
+<script>
+(function () {
+  var A = Article, $ = function (id) { return document.getElementById(id); };
+
+  // cell size: one command on cell 0
+  var bitsSeg = Ref.seg('Cell size', [['8', '8 bits'], ['16', '16 bits'], ['32', '32 bits']], '8', function () { w.reload(); });
+  var cmdSeg = Ref.seg('Command', [['+', '+ adds one'], ['-', '- takes one off']], '+', function () { w.reload(); });
+  var w = A.runner($('fig-wrap'), {
+    values: [{ name: 'Cell 0 starts at', min: 0, max: 255, value: 255 }], rate: 2,
+    build: function (v) {
+      var bits = Number(bitsSeg.get()), top = Math.pow(2, bits) - 1, c = cmdSeg.get();
+      return { code: c, init: { 0: v[0] }, bits: bits, cells: 3,
+        end: function (m) {
+          var was = v[0], now = m.tape[0], wrapped = (c === '+' && was === top) || (c === '-' && was === 0);
+          return 'Finished. Cell 0 holds ' + A.fmt(now) + '.' + (wrapped ? ' It went round: a cell of ' + bits + ' bits holds 0 to ' + A.fmt(top) + '.' : ' A cell of ' + bits + ' bits holds 0 to ' + A.fmt(top) + ', so nothing went round.'); } };
+    }
+  });
+  Ref.addControl($('fig-wrap'), bitsSeg, cmdSeg);
+
+  // the ends of the tape
+  A.machine($('fig-edge'), {
+    code: '{a}{b}', cells: 6, rate: 3,
+    sliders: [
+      { name: 'Moves right', min: 0, max: 7, value: 2, id: 'a', repeat: '>' },
+      { name: 'Then moves left', min: 0, max: 7, value: 1, id: 'b', repeat: '<' }
+    ],
+    end: function (m) { return m.error ? 'Stopped: the pointer went off the ' + m.error + ' end of the tape.' : 'Finished. The pointer is on cell ' + m.p + '.'; }
+  });
+
+  // the end of the input
+  function eof(id, code, text) {
+    var seg = Ref.seg('At the end of the input, the read command', [['0', 'stores 0'], ['-1', 'stores −1'], ['same', 'leaves the cell as it is']], '0', function () { r.reload(); });
+    var f = Ref.field('The input', text, function () { r.reload(); });
+    f.input.maxLength = 8;
+    var r = Ref.runner($(id), { printed: true, input: true, rate: 8,
+      build: function () { return { code: code, size: 4, cells: 4, eof: seg.get(), input: RefRun.bytes(f.get()), maxSteps: 5000,
+        cap: function (m) { return 'Still running after ' + A.fmt(m.steps) + ' steps, and it will not stop by itself: it never reads a 0. This figure follows a run for at most 5,000 steps.'; } }; } });
+    Ref.addControl($(id), f, seg);
+  }
+  eof('fig-cat', ',[.,]', 'hello');
+  eof('fig-cat2', '+[->[-],+[-[.[-]<+>]]<]', 'hello');
+})();
+</script>
+</body>
+</html>

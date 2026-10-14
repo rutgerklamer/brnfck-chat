@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 5: peeling off bits · brnfck.chat</title>
+<meta name="description" content="Lesson 5, the way past the first obstacle: pushing bits out of a cell, so that dividing 11,868 by 128 takes about 120 steps in place of 130,000.">
+<meta property="og:title" content="Lesson 5: peeling off bits">
+<meta property="og:description" content="Lesson 5, the way past the first obstacle: pushing bits out of a cell, so that dividing 11,868 by 128 takes about 120 steps in place of 130,000.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>The way through: peeling off bits</span></p>
+    <h1>The way through: peeling off bits</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson your program divides 11,868 by 128, rounds it and keeps it within limits, in about 120 steps. In <a href="04-zero.html#s3">step 3 of lesson 4</a> that took 131,538.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>5</b> of 11</p>
+    <a class="prev" href="04-zero.html" rel="prev"><span>Previous</span>Obstacle 1: only one question</a>
+    <a class="next" href="06-product.html" rel="next"><span>Next</span>Obstacle 2: two numbers from the tape</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>Counting costs a step for every unit of a number, so the division of the sum is stuck. The way out starts with something from <a href="01-machine.html#s7">step 7 of lesson 1</a>: a cell that is full goes round to zero.</p>
+  </section>
+
+  <h2 id="s1">Push a number out of its cell</h2>
+  <p class="try"><b>Try it:</b> the cell holds 44, drawn as a row of eight switches. Press Double until the cell holds zero, and watch the switches:</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div class="bits" id="b1"></div>
+    <div class="ctl"><button id="b1d">Double</button><button id="b1r" class="quiet">Start again</button></div>
+    <p class="tell" id="b1s" aria-live="polite"></p>
+  <figcaption id="c1"><b>Figure 1.</b> The eight bits of one cell. Watch the bits move left, and the leftmost one fall off. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>Inside a cell a number is a row of switches that are on (1) or off (0). This cell has eight. They are worth 128, 64, 32, 16, 8, 4, 2 and 1, and the number is the worth of the "on" switches added up: 32 + 8 + 4 = 44. Such a switch is called a <b>bit</b>.</p>
+    <p>Doubling moves every bit one place to the left. The leftmost one has nowhere to go and falls off. That is the going round of <a href="01-machine.html#s7">step 7 of lesson 1</a>, seen from the inside.</p>
+  </section>
+
+  <h2 id="s2">A question about one bit</h2>
+  <p class="try"><b>Try it:</b> press the bits to make a number that is zero after exactly three doublings, not sooner. Then press Double three times:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="bits" id="b2"></div>
+    <div class="ctl"><button id="b2d">Double</button><button id="b2r" class="quiet">Back to my number</button></div>
+    <p class="tell" id="b2s" aria-live="polite"></p>
+  <figcaption id="c2"><b>Figure 2.</b> The same cell, with bits you can set. The number must reach zero on the third doubling. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>Three doublings push out the bits worth 128, 64 and 32. Your number was gone exactly then, so every bit below 32 was off, and the one worth 32 was on.</p>
+    <p>"Is the cell zero after three doublings?" is a question about particular bits. It is made from the only question brainfuck has, "is this cell zero?" (<a href="01-machine.html#s4">step 4 of lesson 1</a>).</p>
+    <p>And it is cheap. Doubling three times is multiplying by 8: one loop, one step (<a href="03-multiply.html#s3">step 3 of lesson 3</a>).</p>
+  </section>
+
+  <h2 id="s3">Read a whole number, bit by bit</h2>
+  <p class="try"><b>Try it:</b> the number is 93. Press Play, or go to the last step. Then compare the cells called "bit" with the switches above the program:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div class="ctl vals"><label><span>Number</span><input type="range" id="n3" min="0" max="255" value="93"><output></output></label></div>
+    <div class="bits" id="b3" aria-hidden="true"></div>
+    <div id="m3"></div>
+  <figcaption id="c3"><b>Figure 3.</b> The peel as a program. The cells called "bit" on the right fill in, lowest bit first. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>The program found every bit of the number without counting it down. For each bit it did three things. It made a copy of the number and doubled it as often as needed (one step). It asked "zero?" (one step). And if the bit was on, it took that bit out of the number (a few steps).</p>
+    <p>This is called <b>peeling</b>: taking the bits off one at a time, the lowest first. The cost depends on how many bits a number has, not on how large it is.</p>
+  </section>
+
+  <h2 id="drop">Dividing by 128 without counting</h2>
+  <p>128 is seven doublings, so dividing by 128 means throwing away the lowest seven bits. To round at the same time, add 64 first. Drag the number and watch which bits are kept:</p>
+  <figure class="fig col" id="fig-drop" aria-label="A number plus 64, written as fourteen bits; the highest seven are kept, the lowest seven are thrown away">
+    <div class="ctl vals"><label><span>The number</span><input type="range" id="d-n" min="0" max="16000" value="11868"><output></output></label></div>
+    <div class="bitrow" id="d-bits" role="img"></div>
+    <p class="tell" id="d-say" aria-live="polite"></p>
+    <p class="measured">The bits are worked out in this page, not by a brainfuck program. The next step runs the real one.</p>
+  </figure>
+  <p>Notice that the kept bits are always the number divided by 128 and rounded, and that they only change when the number has moved on by a whole 128. Throwing bits away is how a program divides without counting.</p>
+
+  <h2 id="s4">Counting against peeling</h2>
+  <p class="try"><b>Try it:</b> press "Run both" for 11,868. Then make the number ten times as large and run both again:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div class="ctl">
+      <label class="stacked"><span>Number (up to 1,000,000)</span><input type="number" id="big" min="0" max="1000000" value="11868" inputmode="numeric"></label>
+      <button id="run4">Run both</button>
+      <button id="x10" class="quiet">Ten times as large</button>
+    </div>
+    <div class="scroll" tabindex="0" role="group" aria-label="Counting against peeling: answers and steps; scrolls sideways on a narrow screen"><table>
+      <tr><th>Divide by 128 and round</th><th class="n">Answer</th><th class="n">Steps</th></tr>
+      <tr><td>By counting (<a href="04-zero.html#s3">step 3 of lesson 4</a>)</td><td class="n" id="aC">–</td><td class="n" id="sC">–</td></tr>
+      <tr><td>By peeling</td><td class="n" id="aP">–</td><td class="n" id="sP">–</td></tr>
+    </table></div>
+    <p class="tell" id="ratio"></p>
+    <div id="peelCode"></div>
+  <figcaption id="c4"><b>Figure 4.</b> Two programs for the same division, both run on your number. Compare the two step counts. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>Ten times the number: counting takes ten times as long. Peeling takes a few steps more, because the number has three or four more bits.</p>
+    <p>Dividing by 128 is easy once you can see the bits: throw away the lowest seven and keep the rest. To round, add 64 first.</p>
+    <p>In the chat program, divide, round and keep within limits went from 1.2 to 1.5 million steps by counting (<a href="04-zero.html#s4">step 4 of lesson 4</a>) to about 100 by peeling.</p>
+  </section>
+
+  <h2 id="s5">Keep it within limits</h2>
+  <p class="try"><b>Try it:</b> drag the sum upward until the result stops growing:</p>
+  <figure id="f5" aria-labelledby="c5">
+    <div class="ctl vals"><label><span>The sum</span><input type="range" id="sum" min="-40000" max="40000" step="4" value="11868"><output id="sumo"></output></label></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="The rounded sum and the result of the program; scrolls sideways on a narrow screen"><table>
+      <tr><td>Divided by 128 and rounded</td><td class="n" id="cShift"></td></tr>
+      <tr><td><b>Result of the brainfuck program</b></td><td class="n"><b id="cOut"></b></td></tr>
+      <tr><td>Steps</td><td class="n" id="cSteps"></td></tr>
+    </table></div>
+    <div class="clampline" aria-hidden="true"><i id="mark"></i><span class="lo">−128</span><span class="hi">127</span></div>
+  <figcaption id="c5"><b>Figure 5.</b> Divide, round and clamp as one program. The marker shows the rounded sum; the green band is what the clamp lets through. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a5" hidden>
+    <h3>What you just saw</h3>
+    <p>The result may not go above 127 or below −128. Whatever is larger is cut off. This is called <b>clamping</b>. It keeps every number of the model small, so that the next multiplication stays cheap.</p>
+    <p>The program does not compare with 127. It cannot. It peels the bits it needs and then asks once: is anything left above them? If so, the number was too large.</p>
+    <p>This is the second part of the sum: 11,868 becomes 93.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Divide, round and clamp, at a cost of about a hundred steps whatever the number. With that, comparing is solved too: subtract, and look at one bit. The first obstacle is gone.</p>
+    <p class="next-q">So far every weight stood in the program (<a href="03-multiply.html">lesson 3</a>). A model also multiplies two numbers that are both on the tape. How is that done?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p>The peel of step 3 for your number, bit by bit: start with the lowest bit and double the number 7 times, so that only the lowest bit can survive. Zero or not? If the bit was on, take it out. Then the next bit, with 6 doublings, and so on. The table shows it for the number of step 3.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="The peel of the number of step 3, bit by bit; scrolls sideways on a narrow screen"><table><caption><b>Table 1.</b> The peel of your number, bit by bit (worked out by the page).</caption><tbody id="walk"></tbody></table></div>
+    <p id="note-honest"><b>Two honest notes.</b> Peeling leans on "a multiplying loop is one step" (<a href="03-multiply.html#s3">step 3 of lesson 3</a>). Done one command at a time, a single doubling loop on a large cell would run for millions of rounds, so the real program needs a fast interpreter. And the program text depends on the size of the cells: the chat program is written for cells of 32 bits and gives nonsense on cells of 8 bits.</p>
+    <p>The same peel makes other things. Looking a value up in a list of 256 ready-made answers takes about 68 steps, against about 500 by counting. <a href="10-attention.html#s2">Step 2 of lesson 10</a> uses that.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>5</b> of 11</p>
+    <a class="prev" href="04-zero.html" rel="prev"><span>Previous</span>Obstacle 1: only one question</a>
+    <a class="next" href="06-product.html" rel="next"><span>Next</span>Obstacle 2: two numbers from the tape</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  Article.bind($('n3'), function (v) { return String(v); });
+  // the number as bits: the highest seven are the answer
+  var n = $('d-n');
+  Article.bind(n, function (v) { return Article.fmt(v); });
+  function drop() {
+    var v = Number(n.value), t = v + 64, bits = ('00000000000000' + t.toString(2)).slice(-14), box = $('d-bits');
+    box.replaceChildren();
+    for (var i = 0; i < 14; i++) { var b = Article.el('b', i < 7 ? '' : 'off', bits[i]); box.append(b); }
+    var keep = bits.slice(0, 7);
+    box.append(Article.el('span', 'keep', 'kept: ' + keep + ' is ' + parseInt(keep, 2)), Article.el('span', 'drop', 'the lowest seven: thrown away'));
+    box.setAttribute('aria-label', Article.fmt(v) + ' plus 64 is ' + Article.fmt(t) + ', in bits ' + bits + '. The highest seven, ' + keep + ', are kept.');
+    $('d-say').textContent = Article.fmt(v) + ' + 64 = ' + Article.fmt(t) + '. Its highest seven bits, ' + keep + ', are ' + parseInt(keep, 2) + ', and ' + Article.fmt(v) + ' divided by 128 and rounded is ' + Math.floor((v + 64) / 128) + '.';
+  }
+  n.addEventListener('input', drop);
+  drop();
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(5);
+
+  // A cell of eight switches. opts: start, editable, onDouble(state)
+  function bitsWidget(box, said, o) {
+    const st = { start: o.start, v: o.start, doubles: 0, fell: [] };
+    const draw = () => {
+      box.textContent = ''; box.classList.toggle('chips', !!o.editable);
+      for (let j = 7; j >= 0; j--) {
+        const on = (st.v >> j) & 1, b = el(o.editable ? 'button' : 'div', 'bit' + (on ? ' on' : ''));
+        if (o.editable) { b.type = 'button'; b.setAttribute('aria-pressed', String(!!on)); b.setAttribute('aria-label', 'bit worth ' + (1 << j) + ', ' + (on ? 'on' : 'off')); b.addEventListener('click', () => { st.start = st.v ^ (1 << j); reset(); }); }
+        b.append(String(on), el('small', '', String(1 << j)));
+        box.append(b);
+      }
+      if (said) said.textContent = 'The cell holds ' + st.v + '. Doubled ' + st.doubles + (st.doubles === 1 ? ' time' : ' times') + '.' + (st.fell.length ? ' Fell off the left edge: ' + st.fell.join(' ') + '.' : '') + (st.v === 0 && st.doubles ? ' The cell is zero.' : '');
+    };
+    const reset = () => { st.v = st.start; st.doubles = 0; st.fell = []; draw(); };
+    st.double = () => { if (st.v === 0) return; st.fell.push((st.v >> 7) & 1); st.v = (st.v * 2) & 255; st.doubles++; draw(); if (o.onDouble) o.onDouble(st); };
+    st.reset = reset; st.set = (v) => { st.start = v; reset(); };
+    draw();
+    return st;
+  }
+
+  // ---- 1. push a number out
+  const w1 = bitsWidget($('b1'), $('b1s'), { start: 44, onDouble: (s) => { if (s.v === 0) L.done(1, 'After ' + s.doubles + ' doublings the cell is zero. Every bit that was on fell off the left edge.'); } });
+  $('b1d').addEventListener('click', w1.double); $('b1r').addEventListener('click', w1.reset);
+
+  // ---- 2. exactly three doublings
+  const w2 = bitsWidget($('b2'), $('b2s'), { start: 44, editable: true, onDouble: (s) => {
+    if (s.v !== 0) { if (s.doubles >= 3) L.note(2, 'Three doublings and the cell still holds ' + s.v + '. Some bit below 32 is on.'); return; }
+    if (s.doubles === 3 && core.checks.threeDoublings(s.start).ok) L.done(2, s.start + ' is gone after exactly three doublings.');
+    else L.note(2, s.start + ' became zero after ' + s.doubles + (s.doubles === 1 ? ' doubling' : ' doublings') + ', not three. Which bit must be the lowest one that is on?');
+  } });
+  $('b2d').addEventListener('click', w2.double); $('b2r').addEventListener('click', w2.reset);
+
+  // ---- 3. the peel as a program
+  const pb = D.peelBits(8);
+  const names = (a) => (a === 0 || a === 1 ? 'number' : a === 2 ? 'test' : a === 5 ? 'bit worth' : a >= 7 && a < 15 ? 'bit ' + (1 << (a - 7)) : 'scratch');
+  const w3 = bitsWidget($('b3'), null, { start: 93 });
+  const peel = Learn.machine($('m3'), { code: pb.code, bits: 8, cells: 15, labels: names, init: { 0: 93 }, fast: true, delay: 220,
+    result: (m) => { const on = []; for (let j = 0; j < 8; j++) if (m.tape[7 + j]) on.push(1 << j); return 'The bits that are on: ' + (on.length ? on.join(' + ') + ' = ' + on.reduce((x, y) => x + y, 0) : 'none') + '.'; },
+    onEnd: (m) => L.done(3, 'All eight bits read in ' + m.steps + ' steps, without counting the number down.') });
+  function drawWalk() {
+    const tb = $('walk'), start = num($('n3')); tb.textContent = '';
+    const head = el('tr');
+    for (const h of ['Bit worth', 'Number so far', 'Doubled', 'In the cell', 'So the bit is']) head.append(el('th', 'n', h));
+    tb.append(head);
+    let rest = start;
+    for (let j = 0; j < 8; j++) {
+      const sh = (rest * 2 ** (7 - j)) % 256, bit = sh !== 0 ? 1 : 0, tr = el('tr');
+      for (const c of [1 << j, rest, (7 - j) + ' ×', sh === 0 ? '0: zero' : sh + ': not zero', bit ? 'on (take ' + (1 << j) + ' out)' : 'off']) tr.append(el('td', 'n', String(c)));
+      tb.append(tr);
+      if (bit) rest -= 1 << j;
+    }
+  }
+  $('n3').addEventListener('input', () => { const v = num($('n3')); w3.set(v); peel.set({ init: { 0: v } }); drawWalk(); });
+  drawWalk();
+
+  // ---- 4. counting against peeling
+  const cnt = D.divideCount(7, true), pl = D.dividePeel(7);
+  Learn.codeBox($('peelCode'), pl.code, 'Show the peeling program');
+  let first = null;
+  function run4() {
+    const x = num($('big')); $('big').value = x;
+    const a = core.run(cnt.code, { init: { 0: x } }), b = core.run(pl.code, { init: { 0: x } }), js = Math.floor((x + 64) / 128);
+    $('aC').textContent = fmt(a.tape[1]) + (a.tape[1] === js ? ' ✓' : ' ✗'); $('sC').textContent = fmt(a.steps);
+    $('aP').textContent = fmt(b.tape[1]) + (b.tape[1] === js ? ' ✓' : ' ✗'); $('sP').textContent = fmt(b.steps);
+    $('ratio').textContent = 'For ' + fmt(x) + ', counting takes ' + fmt(a.steps / b.steps) + ' times as many steps as peeling. ✓ = the answer is right.';
+    if (first === null) { first = { x, c: a.steps, p: b.steps }; L.note(4, 'Now make the number ten times as large and run both again.'); }
+    else if (x >= 5 * first.x && x > 0) L.done(4, 'Counting went from ' + fmt(first.c) + ' to ' + fmt(a.steps) + ' steps. Peeling went from ' + fmt(first.p) + ' to ' + fmt(b.steps) + '.');
+    else if (!L.isDone(4)) L.note(4, 'Make the number much larger than ' + fmt(first.x) + ' and run both again.');
+  }
+  $('run4').addEventListener('click', run4);
+  $('x10').addEventListener('click', () => { $('big').value = Math.min(1000000, Math.max(1, num($('big'))) * 10); run4(); });
+
+  // ---- 5. keep within limits
+  const rc = D.roundClamp(7);
+  function clamp() {
+    const s = num($('sum')), r = core.run(rc.code, { init: { 0: s >>> 0 } }), got = r.machine.signed(r.tape[rc.Y]), shifted = Math.floor((s + 64) / 128);
+    $('sumo').textContent = fmt(s);
+    $('cShift').textContent = fmt(shifted);
+    $('cOut').textContent = fmt(got) + (got === core.ref.rq(s, 7, 8) ? ' ✓' : ' ✗');
+    $('cSteps').textContent = fmt(r.steps);
+    const pos = Math.max(-200, Math.min(200, shifted));
+    $('mark').style.left = ((pos + 200) / 4) + '%';
+    $('mark').className = shifted !== got ? 'cut' : '';
+    if (got === 127 && shifted > 127) L.done(5, 'The sum gives ' + fmt(shifted) + ', but the result stays at 127.');
+  }
+  $('sum').addEventListener('input', clamp); clamp();
+});
+</script>
+</body>
+</html>

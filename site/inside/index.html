@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: inside the program</title>
+<meta name="description" content="What the billions of characters of a brainfuck chat program do: a long part that writes numbers into memory and a short engine that uses them. With figures drawn from the real program.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<script>
+(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : 'qwen'); })();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/inside.css?v=r6">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="insights"></script>
+<main class="doc inside" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>Inside the program</span></p>
+    <h1>Inside the program</h1>
+    <p class="lead">This program is <span data-f="chars">billions of</span> characters long, and every one of them is one of the eight commands of brainfuck. Together they run <span data-f="modelName">a chat model</span>. Nearly all of those characters do one small thing: they put a number into memory. A short stretch at the end uses those numbers to turn your question into an answer.</p>
+    <div class="top-nav">
+      <nav id="choose" aria-labelledby="choose-h">
+        <p class="label" id="choose-h">Program shown</p>
+        <div class="seg"><a href="?m=small" data-m="small">brnfck-135m</a><a href="?m=0.5b" data-m="0.5b">brnfck-0.5b</a><a href="?m=1.5b" data-m="1.5b">brnfck-1.5b</a></div>
+      </nav>
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#s1">Two unequal parts</a></li>
+          <li><a href="#s5">A row of numbers</a></li>
+          <li><a href="#s3">Writing a number</a></li>
+          <li><a href="#s4">The engine</a></li>
+          <li><a href="#s6">Where the time goes</a></li>
+          <li><a href="#s7">How it was checked</a></li>
+          <li><a href="#notes">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Two very unequal parts</h2>
+    <p>The program is one line of text, and it runs from its first character to its last <a class="cite" href="#r1">[1]</a>. The strip below is that line drawn to scale. It has two parts, and the second is so short that it is the sliver at the right end. Under the strip, the eight commands are counted. Press the buttons to count one part at a time:</p>
+
+    <figure class="fig" id="fig2" aria-label="The two parts of the program to scale, and how often each command occurs in them">
+      <div class="stack"><div class="in" id="g-parts" role="img"></div></div>
+      <div class="twocap small"><span><i class="sw glyph part" style="background:var(--k-write)" aria-hidden="true"></i>The writing part: <b data-f="writer"></b> characters</span><span><i class="sw glyph part" style="background:var(--k-engine)" aria-hidden="true"></i>The engine: <b data-f="engine"></b> characters</span></div>
+      <div class="bars" id="g-cmds"></div>
+      <div class="ctl"><span class="seg" id="g-seg" role="group" aria-label="Which part to count">
+        <button type="button" data-part="all" aria-pressed="true">Whole program</button><button type="button" data-part="writer" aria-pressed="false">The writing part</button><button type="button" data-part="engine" aria-pressed="false">The engine</button>
+      </span></div>
+      <p class="measured">Counted in the program itself, character by character.</p>
+    </figure>
+
+    <p>Watch the bar for &ldquo;step right&rdquo; when you switch. In the long part it is all but gone, and the plus and minus signs make up more than half of the text. In the short part, left and right are nearly in balance and the plus and minus signs are few. So the two parts are not only unequal in length. They are different kinds of text.</p>
+    <p>The long part is the <b>writing part</b>: <span data-f="writer"></span> characters, the first <span data-f="writerPct"></span> of the program. It moves through memory in one direction. It steps one place to the left, adds or takes off a little, and steps on, from its beginning to its end. It reads nothing and prints nothing. When it is done, the numbers of the model are in memory.</p>
+    <p>The last <span data-f="engine"></span> characters, <span data-f="enginePct"></span> of the program, are the <b>engine</b>. It reads your question, calculates with the numbers the writing part left behind, and prints the answer. It writes little and walks a lot, back and forth between those numbers. It can be short because it works in loops. The commands <code>[</code> and <code>]</code> repeat whatever stands between them, so a calculation that is written once runs for thousands of numbers, and again for every piece of the answer. How long a part is says nothing about how long it runs.</p>
+    <p>Look at the last two bars with the whole program chosen. The read command <code>,</code> and the print command <code>.</code> each occur once. Both stand inside loops, so each is used for every letter that goes in or comes out. The <code>,</code> is character <span data-f="commaAt"></span>, about <span data-f="commaInto"></span> characters into the engine, and everything before it runs the same way whatever you ask. <span data-only="small">That is why the chatbot can keep a copy of the memory and skip the writing part the next time.</span><span data-only="0.5b">That is why the chatbot runs the writing part only once: for the next question it puts back the 1.6 million places in memory that an answer changes.</span><span data-only="1.5b">Whatever runs this program has to carry out the whole writing part once before it can read a question.</span></p>
+
+    <details class="q fold"><summary>The mix of commands from the first character to the last</summary><div class="a">
+      <p>The same count, taken along the program instead of over a whole part. The writing part looks the same from start to end; the mix changes only in the engine, at the far right. Drag along the strip, or use the slider, to read one slice.</p>
+      <canvas class="strip" id="g-profile" height="72" role="img" aria-label="Share of each command along the program, in 2,048 slices. The mix is the same along the whole writing part and changes only in the engine, at the far right."></canvas>
+      <div class="axis"><span>character 1</span><span id="g-profile-mid"></span><span data-f="chars"></span></div>
+      <div class="ctl"><div class="slide"><label for="g-pos">Slice</label><output for="g-pos" aria-live="off"></output><input type="range" id="g-pos" min="0" max="2047" step="1" value="0"></div></div>
+      <p class="tell" id="g-pos-said" aria-live="polite"></p>
+      <p class="measured"><span id="g-profile-note"></span> <span class="ev">measured</span></p>
+    </div></details>
+    <details class="q fold"><summary>The order of the writing part</summary><div class="a">
+      <p>The writing part fills memory from one end to the other, in the order in which the engine wants to find things. It starts with the table the engine uses last, the output table, then writes layer <span data-f="layers"></span> down to layer 1, then the table of word pieces and the vocabulary. The next section shows where each of these lies. On <a href="../map/" class="tomap">the program map</a> each one is a field of its own colour.</p>
+      <p data-only="qwen">In this program the output table and the table of word pieces hold the same numbers: the model uses one table for both jobs. The program writes it twice, in two orders, because the engine walks over it in two ways. Together the two copies are <span data-f="tableTwicePct"></span> of the program. At the edges of every layer lie thin strips of constants, a few thousand characters each.</p>
+    </div></details>
+    <details class="q fold" id="fig1"><summary>How much is <span data-f="charsShort"></span> characters?</summary><div class="a">
+      <div class="chips" id="g-ways" role="group" aria-label="Ways to picture the size"></div>
+      <p id="g-fact" aria-live="polite"></p>
+      <p class="measured"><span id="g-basis"></span> <span class="ev">estimated from a measured count</span></p>
+    </div></details>
+
+    <p class="next-q">Both parts work on the same thing, the program's memory. What does that memory look like?</p>
+  </section>
+
+  <section id="s5" aria-label="The tape, and the two parts at work on it">
+  <section aria-labelledby="s5-h">
+    <h2 id="s5-h">A row of numbers</h2>
+    <p>Start with a very small one. The machine below has a row of boxes that all hold 0, and five of the eight commands as keys. Press <kbd>,</kbd> then <kbd>+</kbd> then <kbd>.</kbd> and watch the first box:</p>
+
+    <figure class="fig col" id="fig-machine" aria-label="A small machine with a row of nine boxes and five command keys">
+      <div class="keypad" id="cmds" role="group" aria-label="Five of the eight brainfuck commands"><button type="button" data-c="," aria-label="Read the letter A">,<small>read A</small></button><button type="button" data-c="+" aria-label="Add one">+<small>add 1</small></button><button type="button" data-c="." aria-label="Print the current box">.<small>print</small></button><button type="button" data-c="&gt;" aria-label="Move right">&gt;<small>right</small></button><button type="button" data-c="&lt;" aria-label="Move left">&lt;<small>left</small></button></div>
+      <div class="command-play" id="commandPlay">
+        <div class="command-tools" id="commandTools">
+          <div class="tool cells-tool"><div class="tape joined" id="commandTape" role="list" aria-label="The boxes of the small machine"></div></div>
+          <div class="tool"><span class="label">Printed</span><output class="cell" id="commandOutput" aria-label="What the small machine printed">&mdash;</output></div>
+          <button id="commandReset" type="button" class="quiet" aria-label="Start again" title="Start again">&#8634;</button>
+        </div>
+        <input type="hidden" id="commandInput" value="A">
+        <p class="verdict" id="playText" role="status" aria-live="polite">Press , then + then .</p>
+      </div>
+    </figure>
+
+    <p>The box went to 65, then to 66, and the machine printed B. Brainfuck has no letters, only numbers: 65 is the number computers use for A, and 66 is the one for B. So <code>,</code> read a letter as a number, <code>+</code> added one to it, and <code>.</code> printed the result as a letter again.</p>
+    <p>Now press <kbd>&gt;</kbd> and then <kbd>+</kbd>. A different box changes. The filled box with the small mark under it is where the machine is working, and <code>&gt;</code> and <code>&lt;</code> move that place one box at a time. The row of boxes is called the <b>tape</b>, one box is a <b>cell</b>, and the mark is the <b>pointer</b>. That is all the memory brainfuck has. There are no names for things and no way to jump to a cell: to use a number, the pointer has to walk to it.</p>
+    <p>I'm showing nine cells here, and each holds a number from 0 to 255. The tape of this program has <span data-f="tape"></span> cells, and each holds a number up to about four billion<span data-only="small"> (0.70 GiB of your computer's memory)</span><span data-only="0.5b"> (2.45 GiB of your computer's memory)</span><span data-only="1.5b"> (6.81 GiB of your computer's memory, more than the 4 GiB a browser tab can address in the usual way)</span>. The commands are the same ones you just pressed.</p>
+    <p>What is in all those cells? The bar below is the real tape after the writing part has run, drawn to scale, with cell 0 at the left. Each colour is one kind of content. Press a colour to read what lies there, or drag along the bar, or use the slider under it, to move a marker over the tape. A press on a layer zooms in to it:</p>
+
+    <figure class="fig" id="t-card" aria-label="The tape of this program, to scale, coloured by what lies where">
+      <canvas id="t-bar" class="strip tall" height="56" role="img" aria-label="The tape, to scale, coloured by what lives where. The table under the figure lists the same parts with their sizes."></canvas>
+      <div class="axis"><span id="t-from">cell 0</span><span id="t-mid"></span><span id="t-to"></span></div>
+      <div class="ctl"><div class="slide"><label for="t-pos">Place on the tape</label><output for="t-pos" aria-live="off"></output><input type="range" id="t-pos" min="0" max="2000" step="1" value="0"></div></div>
+      <p class="tell one muted" id="t-hint"></p>
+      <p class="tell" id="t-said" aria-live="polite"></p>
+      <div class="ctl"><button type="button" class="quiet" id="t-all">Whole tape</button><button type="button" class="quiet" id="t-layer">One layer</button><button type="button" class="quiet" id="t-slot">One memory slot</button></div>
+      <div class="key" id="key"><ul class="legend" id="legend-kinds"></ul></div>
+      <p class="measured">Read from the tape the program writes. Pale stretches are cells with nothing in them. <span class="ev">measured</span></p>
+    </figure>
+
+    <p>Almost the whole bar is filled, and almost all of the filling is of one kind: weights. A <b>weight</b> is one of the numbers the model learned when it was trained. A model is a very long list of them plus a fixed recipe for multiplying and adding them, so a tape full of weights is the model.</p>
+    <p>The model does not read letters. It reads <b>word pieces</b>: a word piece is a word or a part of a word, such as &ldquo;capital&rdquo; or &ldquo;ing&rdquo; (elsewhere it is called a token). The stretch marked W, at the right, is the table of word pieces. It has one row of <span data-f="dim"></span> numbers for each of the <span data-f="vocab"></span> word pieces the model knows. The stretch marked O, at the far left, is the output table, which is used at the very end to choose the next word piece.</p>
+    <p>Between those two lie <span data-f="layers"></span> stretches that look alike. Each is a <b>layer</b>: one round of the model's calculation, with weights of its own. Every word piece goes through all <span data-f="layers"></span>. If you pressed <em>One layer</em> you saw that a layer has weights of two kinds. The ones marked A are for attention, the part of a layer that looks back at the earlier word pieces. The ones marked F are for the part that works on the current word piece alone. Between them, marked M, lie 256 memory slots, one for each word piece of the conversation. That is where the model keeps what it has read, and it is why a conversation here ends after 256 word pieces. The first 24 slots are filled before you ask anything: they hold the fixed opening lines that tell the model to be a helpful assistant.</p>
+    <p data-only="qwen">The table of word pieces is on this tape twice: once at the right, and once more at the far left as the output table, in <span data-f="chunks"></span> parts. Together the two copies take <span data-f="tableTapePct"></span> of the tape.</p>
+
+    <details class="q fold"><summary>The parts of the tape, in cells</summary><div class="a">
+      <p>What lies in the stretch the bar shows now. Zoom the bar and this table follows it. <span data-only="qwen">The thin strips of constants are too narrow to see in the bar; with one layer in view they are listed here.</span></p>
+      <div class="scroll"><table id="t-table"><caption class="sr-only">What lies in the part of the tape that the bar shows</caption></table></div>
+    </div></details>
+
+    <p class="next-q">Before the engine can start, <span data-f="nonZero"></span> of these cells must hold exactly the right number. How does a language that can only add one and take one away write that many numbers?</p>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Writing a number without typing it</h2>
+    <p>Brainfuck has no command that means &ldquo;put 513 here&rdquo;. From zero, 513 takes 513 plus signs. Written that way, the numbers on this tape would take <span data-f="plainShort"></span> characters, about <span data-f="plainRatio"></span> times the length of the writing part as it is.</p>
+    <p>The writing part does something shorter. It is cut into <span data-f="blocks"></span> blocks, and each block fills a run of neighbouring cells, at most 8,192 of them <a class="cite" href="#r4">[4]</a>. The figure below holds one real block. The box shows the commands that run next, and your browser carries them out. Each row of the table is one cell: what it holds now, and what it must hold when the block is done. Press <em>Step</em>, or drag the slider under the table forwards and back, and watch the column &ldquo;In the cell now&rdquo;. Keep going until the line under the table says every cell is right:</p>
+
+    <figure class="fig" id="b-card" aria-label="One block of the writing part, run step by step">
+      <div class="listing" id="b-text" tabindex="0" aria-label="The commands of this part of the block"></div>
+      <div class="scroll"><table id="b-table"><caption class="sr-only">The ten cells the commands reach first: their digits, what they hold now and what they must hold</caption></table></div>
+      <canvas id="b-strip" height="40" role="img" aria-label="All cells of the block. The line below says how many hold their final number."></canvas>
+      <p class="verdict" id="b-verdict" aria-live="polite"></p>
+      <div class="ctl"><div class="slide"><label for="b-scrub">Characters run</label><output for="b-scrub" aria-live="off"></output><input type="range" id="b-scrub" min="0" max="1" step="1" value="0"></div></div>
+      <p class="where" id="b-where"></p>
+      <div class="ctl btnrow">
+        <button type="button" id="b-back" class="quiet">Back</button>
+        <button type="button" id="b-next" class="primary">Step</button>
+        <button type="button" id="b-play" class="quiet play">Play</button>
+        <button type="button" id="b-end" class="quiet">To the end</button>
+        <button type="button" id="b-reset" class="quiet">Start again</button>
+      </div>
+      <div class="ctl"><div class="slide"><label for="b-speed">Speed</label><output for="b-speed" aria-live="off"></output><input type="range" id="b-speed" min="1" max="10" step="1" value="4"></div></div>
+      <p class="tell" id="b-said" aria-live="polite"></p>
+      <details class="more"><summary>More controls</summary>
+        <div class="ctl"><label>Another block <select id="b-pick"></select></label><a class="btn quiet" href="../map/" id="b-onmap">Show this block on the program map</a></div>
+        <p class="label" style="margin-top:var(--s3)">Jump to a part of the block</p>
+        <div class="chips" id="b-phases" role="group" aria-label="The parts of the block, in order"></div>
+        <p class="measured" id="b-meta"></p>
+      </details>
+      <p class="measured">The commands are the real text of the program; the numbers they must produce were read from the tape. The table shows ten of the block's cells, the ten the commands reach first. The bar under it stands for all of them. <span class="ev">measured</span></p>
+    </figure>
+
+    <p>The cells did not get their numbers in one go. The first press gave every cell the same small start value. After that, two kinds of press took turns. One kind walked along the block and gave each cell a few plus or minus signs: those are the columns of signs in the table. The other kind was a single short loop that multiplied every cell by one small number, the &times;5, &times;7 or &times;3 in the headings of the table, and shifted the whole block one cell to the left.</p>
+    <p>That is how we write numbers ourselves. 513 is a 5, times ten, plus 1, times ten, plus 3: three small <b>digits</b> instead of 513 strokes. The block does the same with every one of its cells at once. A pass of plus and minus signs writes one digit into each cell, and the shared loop does the multiplying for all of them. The loop is written once, however many cells the block has.</p>
+    <p>The digits here can be negative. Where the loop multiplies by 5 they run from &minus;2 to 2, so such a digit never costs more than two characters. A digit of 0 costs none: the commands just step past that cell.</p>
+    <p>Two details keep this working. The shared loop stops at the first cell that holds zero, so no cell may be zero on the way: that is what the start value is for. And the digits count from a middle value of the block, not from zero, which keeps them small. The last loop takes the start value off again and puts the middle value back.</p>
+    <p data-only="qwen">All three programs were written by the same encoder, so a block of this program is built like a block of brnfck-135m. What differs is what is in the cells: these weights have 8 bits where brnfck-135m's have 10, and there are strips of larger constants. Choose one under <em>More controls</em> to see a block with many more digits per cell.</p>
+
+    <p>The block above needed only a few signs per cell. Is that luck? The next figure counts every weight on the tape by its value. Choose a part of the model to see its weights alone, and slide the marker along the values to read how many weights have each:</p>
+
+    <figure class="fig" id="d-card" aria-label="How often each weight value occurs">
+      <canvas id="d-hist" class="chart" height="180" role="img" aria-label="How often each weight value occurs. The line below gives the main numbers."></canvas>
+      <div class="chips" id="d-kinds" role="group" aria-label="Part of the model"></div>
+      <div class="ctl"><div class="slide"><label for="d-val">Weight value</label><output for="d-val" aria-live="off"></output><input type="range" id="d-val" min="-130" max="130" step="1" value="0"></div></div>
+      <p class="tell" id="d-hist-note" aria-live="polite"></p>
+    </figure>
+
+    <p>Whichever part you choose, the bars pile up in the middle. Most weights are close to zero. (The tape stores a weight as the weight plus <span data-f="weightOffset"></span>, so that a stored weight is never zero; the chart shows the weights themselves.) Numbers that lie close together are a small distance from the middle value of their block, and a small distance has small digits. Here is every digit the writing part wrote after the first one of a cell, counted:</p>
+
+    <figure class="fig col" id="fig-digits" aria-label="The digits that were written, and how often">
+      <div class="bars" id="d-digits"></div>
+      <p class="measured"><span id="d-digits-note"></span> <span class="ev">measured</span></p>
+    </figure>
+
+    <p>Most digits are 0, 1 or &minus;1, the three cheapest. That brings the writing part to about <span data-f="charsPerCell"></span> characters for each of the <span data-f="nonZero"></span> cells it fills.</p>
+
+    <details class="q fold" id="s3-all"><summary>What one cell costs, and how close that is to the shortest possible</summary><div class="a">
+      <p class="label">Characters per cell</p>
+      <canvas id="d-cost" class="chart" height="150" role="img" aria-label="How many characters one cell costs"></canvas>
+      <p class="measured" id="d-cost-note"></p>
+      <p class="label" style="margin-top:var(--s4)">Three ways to write the same tape</p>
+      <div class="bars" id="d-compare"></div>
+      <p class="measured" id="d-compare-note"></p>
+      <p>How far is this from the best possible? The numbers on the tape carry <span data-f="entropy"></span> bits of information per cell. A brainfuck character can carry at most 3 bits, because there are 8 commands. So no way of writing this tape can be much shorter than <span data-f="floorShort"></span> characters. The writing part uses <span data-f="writerShort"></span>: <span data-f="floorRatio"></span> times that floor. The floor is <span class="ev">estimated</span>: the information on the tape, counted per million cells, divided by 3.</p>
+      <p data-only="qwen">In this model every row of a table of weights has its own scale. Before the weights were stored, each row was multiplied by a power of two of its own, as large as it could be while the largest weight of the row still fits in 8 bits. That is why these values spread wider than those of brnfck-135m, and why a cell costs a little more.</p>
+    </div></details>
+
+    <p class="next-q">When the writing part ends, the tape holds the whole model and nothing has been read yet. What happens when you ask something?</p>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">The engine</h2>
+    <p>The bar below is the engine alone, characters <span data-f="engineFrom"></span> to <span data-f="chars"></span>, drawn to scale <a class="cite" href="#r5">[5]</a>. Each coloured stretch is one section of it, and the list under the bar names them in the order in which they run. Press a stretch of the bar or a row of the list to read what that section does, or drag along the bar:</p>
+
+    <figure class="fig" id="e-card" aria-label="The sections of the engine, and what the chosen one does">
+      <canvas id="e-bar" class="strip tall" height="56" role="img" aria-label="The sections of the engine as a bar, to scale. The list gives the same sizes as numbers."></canvas>
+      <div class="axis"><span>character <span data-f="engineFrom"></span></span><span>the engine, to scale</span><span data-f="chars"></span></div>
+      <div class="ctl"><div class="slide"><label for="e-pos">Character in the file</label><output for="e-pos" aria-live="off"></output><input type="range" id="e-pos" min="0" max="2000" step="1" value="0"></div></div>
+      <div class="inspect">
+        <div class="scroll" tabindex="0" role="group" aria-label="The sections of the engine"><table class="select" id="e-table"><caption class="sr-only">The sections of the engine, in the order of the program</caption></table></div>
+        <div id="e-detail">
+          <h3 id="e-title" aria-live="polite"></h3>
+          <p id="e-desc"></p>
+          <dl class="facts" id="e-facts"></dl>
+          <details class="more"><summary>Read its commands</summary>
+            <div class="chips" id="e-excerpts" role="group" aria-label="Pieces of this section to read"></div>
+            <p class="measured" id="e-ex-title"></p>
+            <div class="listing rows" id="e-code" tabindex="0" aria-label="The commands of the chosen piece, with notes"></div>
+            <p class="measured">The real commands of the program, one loop level per indent; a run of the same command is written as a count. The notes on the right are worked out from the shape of each loop.</p>
+            <p><a class="btn quiet" href="../map/" id="e-onmap">Show this section on the program map</a></p>
+          </details>
+        </div>
+      </div>
+    </figure>
+
+    <p>Read from top to bottom, the list is a recipe. Read the question and cut it into word pieces. Then, for one word piece at a time: fetch its row of <span data-f="dim"></span> numbers from the table, take those numbers through the layers, give every word piece the model knows a score, and keep the one with the highest. Print that word piece. It then becomes the next one to go through, and so the answer grows a word piece at a time, until the model picks a word piece that means &ldquo;end&rdquo; or the 256 slots are full.</p>
+    <p>Look at the heading &ldquo;In each of the <span data-f="layers"></span> layers&rdquo;. The sections under it stand in the program once. One loop runs them <span data-f="layers"></span> times, and each time the pointer has moved on to the next layer's weights. This works because the engine never names a place. Its commands only say &ldquo;so many cells to the left&rdquo;, and the layers are laid out alike, so the same commands fit every one of them.</p>
+    <p>If you opened <em>Read its commands</em> you saw mostly long runs of <code>&lt;</code> and <code>&gt;</code>. Most of the engine is walking; its longest single walk is <span data-f="longestWalk"></span> cells. The arithmetic is done by a few small patterns that return everywhere. The one to remember is the <b>bit peel</b>, which reads a number one binary digit at a time. Dividing, rounding, comparing and multiplying two numbers are all built on it.</p>
+
+    <details class="q fold"><summary>The five patterns the engine is built from</summary><div class="a">
+      <dl class="glossary">
+        <dt>Move and copy</dt><dd><code>[-&gt;+&lt;]</code> empties one cell into another. A cell can only be read by emptying it, so a copy empties it into two cells and moves one back.</dd>
+        <dt>Multiply by a fixed number</dt><dd><code>[-&gt;+++++&lt;]</code> adds five times the cell to its neighbour.</dd>
+        <dt>Bit peel</dt><dd>Doubling a cell pushes its highest binary digit out. By doubling the right number of times, &ldquo;is this cell zero?&rdquo; becomes &ldquo;is this digit a one?&rdquo;. That reads a number digit by digit, in about 4 steps each.</dd>
+        <dt>Table lookup</dt><dd>A tree of such tests, with a different fixed number added at the end of every branch. This is how the engine takes an exponential or one divided by a number: it looks the answer up.</dd>
+        <dt>The walk over slots</dt><dd>A loop whose commands end a fixed number of cells further than they began. The same commands then run on the next slot. This is how the engine visits every earlier word piece.</dd>
+      </dl>
+    </div></details>
+    <details class="q fold" data-only="qwen"><summary>How this engine differs from brnfck-135m's</summary><div class="a">
+      <p>The two bigger models are of another make (Qwen2.5), and their engine was written again for them <a class="cite" href="#r5">[5]</a>. It has the same 23 sections as brnfck-135m's, but most of them work differently:</p>
+      <ul>
+        <li><b>A scale for every row.</b> Weights are 8 bits here. Each row of a table of weights has its own number of doublings, kept in a strip next to the place where the totals are rounded.</li>
+        <li><b>A bias.</b> The totals of the first table of a layer get a constant added, one for each of its <span data-f="qkvRows"></span> rows.</li>
+        <li><b>Gains kept apart.</b> Every scaling multiplies each of the <span data-f="dim"></span> running numbers by a gain of its own, from a strip of constants, and rounds again.</li>
+        <li><b>The running numbers travel as a strip.</b> With a scale for every row they cannot be put into the totals beforehand. They ride along and are added when the totals are rounded.</li>
+        <li><b>Shared keys.</b> The model looks back with <span data-f="heads"></span> heads but stores only <span data-f="kvHeads"></span> keys and values per word piece: <span data-f="share"></span> heads share one.</li>
+        <li><b>One table, used twice.</b> There is no separate output table. The scores come from the table of word pieces itself, which lies on the tape a second time, cut into <span data-f="chunks"></span> parts of <span data-f="chunk"></span> rows.</li>
+        <li><b>A bigger vocabulary, stored smaller.</b> <span data-f="vocab"></span> word pieces. The text of a word piece is not stored: three cells say which two smaller word pieces it is made of, and printing follows those rules down to single bytes.</li>
+      </ul>
+    </div></details>
+
+    <p>Since the engine can only walk, one word piece is one long trip. The next figure is a recording of such a trip. Across is the tape, as in the bar of the previous section. Down is time. The dot is the pointer. Press <em>Play</em>, drag the slider (or the picture), or jump from section to section:</p>
+
+    <figure class="fig" id="j-card" aria-label="Where the pointer is on the tape during one word piece">
+      <canvas id="j-chart" class="chart" height="384" role="img" aria-label="Where the pointer is on the tape during one word piece."></canvas>
+      <div class="ctl"><div class="slide"><label for="j-time">Along the trip</label><output for="j-time" aria-live="off"></output><input type="range" id="j-time" min="0" max="4000" step="1" value="0"></div></div>
+      <div class="ctl btnrow"><button type="button" id="j-play" class="primary play">Play</button><button type="button" id="j-prev" class="quiet">Previous section</button><button type="button" id="j-next" class="quiet">Next section</button></div>
+      <div class="ctl"><div class="slide"><label for="j-speed">Speed</label><output for="j-speed" aria-live="off"></output><input type="range" id="j-speed" min="1" max="10" step="1" value="4"></div></div>
+      <p class="tell" id="j-said" aria-live="polite"></p>
+      <p class="measured"><span id="j-what"></span> A recording of one word piece of one question. The line has the colour of the section that is running. <span class="ev" id="j-ev">measured</span></p>
+    </figure>
+
+    <p>The dot began at the right end of the tape, where the number of the word piece is kept. It ran through the table of word pieces to fetch one row. Then it worked its way to the left, layer after layer. At the far left it went through the output table and found the best next word piece. And then it walked all the way home.</p>
+    <p>The weights do not stand still either. To multiply, the engine moves a column of weights across a small gap of free cells and adds it to running totals on the way. After a layer, its weights lie one gap further along. The walk home puts every column back where it was, so that the next word piece finds the same tape.</p>
+
+    <p class="next-q">One word piece is one crossing of the whole tape and back. How much work is that, and which part of it costs the most?</p>
+  </section>
+  </section>
+
+  <section id="s6" aria-labelledby="s6-h">
+    <h2 id="s6-h">Where the time goes</h2>
+    <p id="w-intro"></p>
+    <p>An interpreter is a program that carries out brainfuck commands, and a <b>step</b> is one thing this one does. A step is not always one command: a run of plus signs is one addition, and a short loop that only moves or multiplies a number is done at once (<a href="#step">exactly what counts</a>). So what follows are counts of steps. They are not seconds, and they are not single commands.</p>
+    <p>Each bar below is one section of the engine with the steps it took for one word piece. The strip above the bars adds them up by part of the model. Press a bar to see that section layer by layer, and slide along the layers to read each one:</p>
+
+    <figure class="fig" id="w-card" aria-label="Where the steps of one word piece go">
+      <div class="stack"><div class="in" id="w-total" role="img" aria-label="Steps for one word piece, by part of the model. The bars below give the numbers."></div></div>
+      <ul class="legend" aria-label="The letters in the strip">
+        <li><i class="sw glyph part" style="background:var(--k-ff)" aria-hidden="true">F</i>Feed-forward</li>
+        <li><i class="sw glyph part" style="background:var(--k-att)" aria-hidden="true">A</i>Attention</li>
+        <li><i class="sw glyph part" style="background:var(--k-out)" aria-hidden="true">O</i>Output table</li>
+        <li><i class="sw glyph part" style="background:var(--k-emb)" aria-hidden="true">W</i>Table of word pieces</li>
+        <li><i class="sw glyph part" style="background:var(--k-mem)" aria-hidden="true">M</i>Memory of earlier pieces</li>
+        <li><i class="sw glyph part" style="background:var(--k-work)" aria-hidden="true">&middot;</i>Walking</li>
+      </ul>
+      <div class="bars" id="w-stages"></div>
+      <p class="label" id="w-layers-title" style="margin-top:var(--s4)">In every layer</p>
+      <canvas id="w-layers" class="chart" height="150" role="img" aria-label="Steps of the chosen section in each of the layers"></canvas>
+      <div class="ctl"><div class="slide"><label for="w-layer">Layer</label><output for="w-layer" aria-live="off"></output><input type="range" id="w-layer" min="0" max="1" step="1" value="0"></div></div>
+      <p class="measured"><span id="w-what"></span> <span class="ev">measured</span></p>
+    </figure>
+
+    <p>The bars are very unequal. A few carry nearly the whole word piece, and they share a name: &ldquo;Weights &times; numbers&rdquo;. Those are the sections in which every weight of a table is multiplied by a number that is passing through. Press one of them and the chart underneath is almost flat: every layer costs about the same.</p>
+    <p>That was one word piece. The next chart has one bar for every word piece of a recorded run, coloured by part of the model as before. Drag the slider along them, or drag across the bars. The figure above follows it:</p>
+
+    <figure class="fig" id="w-card2" aria-label="Steps per word piece, by position in the conversation">
+      <canvas id="w-pos" class="chart" height="200" role="img" aria-label="Steps per word piece, by position in the conversation. The line below gives the numbers."></canvas>
+      <div class="ctl"><div class="slide"><label for="w-pick">Word piece</label><output for="w-pick" aria-live="off"></output><input type="range" id="w-pick" min="0" max="1" step="1" value="0"></div></div>
+      <p class="tell" id="w-said" aria-live="polite"></p>
+      <p class="measured"><span id="w-pos-what"></span> <span class="ev">measured</span></p>
+    </figure>
+
+    <div id="w-explain"></div>
+
+    <p data-only="small">These counts come from two questions. The trip of the pointer and the chart by layer show one word piece of the first one.</p>
+    <p data-only="qwen"><span data-f="traceLimit"></span></p>
+    <p>Steps differ in what they cost a computer, so a share of the steps is not the same as a share of the seconds. The seconds that were measured are in the table under <a href="#s7">How it was checked</a>.</p>
+
+    <details class="q fold"><summary>What kind of step, over the whole run</summary><div class="a">
+      <div class="bars" id="w-kinds"></div>
+    </div></details>
+
+    <details class="q fold" id="s8"><summary>The three programs side by side</summary><div class="a">
+      <p>The three programs were made in the same way, and their models differ by a factor of eleven in size. This comparison is the same whichever program is chosen at the top. brnfck-135m was counted to its last position, the two bigger ones for one short question each; the table says for every number where it comes from.</p>
+      <figure class="fig" id="x-card" aria-label="Size and make-up of the three programs">
+        <p class="label">The program: writing part, and the engine as the dark end</p>
+        <div class="bars parts" id="x-text"></div>
+        <p class="label">The tape: what the cells hold</p>
+        <div class="bars parts" id="x-tape"></div>
+        <div class="ctl"><span class="seg" id="x-seg" role="group" aria-label="How to draw the three programs">
+          <button type="button" data-how="scale" aria-pressed="true">To scale</button><button type="button" data-how="own" aria-pressed="false">Each to its own length</button>
+        </span></div>
+        <p class="label" style="margin-top:var(--s4)">The share of each command in the whole program</p>
+        <div class="bars parts" id="x-cmds"></div>
+        <ul class="legend" id="x-cmd-legend"></ul>
+        <p class="measured"><span id="x-said"></span> The tick marks the program chosen at the top. <span class="ev">measured</span></p>
+      </figure>
+      <figure class="fig" id="y-card" aria-label="Where the steps go in each program, and what grows with the model">
+        <p class="label">Steps for one word piece at position 24, by part of the model</p>
+        <div class="bars parts" id="y-steps"></div>
+        <p class="label">How much larger than in brnfck-135m (each doubling is the same length)</p>
+        <div class="bars" id="y-grow"></div>
+        <p class="measured"><span id="y-said"></span> Position 24 is the first word piece after the fixed opening lines; it was counted in all three programs. <span id="y-what"></span> <span class="ev">measured</span></p>
+      </figure>
+      <div id="x-explain"></div>
+      <div class="scroll" tabindex="0" role="group" aria-label="The three programs in numbers; scrolls sideways on a narrow screen"><table id="x-table" style="min-width:36rem"><caption>The three programs in numbers. Counts are counted in the programs. Times come from the project's logs, on one desktop computer. <span class="ev">measured</span> <span class="ev">from the project's log</span></caption></table></div>
+    </div></details>
+
+    <p class="next-q">Billions of steps for one word piece cannot be checked by reading along. How do we know the program calculates what the model calculates?</p>
+  </section>
+
+  <section id="s7" aria-labelledby="s7-h">
+    <h2 id="s7-h">How it was checked</h2>
+    <p>Three things were checked separately <a class="cite" href="#r2">[2]</a>. Is the program what it claims to be: nothing but the eight commands, brackets that match, one read command? Does the writing part leave exactly the right numbers on the tape? And does the whole program print the right text?</p>
+    <p>The second check is one you can look at. The tape that this program writes was compared with a tape made in another way, by an earlier version that read its weights from a data file. Both tapes were cut into pieces of 1,048,576 cells, and each piece was given a checksum: a short fingerprint that comes out different if a single cell differs. Each square below is one piece of the tape. Drag the slider to walk along it:</p>
+
+    <figure class="fig" id="c-card" aria-label="The checksums of two tapes, compared piece by piece">
+      <div class="sums" id="c-sums" role="img"></div>
+      <div class="ctl"><div class="slide"><label for="c-pick">Piece of the tape</label><output for="c-pick" aria-live="off"></output><input type="range" id="c-pick" min="0" max="179" step="1" value="0"></div></div>
+      <p class="tell" id="c-said" aria-live="polite"></p>
+      <p class="measured">A marked square means both tapes gave the same SHA-256 checksum there. <span class="ev">from the project's log</span></p>
+    </figure>
+
+    <p>Every square is marked. All <span data-f="sums"></span> checksums are equal, over all <span data-f="tape"></span> cells: the writing part writes the tape it should.</p>
+    <p>For the third check the whole program was given <span data-f="questionsWords"></span> questions, and what it printed was compared, letter for letter, with a plain version of the same model that calculates in whole numbers. Each row of this table is one of those runs:</p>
+    <div class="scroll full" tabindex="0" role="group" aria-label="The questions that were compared; scrolls sideways on a narrow screen"><table id="c-questions"><caption><span id="c-q-cap"></span> Seconds are per word piece, on one desktop computer. <span class="ev">from the project's log</span></caption></table></div>
+
+    <h3 id="limits-h">What these checks do not show</h3>
+    <p>The right text is not a right answer. The program follows a version of the model in which every number was rounded to a whole number, because brainfuck has no others. <span data-only="small">That version picks the same next word piece as the original model in 94.8% of the tested cases (345 of 364).</span><span data-only="qwen">That version does not always pick the same next word piece as the original model.</span> And the original is a small model that is often wrong.</p>
+    <p>Only the questions in the table were compared. And the whole program has never been run one command at a time: it was run by interpreters that do simple loops at once. Running one command at a time, with a check on every move of the pointer, was done for small test models only.</p>
+
+    <details class="q fold" id="limits"><summary>Every limit of these measurements</summary><div class="a">
+      <ul>
+        <li data-only="small"><b>Only ten questions were compared.</b> The engine has no known difference with the reference, on these ten and on 279 generated word pieces over 5 prompts. Other questions were not compared.</li>
+        <li data-only="qwen"><b>Only a few questions were compared.</b> The program printed the reference text for <span data-f="questionsWords"></span> questions. Some of those runs were stopped by the check after 30 word pieces. Other questions were not compared.</li>
+        <li><b>Never run one command at a time.</b> For this program it would take far too long.</li>
+        <li><b>Steps were counted, not seconds.</b> The seconds in the tables come from the faster interpreter that the project's checks use.</li>
+        <li data-only="1.5b"><b>Measured from the command line.</b> The tape of this program is 6.81 GiB, more than a 32-bit memory can hold. Everything here about it was measured with command-line tools on 64-bit memory. Your browser only reads the results.</li>
+        <li><b>No meaning of single weights.</b> It is known which table a block belongs to, not what its numbers stand for.</li>
+        <li><b>Reading the commands needs a server that can send part of a file.</b> The block and the pieces of the engine are read out of the program itself. Where a server cannot send a part of a file, only the pieces stored beside the figures are shown.</li>
+        <li><b>Three programs, measured unevenly.</b> Everything about the programs and their tapes was measured in the same way for all three. The step counts were not: brnfck-135m was run to its last position, the two bigger ones for one short question.</li>
+        <li><b>One computer, one browser.</b> The figures and the chatbot were tried in one desktop Chromium browser.</li>
+      </ul>
+    </div></details>
+    <details class="q fold"><summary>Every check of the program, the tape and the answers</summary><div class="a">
+      <ul class="checks" id="c-checks"></ul>
+      <p class="measured">From the log of the project's own checks. <span class="ev">from the project's log</span></p>
+    </div></details>
+    <details class="q fold"><summary>How the figures above were checked</summary><div class="a">
+      <ul class="checks" id="c-page"></ul>
+    </div></details>
+  </section>
+
+  <section id="fromhere" aria-labelledby="fromhere-h">
+    <h2 id="fromhere-h">Where to go next</h2>
+    <p>The program map shows the same parts as a picture, down to single commands. The lessons start from programs of a few characters and build up to the patterns used here.</p>
+    <ol class="dest">
+      <li style="--c: var(--c-gt)"><a href="../map/" class="tomap"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>This program</small><span>See every character of it in one picture, and zoom in to the block or the section you read about here.</span></a></li>
+      <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the bit peel yourself.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../how/"><i aria-hidden="true">[]</i><b>How it works</b><small>Article</small><span>Follow one question from your keyboard to the first printed word piece.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="small"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-135m</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="0.5b"><a href="../?m=0.5b"><i aria-hidden="true">,</i><b>Ask brnfck-0.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="1.5b"><a href="../?m=1.5b"><i aria-hidden="true">,</i><b>Ask brnfck-1.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+    </ol>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Details and sources</h2>
+    <h3 id="step">What counts as a step</h3>
+    <p>One operation of the project's compile step (<code>compiler/core/bf.js</code>). It turns a run of <code>+</code> and <code>&minus;</code> into one addition, joins a walk to the command that follows it, and does a loop that only adds and moves as one multiplication. Each of those leaves the tape as running the commands one at a time would. The chatbot uses a faster interpreter, which turns the same operations into machine code.</p>
+
+    <h3 id="download">The program file</h3>
+    <p>The whole program is one file. This is the one shown now.</p>
+    <div class="full dl" id="dl-program"></div>
+
+    <h3 id="sources">Sources</h3>
+    <ol class="refs">
+      <li id="r1">The program: <a id="r-file" download></a> (<span data-f="fileSize"></span>) and its description <code data-f="metaName"></code>, which holds the sizes, the SHA-256 and the <span data-f="sums"></span> checksums of the tape.</li>
+      <li id="r2">The project's checks: <span data-only="small"><code>compiler/smollm/pure/verify.js</code> and its log <code>compiler/smollm/pure/out/verify.log</code>.</span><span data-only="qwen"><code>compiler/qwen/program/verify_pure.js</code> and its log <code data-f="logName"></code>.</span></li>
+      <li id="r4">What wrote the writing part: <code>compiler/smollm/pure/encode.js</code> (the encoder of all three programs) and <span data-only="small"><code>compiler/smollm/pure/build.js</code>.</span><span data-only="qwen"><code>compiler/qwen/program/build_pure.js</code>.</span></li>
+      <li id="r5">The generators of the engine: <span data-only="small"><code>compiler/smollm/engine/gen.js</code>, <code>compiler/smollm/engine/stations.js</code>, <code>compiler/smollm/tokenizer/gen.js</code>, <code>compiler/smollm/program/gen.js</code></span><span data-only="qwen"><code>compiler/qwen/engine/gen.js</code>, <code>compiler/qwen/engine/stations.js</code>, <code>compiler/qwen/tokenizer/gen.js</code>, <code>compiler/qwen/program/gen.js</code>, with the arithmetic they reproduce in <code>compiler/qwen/engine/spec.js</code>,</span> and the building blocks in <code>patterns.js</code>.</li>
+      <li id="r6"><span data-only="small">The model: SmolLM2-135M-Instruct by Hugging Face, published under the Apache 2.0 licence. 30 layers, 576 numbers per word piece, 49,152 word pieces.</span><span data-only="0.5b">The model: Qwen2.5-0.5B-Instruct by Alibaba Cloud, published under the Apache 2.0 licence. 24 layers, 896 numbers per word piece, a vocabulary table of 151,936 rows.</span><span data-only="1.5b">The model: Qwen2.5-1.5B-Instruct by Alibaba Cloud, published under the Apache 2.0 licence. 28 layers, 1,536 numbers per word piece, a vocabulary table of 151,936 rows.</span></li>
+      <li id="r7">The folded line of the program map: D. Hilbert, 1891, on a continuous line that passes through every point of a square.</li>
+      <li id="r8">The colours of the figures follow the palette of M. Okabe and K. Ito (2008), made to stay apart for people with colour-blindness.</li>
+      <li id="r9">Brainfuck: a language designed by Urban M&uuml;ller in 1993.</li>
+    </ol>
+
+    <details class="q fold" id="data"><summary>How the numbers behind the figures were made</summary><div class="a">
+      <p>Seven scripts in <code>tools/map-data/</code> read the real programs and the project's logs and write the data the figures load, one folder for each program. None of them changes a program. <span id="n-cost"></span></p>
+      <div class="scroll"><table>
+        <caption>Each script takes the program as its first word: <code>small</code>, <code>0.5b</code> or <code>1.5b</code>.</caption>
+        <tr><th>Script</th><th>What it does</th><th>Used for</th></tr>
+        <tr><td><code>writer.js</code></td><td>Runs the writing part to get the tape. Runs the project's encoder again on that tape while noting every block, and checks that its output, with the engine behind it, has the SHA-256 of the program. Counts commands, weight values, digits, and the information on the tape.</td><td>The two parts, the tape, the block, the digits</td></tr>
+        <tr><td><code>sections.js</code></td><td>Runs the engine's generator again while noting where every named section lands. Compares the result with the end of the program, character for character.</td><td>The sections of the engine, the program map</td></tr>
+        <tr><td><code>tiles.js</code></td><td>Reads the program once and makes the pictures of the program map and the pieces of text behind it.</td><td>The program map</td></tr>
+        <tr><td><code>depth.js</code></td><td>Reads the program once and notes how deep its loops are nested along it.</td><td>The program map, the layout "Skyline"</td></tr>
+        <tr><td><code>trace.js</code></td><td>Runs the real program on a question with an interpreter that counts every step by section, layer and word piece and notes where the pointer is. The printed answer must equal the reference. It can stop after a number of positions.</td><td>The trip of the pointer, the step counts</td></tr>
+        <tr><td><code>checks.js</code></td><td>Reads the logs of the project's own checks. It runs nothing.</td><td>The checksums, the checks, the questions</td></tr>
+        <tr><td><code>compare.js</code></td><td>Gathers the main numbers of the three programs from what the other scripts wrote.</td><td>The three programs side by side</td></tr>
+      </table></div>
+      <pre class="cmd" id="n-cmd"></pre>
+    </div></details>
+    <details class="q fold" id="words"><summary>The words used here, in one line each</summary><div class="a">
+      <dl class="glossary">
+        <div><dt>Command</dt><dd>One of the eight characters brainfuck understands. Each does one small thing.</dd></div>
+        <div><dt>Tape</dt><dd>The program's memory: one long row of cells.</dd></div>
+        <div><dt>Cell</dt><dd>One place on the tape. It holds one whole number.</dd></div>
+        <div><dt>Pointer</dt><dd>The cell the program is at. The commands <code>&lt;</code> and <code>&gt;</code> move it one cell.</dd></div>
+        <div><dt>Weight</dt><dd>One of the numbers the model learned in training.</dd></div>
+        <div><dt>Word piece</dt><dd>A word or a part of a word. The model reads and writes text one word piece at a time. Elsewhere it is called a token.</dd></div>
+        <div><dt>Layer</dt><dd>One round of the model's calculation, with weights of its own. This model has <span data-f="layers"></span>.</dd></div>
+        <div><dt>Writing part</dt><dd>The long first part of the program. It puts the model on the tape and neither reads nor prints.</dd></div>
+        <div><dt>Engine</dt><dd>The short last part. It reads the question, calculates with the weights and prints the answer.</dd></div>
+        <div><dt>Interpreter</dt><dd>The software that carries out a brainfuck program.</dd></div>
+        <div><dt>Step</dt><dd>One operation of the interpreter. See <a href="#step">what counts as a step</a>.</dd></div>
+      </dl>
+    </div></details>
+  </section>
+</main>
+<script src="../program-source.js?v=r6"></script>
+<script src="../program-start.js?v=r6"></script>
+<script src="../program-download.js?v=r6"></script>
+<script src="../learn/core.js?v=r6"></script>
+<script src="../command-play.js?v=r6"></script>
+<script src="engine-sections.js?v=r9"></script>
+<script src="core.js?v=r12"></script>
+<script src="inside.js?v=r6"></script>
+</body>
+</html>

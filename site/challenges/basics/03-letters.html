@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 3, numbers are letters</title>
+<meta name="description" content="Lesson 3 of Brainfuck basics: every character has a number, and the full stop prints a cell as the character with that number.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Numbers are letters</h1>
+    <p class="lead">By the end of this lesson you can print any character, and you know why the character 7 is not the number 7.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>3</b> of 10</p>
+    <a class="prev" href="02-moving.html" rel="prev"><span>Previous</span>Moving</a>
+    <a class="next" href="04-loops.html" rel="next"><span>Next</span>Loops</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Every character has a number</h2>
+    <p>Below are all 95 characters you can see on a keyboard, each key with its number under it. Press a few, then find the capital letter H and read its number:</p>
+    <figure class="fig col" id="f1" aria-label="The characters with the numbers 32 to 126, as keys">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that the numbers follow the alphabet: 65 is A, 66 is B, and the small letters start again at 97. The digit 0 is 48, and a space is 32. A computer does not know letters, only numbers, so everybody agreed on one table that says which number is which character.</p>
+      <p>The usual name of this table is <b>ASCII</b>. The chart shows the characters with the numbers 32 to 126. Below 32 are characters that do something instead of showing something: number 10 starts a new line.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Print</h2>
+    <p>This program is 72 plus signs and one full stop. Press <em>Play</em>, or drag the slider all the way to the right, and watch the line Printed:</p>
+    <figure class="fig col" id="f2" aria-label="72 plus signs and a full stop, run on a tape, with the line of what it printed">
+      <div id="m2"></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Notice that the letter H came out, and that the cell still holds 72. The full stop <code>.</code> is the print command: it prints the cell under the pointer as the character with that number. Printing does not change the cell.</p>
+      <p>What a program prints is called its <b>output</b>.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">The next letter</h2>
+    <p>The box holds the program of the last figure, which prints H. Add to it, so that it prints HI. The line under the figure says what it prints now:</p>
+    <figure class="fig col" id="f3" aria-label="A box for your own program, and the tape and output it leaves">
+      <div id="m3"></div>
+      <div class="callout hint" id="h3a" hidden><h3>Hint</h3><p>I comes right after H in the table: number 73.</p></div>
+      <div class="row"><button class="quiet" id="h3">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>After printing, the 72 is still in the cell. One plus makes 73, and a second full stop prints I: <code>.+.</code></p>
+      <p>Notice that letters which are neighbours in the alphabet are neighbours in the table, so going from one letter to the next costs a single <code>+</code>.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">A digit is a character too</h2>
+    <p>This program prints the character 0, with 48 plus signs. Change it so that it prints the character 7, and count how many plus signs it takes:</p>
+    <figure class="fig col" id="f4" aria-label="A box for your own program, and the tape and output it leaves">
+      <div id="m4"></div>
+      <div class="callout hint" id="h4a" hidden><h3>Hint</h3><p>Find the digit 7 in the chart of <a href="#s1">step 1</a>. Its number is not 7.</p></div>
+      <div class="callout hint" id="h4b" hidden><h3>Hint</h3><p>The digit 0 is number 48, and the digits follow each other.</p></div>
+      <div class="row"><button class="quiet" id="h4">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>The character 7 has number 55, which is seven more than the character 0, number 48. A cell that holds the number 7 prints something else: an old control character that used to ring a bell.</p>
+      <p>This matters every time a program works with numbers. To print a number from 0 to 9 as a digit, add 48 first. To calculate with a digit that was typed, take 48 off first. You will do both in <a href="08-deciding.html">Lesson 8</a> and <a href="09-program.html">Lesson 9</a>.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Print the first letter of your own name. Look up its number in the chart of <a href="#s1">step 1</a>. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, and the tape and output it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can look up the number of a character and print it with <code>.</code>, and you can add 48 to turn a number from 0 to 9 into its digit. These are the commands you know, and the numbers worth remembering:</p>
+    <div class="scroll"><table>
+      <caption>The commands of Lessons 1 to 3.</caption>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>+</code> <code>−</code></td><td>Add 1 to the cell under the pointer, or take 1 off.</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Move the pointer one cell to the right or to the left.</td></tr>
+      <tr><td><code>.</code></td><td>Print the cell as one character.</td></tr>
+    </table></div>
+    <div class="scroll"><table>
+      <caption>The numbers worth remembering.</caption>
+      <tr><th>Characters</th><th>Numbers</th></tr>
+      <tr><td>line break</td><td class="n">10</td></tr>
+      <tr><td>space</td><td class="n">32</td></tr>
+      <tr><td>the digits 0 to 9</td><td class="n">48 to 57</td></tr>
+      <tr><td>the capitals A to Z</td><td class="n">65 to 90</td></tr>
+      <tr><td>the small letters a to z</td><td class="n">97 to 122</td></tr>
+    </table></div>
+    <p class="measured">A small letter is always 32 more than its capital. The full table, with the control characters, is in the <a href="../../reference/">Reference</a>.</p>
+    <p class="next-q">Seventy-two plus signs for one letter is a lot of typing. <a href="04-loops.html">Lesson 4</a> shows how to repeat.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>3</b> of 10</p>
+    <a class="prev" href="02-moving.html" rel="prev"><span>Previous</span>Moving</a>
+    <a class="next" href="04-loops.html" rel="next"><span>Next</span>Loops</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const L = Basics.lesson(3);
+  // ---- 1. the chart
+  Basics.chart('m1', (n) => { if (n === 72) L.done(1, 'H is number 72.'); else if (!L.isDone(1)) L.note(1, n === 104 ? 'That is the small h, number 104. Look for the capital.' : 'That is number ' + n + '. Look for the capital H.'); });
+  // ---- 2. print
+  Basics.demo(L, 2, 'm2', 'd3s2', { text: (m) => 'It printed the letter ' + Basics.outOf(m) + '. The cell holds ' + m.tape[0] + '.' });
+  // ---- 3. the next letter
+  Basics.task(L, 3, 'm3', 't3s3', { button: 'h3', hints: ['h3a'], said: () => 'It prints HI.' });
+  // ---- 4. a digit is a character too
+  Basics.task(L, 4, 'm4', 't3s4', { button: 'h4', hints: ['h4a', 'h4b'], said: () => 'It prints the character 7. The cell holds 55.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(3, 'quiz', "A cell holds 7 and the program prints it. What comes out?", [["The digit 7",false,"The digit 7 is character number 55. To print it, the cell has to hold 55."],["A character with number 7, which is not a digit",true,"Number 7 is one of the control characters below 32. The digit 7 is number 55: 48 more."],["Seven characters",false,"A full stop always prints exactly one character: the one whose number is in the cell."]]);
+  Basics.free('mf', {});
+})();
+</script>
+</body>
+</html>

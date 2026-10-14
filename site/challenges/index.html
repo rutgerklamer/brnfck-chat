@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brainfuck challenges: write a program, have it checked · brnfck.chat</title>
+<meta name="description" content="Brainfuck challenges from two commands to a few hundred. Write a program in the page, watch it run, and have it checked against several test cases. With hints, worked solutions and a score to beat.">
+<meta property="og:title" content="Brainfuck challenges: write a program, have it checked">
+<meta property="og:description" content="Write a brainfuck program in the page, watch it run, and have it checked against several test cases. With hints, worked solutions and a score to beat.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/tools.css?v=r6">
+<link rel="stylesheet" href="../learn/learn.css?v=r6">
+<link rel="stylesheet" href="challenges.css?v=r6">
+<script src="engine.js?v=r6"></script>
+<script src="data.js?v=r6"></script>
+<script src="common.js?v=r5"></script>
+</head>
+<body>
+<script src="../site.js?v=r13"></script>
+<main class="doc article lesson study challenge" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><span>Play</span><span>Challenges</span></p>
+    <h1>Write it. Run it. Have it checked.</h1>
+    <p class="lead">Small tasks in brainfuck, from two commands to a few hundred. You write the program in the page, watch it run on a machine, and the page checks it against several cases, the awkward ones included.</p>
+  </header>
+
+  <dl class="facts" id="tally" aria-label="Your progress"></dl>
+  <p class="row start">
+    <a class="btn primary go" id="go" href="play.html?c=one-letter">Start: challenge 1</a>
+    <span>Never written brainfuck? Do the <a href="basics/">Basics</a> first: ten short lessons, step 1 of <a href="../brainfuck/#path">the path</a>.</span>
+  </p>
+
+  <div id="groups"></div>
+
+  <section id="projects" aria-labelledby="projects-h">
+    <div class="grouphead"><h2 id="projects-h">Projects</h2><span class="muted">Open-ended: no single answer, a checklist, and nothing is checked for you.</span></div>
+    <ul class="tiles" id="projcards"></ul>
+  </section>
+
+  <section id="how" aria-labelledby="how-h">
+    <h2 id="how-h">How the checking works</h2>
+    <figure id="fig-check" class="flowfig" aria-labelledby="cap-check">
+      <ol class="flow" aria-label="How a program is checked, in three stages">
+        <li><span class="label">You</span><b>Your program</b><span>Typed in the page. Comments are free.</span></li>
+        <li><span class="label">The page</span><b>Runs it on every case</b><span>The examples you see, and hidden cases for the edges. At most 5 million steps per case and 5 seconds in all.</span></li>
+        <li class="fl-two"><span class="label">The result</span>
+          <span class="fl-out"><b>✓ Every case passes</b><span>Solved. Its commands and its steps are counted.</span></span>
+          <span class="fl-out"><b>✗ A case fails</b><span>You get its input, what was expected and what was printed, side by side.</span></span></li>
+      </ol>
+      <figcaption id="cap-check"><b>Figure 1.</b> What happens when you press "Check my program" on a challenge. A program counts as solved only when every case passes.</figcaption>
+    </figure>
+    <p><b>Checking.</b> Your program is run on every case of a challenge (<a href="#fig-check">Figure 1</a>): the examples you see, and hidden cases for the edges, such as an empty input or the largest value a cell can hold. When a case fails you get its input, what was expected and what your program printed, side by side, and you can step through that case on the machine.</p>
+    <p><b>It cannot hang.</b> Programs run apart from the page, with a limit of 5 million steps per case and 5 seconds in all. A loop that never ends is stopped and you are told which case it was.</p>
+    <p><b>Scoring, if you want it.</b> A solved challenge counts its commands (comments are free) and its steps. Your best of each is kept. Bronze, silver and gold are lengths to beat; gold is the shortest program we have, and every target was reached by a program that is stored with the challenge and run by our test.</p>
+    <p><b>What all this adds up to.</b> The <a href="../">chat model</a> on the front page of this site is one brainfuck program, made of the same eight commands as your answers here.</p>
+  </section>
+
+  <section id="progress" aria-labelledby="progress-h">
+    <h2 id="progress-h">Your progress</h2>
+    <p id="mem"></p>
+    <div class="row filebar">
+      <button type="button" id="export">Save my progress as a file</button>
+      <label>Load a progress file <input type="file" id="import" accept=".json,application/json"></label>
+      <button type="button" class="quiet" id="forget">Forget everything</button>
+    </div>
+    <p class="verdict plain" id="filesay" role="status" aria-live="polite"></p>
+    <p class="muted small">Kept in this browser only: which steps of the <a href="basics/">Basics</a> and which challenges you did, your shortest and fastest solution per challenge, how many hints you opened, the last program you typed for each challenge, and the ticks of the projects. Nothing is sent anywhere. There are no accounts and nothing is tracked.</p>
+  </section>
+
+  <nav class="steps">
+    <a href="basics/">← Step 1: the Basics, ten lessons</a>
+    <a href="../patterns/">Patterns →</a>
+  </nav>
+</main>
+<script>
+(function () {
+  const D = BFData, S = BFStudy, store = S.store, el = S.el, $ = (id) => document.getElementById(id);
+  const BASICS = [4, 4, 4, 5, 4, 4, 4, 4, 4, 4];     // steps per basics lesson (basics/basics.js)
+  function draw() {
+    const all = store.all(), C = D.CHALLENGES;
+    const solved = C.filter((c) => all.ch[c.id] && all.ch[c.id].solved);
+    const medals = { gold: 0, silver: 0, bronze: 0 };
+    for (const c of solved) { const m = D.medal(c, all.ch[c.id].len); if (m) medals[m]++; }
+    const lessons = BASICS.filter((k, i) => { const b = all.basics[i + 1]; return b && Array.isArray(b.steps) && b.steps.filter((x) => x >= 1 && x <= k).length >= k; }).length;
+    const tally = $('tally'); tally.textContent = '';
+    const cell = (n, t) => { const d = el('div'); d.append(el('dt', '', t), el('dd', '', String(n))); tally.append(d); };
+    cell(solved.length + ' / ' + C.length, 'challenges solved');
+    cell(medals.gold, 'gold'); cell(medals.silver, 'silver'); cell(medals.bronze, 'bronze');
+    cell(lessons + ' / ' + BASICS.length, 'basics lessons');
+    const next = C.find((c) => !(all.ch[c.id] && all.ch[c.id].solved));
+    const go = $('go');
+    if (next) { go.href = 'play.html?c=' + next.id; go.textContent = (solved.length ? 'Continue: challenge ' : 'Start: challenge ') + next.n; }
+    else { go.href = 'play.html?p=' + D.PROJECTS[0].id; go.textContent = 'All solved. Try a project'; }
+
+    const box = $('groups'); box.textContent = '';
+    for (const g of D.GROUPS) {
+      const list = C.filter((c) => c.group === g.id), done = list.filter((c) => all.ch[c.id] && all.ch[c.id].solved).length;
+      const sec = el('section'); sec.id = 'g-' + g.id;
+      const head = el('div', 'grouphead'), h = el('h2', '', g.title); h.id = 'gh-' + g.id; sec.setAttribute('aria-labelledby', h.id);
+      head.append(h, el('span', 'muted', g.note), el('span', 'badge cnt', done + ' of ' + list.length + ' solved'));
+      sec.append(head);
+      const ol = el('ol', 'toc clist'); ol.style.counterReset = 'toc ' + (list.length ? list[0].n - 1 : 0);
+      for (const c of list) {
+        const me = all.ch[c.id] || {}, isNext = next && next.id === c.id;
+        const li = el('li', me.solved ? 'done' : ''), a = el('a'); a.href = 'play.html?c=' + c.id;
+        const lv = el('span', 'lv'); lv.append(el('span', 'badge', 'level ' + c.level + ' of 5'));
+        const st = el('span', 'st muted');
+        if (me.solved) {
+          const m = D.medal(c, me.len);
+          st.append('Solved · best ' + S.fmt(me.len) + ' commands, ' + S.fmt(me.steps) + ' steps ');
+          if (m) st.append(el('span', 'badge medal' + (m === 'gold' ? ' solid' : ''), m));
+          else st.append('· bronze is ' + c.targets.bronze);
+        } else { if (isNext) st.append(el('span', 'badge solid', 'Next up'), ' '); st.append((isNext ? '' : 'Not solved yet') + (all.drafts[c.id] ? (isNext ? '' : ' · ') + 'you have a program in progress' : '')); }
+        a.append(el('b', '', c.title), lv, st);
+        a.setAttribute('aria-label', 'Challenge ' + c.n + ': ' + c.title + ', level ' + c.level + ' of 5, ' + st.textContent);
+        li.append(a); ol.append(li);
+      }
+      sec.append(ol); box.append(sec);
+    }
+    const pc = $('projcards'); pc.textContent = '';
+    D.PROJECTS.forEach((p) => {
+      const li = el('li'), a = el('a'), tick = el('span'), me = all.proj[p.id], n = me && Array.isArray(me.done) ? me.done.length : 0; a.href = 'play.html?p=' + p.id;
+      const t = el('span'); p.text.split('`').forEach((part, k) => t.append(k % 2 ? el('code', '', part) : part));
+      tick.append(el('span', 'badge' + (n ? ' solid' : ''), n + ' of ' + p.checklist.length + ' ticked'));
+      a.append(el('b', '', p.title), t, tick);
+      li.append(a); pc.append(li);
+    });
+    $('mem').textContent = store.remembers() ? 'Your progress is kept in this browser, on this device only. To take it to another browser, save it as a file there and load it here.' : 'This browser does not let the page save anything. Your progress is kept only as long as this tab stays open. Save it as a file to keep it.';
+  }
+  draw();
+  window.addEventListener('pageshow', draw);
+  const say = (ok, text) => { const v = $('filesay'); v.className = 'verdict plain ' + (ok ? 'ok' : 'no'); v.textContent = text; };
+  $('export').addEventListener('click', () => { S.download('brainfuck-progress.json', store.exportText()); say(true, 'Saved as the file brainfuck-progress.json, in your downloads.'); });
+  $('import').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    if (f.size > 2e6) { say(false, 'That file is too large to be a progress file.'); return; }
+    const rd = new FileReader();
+    rd.onload = () => { const r = store.importText(String(rd.result)); say(r.ok, r.text); draw(); e.target.value = ''; };
+    rd.onerror = () => say(false, 'The file could not be read.');
+    rd.readAsText(f);
+  });
+  $('forget').addEventListener('click', () => { if (!confirm('Forget all progress in the Basics and the Challenges, on this device? This cannot be undone. (Save it as a file first if you are not sure.)')) return; store.forget(); draw(); say(true, 'Everything is forgotten.'); });
+})();
+</script>
+</body>
+</html>

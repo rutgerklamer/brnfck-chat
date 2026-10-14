@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 2: moving and copying · brnfck.chat</title>
+<meta name="description" content="Lesson 2: reading a cell empties it. Three steps in which you move a number, copy it, and feed several cells at once.">
+<meta property="og:title" content="Lesson 2: moving and copying">
+<meta property="og:description" content="Lesson 2: reading a cell empties it. Three steps in which you move a number, copy it, and feed several cells at once.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Moving and copying</span></p>
+    <h1>Moving and copying</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson you can use a number in a sum and still have it afterwards.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>2</b> of 11</p>
+    <a class="prev" href="01-machine.html" rel="prev"><span>Previous</span>The machine</a>
+    <a class="next" href="03-multiply.html" rel="next"><span>Next</span>Multiplying by a fixed number</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>The sum uses each number more than once, so a program has to read a number without losing it. This lesson adds that: moving a number, copying it, and feeding several cells in one pass.</p>
+  </section>
+
+  <h2 id="s1">Move a number</h2>
+  <p class="try"><b>Try it:</b> the left cell holds 4. Press Step until the program has ended, and watch where the 4 goes:</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+  <figcaption id="c1"><b>Figure 1.</b> Moving a number. Watch the left cell empty as the right cell fills. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>The 4 arrived in the right cell, and the left cell is empty.</p>
+    <p>The loop had to know when to stop. Its only question is "is this cell zero?" (<a href="01-machine.html#s4">step 4 of lesson 1</a>), so it counted the left cell down to zero. In brainfuck, looking at a number and using it up are the same thing.</p>
+  </section>
+
+  <h2 id="s2">Copy a number</h2>
+  <p>To keep a number, a program pours it into two cells at once and then pours one of those back. Choose the number to copy and watch the third cell: press <em>Play</em>, or drag <em>Step</em> back and forth:</p>
+  <figure class="fig col" id="fig-copy" aria-label="A copy program on a tape of three cells: original, copy and helper"></figure>
+  <p>The helper in the third cell filled up and emptied again, and the number ended in two places. The first loop poured the number into the copy and the helper at once, and emptied the original. The second loop poured the helper back into the original. Such a helper is called a <b>scratch cell</b>: empty before, empty after. The chat program is full of them. The slider stops at 9; the real program copies numbers up to 4,294,967,295 the same way.</p>
+  <p class="try"><b>Try it:</b> this is the same program with the number 3. Press Step until the program has ended, and keep an eye on the third cell:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div id="m2"></div>
+  <figcaption id="c2"><b>Figure 2.</b> Copying a number. Watch the third cell, the helper: it fills and empties again. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>Original 3, copy 3, and the helper empty again: the number stands in two places. A program that wants to keep a number it reads always does this, because the read destroys it and the helper makes up for it.</p>
+  </section>
+
+  <h2 id="s3">Fill two cells in one go</h2>
+  <p class="try"><b>Try it:</b> this is the copy program of step 2. Change it so that cell 0, cell 1 and cell 2 all hold the 5 at the end. Cell 3 is your scratch cell and must end empty:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div id="m3"></div>
+    <div class="callout hint" id="h3a" hidden><h3>Hint 1</h3><p>The first loop pours into cell 1 and cell 2. Let it pour into cell 3 as well: one more <code>&gt;+</code>, and one more <code>&lt;</code> to walk back.</p></div>
+    <div class="callout hint" id="h3b" hidden><h3>Hint 2</h3><p>The helper is now cell 3, three cells away. So the second loop becomes <code>&gt;&gt;&gt;[-&lt;&lt;&lt;+&gt;&gt;&gt;]</code>.</p></div>
+    <div class="ctl"><button class="quiet" id="h3">Give me a hint</button></div>
+  <figcaption id="c3"><b>Figure 3.</b> The copy program, for you to change. All of cells 0, 1 and 2 must end at 5, and the scratch cell at 0. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>One loop can feed as many cells as you like in one pass. Your program was also tried with a 9 in place of the 5, to make sure it copies and does not count.</p>
+    <p>This matters for a model: one number goes into many sums, and with one pass it is poured into all of them at once.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Read a number and keep it, and feed several cells in one pass. The 90 the sum starts with can now be used and still be there for the next product.</p>
+    <p class="next-q">The first real arithmetic is 90 × 100, in a language that has no "times". How is that done?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>What comes back later</h2>
+    <p>The pass of step 3 that feeds several cells is the building block almost everything in the chat program is made of. <a href="03-multiply.html#s3">Step 3 of lesson 3</a> shows why it is cheap.</p>
+    <p>Scratch cells have a price: they take room on the tape, next to the data. The rounding of <a href="05-peel.html#s5">step 5 of lesson 5</a> needs ten of them.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>2</b> of 11</p>
+    <a class="prev" href="01-machine.html" rel="prev"><span>Previous</span>The machine</a>
+    <a class="next" href="03-multiply.html" rel="next"><span>Next</span>Multiplying by a fixed number</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  // step 2: the copy, for a number you choose
+  Article.machine(document.getElementById('fig-copy'), {
+    code: '[->+>+<<]>>[-<<+>>]', cells: 3, labels: ['original', 'copy', 'helper'], rate: 6,
+    sliders: [{ name: 'Number to copy', min: 0, max: 9, value: 3, cell: 0 }],
+    end: function (m, v) { return 'Finished. Original ' + m.tape[0] + ', copy ' + m.tape[1] + ', and the helper is empty again.'; }
+  });
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core } = Learn;
+  const L = Learn.lesson(2);
+  Learn.machine($('m1'), {
+    code: D.move().code, bits: 8, cells: 2, init: { 0: 4 }, labels: { 0: 'left', 1: 'right' }, delay: 250,
+    onEnd: (m) => L.done(1, 'The right cell holds ' + m.tape[1] + ' and the left cell is empty.'),
+  });
+  Learn.machine($('m2'), {
+    code: D.copy().code, bits: 8, cells: 3, init: { 0: 3 }, labels: { 0: 'original', 1: 'copy', 2: 'helper' }, delay: 200,
+    onEnd: (m) => L.done(2, 'Original ' + m.tape[0] + ', copy ' + m.tape[1] + ', and the helper is empty again.'),
+  });
+  const m3 = Learn.machine($('m3'), {
+    code: D.copy().code, bits: 8, cells: 4, init: { 0: 5 }, editable: true, max: 2e6, labels: { 3: 'scratch' },
+    onEdit: (code) => {
+      const r = core.checks.copyTwice(code);
+      if (r.ok) return L.done(3, 'Cells 0, 1 and 2 all hold the number, and the scratch cell is empty.');
+      L.note(3, r.why === 'lost' ? 'Not yet: the original in cell 0 got lost. Pour the helper back into it.'
+        : r.why === 'value' ? (r.v === 5 ? 'Not yet: cell 1 and cell 2 end as ' + r.got.join(' and ') + '. Both must hold 5.' : 'It works for 5, but not when cell 0 starts at 9. Copy the number, do not count to 5.')
+        : r.why === 'scratch' ? 'Almost: cell ' + r.cell + ' is not empty at the end.'
+        : Learn.why(r));
+    },
+  });
+  Learn.hints($('h3'), ['h3a', 'h3b'], () => m3.type('[->+>+>+<<<]>>>[-<<<+>>>]'));
+});
+</script>
+</body>
+</html>

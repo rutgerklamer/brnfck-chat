@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 9: one number of the model · brnfck.chat</title>
+<meta name="description" content="Lesson 9: the parts come together. One program multiplies, adds, divides, rounds and clamps: one number of the model, and then three at once.">
+<meta property="og:title" content="Lesson 9: one number of the model">
+<meta property="og:description" content="Lesson 9: the parts come together. One program multiplies, adds, divides, rounds and clamps: one number of the model, and then three at once.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>One number of the model</span></p>
+    <h1>One number of the model</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson one program does the whole sum, from four inputs to the number 93. Then it does three such sums at once.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>9</b> of 11</p>
+    <a class="prev" href="08-size.html" rel="prev"><span>Previous</span>Obstacle 4: size</a>
+    <a class="next" href="10-attention.html" rel="next"><span>Next</span>Looking back</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>The four obstacles (<a href="04-zero.html">lessons 4</a> to <a href="08-size.html">8</a>) are behind you, and every part exists: multiply and add (<a href="03-multiply.html#s4">step 4 of lesson 3</a>), divide, round and clamp (<a href="05-peel.html#s5">step 5 of lesson 5</a>). So far they ran one at a time. Now they run as one program.</p>
+  </section>
+
+  <h2 id="s1">The whole sum in one go</h2>
+  <p class="try"><b>Try it:</b> press Play, or go to the last step. Four inputs, 90, −25, 40 and 12, go in. Does the result cell end at 93?</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+    <p class="measured">Inputs on the tape: 90, −25, 40 and 12. Weights, in the program: 100, −60, 30 and 14.</p>
+  <figcaption id="c1"><b>Figure 1.</b> The whole sum as one program. Watch the total appear when the step counter reads 8, and the result at the end. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>Three things, one after the other. First the four products were added into one total: 11,868. Then the total was moved to the top of a cell and its bits were peeled off: that divided it by 128 and rounded it. Last, the program checked that the result fits between −128 and 127.</p>
+    <p>One such sum is called a <b>neuron</b>. A model is this, done a very large number of times. Each result becomes an input for later sums.</p>
+  </section>
+
+  <h2 id="s2">What whole numbers cost</h2>
+  <p class="try"><b>Try it:</b> move the sliders until the result is exactly 0, while no input is 0, no weight is 0, and the sum is not 0 either:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="scroll" tabindex="0" role="group" aria-label="Four inputs and four weights, with sliders; scrolls sideways on a narrow screen"><table id="io">
+      <tr><th></th><th>Input</th><th>Weight</th><th class="n">Input × weight</th></tr>
+    </table></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="The sum and the result; scrolls sideways on a narrow screen"><table>
+      <tr><td>The sum</td><td class="n" id="jSum"></td></tr>
+      <tr><td>Divided by 128 and rounded</td><td class="n" id="jShift"></td></tr>
+      <tr><td><b>Result of the brainfuck program</b></td><td class="n"><b id="bOut"></b></td></tr>
+    </table></div>
+    <div class="ctl"><button class="quiet" id="small">Make everything small</button><button class="quiet" id="back">Back to the numbers of the sum</button></div>
+    <p class="measured" id="bSay"></p>
+  <figcaption id="c2"><b>Figure 2.</b> A neuron with your own inputs and weights, run by a brainfuck program each time you move a slider. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>A sum that is less than half of 128 rounds to 0. Whatever it had to say is gone. The clamp of <a href="05-peel.html#s5">step 5 of lesson 5</a> throws something away too: every sum above the ceiling gives the same 127.</p>
+    <p>That is the price of working with whole numbers only. The original model uses numbers with fractions. Brainfuck has none, so the model was first rewritten in whole numbers. That version picks the same next word piece as the original about 95 times in 100.</p>
+  </section>
+
+  <h2 id="s3">Three numbers at once</h2>
+  <p class="try"><b>Try it:</b> press Step once and look at input 1 and the three totals. Then go to the last step:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div id="m3"></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="Three word pieces, their weights and their results; scrolls sideways on a narrow screen"><table id="layer"></table></div>
+    <p class="measured">The same four inputs, and three rows of weights: one row each for the word pieces " Paris", " London" and " cheese".</p>
+  <figcaption id="c3"><b>Figure 3.</b> Three sums at once. Watch the first step: one input goes into three totals together. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>The three sums were not made one after the other. Each input was emptied once, into all three totals at the same time, each with its own weight. That is the pass that feeds several cells, from <a href="02-copy.html#s3">step 3 of lesson 2</a>. So the number of sums hardly matters: two steps for each input.</p>
+    <p>A set of sums over the same inputs is called a <b>layer</b>. This model has 30 layers, and the results of one are the inputs of the next.</p>
+    <p>Keep the three results in mind: 93, 41 and −49. In <a href="11-together.html#s2">step 2 of lesson 11</a> they are the scores of three word pieces.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Work out a number of the model from start to finish, and many of them in one pass. The first two parts of the sum run as one program: 11,868, then 93.</p>
+    <p class="next-q">So far the inputs came from nowhere. In a model they come from the word pieces of your question, and to use them the model has to look back at the earlier ones. How?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p><b>Rounding.</b> Adding half of the divisor first (64 for 128) turns "round down" into "round to the nearest".</p>
+    <p><b>Numbers below zero need nothing special in the sum.</b> On a cell that goes round, adding "the top minus 3" is the same as taking 3 off.</p>
+    <p><b>Where the weights are.</b> In this lesson the weights stand in the program, as in <a href="03-multiply.html">lesson 3</a>. In the chat program they are numbers on the tape (<a href="08-size.html#s3">step 3 of lesson 8</a>), and it makes the same sums by walking along rows of weights.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>9</b> of 11</p>
+    <a class="prev" href="08-size.html" rel="prev"><span>Previous</span>Obstacle 4: size</a>
+    <a class="next" href="10-attention.html" rel="next"><span>Next</span>Looking back</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(9), ref = core.ref, K = 7;
+  const X0 = [90, -25, 40, 12], W0 = [100, -60, 30, 14];
+  const init0 = { ...X0.map((x) => x >>> 0) };
+
+  // ---- 1. the neuron of the goal
+  const d1 = D.neuron(W0, K);
+  const names = (a) => (a < 4 ? 'input ' + (a + 1) : a === 4 ? 'result' : a === 5 ? 'total' : a === 6 ? 'total kept' : a === 7 || a === 8 ? 'total, peeled' : a === 9 ? 'test' : 'scratch');
+  Learn.machine($('m1'), { code: d1.code, bits: 32, cells: 16, labels: names, signed: true, fast: true, delay: 200, init: init0,
+    result: (m) => 'The result cell holds ' + fmt(m.signed(m.tape[4])) + '.',
+    onEnd: (m) => L.done(1, 'From four inputs to ' + fmt(m.signed(m.tape[4])) + ' in ' + m.steps + ' steps.') });
+
+  // ---- 2. your own numbers
+  const io = $('io'), X = [], W = [], PR = [];
+  for (let i = 0; i < 4; i++) {
+    const tr = el('tr'), mk = (lo, hi, v) => { const s = el('input'); s.type = 'range'; s.min = lo; s.max = hi; s.value = v; const o = el('output', 'val'); const td = el('td'); const l = el('label'); l.append(s, o); td.append(l); s._o = o; return [td, s]; };
+    const [tx, sx] = mk(-128, 127, X0[i]), [tw, sw] = mk(-127, 127, W0[i]), pr = el('td', 'n');
+    sx.setAttribute('aria-label', 'input ' + (i + 1)); sw.setAttribute('aria-label', 'weight ' + (i + 1));
+    tr.append(el('td', 'muted', String(i + 1)), tx, tw, pr); io.append(tr);
+    X.push(sx); W.push(sw); PR.push(pr);
+  }
+  let touched = false;
+  function refresh() {
+    const xs = X.map(num), ws = W.map(num);
+    X.forEach((s, i) => { s._o.textContent = fmt(xs[i]); }); W.forEach((s, i) => { s._o.textContent = fmt(ws[i]); });
+    PR.forEach((td, i) => { td.textContent = fmt(xs[i] * ws[i]); });
+    const j = ref.neuron(xs, ws, K), d = D.neuron(ws, K);
+    const r = core.run(d.code, { init: { ...xs.map((x) => x >>> 0) } }), got = r.machine.signed(r.tape[d.Y]);
+    $('jSum').textContent = fmt(j.sum); $('jShift').textContent = fmt(j.shifted);
+    $('bOut').textContent = fmt(got) + (got === j.out ? ' ✓' : ' ✗');
+    $('bSay').textContent = 'The program for these weights was written and run just now: ' + fmt(d.code.length) + ' characters, ' + fmt(r.steps) + ' steps. ✓ = it agrees with the arithmetic above.';
+    if (!touched) return;
+    const zeros = xs.some((v) => !v) || ws.some((v) => !v);
+    if (got === 0 && j.sum !== 0 && !zeros) L.done(2, 'The sum is ' + fmt(j.sum) + ', but divided by 128 it rounds to 0.');
+    else if (!L.isDone(2)) L.note(2, got !== 0 ? 'The result is ' + fmt(got) + '. Make the sum smaller.' : zeros ? 'The result is 0, but an input or a weight is 0. Move it off zero.' : 'The result is 0 because the sum is 0. Make the sum a little more or less.');
+  }
+  const setAll = (xs, ws) => { X.forEach((s, i) => { s.value = xs[i]; }); W.forEach((s, i) => { s.value = ws[i]; }); refresh(); };
+  for (const s of [...X, ...W]) s.addEventListener('input', () => { touched = true; refresh(); });
+  $('small').addEventListener('click', () => { touched = true; setAll([9, -4, 6, 3], [5, -3, 2, 4]); });
+  $('back').addEventListener('click', () => setAll(X0, W0));
+  refresh();
+
+  // ---- 3. a layer
+  const WORDS = [' Paris', ' London', ' cheese'], LW = [W0, [60, 30, -14, 100], [-30, 14, -100, 60]], Ly = D.layer(LW, K);
+  const lNames = (a) => (a < 4 ? 'input ' + (a + 1) : a < 7 ? 'result' + WORDS[a - 4] : a < 10 ? 'total' + WORDS[a - 7] : 'scratch');
+  const tb = $('layer');
+  Learn.machine($('m3'), { code: Ly.code, bits: 32, cells: 21, labels: lNames, signed: true, fast: true, delay: 120, init: init0,
+    result: (m) => 'Results: ' + [0, 1, 2].map((o) => fmt(m.signed(m.tape[Ly.Y + o]))).join(', ') + '.',
+    onEnd: (m) => {
+      tb.textContent = '';
+      const head = el('tr'); for (const h of ['Word piece', 'Its four weights', 'Result']) head.append(el('th', h === 'Result' ? 'n' : '', h)); tb.append(head);
+      LW.forEach((row, o) => { const tr = el('tr'); tr.append(el('td', '', '"' + WORDS[o] + '"'), el('td', '', row.map(fmt).join(', ')), el('td', 'n', fmt(m.signed(m.tape[Ly.Y + o])))); tb.append(tr); });
+      L.done(3, 'Three numbers of the model in ' + m.steps + ' steps: ' + [0, 1, 2].map((o) => fmt(m.signed(m.tape[Ly.Y + o]))).join(', ') + '.');
+    } });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 4: only one question · brnfck.chat</title>
+<meta name="description" content="Lesson 4, the first obstacle: &quot;is this cell zero?&quot; is the only question brainfuck can ask. You feel what comparing and dividing cost when all you can do is count.">
+<meta property="og:title" content="Lesson 4: only one question">
+<meta property="og:description" content="Lesson 4, the first obstacle: &quot;is this cell zero?&quot; is the only question brainfuck can ask. You feel what comparing and dividing cost when all you can do is count.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Obstacle 1: only one question</span></p>
+    <h1>Obstacle 1: only one question</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson you have felt, in the step counter, why the obvious way to compare and to divide cannot work for a model.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>4</b> of 11</p>
+    <a class="prev" href="03-multiply.html" rel="prev"><span>Previous</span>Multiplying by a fixed number</a>
+    <a class="next" href="05-peel.html" rel="next"><span>Next</span>The way through: peeling off bits</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>The sum is made: 11,868. The next part divides it by 128 and rounds. Multiplying was cheap. This is not, because a brainfuck program can ask only one question: is this cell zero?</p>
+  </section>
+
+  <h2 id="s1">Which one is bigger?</h2>
+  <p class="try"><b>Try it:</b> two cells, a holds 5 and b holds 3. Press Play, or Step, until the program has ended. How does it find out which is bigger?</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+  <figcaption id="c1"><b>Figure 1.</b> Comparing by counting down. Watch a and b fall together until one is empty. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>There is no "bigger than" command. So the program took 1 from both numbers, again and again, until one of them was empty. What is left tells which was bigger, and by how much.</p>
+    <p>Every round it had to ask "is a empty yet?" without destroying a. So it first made a copy (<a href="02-copy.html#s2">step 2 of lesson 2</a>) and tested the copy. That is about eleven steps a round.</p>
+  </section>
+
+  <h2 id="s2">The same, with bigger numbers</h2>
+  <p class="try"><b>Try it:</b> make both numbers large, a near 1000 and b near 900. Go to the last step and read how many steps it took:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="ctl vals">
+      <label><span>a</span><input type="range" id="a" min="0" max="1000" value="5"><output></output></label>
+      <label><span>b</span><input type="range" id="b" min="0" max="1000" value="3"><output></output></label>
+    </div>
+    <div id="m2"></div>
+  <figcaption id="c2"><b>Figure 2.</b> The same comparison with your numbers. Watch the step counter, not the tape. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>The answer is right. But 5 against 3 took 34 steps, and 1000 against 900 took about ten thousand.</p>
+    <p>There is one round for every unit of the smaller number. The cost does not depend on how many numbers you compare. It depends on how large they are.</p>
+  </section>
+
+  <h2 id="s3">Divide 11,868 by 128</h2>
+  <p class="try"><b>Try it:</b> the slider stands at 11,868, the number from the sum. Drag it all the way to the right and watch the steps:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div class="ctl vals"><label><span>Number</span><input type="range" id="x" min="0" max="50000" step="1" value="11868"><output id="xo"></output></label></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="The result of the division and its steps; scrolls sideways on a narrow screen"><table>
+      <tr><td>Answer of the brainfuck program (divided by 128, rounded)</td><td class="n" id="dAns"></td></tr>
+      <tr><td>Steps</td><td class="n"><b id="dSteps"></b></td></tr>
+      <tr><td>Steps for each unit of the number</td><td class="n" id="dPer"></td></tr>
+    </table></div>
+    <div class="bars"><span class="lab">steps</span><div><div class="bar" id="dBar"></div></div><span></span></div>
+    <div id="divCode"></div>
+  <figcaption id="c3"><b>Figure 3.</b> Dividing by counting. The steps are measured again each time you move the slider. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>Dividing by counting: take 1 from the number, and every 128th time add 1 to the answer. For 11,868 the answer is 93, which is right.</p>
+    <p>It took 131,538 steps. About eleven for every unit of the number: twice the number, twice the steps.</p>
+  </section>
+
+  <h2 id="s4">How bad does it get?</h2>
+  <p class="try"><b>Try it:</b> now take a much larger number, 1,000,000. How many steps will dividing it take? Work it out from the table of step 3, type your estimate and check:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div class="ctl">
+      <label class="stacked"><span>My estimate, in steps</span><input type="number" id="guess" min="0" max="1000000000" inputmode="numeric"></label>
+      <button id="check">Run it and check</button>
+    </div>
+    <div class="callout hint" id="h4" hidden><h3>Hint</h3><p>The table in step 3 shows the steps for each unit of the number. Multiply that by 1,000,000.</p></div>
+  <figcaption id="c4"><b>Figure 4.</b> Your estimate against a real run of the dividing program on 1,000,000. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>Your browser just did about eleven million steps for one division.</p>
+    <p>The chat program was measured on the same thing. One "divide, round and keep within limits" took 1.2 to 1.5 million steps by counting, and a model does one of those for every number it works out. With counting, a real model is out of reach.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Nothing new, and that is the point. You can compare and divide, but only by counting, and counting costs a step for every unit. The second part of the sum, 11,868 divided by 128, costs 131,538 steps this way.</p>
+    <p class="next-q">The way through uses the oddest thing from <a href="01-machine.html#s7">step 7 of lesson 1</a>: a cell that is full goes round to zero. How does that help?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>Why a fast interpreter does not save it</h2>
+    <p>The multiplying loop of <a href="03-multiply.html#s3">step 3 of lesson 3</a> only adds and moves, so a fast interpreter does it in one step. A counting division has a question inside every round ("is this the 128th time?"), and a question is a loop of its own. The fast interpreter has to go through every round.</p>
+    <p>A model has to do three things of this kind all the time: divide, round, and cut a number off at a lowest and a highest value. All three are comparisons in disguise.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>4</b> of 11</p>
+    <a class="prev" href="03-multiply.html" rel="prev"><span>Previous</span>Multiplying by a fixed number</a>
+    <a class="next" href="05-peel.html" rel="next"><span>Next</span>The way through: peeling off bits</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  // the values of the sliders of step 2, in words next to them
+  ['a', 'b'].forEach(function (id) { Article.bind(document.getElementById(id), function (v) { return Article.fmt(v); }); });
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt } = Learn;
+  const L = Learn.lesson(4);
+  const cmpD = D.compareCount(), divD = D.divideCount(7, true);
+  const names = { 0: 'a', 1: 'b', 2: 'b is ahead', 3: 'scratch', 4: 'scratch', 5: 'scratch' };
+  const who = (m) => (m.tape[0] ? 'a was bigger, by ' + fmt(m.tape[0]) : m.tape[2] ? 'b was bigger, by ' + fmt(m.tape[2]) : 'a and b were equal');
+  Learn.machine($('m1'), { code: cmpD.code, bits: 32, cells: 6, init: { 0: 5, 1: 3 }, labels: names, fast: true, delay: 300,
+    result: (m) => 'Both were counted down together: ' + who(m) + '.',
+    onEnd: (m) => L.done(1, 'It took ' + m.steps + ' steps to find out: ' + who(m) + '.') });
+
+  const m2 = Learn.machine($('m2'), { code: cmpD.code, bits: 32, cells: 6, labels: names, fast: true, delay: 60,
+    result: (m) => 'Result: ' + who(m) + '.',
+    onEnd: (m) => {
+      const a = num($('a')), b = num($('b'));
+      if (Math.min(a, b) >= 500) L.done(2, fmt(m.steps) + ' steps for one comparison: ' + who(m) + '.');
+      else L.note(2, fmt(m.steps) + ' steps. Now make both numbers large: a 1000 and b 900.');
+    } });
+  const set2 = () => m2.set({ init: { 0: num($('a')), 1: num($('b')) } });
+  $('a').addEventListener('input', set2); $('b').addEventListener('input', set2); set2();
+
+  let per = 0;
+  function div() {
+    const x = num($('x')), r = core.run(divD.code, { init: { 0: x } });
+    $('xo').textContent = fmt(x);
+    $('dAns').textContent = fmt(r.tape[1]) + (r.tape[1] === Math.floor((x + 64) / 128) ? ' ✓' : ' ✗');
+    $('dSteps').textContent = fmt(r.steps);
+    per = x ? r.steps / x : 0;
+    $('dPer').textContent = x ? 'about ' + per.toLocaleString('en-US', { maximumFractionDigits: 1 }) : '–';
+    $('dBar').style.width = Math.max(0.3, (100 * x) / 50000) + '%';
+    if (x >= 45000) L.done(3, fmt(x) + ' takes ' + fmt(r.steps) + ' steps. The bar grows exactly as fast as the number.');
+  }
+  $('x').addEventListener('input', div);
+  Learn.codeBox($('divCode'), divD.code, 'Show the dividing program');
+  div();
+
+  let tries = 0;
+  $('check').addEventListener('click', () => {
+    const g = Number($('guess').value);
+    if (!$('guess').value || !Number.isFinite(g)) { L.note(4, 'Type an estimate first.'); return; }
+    const r = core.run(divD.code, { init: { 0: 1000000 } });
+    const res = core.checks.guess(g, r.steps);
+    if (res.ok) L.done(4, 'Good estimate. Measured just now: ' + fmt(r.steps) + ' steps for the answer ' + fmt(r.tape[1]) + '.');
+    else { tries++; L.note(4, (g < r.steps ? 'Too low.' : 'Too high.') + ' Try again.'); if (tries >= 1) $('h4').hidden = false; }
+  });
+});
+</script>
+</body>
+</html>

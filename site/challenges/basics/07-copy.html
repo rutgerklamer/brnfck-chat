@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 7, moving and copying</title>
+<meta name="description" content="Lesson 7 of Brainfuck basics: move a value to another cell, add two values, and make a copy with the help of a spare cell.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Moving and copying</h1>
+    <p class="lead">By the end of this lesson you can move a value to another cell, add two values, and copy one.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>7</b> of 10</p>
+    <a class="prev" href="06-input.html" rel="prev"><span>Previous</span>Reading input</a>
+    <a class="next" href="08-deciding.html" rel="next"><span>Next</span>Making a decision</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Pour it over</h2>
+    <p>A value that you read or built sits in one cell, and sooner or later you need it somewhere else. Cell 0 holds 5, and the program is a loop of six commands. Press <em>Play</em>, or drag the slider through the steps, and watch both cells:</p>
+    <figure class="fig col" id="f1" aria-label="A loop that takes 1 off cell 0 and puts 1 onto cell 1 until cell 0 is empty">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that every round took one from cell 0 and gave one to cell 1, until cell 0 was empty. It is like pouring water from one glass into another, a drop at a time.</p>
+      <p>This is called <b>moving</b> a value. Look at cell 0: the value is not there any more. In brainfuck, reading a value uses it up.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Two cells further</h2>
+    <p>The box holds the loop of the first figure. Change it so that the value of cell 0 lands in cell 2 instead of cell 1. It must work for any value, so it is tried with 7 and with 3:</p>
+    <figure class="fig col" id="f2" aria-label="The loop that moves a value, in a box for you to change">
+      <div id="m2"></div>
+      <div class="callout hint" id="h2a" hidden><h3>Hint</h3><p>Inside the loop the pointer walks to the target and back.</p></div>
+      <div class="callout hint" id="h2b" hidden><h3>Hint</h3><p>Two steps right, add, two steps left.</p></div>
+      <div class="row"><button class="quiet" id="h2">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p><code>[−&gt;&gt;+&lt;&lt;]</code> The walk inside the loop has to end where it began, on the counter: as many <code>&lt;</code> as <code>&gt;</code>. If they do not match, the bracket asks its question about the wrong cell. That is the mistake of <a href="02-moving.html">Lesson 2</a>, a pointer that is not where you think it is, now inside a loop.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">Keep the original</h2>
+    <p>Cell 0 holds 4, and the program has two loops. Press <em>Play</em>, or <em>Step</em> through it, and watch all three cells:</p>
+    <figure class="fig col" id="f3" aria-label="Two loops that leave the value in cell 0 and a copy in cell 1">
+      <div id="m3"></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that cell 0 was emptied, as before, but filled up again, and that cell 1 now holds the same number. The first loop poured cell 0 into cells 1 and 2 at once. The second loop poured cell 2 back into cell 0. That makes a copy in two moves.</p>
+      <p>Cell 2 was only borrowed. A cell used like this is called a <b>scratch</b> cell: it has to be empty before, and it is empty again after.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">Adding</h2>
+    <p>Cell 0 holds 3 and cell 1 holds 4. Write a program that leaves their sum in cell 1. It must work for other numbers too, so it is also tried with 10 and 1:</p>
+    <figure class="fig col" id="f4" aria-label="A box for your program, and two cells that hold a number each">
+      <div id="m4"></div>
+      <div class="callout hint" id="h4a" hidden><h3>Hint</h3><p>What happens if you pour a cell into a cell that is not empty?</p></div>
+      <div class="row"><button class="quiet" id="h4">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p><code>[−&gt;+&lt;]</code> again, the loop of the first figure. Pouring into a cell that already holds something adds to it. Adding is moving.</p>
+      <p>Taking away is moving with a minus: <code>[−&gt;−&lt;]</code> takes cell 0 off cell 1.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Cell 0 holds 6. Leave twice that, 12, in cell 1. Then try three times. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, and a tape that starts with 6 in cell 0">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can move a value with <code>[−&gt;+&lt;]</code>, add by moving into a cell that is not empty, and copy with a scratch cell. No new command came in this lesson: all three are the loop of <a href="04-loops.html">Lesson 4</a>. <a href="../../patterns/">Patterns</a> has a page for each, with variations: <a href="../../patterns/move.html">move</a>, <a href="../../patterns/copy.html">copy</a> and <a href="../../patterns/add-sub.html">add and subtract</a>.</p>
+    <p class="next-q">A loop that runs once or not at all is a decision. <a href="08-deciding.html">Lesson 8</a> uses it that way.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>7</b> of 10</p>
+    <a class="prev" href="06-input.html" rel="prev"><span>Previous</span>Reading input</a>
+    <a class="next" href="08-deciding.html" rel="next"><span>Next</span>Making a decision</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const L = Basics.lesson(7);
+  // ---- 1. pour it over
+  Basics.demo(L, 1, 'm1', 'd7s1', { text: (m) => 'Cell 0 is empty and cell 1 holds ' + m.tape[1] + '.' });
+  // ---- 2. two cells further
+  Basics.task(L, 2, 'm2', 't7s2', { button: 'h2', hints: ['h2a', 'h2b'], said: (r) => 'The value lands in cell 2, for 7 and for 3, with ' + r.n + ' commands.' });
+  // ---- 3. keep the original
+  Basics.demo(L, 3, 'm3', 'd7s3', { text: (m) => 'Cells 0 and 1 both hold ' + m.tape[1] + '. Cell 2 was only borrowed.' });
+  // ---- 4. adding
+  Basics.task(L, 4, 'm4', 't7s4', { button: 'h4', hints: ['h4a'], said: (r) => '3 + 4 = 7, and 10 + 1 = 11, with ' + r.n + ' commands.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(7, 'quiz', "Why does a copy need a third cell?", [["Because reading a cell empties it, so the value has to be kept somewhere to put it back",true,"The only way to read a cell is a loop that counts it down. So you pour it into two places and use one of them to restore the original."],["Because a loop can only walk two steps",false,"A loop can walk as far as you like. The trouble is that reading a cell empties it."],["It does not: two cells are enough",false,"With two cells you can move a value, but then the original is gone."]]);
+  Basics.free('mf', { init: { 0: 6 } });
+})();
+</script>
+</body>
+</html>

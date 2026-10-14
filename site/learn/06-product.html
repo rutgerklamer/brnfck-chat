@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson 6: two numbers from the tape · brnfck.chat</title>
+<meta name="description" content="Lesson 6, the second obstacle: multiplying two numbers that are both on the tape. You watch a negative number blow up a loop and then do it the cheap way yourself.">
+<meta property="og:title" content="Lesson 6: two numbers from the tape">
+<meta property="og:description" content="Lesson 6, the second obstacle: multiplying two numbers that are both on the tape. You watch a negative number blow up a loop and then do it the cheap way yourself.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/lessons.css?v=r5">
+<link rel="stylesheet" href="../ui/learn-course.css?v=r6">
+<script src="core.js?v=r6"></script>
+<script src="ui.js?v=r7"></script>
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+  <header class="plain">
+    <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Obstacle 2: two numbers from the tape</span></p>
+    <h1>Obstacle 2: two numbers from the tape</h1>
+    <p class="lead"><b>Aim.</b> At the end of this lesson your program multiplies −25 by −60 with both numbers on the tape, in under 60 steps.</p>
+  </header>
+
+  <nav class="lesson" aria-label="Lesson">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>6</b> of 11</p>
+    <a class="prev" href="05-peel.html" rel="prev"><span>Previous</span>The way through: peeling off bits</a>
+    <a class="next" href="07-walking.html" rel="next"><span>Next</span>Obstacle 3: no addresses</a>
+  </nav>
+
+  <section class="where" id="where" aria-labelledby="where-h">
+    <h2 id="where-h">Where the lessons are going</h2>
+    <p>In <a href="03-multiply.html">lesson 3</a> the weight stood in the program, as plus signs. But a model also multiplies two numbers that only appear while it runs, and then neither of them can be written into the program.</p>
+  </section>
+
+  <h2 id="s1">The obvious way: a loop inside a loop</h2>
+  <p class="try"><b>Try it:</b> a is 6 and b is 7, both on the tape. Go to the last step. Then start again and step through a few rounds to see how it works:</p>
+  <figure id="f1" aria-labelledby="c1">
+    <div id="m1"></div>
+  <figcaption id="c1"><b>Figure 1.</b> A loop inside a loop. Watch "rounds done" count up to a while the total grows by b. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a1" hidden>
+    <h3>What you just saw</h3>
+    <p>For every unit of a, the program added a full copy of b to the total. Six rounds of 7 make 42. Each round is a small loop of its own: a loop inside a loop.</p>
+    <p>That is five steps a round. For a = 6 it is nothing.</p>
+  </section>
+
+  <h2 id="s2">Now with a number below zero</h2>
+  <p class="try"><b>Try it:</b> the sum has the product −25 × −60. Set a to −25 and b to −60, go to the last step and read how many steps it took:</p>
+  <figure id="f2" aria-labelledby="c2">
+    <div class="ctl vals">
+      <label><span>a</span><input type="range" id="a" min="-128" max="127" value="6"><output></output></label>
+      <label><span>b</span><input type="range" id="b" min="-128" max="127" value="7"><output></output></label>
+    </div>
+    <div class="ctl"><button class="quiet" id="neg">Set −25 and −60</button></div>
+    <div id="m2"></div>
+  <figcaption id="c2"><b>Figure 2.</b> The same program with your numbers. Watch the step counter when a is below zero. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a2" hidden>
+    <h3>What you just saw</h3>
+    <p>The answer is right: 1,500. The cost is absurd: 327,557 steps.</p>
+    <p>A cell cannot hold −25. It holds "25 below the top", which is 65,511 on the cells of this demo. The loop does not know that this means −25. It runs 65,511 rounds, and the total goes round and round and lands on the right number.</p>
+    <p>The cells of the chat program are much larger. There −25 is 4,294,967,271, and this loop would take about 21 billion steps (worked out, not run: 5 steps a round). The whole chat program spends 1.6 to 1.9 billion steps on a word piece.</p>
+  </section>
+
+  <h2 id="s3">The way out, by hand</h2>
+  <p class="try"><b>Try it:</b> these are the bits of a = −25. Press every bit that is on. Each press adds b times the worth of that bit to the total:</p>
+  <figure id="f3" aria-labelledby="c3">
+    <div class="chips bits" id="sw" role="group" aria-label="The eight bits of a"></div>
+    <p class="measured">b = −60. The leftmost bit counts as −128.</p>
+    <p class="bf line" id="log" aria-live="polite"></p>
+    <p class="tell">Total: <b id="tot" class="val">0</b></p>
+    <div class="ctl"><button class="quiet" id="again">Start again</button></div>
+  <figcaption id="c3"><b>Figure 3.</b> The eight bits of a. Each bit you press adds one line to the sum underneath. <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a3" hidden>
+    <h3>What you just saw</h3>
+    <p>Six presses, and the total is 1,500. This is multiplying the way you do it on paper, with bits in place of digits. It is called <b>shift and add</b>.</p>
+    <p>Each part is something you already have. Which bits of a are on: that is the peel of <a href="05-peel.html#s3">step 3 of lesson 5</a>. "b times 4" is multiplying by a fixed number: one step (<a href="03-multiply.html#s3">step 3 of lesson 3</a>).</p>
+    <p>The leftmost bit of a number that may be negative counts as −128. Nothing more is needed for numbers below zero.</p>
+  </section>
+
+  <h2 id="s4">The same, as a program</h2>
+  <p class="try"><b>Try it:</b> go to the last step and compare the number of steps with the 327,557 of step 2:</p>
+  <figure id="f4" aria-labelledby="c4">
+    <div id="m4"></div>
+    <div class="scroll" tabindex="0" role="group" aria-label="Steps for −25 × −60 in three programs; scrolls sideways on a narrow screen"><table>
+      <tr><th>−25 × −60</th><th class="n">Steps</th></tr>
+      <tr><td>Loop inside a loop, cells of this demo (16 bits)</td><td class="n" id="t16"></td></tr>
+      <tr><td>Loop inside a loop, cells of the chat program (32 bits)</td><td class="n" id="t32"></td></tr>
+      <tr><td>Shift and add, cells of the chat program</td><td class="n"><b id="tp"></b></td></tr>
+    </table></div>
+    <p class="measured">Measured here, except the row marked "worked out".</p>
+  <figcaption id="c4"><b>Figure 4.</b> Shift and add as a program, with the three costs side by side (measured here, except the row marked "worked out"). <span class="fig-i">(interactive)</span></figcaption>
+  </figure>
+  <section class="after" id="a4" hidden>
+    <h3>What you just saw</h3>
+    <p>The cost no longer depends on how large the numbers are, or on their sign. It depends on how many bits a has (eight here) and how many of them are on.</p>
+    <p>In the chat program one such product went from about 195,000 steps to about 43.</p>
+  </section>
+
+  <section class="now" id="now">
+    <h3>What you can do now</h3>
+    <p>Multiply any two numbers from the tape, below zero or not, for a few dozen steps. Every product of the sum can now be made, wherever its numbers come from. The second obstacle is gone.</p>
+    <p class="next-q">All of this happened in the first few cells of the tape. A model has millions of numbers, spread over a very long tape, and brainfuck cannot say "go to cell 5,000". What then?</p>
+  </section>
+
+  <section class="notes" id="notes">
+    <h2>How the real program differs</h2>
+    <p><b>When the plain loop wins.</b> For a very small a that is not below zero, a few rounds are cheaper than reading eight bits. But the program is written before the numbers are known. Shift and add costs about the same every time, so it is the safe choice wherever numbers can be large or negative.</p>
+    <p id="note-bonus"><b>A bonus.</b> Peeling a is most of the work. When the same a must be multiplied by many different numbers, a is peeled once, and every extra product costs only a step or two for each bit that is on. The chat program uses exactly that for its scores: see <a href="10-attention.html#note-scores">the note "Where the scores come from" of lesson 10</a>.</p>
+    <p><b>The 21 billion of step 2.</b> 4,294,967,271 rounds of 5 steps. The 5 steps a round were measured on the smaller cells; the large case was not run.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Lesson, end of page">
+    <p class="course">Build toward a chatbot</p>
+    <p class="count">Lesson <b>6</b> of 11</p>
+    <a class="prev" href="05-peel.html" rel="prev"><span>Previous</span>The way through: peeling off bits</a>
+    <a class="next" href="07-walking.html" rel="next"><span>Next</span>Obstacle 3: no addresses</a>
+  </nav>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="../ui/learn-course.js?v=r5"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var say = function (v) { return Article.minus(Article.fmt(v)); };
+  var showA = Article.bind($('a'), say), showB = Article.bind($('b'), say);
+  // the button sets both values from the page's own script, which does not send an input event
+  $('neg').addEventListener('click', function () { setTimeout(function () { showA(); showB(); }, 0); });
+})();
+</script>
+<script>
+Learn.ready((D) => {
+  const { $, core, num, fmt, el } = Learn;
+  const L = Learn.lesson(6);
+  const nv = D.mulNaive(), p32 = D.mulPeel(32);
+  const nLabels = { 0: 'a', 1: 'b', 2: 'total', 3: 'rounds done', 4: 'scratch' };
+  const total = (m) => fmt(m.signed(m.tape[2]));
+
+  Learn.machine($('m1'), { code: nv.code, bits: 16, cells: 5, signed: true, fast: true, delay: 220, labels: nLabels, init: { 0: 6, 1: 7 },
+    result: (m) => 'The total is ' + total(m) + '.',
+    onEnd: (m) => L.done(1, '6 × 7 = ' + total(m) + ', in ' + m.steps + ' steps.') });
+
+  const m2 = Learn.machine($('m2'), { code: nv.code, bits: 16, cells: 5, signed: true, fast: true, delay: 220, max: 5e6, labels: nLabels,
+    result: (m) => 'The total is ' + total(m) + '.',
+    onEnd: (m) => {
+      const a = num($('a')), b = num($('b'));
+      if (a < 0) L.done(2, fmt(a) + ' × ' + fmt(b) + ' = ' + total(m) + ', in ' + fmt(m.steps) + ' steps.');
+      else L.note(2, fmt(a) + ' × ' + fmt(b) + ' = ' + total(m) + ', in ' + fmt(m.steps) + ' steps. Now make a negative: −25.');
+    } });
+  const set2 = () => m2.set({ init: { 0: num($('a')) & 65535, 1: num($('b')) & 65535 } });
+  $('a').addEventListener('input', set2); $('b').addEventListener('input', set2);
+  $('neg').addEventListener('click', () => { $('a').value = -25; $('b').value = -60; set2(); });
+  set2();
+
+  // ---- 3. shift and add by hand
+  const A = -25, B = -60;
+  let pressed, tot, log;
+  function drawSw() {
+    const box = $('sw'); box.textContent = '';
+    for (let j = 7; j >= 0; j--) {
+      const on = ((A & 255) >> j) & 1, w = j === 7 ? -128 : 1 << j, used = pressed.has(j);
+      const b = el('button', 'bit');
+      b.type = 'button'; b.disabled = used; b.setAttribute('aria-pressed', String(!!on));
+      b.setAttribute('aria-label', 'bit worth ' + w + ', ' + (on ? 'on' : 'off'));
+      b.append(String(on), el('small', '', fmt(w)));
+      b.addEventListener('click', () => {
+        if (!on) { L.note(3, 'That bit is off: it adds nothing. Press the ones that show 1.'); return; }
+        pressed.add(j); tot += w * B; log.push(fmt(B) + ' × ' + fmt(w) + ' = ' + fmt(w * B)); drawSw();
+      });
+      box.append(b);
+    }
+    $('log').textContent = log.join('   ');
+    $('tot').textContent = fmt(tot);
+    const left = [0, 1, 2, 5, 6, 7].filter((j) => !pressed.has(j)).length;
+    if (left === 0) L.done(3, 'All six bits used: the total is ' + fmt(tot) + ', and −25 × −60 is 1,500.');
+    else if (pressed.size) L.note(3, left + (left === 1 ? ' bit' : ' bits') + ' to go.');
+  }
+  const reset3 = () => { pressed = new Set(); tot = 0; log = []; drawSw(); };
+  $('again').addEventListener('click', reset3); reset3();
+
+  // ---- 4. the program
+  const init = { 0: A >>> 0, 1: B >>> 0 };
+  Learn.machine($('m4'), { code: p32.code, bits: 32, cells: 11, signed: true, fast: true, delay: 260, init,
+    labels: (c) => (c === 0 ? 'a' : c === 1 ? 'b' : c === 2 ? 'total' : c === 3 || c === 4 ? 'a, peeled' : c === 5 ? 'test' : 'scratch'),
+    result: (m) => 'The total is ' + total(m) + '.',
+    onEnd: (m) => L.done(4, '−25 × −60 = ' + total(m) + ', in ' + m.steps + ' steps.') });
+  const r16 = core.run(nv.code, { bits: 16, init: { 0: A & 65535, 1: B & 65535 }, max: 5e6 }), rp = core.run(p32.code, { init });
+  $('t16').textContent = fmt(r16.steps);
+  $('t32').textContent = 'about ' + fmt(5 * (2 ** 32 + A) + 2) + ' (worked out)';
+  $('tp').textContent = fmt(rp.steps);
+});
+</script>
+</body>
+</html>

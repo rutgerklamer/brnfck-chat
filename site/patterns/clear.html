@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Set a cell to zero</title>
+<meta name="description" content="Empties the cell under the pointer, whatever it held. A brainfuck code pattern you can run, step through and copy.">
+<!-- The pages of the code patterns are written by tools/build-patterns.js from site/patterns/data.js: change those, then run node tools/build-patterns.js. -->
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r7">
+<link rel="stylesheet" href="../ui/article.css?v=r7">
+<link rel="stylesheet" href="../ui/patterns.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="play"></script>
+<main class="doc article patterns pattern-page" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="./">Code patterns</a><a href="./#basics">First moves</a><span>Set a cell to zero</span></p>
+    <h1>Set a cell to zero</h1>
+    <p class="lead">Empties the cell under the pointer, whatever it held.</p>
+    <div class="top-nav">
+      <nav aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#pattern">Watch it run</a></li>
+          <li><a href="#code">The code</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#variations">Other forms</a></li>
+          <li><a href="#used">Where it is used</a></li>
+          <li><a href="#sources">Sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <nav class="lesson" aria-label="Pattern">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>1</b> of 38</p>
+    <a class="prev" href="./" rel="prev" aria-disabled="true"><span>Previous</span>The first pattern</a>
+    <a class="next" href="constant.html" rel="next"><span>Next</span>Set a constant</a>
+  </nav>
+
+  <section id="pattern" aria-labelledby="pattern-h">
+    <h2 id="pattern-h">Watch it run</h2>
+    <p>The form “Count down” works on one cell, named “x”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+
+    <figure class="fig col" id="fig-clear-minus" data-p="clear" data-v="minus" aria-label="The form Count down of set a cell to zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+
+    <p>The loop takes 1 from the cell and asks "is it zero?". It goes round until the answer is yes.</p>
+    <p>So the plain cost grows with the value: two steps for every unit. An optimising interpreter sees a loop that only counts its own cell down and sets the cell to zero in one step.</p>
+  </section>
+
+  <section id="code" aria-labelledby="code-h">
+    <h2 id="code-h">The code</h2>
+    <p>This is the program the figure ran. It is brainfuck as it stands: copy it, or open it in the playground, where you can change it:</p>
+
+    <div class="code" data-fig="fig-clear-minus">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%5D&amp;names=0:x">Open in the playground</a><span class="count" data-len>3 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+
+    <h3 id="needs">What it needs</h3>
+    <ul>
+      <li>Any cell size. No scratch cells. The pointer does not move.</li>
+      <li>On cells that do not wrap, the value must not be negative, or <code class="bf">[-]</code> never ends.</li>
+    </ul>
+
+    <details class="q fold" id="mistakes"><summary>Common mistakes</summary><div class="a">
+      <ul>
+        <li>Forgetting it before a "set to a constant". <code class="bf">+++</code> adds 3, it does not set 3.</li>
+      <li>Clearing a cell that is known to be zero already. It is harmless, but it is one more step every time.</li>
+      <li>Using <code class="bf">[+]</code> on wide cells: it counts up to the top, which takes billions of plain steps on 32-bit cells.</li>
+      </ul>
+      
+    </div></details>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <p>A <b>plain step</b> is one command. An <b>optimised step</b> is one step of an interpreter that folds runs of the same command and flat loops. Choose the values and watch the two bars; <a href="cost.html">What costs what</a> explains how cost is counted:</p>
+
+    <figure class="fig col" id="fig-clear-minus-cost" data-p="clear" data-v="minus" data-cost-fig aria-label="Steps taken by the form Count down, for the values you choose">
+      <p class="measured">The figure needs JavaScript. The table below has the measured steps.</p>
+    </figure>
+
+    <details class="q fold" id="cost-numbers"><summary>Cost as a formula, and measured</summary><div class="a">
+      <div class="scroll" tabindex="0" role="region" aria-label="Cost as a formula"><table id="t-formula">
+        <caption><b>Table 1.</b> The cost as a function of the values. Exact formulas are checked on every case they run.</caption>
+        <thead><tr><th>Form</th><th>Plain steps</th><th>Optimised steps</th></tr></thead>
+        <tbody><tr><td>Count down</td><td>1 + 2x</td><td>1</td></tr>
+<tr><td>Count up</td><td>1 + 2 × (cell size − x), or 1 when x = 0</td><td>the same: this loop is not folded</td></tr>
+<tr><td>Three cells in a row</td><td>7 + 2 × (a + b + c)</td><td>4</td></tr></tbody></table></div>
+      <div class="scroll" tabindex="0" role="region" aria-label="Measured cost"><table id="t-measured">
+        <caption><b>Table 2.</b> Measured when this page was written.</caption>
+        <thead><tr><th>Form</th><th>Values</th><th class="n">Bits</th><th class="n">Characters</th><th class="n">Plain steps</th><th class="n">Optimised steps</th></tr></thead>
+        <tbody><tr><td>Count down</td><td>x = 0</td><td class="n">8</td><td class="n">3</td><td class="n">1</td><td class="n">1</td></tr>
+<tr><td>Count down</td><td>x = 5</td><td class="n">8</td><td class="n">3</td><td class="n">11</td><td class="n">1</td></tr>
+<tr><td>Count down</td><td>x = 255</td><td class="n">8</td><td class="n">3</td><td class="n">511</td><td class="n">1</td></tr>
+<tr><td>Count up</td><td>x = 5</td><td class="n">8</td><td class="n">3</td><td class="n">503</td><td class="n">503</td></tr>
+<tr><td>Count up</td><td>x = 250</td><td class="n">8</td><td class="n">3</td><td class="n">13</td><td class="n">13</td></tr>
+<tr><td>Three cells in a row</td><td>a = 4; b = 0; c = 9</td><td class="n">8</td><td class="n">13</td><td class="n">33</td><td class="n">4</td></tr></tbody></table></div>
+    </div></details>
+    
+  </section>
+
+  <section id="variations" aria-labelledby="variations-h">
+    <h2 id="variations-h">Other forms</h2>
+    <section class="variation" id="v-plus" aria-labelledby="v-plus-h">
+      <h3 id="v-plus-h">Count up</h3>
+      <p>Counts up until the cell wraps round to zero. Needs wrapping cells.</p>
+      <div class="code" data-fig="fig-clear-plus">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[+]</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B%2B%5D&amp;names=0:x">Open in the playground</a><span class="count" data-len>3 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-plus"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Count up” works on one cell, named “x”. Press <em>Play</em>, drag the step slider forwards and back, or change x with the slider:</p>
+        <figure class="fig col" id="fig-clear-plus" data-p="clear" data-v="plus" aria-label="The form Count up of set a cell to zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+    <section class="variation" id="v-three" aria-labelledby="v-three-h">
+      <h3 id="v-three-h">Three cells in a row</h3>
+      <p>Clears a block and walks back.</p>
+      <div class="code" data-fig="fig-clear-three">
+      <pre class="bf listing" tabindex="0" data-code aria-label="The program text">[-]&gt;[-]&gt;[-]&lt;&lt;</pre>
+      <div class="ctl"><button type="button" class="primary" data-copy>Copy</button><a class="btn quiet" data-play href="../playground/?code=%5B-%5D%3E%5B-%5D%3E%5B-%5D%3C%3C&amp;names=0:a,1:b,2:c">Open in the playground</a><span class="count" data-len>13 characters</span><span class="sr-only" role="status" data-said></span></div>
+    </div>
+      <details class="q fold" id="run-three"><summary>Run this form step by step</summary><div class="a">
+        <p>The form “Three cells in a row” works on 3 cells, named “a”, “b” and “c”. Press <em>Play</em>, drag the step slider forwards and back, or change a, b and c with the sliders:</p>
+        <figure class="fig col" id="fig-clear-three" data-p="clear" data-v="three" aria-label="The form Three cells in a row of set a cell to zero, running on a few cells">
+      <p class="measured">The figure needs JavaScript. The program below is the result for the example values.</p>
+    </figure>
+      </div></details>
+    </section>
+  </section>
+
+  <section id="used" aria-labelledby="used-h">
+    <h2 id="used-h">Where it is used</h2>
+    <ul>
+      <li>Inside almost every other pattern, for example <a href="if-nonzero.html">if non-zero</a>.</li>
+      <li><a href="../challenges/basics/04-loops.html#s2">Brainfuck basics, lesson 4, "Loops"</a>, has you empty a cell this way, in its section "Empty a cell".</li>
+    </ul>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-h">
+    <h2 id="sources-h">Sources</h2>
+    <ul>
+      <li>Source: <a href="https://esolangs.org/wiki/Brainfuck_algorithms">Esolang wiki: Brainfuck algorithms</a>: section "x = 0".</li>
+    </ul>
+    <p class="measured">Every program on this page was run on many inputs, in plain and in optimised mode, and compared with JavaScript. The explanations are written for this page.</p>
+  </section>
+
+  <nav class="lesson end" aria-label="Pattern, end of page">
+    <p class="course">Code patterns</p>
+    <p class="count">Pattern <b>1</b> of 38</p>
+    <a class="prev" href="./" rel="prev" aria-disabled="true"><span>Previous</span>The first pattern</a>
+    <a class="next" href="constant.html" rel="next"><span>Next</span>Set a constant</a>
+  </nav>
+</main>
+<script src="core.js?v=r7"></script>
+<script src="data.js?v=r7"></script>
+<script src="view.js?v=r7"></script>
+<script src="../ui/article.js?v=r7"></script>
+<script src="ui.js?v=r7"></script>
+</body>
+</html>

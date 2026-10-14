@@ -1,0 +1,90 @@
+/* "Build toward a chatbot" (../learn/): LAYOUT for what only these eleven lessons draw. */
+
+/* ---- 1. the caption of a figure names it for a screen reader and is not drawn ---- */
+main.lesson figure[aria-labelledby] > figcaption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---- 2. the steps ---- */
+main.lesson > h2[id] { position: relative; padding-top: calc(var(--s5) + var(--s2)); }
+main.lesson h2 > .label { position: absolute; top: var(--s2); left: 0; margin: 0; }
+main.lesson > h2[id] { margin-top: var(--s6); }
+main.lesson figure p { max-width: none; }
+main.lesson figure > .verdict:empty { display: none; }
+main.lesson p.skip { margin: calc(-1 * var(--s2)) 0 0; text-align: right; max-width: none; }
+main.lesson .callout.hint { margin: var(--s2) 0; }
+main.lesson section.where { margin: 0 0 var(--s5); }
+main.lesson section.where > h2 { margin-top: 0; }
+main.lesson section.after > p:first-child { margin-top: 0; }
+main.lesson .goal { margin-top: var(--s3); max-width: none; }
+main.lesson .goal .stepbar > li > span { display: block; padding: var(--s2) var(--s3); text-align: center; white-space: normal; overflow-wrap: anywhere; }
+main.lesson .goal .stepbar small { display: block; }
+main.lesson .fig .ctl > label.stacked { flex: 0 1 16rem; }
+main.lesson .fig input[type="number"] { max-width: 9rem; }
+main.lesson .fig .wall { max-height: 6.2em; overflow: hidden; }
+
+/* ---- 3. drawings of single lessons ---- */
+main.lesson .bits { display: grid; grid-template-columns: repeat(8, minmax(0, 4rem)); gap: var(--s1); margin: var(--s3) 0; }
+main.lesson .bits > * { min-width: 0; padding-left: 0; padding-right: 0; }
+main.lesson .bits > button { flex-direction: column; min-height: 3rem; }
+main.lesson .bits small { display: block; white-space: nowrap; }
+main.lesson .bits > div { padding-top: var(--s2); padding-bottom: var(--s2); border: var(--edge) solid var(--rule); background: var(--panel); font: var(--ctl); text-align: center; }
+main.lesson .bits > div.on { border: calc(2 * var(--edge)) solid var(--ink); background: var(--hot); font-weight: 700; }
+
+/* map of a long tape (lessons 7 and 10) */
+main.lesson .map { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; margin: var(--s3) 0; }
+main.lesson .map div { min-height: 1.375rem; border: var(--edge) solid var(--line); background: var(--panel); font: var(--lab); line-height: 1.25rem; text-align: center; color: var(--muted); overflow: hidden; white-space: nowrap; }
+main.lesson .map div.lane { border-color: var(--code); }
+main.lesson .map div.target { background: var(--goodbg); }
+main.lesson .map div.here { background: var(--ink); border-color: var(--ink); color: var(--bg); font-weight: 700; }
+
+/* where the shifted sum falls, and the window that survives the clamp (lesson 5) */
+main.lesson .clampline { position: relative; height: 1.375rem; margin: var(--s4) 0 var(--s5); background: var(--line); }
+main.lesson .clampline::before { content: ""; position: absolute; left: 18%; width: 63.75%; top: 0; bottom: 0; background: var(--goodbg); }
+main.lesson .clampline i { position: absolute; top: -5px; bottom: -5px; width: 4px; margin-left: -2px; background: var(--code); }
+main.lesson .clampline i.cut { background: var(--ink); }
+main.lesson .clampline span { position: absolute; top: 1.5rem; font: var(--lab); color: var(--muted); transform: translateX(-50%); }
+main.lesson .clampline .lo { left: 18%; } main.lesson .clampline .hi { left: 81.75%; }
+
+main.lesson .bitrow { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 2px; max-width: 34rem; margin: var(--s3) 0 0; font: var(--ctl); text-align: center; }
+main.lesson .bitrow > b { padding: var(--s1) 0; border: var(--edge) solid var(--rule); background: var(--panel); }
+main.lesson .bitrow > b.off { color: var(--muted); border-style: dashed; background: none; text-decoration: line-through; }
+main.lesson .bitrow > span { padding-top: var(--s1); border-top: var(--edge-strong) solid var(--ink); margin-top: 2px; font: var(--lab); }
+main.lesson .bitrow > span.keep { grid-column: 1 / span 7; }
+main.lesson .bitrow > span.drop { grid-column: 8 / span 7; color: var(--muted); border-top: var(--edge-strong) dashed var(--rule); }
+
+/* positions and the weight table (lesson 10), the stages (lesson 11) */
+main.lesson .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); }
+main.lesson .cols .card { text-align: center; min-width: 0; }
+main.lesson .cols input[type="range"] { width: 100%; max-width: none; min-width: 0; }
+main.lesson .cols input[type="number"] { width: 100%; }
+main.lesson .cols .meter { margin: var(--s1) 0; }
+main.lesson .hist { display: flex; align-items: flex-end; gap: 2px; height: 5.25rem; margin: var(--s3) 0 var(--s1); }
+main.lesson .hist div { flex: 1 1 0; min-height: 2px; border: var(--edge) solid var(--rule); background: var(--sunk); }
+main.lesson .hist div.used { background: var(--ink); border-color: var(--ink); }     /* filled, not hollow: not by colour alone */
+main.lesson .pipeline { --tile-min: 16rem; margin: var(--s3) 0; }
+main.lesson .pipeline + .card { margin-bottom: var(--s3); }
+
+main.lesson .meter.split { display: flex; height: 1.125rem; max-width: 34rem; margin: var(--s2) 0 var(--s1); }
+
+/* ---- 4. the front page of the course (learn/index.html) ---- */
+main.lesson .begin { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s5); margin: 0 0 var(--s5); }
+main.lesson .begin > * { margin: 0; }
+main.lesson .begin .btn { min-height: 3.5rem; padding: var(--s2) var(--s5); max-width: 100%; box-shadow: var(--drop); font-size: 1rem; text-align: left; }
+main.lesson .begin .note { flex: 1 0 100%; }
+main.lesson .grouphead { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); margin: var(--s5) 0 var(--s2); max-width: none; }
+
+/* ---- narrower ---- */
+@media (max-width: 38.75em) {
+  main.lesson .cols { grid-template-columns: repeat(2, 1fr); }
+  main.lesson .map { grid-template-columns: repeat(8, 1fr); }     /* eight records in a row: every long hop lands in the first column */
+  main.lesson .begin .btn { width: 100%; box-shadow: 3px 3px 0 var(--drop-c); }
+}
+@media (max-width: 26em) {
+  main.lesson .bits:has(> button) { grid-template-columns: repeat(4, 1fr); gap: var(--s2); }
+}
+
+/* ---- print: the lesson as a text, with every explanation shown ---- */
+@media print {
+  main.lesson p.skip, main.lesson .verdict, main.lesson .begin { display: none !important; }
+  main.lesson section.after[hidden] { display: block !important; }
+  main.lesson .bits > *, main.lesson .map div, main.lesson .hist div, main.lesson .meter.split > i { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

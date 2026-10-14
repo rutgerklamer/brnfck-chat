@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 4, loops</title>
+<meta name="description" content="Lesson 4 of Brainfuck basics: square brackets repeat a piece of program until a cell is zero, and [-] empties any cell.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>Loops</h1>
+    <p class="lead">By the end of this lesson you can make the machine repeat a piece of program, and empty a cell whatever it holds.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>4</b> of 10</p>
+    <a class="prev" href="03-letters.html" rel="prev"><span>Previous</span>Numbers are letters</a>
+    <a class="next" href="05-numbers.html" rel="next"><span>Next</span>Building numbers</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">Round and round</h2>
+    <p>This program puts 3 in cell 0, and then comes a pair of square brackets around a minus. Press <em>Step</em> until it has ended, and read the question the line under the tape asks at each bracket:</p>
+    <figure class="fig col" id="f1" aria-label="Three plus signs and a minus between square brackets, run on a tape">
+      <div id="m1"></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that the cell counted down, 3, 2, 1, 0, and that each time the machine reached a bracket it looked at the cell and asked whether it was zero. At <code>[</code>, zero means: jump past the matching <code>]</code>. At <code>]</code>, not zero means: back to the <code>[</code>.</p>
+      <p>The square brackets mean: <b>repeat what stands between us until the cell under the pointer is zero.</b> Such a repeat is called a <b>loop</b>, and one pass through it is a <b>round</b>. This loop holds one command, <code>−</code>, so it counts the cell down.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">Empty a cell</h2>
+    <p>Cell 0 holds 200. Empty it with a program of at most 3 commands:</p>
+    <figure class="fig col" id="f2" aria-label="A cell that starts at 200, a box for your own program, and the tape it leaves">
+      <div id="m2"></div>
+      <div class="callout hint" id="h2a" hidden><h3>Hint</h3><p>The loop of <a href="#s1">step 1</a> emptied a cell that held 3. Did it matter that it was 3?</p></div>
+      <div class="row"><button class="quiet" id="h2">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p><code>[−]</code> empties a cell whatever it holds: take one off, until it is zero. You will type these three symbols more often than any others.</p>
+      <p>Notice that minus signs alone could not have done it within the limit, and that a program often does not know the number. A loop adapts: it goes round as often as needed.</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">A loop that moves something</h2>
+    <p>Now a loop with more inside it: it takes 1 from cell 0 and adds 3 to cell 1. Press <em>Play</em>, or step through it, and watch both cells until the program has ended:</p>
+    <figure class="fig col" id="f3" aria-label="A loop over two cells, run on a tape">
+      <div id="m3"></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that every round took 1 from cell 0 and gave 3 to cell 1. Cell 0 counted the rounds: there were four, so cell 1 holds 12.</p>
+      <p>Each round ended where it began, on cell 0. That matters: the bracket asks about the cell under the pointer, so the pointer has to be back on the counter when the <code>]</code> comes.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">A loop that never ends</h2>
+    <p>Here the loop has nothing inside it. Drag the slider all the way to the right, and read the line under the tape. The figure stops after 500 steps, so that nothing freezes:</p>
+    <figure class="fig col" id="f4" aria-label="A plus and an empty loop, run on a tape">
+      <div id="m4"></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>Notice that the cell stayed at 1 and the machine kept asking the same question. <code>+[]</code> makes the cell 1 and then asks, again and again, whether it is zero. Nothing inside the loop changes the cell, so the answer never changes.</p>
+      <p>This is an <b>endless loop</b>, the second classic mistake after the pointer that is not where you think it is, from <a href="02-moving.html#s3">Lesson 2</a>. A loop ends only if something inside it brings its cell to zero.</p>
+    </div>
+  </section>
+
+  <section id="s5" aria-labelledby="s5-h">
+    <h2 id="s5-h">A loop that never starts</h2>
+    <p>This time the cell holds 0 when the loop begins, and one more command follows the loop. Press <em>Step</em> until the end and watch what the first bracket does:</p>
+    <figure class="fig col" id="f5" aria-label="A loop on an empty cell, and one command after it, run on a tape">
+      <div id="m5"></div>
+    </figure>
+    <div class="after" id="a5" hidden>
+      <p>Notice that the three plus signs never ran: the cell was already zero at the <code>[</code>, so the machine jumped straight past the <code>]</code>. Only the last <code>+</code>, after the loop, ran.</p>
+      <p>So a pair of brackets is also a question: do this only if the cell is not zero. <a href="08-deciding.html">Lesson 8</a> is built on that.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Write a loop that goes round 5 times and adds 2 to cell 1 each round, so that cell 1 ends at 10. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can repeat with <code>[</code> and <code>]</code> until a cell is zero, empty a cell with <code>[−]</code>, and spot a loop that cannot end. These are the commands you know:</p>
+    <div class="scroll"><table>
+      <caption>The commands of Lessons 1 to 4.</caption>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>+</code> <code>−</code></td><td>Add 1 to the cell under the pointer, or take 1 off.</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Move the pointer one cell to the right or to the left.</td></tr>
+      <tr><td><code>.</code></td><td>Print the cell as one character.</td></tr>
+      <tr><td><code>[</code> <code>]</code></td><td>Repeat everything between them until the cell under the pointer is zero.</td></tr>
+    </table></div>
+    <p class="measured">Brackets must match: every <code>[</code> needs its own <code>]</code> further on. Loops may stand inside loops. A program whose brackets do not match is the only kind of brainfuck program that is refused before it runs.</p>
+    <p class="next-q">The loop of <a href="#s3">step 3</a> is a multiplication, and with it a big number takes only a few commands. <a href="05-numbers.html">Lesson 5</a> builds them.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>4</b> of 10</p>
+    <a class="prev" href="03-letters.html" rel="prev"><span>Previous</span>Numbers are letters</a>
+    <a class="next" href="05-numbers.html" rel="next"><span>Next</span>Building numbers</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const { $ } = Learn, P = BasicsPrograms;
+  const L = Basics.lesson(4);
+  // ---- 1. round and round
+  Basics.demo(L, 1, 'm1', 'd4s1', { text: () => 'Three rounds, and the cell is empty.' });
+  // ---- 2. empty a cell
+  Basics.task(L, 2, 'm2', 't4s2', { button: 'h2', hints: ['h2a'], said: (r) => 'The cell is empty, with ' + r.n + ' commands. It also works when the cell starts at 13.' });
+  // ---- 3. a loop that moves something
+  Basics.demo(L, 3, 'm3', 'd4s3', { text: (m) => 'Four rounds of three: cell 1 holds ' + m.tape[1] + '.' });
+  // ---- 4. a loop that never ends
+  Learn.machine($('m4'), { code: P.byId.d4s4.code, bits: 8, cells: 6, max: 500, onDraw: (m) => { if (m.steps >= 500) L.done(4, 'The machine gave up after 500 steps. The program would have gone on for ever.'); } });
+  // ---- 5. a loop that never starts
+  Basics.demo(L, 5, 'm5', 'd4s5', { text: () => 'The loop was skipped: cell 0 is still 0, and only the last plus ran.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(4, 'quiz', "How often does the loop in ++[>+<−] go round?", [["Once",false,"The cell holds 2 at the start, and each round takes 1 off."],["Twice",true,"The counter starts at 2. Each round takes one off, so after two rounds it is zero."],["For ever",false,"Each round ends with a minus on the counter, so it does reach zero."]]);
+  Basics.free('mf', {});
+})();
+</script>
+</body>
+</html>

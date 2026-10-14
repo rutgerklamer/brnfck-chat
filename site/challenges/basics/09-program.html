@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Brainfuck basics 9, a small program</title>
+<meta name="description" content="Lesson 9 of Brainfuck basics: write a whole brainfuck program from a description. Four steps, with less help in each one, and none in the last.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../site.css?v=r9">
+<link rel="stylesheet" href="../../ui/system.css?v=r6">
+<link rel="stylesheet" href="../../ui/article.css?v=r6">
+<link rel="stylesheet" href="../../ui/lessons.css?v=r5">
+</head>
+<body>
+<script src="../../site.js?v=r13" data-section="learn"></script>
+<main class="doc article lesson" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../../brainfuck/">Learn</a><a href="./">Brainfuck basics</a></p>
+    <h1>A small program</h1>
+    <p class="lead">By the end of this lesson you can write a whole program from a description: plan the cells, build it in parts, and test it.</p>
+  </header>
+
+  <nav class="lesson steps" aria-label="Lesson">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>9</b> of 10</p>
+    <a class="prev" href="08-deciding.html" rel="prev"><span>Previous</span>Making a decision</a>
+    <a class="next" href="10-reading.html" rel="next"><span>Next</span>Reading brainfuck</a>
+  </nav>
+
+  <section id="s1" aria-labelledby="s1-h">
+    <h2 id="s1-h">One gap</h2>
+    <p>This program reads a digit and prints it, and it is almost what is asked for. Change it so that it prints the next digit: 3 gives 4. It is tried with 3, 0 and 8:</p>
+    <figure class="fig col" id="f1" aria-label="A program that reads a digit and prints it, in a box that you change">
+      <div id="m1"></div>
+      <div class="callout hint" id="h1a" hidden><h3>Hint</h3><p>A digit in a cell is a number. What is the next number?</p></div>
+      <div class="row"><button class="quiet" id="h1">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a1" hidden>
+      <p>Notice that one plus sign is all it took: <code>,+.</code> You did this in <a href="06-input.html">Lesson 6</a>. Before you go on, type 9 in the input box. It prints a colon, because number 58 comes after 57 in the table, and the program knows nothing about digits.</p>
+      <p>Whether that matters depends on what was asked. Make it a habit to try the edges: the smallest input, the largest, and nothing at all.</p>
+    </div>
+  </section>
+
+  <section id="s2" aria-labelledby="s2-h">
+    <h2 id="s2-h">A plan and a gap</h2>
+    <p>This program should print the digits 0123456789. Its plan is written into it as words, which the machine skips, and the cells are set up for you. Write the inside of the loop:</p>
+    <figure class="fig col" id="f2" aria-label="A program with its plan written in as comments, and a gap inside the loop">
+      <div id="m2"></div>
+      <div class="callout hint" id="h2a" hidden><h3>Hint</h3><p>Inside the loop you stand on the counter, cell 2. The character is one cell to the left.</p></div>
+      <div class="callout hint" id="h2b" hidden><h3>Hint</h3><p>Go left, print, add one, go right, take one off the counter.</p></div>
+      <div class="row"><button class="quiet" id="h2">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a2" hidden>
+      <p>Notice how little there was to write. The plan came first: cell 1 holds the character to print, and cell 2 counts the rounds. With that written down the loop nearly writes itself: <code>&lt;.+&gt;−</code></p>
+      <p>Deciding what every cell is for, before you type a single command, is the most useful habit in brainfuck. Keep the eight symbols out of the words of the plan. (The program you started from had an empty loop, which never ends. The machine stops any run after 200,000 steps.)</p>
+    </div>
+  </section>
+
+  <section id="s3" aria-labelledby="s3-h">
+    <h2 id="s3-h">A plan in words</h2>
+    <p>Now the plan is three lines above the box, and the program is yours. Write a program that reads one digit and prints that many stars: 3 gives ***. It is tried with 3, 0 and 9:</p>
+    <figure class="fig col" id="f3" aria-label="A plan of three lines, and a box for a program that follows it">
+      <pre class="plan">1. Read the digit into cell 0 and take 48 off, so that it is a number.
+2. Put 42, the star, in cell 2.
+3. Loop on cell 0: print cell 2, take one off cell 0.
+
+Cells: 0 holds the number of stars still to print, 1 is free for building numbers, 2 holds the star.</pre>
+      <div id="m3"></div>
+      <div class="callout hint" id="h3a" hidden><h3>Hint</h3><p>Part 1: use cell 1 as a counter. Go right, 6 plus signs, then a loop that takes 8 off cell 0 each round. You end on cell 1, which is empty again.</p></div>
+      <div class="callout hint" id="h3b" hidden><h3>Hint</h3><p>Part 2, from cell 1: 6 plus signs and a loop that adds 7 to cell 2 each round. Part 3: go to cell 0 and loop: two right, print, two left, minus.</p></div>
+      <div class="row"><button class="quiet" id="h3">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a3" hidden>
+      <p>Notice that the program has three parts, one for each line of the plan. Each is something you have done before: taking 48 off in <a href="08-deciding.html">Lesson 8</a>, building a number in <a href="05-numbers.html">Lesson 5</a>, and a loop that counts down in <a href="04-loops.html">Lesson 4</a>. They are joined by an agreement about the cells.</p>
+      <p>Test each part before you write the next: the tape under the box shows whether part 1 really left the number, and not 48 too many. For the input 0 the last loop never starts, and nothing is printed. You did not have to do anything for that edge. It came with the loop.</p>
+    </div>
+  </section>
+
+  <section id="s4" aria-labelledby="s4-h">
+    <h2 id="s4-h">On your own</h2>
+    <p>This time there is only a sentence. Write a program that reads one digit and counts down from it to 0: 3 gives 3210. Plan the cells first. The hints go from a small push to the whole shape:</p>
+    <figure class="fig col" id="f4" aria-label="An empty box for a program that counts down from a digit">
+      <div id="m4"></div>
+      <div class="callout hint" id="h4a" hidden><h3>Hint</h3><p>You need the digit twice: as a character to print, and as a number of rounds. Copy it, as in <a href="07-copy.html">Lesson 7</a>.</p></div>
+      <div class="callout hint" id="h4b" hidden><h3>Hint</h3><p>Take 48 off the copy and add 1: for the digit 3 there are four characters to print.</p></div>
+      <div class="callout hint" id="h4c" hidden><h3>Hint</h3><p>With the character in cell 0 and the counter in cell 1, standing on cell 1, the loop is: go left, print, minus, go right, minus.</p></div>
+      <div class="row"><button class="quiet" id="h4">Give me a hint</button></div>
+    </figure>
+    <div class="after" id="a4" hidden>
+      <p>Notice that you wrote about fifty commands from one sentence: plan the cells, build a part, test it, build the next.</p>
+      <p>Nothing larger works differently. A brainfuck program that chats is the same thing, hundreds of millions of commands long, and no person typed those: a program wrote them, part by part, with an agreement about the cells.</p>
+    </div>
+  </section>
+
+  <section id="check" aria-labelledby="check-h">
+    <h2 id="check-h">Check yourself</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <section id="free" aria-labelledby="free-h">
+    <h2 id="free-h">A free exercise</h2>
+    <p>Change your countdown so that it ends with an exclamation mark. Or make it count up, from 0 to the digit. Nothing is checked here:</p>
+    <figure class="fig col" id="ff" aria-label="A box for your own program, with an input box, and the tape it leaves">
+      <div id="mf"></div>
+    </figure>
+  </section>
+
+  <section id="now" aria-labelledby="now-h">
+    <h2 id="now-h">What you can do now</h2>
+    <p>You can write a small program from a description: plan the cells, build it in parts, test each part, and try the edges.</p>
+    <p>The programs of <a href="#s3">A plan in words</a> and <a href="#s4">On your own</a> come back as the challenges <a href="../play.html?c=n-stars">That many stars</a> and <a href="../play.html?c=count-from">Count down from</a>, where your program is also measured: how many commands, how many steps.</p>
+    <p class="next-q">Programs are read as often as they are written. <a href="10-reading.html">Lesson 10</a> is about reading brainfuck that somebody else wrote.</p>
+  </section>
+
+  <nav class="lesson steps end" aria-label="Lesson, end of page">
+    <p class="course">Brainfuck basics</p>
+    <p class="count">Lesson <b>9</b> of 10</p>
+    <a class="prev" href="08-deciding.html" rel="prev"><span>Previous</span>Making a decision</a>
+    <a class="next" href="10-reading.html" rel="next"><span>Next</span>Reading brainfuck</a>
+  </nav>
+</main>
+<script src="../../learn/core.js?v=r6"></script>
+<script src="../../learn/ui.js?v=r6"></script>
+<script src="../common.js?v=r5"></script>
+<script src="programs.js?v=r6"></script>
+<script src="basics.js?v=r6"></script>
+<script src="../../ui/article.js?v=r7"></script>
+<script>
+(function () {
+  const L = Basics.lesson(9);
+  // ---- 1. one gap
+  Basics.task(L, 1, 'm1', 't9s1', { button: 'h1', hints: ['h1a'], said: () => '3 gives 4, 0 gives 1 and 8 gives 9.' });
+  // ---- 2. a plan and a gap
+  Basics.task(L, 2, 'm2', 't9s2', { button: 'h2', hints: ['h2a', 'h2b'], said: (r) => 'It prints 0123456789, with ' + r.n + ' commands.' });
+  // ---- 3. a plan in words
+  Basics.task(L, 3, 'm3', 't9s3', { button: 'h3', hints: ['h3a', 'h3b'], said: (r) => 'Three stars for 3, none for 0 and nine for 9, with ' + r.n + ' commands.' });
+  // ---- 4. on your own
+  Basics.task(L, 4, 'm4', 't9s4', { button: 'h4', hints: ['h4a', 'h4b', 'h4c'], said: (r) => 'It counts down from 3, from 0 and from 9, with ' + r.n + ' commands. You wrote a whole program.' });
+
+  // ---- check yourself, and the free exercise
+  Basics.quiz(9, 'quiz', "What is the best first thing to do when you start a new program?", [["Type the loop and see what happens",false,"You will lose track of the pointer within a line. Decide first where everything lives."],["Decide what each cell is for, and write that down",true,"With the cells agreed, every part of the program knows where to find its numbers and where to leave them."],["Make it as short as possible",false,"Short comes last, if at all. First make it work, in parts that you can test."]]);
+  Basics.free('mf', { inputBox: true, inputText: '5' });
+})();
+</script>
+</body>
+</html>

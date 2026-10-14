@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: Reference, notable programs</title>
+<meta name="description" content="Notable brainfuck programs with sources: Hello World in 72 characters, Erik Bosman's Mandelbrot viewer, self-interpreters, a universal Turing machine, quines, games, compilers written in and targeting brainfuck, neural networks, and this site's chat models.">
+<meta property="og:title" content="Notable brainfuck programs and feats">
+<meta property="og:description" content="Notable brainfuck programs with sources: Hello World in 72 characters, Erik Bosman's Mandelbrot viewer, self-interpreters, a universal Turing machine, quines, games, compilers written in and targeting brainfuck, neural networks, and this site's chat models.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="brnfck.chat">
+<meta name="twitter:card" content="summary">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/reference.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r13" data-section="learn"></script>
+<main class="doc article reference" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><a href="./">Reference</a><span>Notable programs</span></p>
+    <h1>Notable programs and feats</h1>
+    <p class="lead">The README of 1993 ended with a question: &ldquo;Who can program anything useful with it?&rdquo; <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> Useful is a matter of taste, but the answers are remarkable: a picture of the Mandelbrot set, interpreters for brainfuck written in brainfuck, a text adventure of two megabytes, a C compiler, and this site's own chat models. For each of the best-known programs: author, date, size, what it does and what it needs. The programs are described and linked, not reproduced.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#overview">At a glance</a></li>
+          <li><a href="#first">The first programs</a></li>
+          <li><a href="#hello">Hello, World!</a></li>
+          <li><a href="#mandel">The Mandelbrot viewer</a></li>
+          <li><a href="#self">Brainfuck in brainfuck</a></li>
+          <li><a href="#utm">A universal Turing machine</a></li>
+          <li><a href="#quine">Quines</a></li>
+          <li><a href="#cristofani">The brainfuck.org collection</a></li>
+          <li><a href="#games">Games</a></li>
+          <li><a href="#compilers">Compilers written in brainfuck</a></li>
+          <li><a href="#decss">A program as an argument</a></li>
+          <li><a href="#ray">A ray tracer</a></li>
+          <li><a href="#nn">Neural networks</a></li>
+          <li><a href="#chat">This site's project: three chat models</a></li>
+          <li><a href="#limits">Limits</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="overview" aria-labelledby="overview-h">
+    <h2 id="overview-h">At a glance</h2>
+    <div class="scroll" tabindex="0" role="group" aria-label="Notable programs, oldest first; scrolls sideways on a narrow screen">
+    <table id="tab-programs" class="cmp">
+      <caption>Notable programs, oldest first. "By hand" and "generated" say how the brainfuck was written, where the author tells. Sizes are from the source named in the section that each name links to.</caption>
+      <thead><tr><th scope="col">Program</th><th scope="col">By</th><th scope="col">When</th><th scope="col">Size</th><th scope="col">Made</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><a href="#first">The first examples</a></th><td>Urban Müller</td><td>1993</td><td>182 commands (hello.b)</td><td>by hand</td></tr>
+        <tr><th scope="row"><a href="#self">Interpreters in brainfuck</a></th><td>Frans Faase; Daniel Cristofani</td><td>by 2003</td><td>423 commands (dbfi)</td><td>generated; by hand</td></tr>
+        <tr><th scope="row"><a href="#utm">Universal Turing machine</a></th><td>Daniel Cristofani</td><td>not dated</td><td>not counted</td><td>by hand</td></tr>
+        <tr><th scope="row"><a href="#mandel">Mandelbrot viewer</a></th><td>Erik Bosman</td><td>2003</td><td>about 11,600 bytes</td><td>generated from macros</td></tr>
+        <tr><th scope="row"><a href="#games">Lost Kingdom</a></th><td>Jon Ripley</td><td>2004 to 2005</td><td>2.08 megabytes</td><td>compiled from BASIC</td></tr>
+        <tr><th scope="row"><a href="#games">Game of Life</a></th><td>Linus Åkesson</td><td>by 2009</td><td>not stated</td><td>by hand</td></tr>
+        <tr><th scope="row"><a href="#compilers">awib, a compiler</a></th><td>Mats Linander</td><td>by 2014</td><td>not stated</td><td>not stated</td></tr>
+        <tr><th scope="row"><a href="#compilers">A C compiler</a></th><td>shinh (ELVM), from Rui Ueyama's 8cc</td><td>not dated</td><td>not stated</td><td>compiled from C</td></tr>
+        <tr><th scope="row"><a href="#games">Tic-tac-toe</a></th><td>mitxela</td><td>2017</td><td>not stated</td><td>by hand</td></tr>
+        <tr><th scope="row"><a href="#hello">Shortest "Hello, World!"</a></th><td>KSab</td><td>2018</td><td>72 commands</td><td>found by search</td></tr>
+        <tr><th scope="row"><a href="#nn">lobotoml, a small neural network</a></th><td>Ad1th</td><td>not dated</td><td>9,731 bytes</td><td>generated</td></tr>
+        <tr><th scope="row"><a href="#ray">A ray tracer</a></th><td>see the section</td><td>2026</td><td>23 megabytes</td><td>generated</td></tr>
+        <tr><th scope="row"><a href="#chat">Three chat models</a></th><td>this site</td><td>2026</td><td>1.03, 4.17 and 11.43 billion commands</td><td>generated</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The sizes in <a href="#tab-programs">the table</a> run from 72 to more than eleven billion. Here they are on one scale, where every step to the right is a thousand times more:</p>
+    <figure class="fig col" id="fig-size">
+      <div class="bars scale" role="img" aria-label="Bar chart on a logarithmic scale of program sizes, from 72 commands for the shortest Hello World to 11.4 billion commands for the biggest chat model.">
+        <span aria-hidden="true"></span><div class="ticks" aria-hidden="true"><span>1</span><span>1 thousand</span><span>1 million</span><span>1 billion</span><span>1 trillion</span></div><span aria-hidden="true"></span>
+        <span class="lab">Shortest "Hello, World!"</span><div><div class="bar ink" style="width:15.5%"></div></div><span>72 commands</span>
+        <span class="lab">Müller's hello.b</span><div><div class="bar ink" style="width:18.8%"></div></div><span>182 commands</span>
+        <span class="lab">dbfi, self-interpreter</span><div><div class="bar ink" style="width:21.9%"></div></div><span>423 commands</span>
+        <span class="lab">lobotoml</span><div><div class="bar ink" style="width:33.2%"></div></div><span>9,731 bytes</span>
+        <span class="lab">Mandelbrot viewer</span><div><div class="bar ink" style="width:33.9%"></div></div><span>about 11,600 bytes</span>
+        <span class="lab">Lost Kingdom</span><div><div class="bar ink" style="width:52.7%"></div></div><span>2.08 megabytes</span>
+        <span class="lab">Ray tracer</span><div><div class="bar ink" style="width:61.3%"></div></div><span>23 megabytes</span>
+        <span class="lab">Chat model, brnfck-135m</span><div><div class="bar b2" style="width:75.1%"></div></div><span>1,030,902,380 commands</span>
+        <span class="lab">Chat model, brnfck-0.5b</span><div><div class="bar b2" style="width:80.2%"></div></div><span>4,169,659,608 commands</span>
+        <span class="lab">Chat model, brnfck-1.5b</span><div><div class="bar b2" style="width:83.8%"></div></div><span>11,430,468,880 commands</span>
+      </div>
+    </figure>
+    <p>Notice the gap between the hand-written programs at the top and the generated ones at the bottom. On an even scale, if the shortest "Hello, World!" were 1 millimetre long, the biggest chat program would be about 159 kilometres. Sizes in bytes count the whole file, comments included, so they are a little more than the number of commands. The hatched bars are this site's own programs.</p>
+  </section>
+
+  <section id="first" aria-labelledby="first-h">
+    <h2 id="first-h">The first programs</h2>
+    <p>The 1993 package came with six example programs by Müller himself&nbsp;<a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>. Their names say what he thought needed showing: <code>hello.b</code> ("the ubiquitous Hello World!"), <code>prime.b</code> (prime numbers up to a limit you type), <code>atoi.b</code> (reads a number), <code>div10.b</code> and <code>mul10.b</code> (divide and multiply by ten), and <code>varia.b</code> ("small program elements like SWAP, DUP etc."). The last name is a trace of FALSE, the stack language that set him off: swap and dup are stack words.</p>
+    <p><code>hello.b</code> has 182 commands (our count) and prints "Hello World!" and a new line. It builds each letter with a small multiplication and empties the cell with <span class="bf">[-]</span> between words. <code>prime.b</code> is a file of 4,100 bytes with comments in capitals, and is the largest of the six.</p>
+  </section>
+
+  <section id="hello" aria-labelledby="hello-h">
+    <h2 id="hello-h">Hello, World!</h2>
+    <p>Printing a greeting is the first program in every language. In brainfuck it became a contest: who can do it in the fewest commands?</p>
+    <ul>
+      <li>The program most people have seen is the one in the Wikipedia article, with 106 commands&nbsp;<a class="cite" href="#ref-2" aria-label="Source 2">[2]</a>.</li>
+      <li>On 3 January 2016 the user primo posted one of 78 commands on Code Golf Stack Exchange, and offered a bounty to anyone who could beat it. Its first 28 commands fill the tape with a sequence of numbers in which each is worked out from the three before it, with wrapping arithmetic; the rest picks the letters out of what that leaves behind&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</li>
+      <li>On 27 April 2018 the user KSab posted one of <b>72 commands</b>. It was not written but found: by a program that tries out short programs systematically. KSab also gives a 76-command version that does not rely on wrapping&nbsp;<a class="cite" href="#ref-3" aria-label="Source 3">[3]</a>.</li>
+    </ul>
+    <p>The Esolang wiki calls the 72-command program "the shortest known" and adds what it needs: cells of one byte that wrap, and five cells to the left of the starting point&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. So it is short, and it does not run everywhere (see <a href="portability.html#tape">the ends of the tape</a>). Nobody has shown that 72 is the least possible.</p>
+  </section>
+
+  <section id="mandel" aria-labelledby="mandel-h">
+    <h2 id="mandel-h">The Mandelbrot viewer</h2>
+    <p>Erik Bosman's program prints a picture of the Mandelbrot set, the best-known fractal, in text characters: 128 columns by 48 rows. Two larger versions print 256 by 96 and 512 by 192. The files in the Brainfuck Archive are dated 1 June 2003, and the program is about 11,600 bytes long&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
+    <p>It was not typed. Next to the program the archive holds the files it was made from: a small library of macros for arithmetic, comparison and loops, and a short main file&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>. It is the classic example of <a href="writing.html#generate">generating brainfuck</a>.</p>
+    <p>The program reads no input, runs long and uses loops in every way an implementation must handle. That made it the standard test of speed: both of the best-known articles on making brainfuck fast use it&nbsp;<a class="cite" href="#ref-6" aria-label="Source 6">[6]</a>&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, and the author of the language showed a picture made by it in his talk and asked: "why?"&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></p>
+  </section>
+
+  <section id="self" aria-labelledby="self-h">
+    <h2 id="self-h">Brainfuck in brainfuck</h2>
+    <p>An interpreter for a language, written in that same language, is called a self-interpreter. It is a classic test of whether a language can do "real" work.</p>
+    <ul>
+      <li><b>Frans Faase</b> published one that was produced by a C program he wrote for the purpose. He makes no claim that it is short&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>.</li>
+      <li><b>Daniel Cristofani's dbfi</b> is far shorter: 423 commands by our count&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. With Oleg Mazonka he described it in a paper of November 2003, whose abstract says it "may be the shortest" self-interpreter of its kind&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>. The Esolang wiki still lists it as the shortest, and one by Clive Gifford as the fastest&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>.</li>
+    </ul>
+    <p>Both take their input in the same way: first the program to run, then an exclamation mark, then the input for that program&nbsp;<a class="cite" href="#ref-9" aria-label="Source 9">[9]</a>&nbsp;<a class="cite" href="#ref-10" aria-label="Source 10">[10]</a>. This is where the <code>!</code> convention comes from (see <a href="portability.html#small">smaller differences</a>). And since dbfi is a brainfuck program, it can run itself running another program, as deep as your patience allows.</p>
+  </section>
+
+  <section id="utm" aria-labelledby="utm-h">
+    <h2 id="utm-h">A universal Turing machine</h2>
+    <p>Cristofani's utm.b is a brainfuck program that behaves as a universal Turing machine: one fixed machine that can imitate any other. He took a very small one from a paper by Yurii Rogozhin (1996) and wrote it out in brainfuck with a long commentary. In his words it gives "a very direct proof that brainfuck is Turing-complete"&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>. The page on <a href="theory.html#proofs">theory</a> says what that proof assumes.</p>
+  </section>
+
+  <section id="quine" aria-labelledby="quine-h">
+    <h2 id="quine-h">Quines</h2>
+    <p>A quine is a program that prints its own text. In a language without strings this takes care: the program must hold a description of itself as numbers on the tape, print the commands that make those numbers, and then print the rest. Known brainfuck quines are by Brian Raiter&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>, whose quine Müller showed in his talk with the words "I don't know where to begin"&nbsp;<a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>, by Erik Bosman, whose quine is the example on the Esolang wiki&nbsp;<a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>, and by Daniel Cristofani, who offers several&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>.</p>
+  </section>
+
+  <section id="cristofani" aria-labelledby="cristofani-h">
+    <h2 id="cristofani-h">The brainfuck.org collection</h2>
+    <p>The largest body of hand-written brainfuck by one person is Daniel Cristofani's, on brainfuck.org&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. Besides the interpreter of <a href="#self">Brainfuck in brainfuck</a> and the universal machine of <a href="#utm">A universal Turing machine</a> it includes sorting programs (bubble sort, insertion sort, quicksort), programs that print the digits of e and of the golden ratio, endless Fibonacci numbers, factorials and squares, Conway's Game of Life, a tic-tac-toe player, a word counter like the Unix tool <code>wc</code>, a random number generator built on a cellular automaton, and a translator from brainfuck to C. Many are commented line by line, and his series "get good at brainfuck" walks through them in the order they were written&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>.</p>
+    <p>He licenses the programs under Creative Commons Attribution-ShareAlike 4.0&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. If you want to learn how good brainfuck is written, this is the place.</p>
+  </section>
+
+  <section id="games" aria-labelledby="games-h">
+    <h2 id="games-h">Games</h2>
+    <dl class="glossary">
+      <dt>Lost Kingdom (Jon Ripley, 2004 to 2005)</dt>
+      <dd>A text adventure: you type commands such as directions and the program describes where you are. Ripley first wrote it in BBC BASIC for a contest of adventures in two kilobytes, which it won in 2004; the original was 2.74 kilobytes. The brainfuck edition is 2.08 megabytes&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>. It was made with BFBASIC, a compiler from BASIC to brainfuck&nbsp;<a class="cite" href="#ref-17" aria-label="Source 17">[17]</a>. Ripley's page calls it the world's first brainfuck text adventure and, more carefully, "probably the largest program ever written in Brainfuck" at that time&nbsp;<a class="cite" href="#ref-16" aria-label="Source 16">[16]</a>. We cannot check either claim, and the second has since been overtaken.</dd>
+      <dt>Game of Life (Linus Åkesson)</dt>
+      <dd>Conway's cellular automaton on a board with rows and columns named by letters. You type two letters to switch a cell on or off, and press Enter for the next generation. Written by hand; the author says comments and white space made that possible&nbsp;<a class="cite" href="#ref-18" aria-label="Source 18">[18]</a>. The page has reader comments from 2009 on.</dd>
+      <dt>Tic-tac-toe (mitxela, 2017)</dt>
+      <dd>You play against the program by typing a number from 1 to 9. Written over the weekend of 6 May 2017; the commented source is published next to the stripped one. The author left a few ways for the player to win on purpose&nbsp;<a class="cite" href="#ref-19" aria-label="Source 19">[19]</a>. Cristofani's collection has a tic-tac-toe player as well&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>.</dd>
+    </dl>
+  </section>
+
+  <section id="compilers" aria-labelledby="compilers-h">
+    <h2 id="compilers-h">Compilers written in brainfuck</h2>
+    <dl class="glossary">
+      <dt>awib (Mats Linander)</dt>
+      <dd>A brainfuck compiler written in brainfuck. It reads a brainfuck program and writes it out as C, as a Linux program for Intel processors, or as code in Tcl, Go, Ruby, Java or Rust. It optimises too: it merges runs of commands and turns clearing, copying and multiplying loops into single operations. And the source of awib is at once valid brainfuck, Tcl, C and bash&nbsp;<a class="cite" href="#ref-20" aria-label="Source 20">[20]</a>.</dd>
+      <dt>A C compiler (ELVM)</dt>
+      <dd>ELVM is a tool chain by shinh that compiles C to a very simple intermediate form and from there to some sixty languages, brainfuck among them. Its README says the first aim was to run a Lisp interpreter in brainfuck. Because the C compiler it uses, a version of Rui Ueyama's 8cc, is itself written in C, the tool chain can compile its own compiler: the README lists "8cc in Brainfuck" among the results. The output needs 8-bit cells&nbsp;<a class="cite" href="#ref-21" aria-label="Source 21">[21]</a>.</dd>
+    </dl>
+    <p>For compilers that produce brainfuck from BASIC or C, see <a href="writing.html#generate">Writing real programs</a>. For compilers that turn brainfuck into something faster, see <a href="implementations.html">Implementations</a>.</p>
+  </section>
+
+  <section id="decss" aria-labelledby="decss-h">
+    <h2 id="decss-h">A program as an argument</h2>
+    <p>When courts in the United States dealt with a short program that unscrambles DVDs, David Touretzky of Carnegie Mellon University collected versions of it in every form he could find, to argue that there is no clear line between a program and other ways of writing down the same method. One exhibit is the descrambler in brainfuck, from an anonymous author, which the gallery calls "a truly minimalist description of the algorithm"&nbsp;<a class="cite" href="#ref-22" aria-label="Source 22">[22]</a>.</p>
+  </section>
+
+  <section id="ray" aria-labelledby="ray-h">
+    <h2 id="ray-h">A ray tracer</h2>
+    <p>The newest entry. An article of 24 September 2026 describes a ray tracer in brainfuck: a program that computes a picture of shiny spheres by following rays of light, after the scene of a well-known tutorial. The author wrote a small language and a code generator for it. By the author's account the program is 23 megabytes; a first estimate was about one pixel per minute for a picture of 400 by 225; and at the time of writing 1,229 pixels had been computed, of which 10 differed slightly from a reference version in C&nbsp;<a class="cite" href="#ref-23" aria-label="Source 23">[23]</a>. We have not run it.</p>
+  </section>
+
+  <section id="nn" aria-labelledby="nn-h">
+    <h2 id="nn-h">Neural networks</h2>
+    <p><b>lobotoml</b>, by Ad1th, compiles a small neural network into brainfuck. The network has 7 neurons (2 inputs, 4 in the middle, 1 output) and computes XOR: whether exactly one of two inputs is on. It is trained in Python, its weights are rounded to whole numbers, and a generator writes a brainfuck program of 9,731 bytes. By its README the brainfuck version gives the same answers as the whole-number version in Python, and one run takes about 5.8 million commands&nbsp;<a class="cite" href="#ref-24" aria-label="Source 24">[24]</a>. The README is frank that larger networks would be far too slow this way.</p>
+    <p>A related line of research uses brainfuck as raw material. In "Computational Life" (2024), Blaise Agüera y Arcas and colleagues filled a "soup" with random programs of 64 bytes in a variant of brainfuck in which a program and its data share one tape, and watched programs that copy themselves arise without being designed&nbsp;<a class="cite" href="#ref-25" aria-label="Source 25">[25]</a>.</p>
+  </section>
+
+  <section id="chat" aria-labelledby="chat-h">
+    <h2 id="chat-h">This site's project: three chat models</h2>
+    <p>The project this site began with belongs in this list as one entry among the others. Three published chat models were each written out as a single brainfuck program. A model is a long list of numbers (weights) and a fixed recipe of sums. Almost all of each program writes those numbers onto the tape; the last part does the sums. The only thing a program reads is the question, and the only thing it prints is the answer&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="The three programs; scrolls sideways on a narrow screen">
+    <table id="tab-chat" class="cmp">
+      <caption>The three programs. Counts are counted in the program files; times were measured on one desktop computer&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</caption>
+      <thead><tr><th scope="col">What</th><th scope="col">brnfck-135m</th><th scope="col">brnfck-0.5b</th><th scope="col">brnfck-1.5b</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Model</th><td>SmolLM2-135M-Instruct (Hugging Face)</td><td>Qwen2.5-0.5B-Instruct (Alibaba Cloud)</td><td>Qwen2.5-1.5B-Instruct (Alibaba Cloud)</td></tr>
+        <tr><th scope="row">Commands in the program <span class="ev">counted</span></th><td>1,030,902,380</td><td>4,169,659,608</td><td>11,430,468,880</td></tr>
+        <tr><th scope="row">Tape, in cells of 32 bits <span class="ev">counted</span></th><td>188,012,789</td><td>657,597,114</td><td>1,827,870,014</td></tr>
+        <tr><th scope="row">Time for one word piece <span class="ev">measured</span></th><td>0.6 to 1.0 s</td><td>about 2.3 s</td><td>7 to 12 s</td></tr>
+        <tr><th scope="row">Same next word piece as the original model <span class="ev">measured</span></th><td>94.8% (345 of 364)</td><td>96.6% (477 of 494)</td><td>97.2% (318 of 327)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Its limits, stated plainly:</p>
+    <ul>
+      <li><b>Brainfuck only runs the models.</b> They were made and trained by others, in the usual way.</li>
+      <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was converted to whole-number arithmetic. The last row of <a href="#tab-chat">the table</a> says how often that version agrees with the original.</li>
+      <li><b>It needs cells of 32 bits that wrap.</b> On the usual 8-bit cells the programs print nonsense.</li>
+      <li><b>It needs a fast interpreter.</b> One word piece of brnfck-135m is 1.6 to 1.9 billion steps <span class="ev">measured</span>. The pages translate the program to WebAssembly and do simple loops in one operation. The result is the same as going one command at a time; one at a time would take far too long.</li>
+      <li><b>Nobody typed it.</b> A generator written in JavaScript wrote the brainfuck.</li>
+      <li><b>The answers can be wrong</b>, as the answers of small models are. Brainfuck runs them faithfully, mistakes included.</li>
+      <li><b>It was tried in one desktop browser.</b></li>
+    </ul>
+    <p>Has it been done before? lobotoml (<a href="#nn">Neural networks</a>) ran a small neural network in brainfuck earlier. We looked for an earlier language model or chat model in brainfuck and found none. Our search was limited, so we do not claim to be the first&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</p>
+    <p>Read <a href="../how/">how it works</a>, look <a href="../inside/">inside the program</a>, or <a href="../">ask a model a question</a>.</p>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Limits</h2>
+    <ul>
+      <li><b>The list is a selection.</b> It follows what the sources we read point to. There are certainly good programs we missed.</li>
+      <li><b>Sizes.</b> Where a size is "our count" we counted the command characters in the file on the date given. Other sizes are the author's.</li>
+      <li><b>"First" and "largest".</b> We repeat such claims only as claims, with the name of who makes them. We found no way to verify any of them.</li>
+      <li><b>We ran none of the other programs</b>, apart from reading their sources. What they do is taken from their authors' descriptions.</li>
+      <li><b>Dates.</b> "By 2009" and the like mean: the earliest date we could find, not the date it was written.</li>
+    </ul>
+  </section>
+
+  <section id="next" aria-labelledby="next-h">
+    <h2 id="next-h">Read next</h2>
+    <ul class="linklist">
+      <li><a href="implementations.html"><b>Implementations</b><span>What these programs run on, and why some are used as benchmarks.</span></a></li>
+      <li><a href="writing.html"><b>Writing real programs</b><span>The methods behind them: by hand, with macros, with compilers.</span></a></li>
+      <li><a href="../how/"><b>How the chat models work</b><span>This site's own entry in the list, followed from question to answer.</span></a></li>
+    </ul>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <p class="small muted">Where a source is a community wiki or the author's own account, the entry or the text says so.</p>
+    <ol class="refs">
+      <li id="ref-1"><b>Urban Müller, <i>brainfuck-2.lha</i></b>, Aminet, dev/lang, dated 9 June 1993: <a href="https://aminet.net/package/dev/lang/brainfuck-2">the package page on Aminet</a>. We read the files in the archive: <code>README</code>, <code>bfc.asm</code> (the compiler), <code>bfi.c</code> (the interpreter) and the six example programs. Sizes and dates are those of the archive listing. Opened 11 October 2026.</li>
+      <li id="ref-2"><b>Wikipedia, "Brainfuck"</b>: <a href="https://en.wikipedia.org/wiki/Brainfuck">the Wikipedia article</a>. Used for orientation and for its list of references, not as evidence. Opened 11 October 2026.</li>
+      <li id="ref-3"><b>Code Golf Stack Exchange, answers to the "Hello, World!" challenge</b>: <a href="https://codegolf.stackexchange.com/a/163590">the answer by KSab</a> (27 April 2018, 72 bytes) and <a href="https://codegolf.stackexchange.com/a/68494">the answer by primo</a> (3 January 2016, 78 bytes). Read through the Stack Exchange API. Opened 11 October 2026.</li>
+      <li id="ref-4"><b>Esolang wiki, "Brainfuck"</b>: <a href="https://esolangs.org/wiki/Brainfuck">the wiki article on brainfuck</a>. A community wiki; we use it for conventions and for its list of results, and name it where it is our only source. Opened 11 October 2026.</li>
+      <li id="ref-5"><b>Erik Bosman, Mandelbrot set viewer</b>, files dated 1 June 2003, in the Brainfuck Archive: <a href="http://esoteric.sange.fi/brainfuck/utils/mandelbrot/">the mandelbrot directory</a> with its <code>README.txt</code>. Opened 11 October 2026.</li>
+      <li id="ref-6"><b>Mats Linander, "brainfuck optimization strategies"</b>, 7 January 2015: <a href="http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html">the article on calmerthanyouare.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-7"><b>Eli Bendersky, "Adventures in JIT compilation: Part 1, an interpreter"</b>, 20 March 2017: <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-1-an-interpreter/">part 1 on eli.thegreenplace.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-8"><b>Urban Müller, talk at Tamedia TX, 2017</b>, read as the community transcript on the Esolang wiki: <a href="https://esolangs.org/wiki/Urban_M%C3%BCller/Tamedia_TX_2017_Transcript">Tamedia TX 2017 transcript</a>. The transcript says its last page is missing. Wikipedia gives the title as "Brainfuck, or how I learned to change the problem" and the date as 13 June 2017; we did not watch the recording. Opened 11 October 2026.</li>
+      <li id="ref-9"><b>Frans Faase, "BF interpreter written in BF"</b>: <a href="https://www.iwriteiam.nl/Ha_bf_inter.html">the interpreter page on iwriteiam.nl</a>. Opened 11 October 2026.</li>
+      <li id="ref-10"><b>Daniel B Cristofani, <i>dbfi.b</i></b>: <a href="https://brainfuck.org/dbfi.b">the self-interpreter on brainfuck.org</a>. The count of 423 commands is ours, of the file without its closing comment. Opened 11 October 2026.</li>
+      <li id="ref-11"><b>Oleg Mazonka and Daniel B. Cristofani, "A Very Short Self-Interpreter"</b>, arXiv:cs/0311032, 21 November 2003: <a href="https://arxiv.org/abs/cs/0311032">the abstract on arXiv</a>. We read the abstract only. Opened 11 October 2026.</li>
+      <li id="ref-12"><b>Daniel B Cristofani, <i>utm.b</i></b>: <a href="https://brainfuck.org/utm.b">the universal Turing machine on brainfuck.org</a>. Its comments name the machine it implements: Yurii Rogozhin, "Small universal Turing machines", <i>Theoretical Computer Science</i> 168(2) (1996), 215 to 240, which we did not open. Opened 11 October 2026.</li>
+      <li id="ref-13"><b>Brian Raiter, "Brainfuck: An Eight-Instruction Turing-Complete Programming Language"</b>: <a href="https://muppetlabs.com/~breadbox/bf/">the brainfuck page on muppetlabs.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-14"><b>Daniel B Cristofani, brainfuck.org</b>: <a href="https://brainfuck.org/">the main page</a>. The page licenses his programs under Creative Commons Attribution-ShareAlike 4.0. Opened 11 October 2026.</li>
+      <li id="ref-15"><b>Daniel B Cristofani, "get good at brainfuck"</b>: <a href="https://brainfuck.org/ggab.html">the series on brainfuck.org</a>. Opened 11 October 2026.</li>
+      <li id="ref-16"><b>Jon Ripley, "The Lost Kingdom Brainfuck Edition"</b>, 2004 to 2005: <a href="http://jonripley.com/i-fiction/games/LostKingdomBF.html">the game's page on jonripley.com</a>. Opened 11 October 2026.</li>
+      <li id="ref-17"><b>Esolang wiki, "BFBASIC"</b>: <a href="https://esolangs.org/wiki/BFBASIC">the wiki article on BFBASIC</a>. Opened 11 October 2026.</li>
+      <li id="ref-18"><b>Linus Åkesson, "Game of Life in Brainfuck"</b>: <a href="https://www.linusakesson.net/programming/brainfuck/index.php">the page on linusakesson.net</a>. Opened 11 October 2026.</li>
+      <li id="ref-19"><b>mitxela, <i>bf-tic-tac-toe</i></b>, 2017: <a href="https://github.com/mitxela/bf-tic-tac-toe">mitxela/bf-tic-tac-toe on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-20"><b>Mats Linander, <i>awib</i></b>, README dated 14 September 2014: <a href="https://github.com/matslina/awib">matslina/awib on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-21"><b>shinh, <i>ELVM Compiler Infrastructure</i></b>, README: <a href="https://github.com/shinh/elvm">shinh/elvm on GitHub</a>. Opened 11 October 2026.</li>
+      <li id="ref-22"><b>David S. Touretzky, "Gallery of CSS Descramblers"</b>, Carnegie Mellon University: <a href="https://www.cs.cmu.edu/~dst/DeCSS/Gallery/">the gallery at cs.cmu.edu</a>. Opened 11 October 2026.</li>
+      <li id="ref-23"><b>"Writing a ray tracer in Brainfuck"</b>, 24 September 2026: <a href="https://epestr.com/blog/writing-a-ray-tracer-in-brainfuck/">the article on epestr.com</a>. All figures are the author's own. Opened 11 October 2026.</li>
+      <li id="ref-24"><b>Ad1th, <i>lobotoml</i></b>: <a href="https://github.com/Ad1th/lobotoml">Ad1th/lobotoml on GitHub</a>. All figures are from its README. Opened 11 October 2026.</li>
+      <li id="ref-25"><b>Blaise Agüera y Arcas and others, "Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction"</b>, arXiv:2406.19108, 2024: <a href="https://arxiv.org/abs/2406.19108">the abstract on arXiv</a> and <a href="https://arxiv.org/html/2406.19108v2">the full text</a>. Opened 11 October 2026.</li>
+      <li id="ref-26"><b>This site's own project.</b> Counts and measurements are on <a href="../how/#numbers">How it works: the numbers</a> and <a href="../how/#real">How do I know it is real?</a>; the earlier work we know of is under <a href="../how/#prior">Has this been done before?</a>. Opened 11 October 2026.</li>
+    </ol>
+  </section>
+
+  <nav class="kb" aria-labelledby="kb-h">
+    <h2 class="label" id="kb-h">The Reference</h2>
+    <ul class="tiles">
+      <li><a href="./"><b>Overview</b></a></li>
+      <li><a href="language.html"><b>The language</b></a></li>
+      <li><a href="portability.html"><b>Differences</b></a></li>
+      <li><a href="history.html"><b>History</b></a></li>
+      <li><a href="theory.html"><b>Theory</b></a></li>
+      <li><a href="writing.html"><b>Writing programs</b></a></li>
+      <li><a href="programs.html" aria-current="page"><b>Notable programs</b></a></li>
+      <li><a href="implementations.html"><b>Implementations</b></a></li>
+      <li><a href="relatives.html"><b>Relatives</b></a></li>
+      <li><a href="culture.html"><b>Culture</b></a></li>
+      <li><a href="glossary.html"><b>Glossary</b></a></li>
+      <li><a href="questions.html"><b>Questions</b></a></li>
+      <li><a href="reading.html"><b>Further reading</b></a></li>
+    </ul>
+  </nav>
+  <nav class="lesson end" aria-label="Previous and next page of the Reference">
+    <p class="course">Reference</p>
+    <p class="count">Page <b>7</b> of 13</p>
+    <a class="prev" href="writing.html" rel="prev"><span>Previous</span>Writing programs</a>
+    <a class="next" href="implementations.html" rel="next"><span>Next</span>Implementations</a>
+  </nav>
+</main>
+</body>
+</html>
