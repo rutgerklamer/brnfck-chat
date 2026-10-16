@@ -20,15 +20,19 @@ for (const line of log) {
     q = { index: Number(m[1]), question: JSON.parse(m[2]), ids: Number(m[3]), end: /end of turn/.test(m[4]) ? 'end' : 'cut', checks: [] }; questions.push(q);
   } else if (q && (m = /start-up ([\d.]+) s .*first piece after ([\d.]+) s; ([\d.]+) s per (?:word )?piece \(median.*?\); whole run ([\d.]+) s/.exec(line))) {
     Object.assign(q, { startup: Number(m[1]), firstPiece: Number(m[2]), perPiece: Number(m[3]), whole: Number(m[4]) });
-  } else if ((m = /writing part run in ([\d.]+) s without any input(?: \((\d+)-bit memory\))?: ([\d,]+) loops \(([\d,]+) different texts\)/.exec(line))) {
-    tapeRun = { seconds: Number(m[1]), memoryBits: m[2] ? Number(m[2]) : 32, loops: toNumber(m[3]), loopTexts: toNumber(m[4]) };
-  } else if ((m = /load part of ([\w.-]+) run on the data files in a second process: (\d+) sums/.exec(line))) loadRun = { program: m[1], sums: Number(m[2]) };
+  } else if ((m = /writing part run in ([\d.]+) s without any input(?: \((\d+)-bit memory\))?(?:: ([\d,]+) loops \(([\d,]+) different texts\))?/.exec(line))) {
+    // (the log of brnfck-qwen3.5-0.8b does not count the loops)
+    tapeRun = { seconds: Number(m[1]), memoryBits: m[2] ? Number(m[2]) : 32, loops: m[3] ? toNumber(m[3]) : null, loopTexts: m[4] ? toNumber(m[4]) : null };
+  } else if ((m = /load part of (the text program|[\w.-]+) run on the data files in a second process: (\d+) sums/.exec(line))) loadRun = { program: m[1], sums: Number(m[2]) };
   if (q) {
     const b = /input = the (\d+) bytes of the question.*?; the printed text equals the spec's \((\d+) bytes/.exec(line); if (b) { q.inputBytes = Number(b[1]); q.outputBytes = Number(b[2]); }
     const w = /(\d+) word pieces arrived/.exec(line); if (w) q.pieces = Number(w[1]);
     const r = /with ([\d,]+) cells put back/.exec(line); if (r) q.putBack = toNumber(r[1]);
   }
 }
+// The log of brnfck-qwen3.5-0.8b does not count the word pieces as they arrive; it checks that the printed text is the
+// text of the spec's ids, so a question whose checks all passed printed exactly that many word pieces.
+for (const x of questions) if (x.pieces === undefined && x.checks.length && x.checks.every((c) => c.ok) && x.outputBytes !== undefined) x.pieces = x.ids;
 const summary = log.find((l) => /^all \d+ ok/.test(l));
 const avg = (f) => { const v = questions.map(f).filter((x) => typeof x === 'number'); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
 const peak = log.find((l) => /^peak memory/.test(l));

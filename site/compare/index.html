@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: compare the models</title>
+<meta name="description" content="The four programs side by side: SmolLM2-135M, Qwen2.5-0.5B and Qwen2.5-1.5B, which look back at every earlier word piece, and Qwen3.5-0.8B (brnfck-qwen3.5-0.8b), which keeps a memory of fixed size in three of every four layers, a table of 128 by 128 numbers per head that fades and is rewritten with every word piece. Drawn to scale from the models and recorded from the model at work.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
+<link rel="stylesheet" href="compare.css?v=r7">
+</head>
+<body>
+<script src="../site.js?v=r16" data-section="insights"></script>
+<main class="doc article dn" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>Compare the models</span></p>
+    <h1>Compare the models</h1>
+    <p class="lead">brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b run models that look back at every earlier word piece, in every layer. <a href="../?m=0.8b">brnfck-qwen3.5-0.8b</a> runs Qwen3.5-0.8B, which does that in only one layer of every four, like the much larger Qwen3.8-27B. The other layers keep a memory of a fixed size, which fades a little with every word piece and is written over. This page puts the models side by side and shows that memory at work, recorded from Qwen3.5-0.8B.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#stack">Two models to scale</a></li>
+          <li><a href="#grow">Looking back gets heavier</a></li>
+          <li><a href="#cost">In the four programs</a></li>
+          <li><a href="#table">A table instead of a list</a></li>
+          <li><a href="#step">One word piece, step by step</a></li>
+          <li><a href="#heads">All the tables at once</a></li>
+          <li><a href="#whole">Fading in whole numbers</a></li>
+          <li><a href="#attn">The layers that still look back</a></li>
+          <li><a href="#live">Ask it yourself</a></li>
+          <li><a href="#notes">Notes and sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="stack" aria-labelledby="stack-h">
+    <h2 id="stack-h">Two models, drawn to scale</h2>
+    <p>The program brnfck-qwen2.5-0.5b runs Qwen2.5-0.5B; brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B. Both have 24 layers, and each layer has two parts: one that mixes in the earlier word pieces, and a <b>feed-forward</b> part that works on the word piece alone. Below, every weight of the two models takes the same room, so the higher a block, the more weights it holds. Within a layer, the width of each part is its share. Click a layer to see what is in it:</p>
+
+    <figure class="fig" id="fig-stack" aria-label="Qwen2.5-0.5B and Qwen3.5-0.8B side by side, every weight the same size">
+      <div class="dn-legend" aria-hidden="true"><span><i class="sw" style="background:var(--d4)"></i>Table of word pieces</span><span><i class="sw" style="background:var(--d2)"></i>Looks back</span><span><i class="sw" style="background:var(--d1)"></i>DeltaNet</span><span><i class="sw" style="background:var(--d3)"></i>Feed-forward</span></div>
+      <canvas class="dn-stack" tabindex="0" role="img"></canvas>
+      <p class="tell" aria-live="polite"></p>
+      <p class="measured">Counted from the weight files of the two models (<code>compiler/qwen3.5/compare/shapes.js</code>), only the part that reads and writes text: Qwen3.5-0.8B also has a part for pictures and a layer that guesses a word piece ahead, which the program does not run. The thin lines in a layer divide its parts; the norms between the parts, about 2,000 weights a layer, are too thin to see. Arrow keys on the drawing move the chosen layer.</p>
+    </figure>
+
+    <p>Three things changed. The table of word pieces, used at the start to look up the word piece that comes in and at the end to score every word piece that could come next, has almost twice as many weights: 248,320 word pieces of 1,024 numbers against 151,936 of 896. It is a third of Qwen3.5-0.8B. The feed-forward parts became a little smaller. And the parts that mix in the past grew five times: 233.8 million weights against 44.1 million.</p>
+    <p>The six layers that look back hold 44.0 million of those, as many as all 24 of Qwen2.5-0.5B. The other 189.8 million are in the 18 DeltaNet layers. A DeltaNet layer works out a key, a value and a question of 128 numbers for each of its 16 heads, and a gate for what comes out: 10.5 million weights. A layer of Qwen2.5-0.5B that looks back works out 14 questions of 64 numbers, but only 2 keys and 2 values: 1.8 million.</p>
+
+    <p class="next-q">Why go to all that trouble?</p>
+  </section>
+
+  <section id="grow" aria-labelledby="grow-h">
+    <h2 id="grow-h">Looking back gets heavier with every word piece</h2>
+    <p>In SmolLM2-135M, Qwen2.5-0.5B and Qwen2.5-1.5B, every layer <a href="../how/#s7">looks back</a> at all earlier word pieces. For that, each word piece leaves numbers behind in every layer: a key, which says what it is about, and a value, which says what it brings. They stay on the tape until the answer is done. Every new word piece adds more of them, and every new word piece walks past all of them.</p>
+    <p>Qwen3.8-27B has 64 layers. 16 of them look back in this way. The other 48 are <b>DeltaNet</b> layers: they keep one memory of a fixed size and nothing per word piece. Move the slider to make the conversation longer:</p>
+
+    <figure class="fig col" id="fig-grow" aria-label="The numbers one layer of Qwen3.8-27B keeps, for a conversation of a length you set: a layer that looks back, and a DeltaNet layer">
+      <div class="bars" id="w-bars"></div>
+      <p class="tell" id="w-said" aria-live="polite"></p>
+      <div class="ctl" id="w-ctl"></div>
+    </figure>
+
+    <p>A layer that looks back keeps 2,048 numbers for every word piece. A DeltaNet layer keeps 786,432 numbers from the first word piece on, and still 786,432 after a million. Up to 384 word pieces the looking back is the smaller one. After that the DeltaNet layer is, and the gap only grows. For the whole model: the 16 layers that look back keep 32,768 numbers per word piece, the 48 DeltaNet layers 37,748,736 numbers in all.</p>
+    <p class="next-q">And in Qwen3.5-0.8B, the small model of brnfck-qwen3.5-0.8b?</p>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">In the four programs</h2>
+    <p>In Qwen3.5-0.8B the sums come out differently. Its 6 layers that look back keep 6,144 numbers for every word piece: 2 keys and 2 values of 256 numbers each. That is exactly what Qwen2.5-0.5B keeps, in 24 layers with 2 keys and 2 values of 64. On top of that come the 288 tables of 16,384 numbers, and a short <b>window</b>: before its table, a DeltaNet layer mixes every number with the same number of the three word pieces before it, so it keeps those three. That is 5,050,368 numbers from the first word piece on.</p>
+    <p>Below, the four models of the programs side by side, on a scale where every line is a factor of ten. Move the slider to make the conversation longer, and switch to the work a word piece costs:</p>
+
+    <figure class="fig" id="fig-cost" aria-label="What the models of the four programs keep of the past, and the multiplications per word piece, against the length of the conversation">
+      <div class="ctl top"><span class="seg dn-view" role="group" aria-label="What to show"><button type="button" data-v="keep" aria-pressed="true">Numbers kept</button><button type="button" data-v="work" aria-pressed="false">Multiplications per word piece</button></span></div>
+      <canvas class="dn-cost" role="img"></canvas>
+      <div class="dn-read" aria-live="polite"></div>
+      <p class="tell" aria-live="polite"></p>
+      <div class="ctl dn-len"></div>
+      <p class="measured">From the <code>config.json</code> of each model and the counts of the figure above (<code>compiler/qwen3.5/compare/shapes.js</code>). Multiplications: every weight once per word piece (the table of word pieces once, as the output layer), two per number of every question head for each earlier word piece, and four per number of every DeltaNet table (fade, ask, write, read).</p>
+    </figure>
+
+    <p>So in this small model the fixed memory saves nothing against Qwen2.5-0.5B, at any length. It keeps less than Qwen2.5-1.5B from 617 word pieces on, and less than SmolLM2-135M from 940. The programs stop at 256 word pieces. The gain is in the large models: in Qwen3.8-27B a layer that looks back keeps more than a DeltaNet layer after 384 word pieces, as above.</p>
+    <p>The work tells the same story. Each weight is used once for every word piece: 752 million multiplications for Qwen3.5-0.8B, and 18.9 million more for its tables. Looking back costs 24,576 multiplications per earlier word piece, so at 256 word pieces it is less than 1% of the work. Only after about 31,000 word pieces would it cost as much as the weights. For Qwen2.5-0.5B that point comes at about 11,500.</p>
+    <p>A memory of a fixed size cannot keep everything. It has to choose what to keep and what to let go. How it does that is the rest of this page.</p>
+
+    <p class="next-q">What is in those 16,384 numbers of a table?</p>
+  </section>
+
+  <section id="table" aria-labelledby="table-h">
+    <h2 id="table-h">A table instead of a list</h2>
+    <p>A DeltaNet layer has several <b>heads</b>, and each head has a <b>table</b> of 128 by 128 numbers. Qwen3.8-27B has 48 heads in each DeltaNet layer: 48 tables of 16,384 numbers is the 786,432 above. The table is the whole memory of the head. Like a layer that looks back, the head works out from each word piece a key, a value and a question, each 128 numbers. Then it does four things:</p>
+    <ol class="steps">
+      <li><b>Fade.</b> Every number in the table is multiplied by the <b>decay</b>, a number between 0 and 1 that the head works out anew for each word piece. Near 1 it keeps almost everything, near 0 it wipes the table.</li>
+      <li><b>Ask.</b> The table multiplied by the key gives what the table already holds under that key.</li>
+      <li><b>Write the difference.</b> The value minus that answer is added to the table along the key, times the <b>write strength</b>, from 0 to 1. Writing the same thing twice changes nothing the second time. This difference is the &ldquo;delta&rdquo; of the name, and the fading is the &ldquo;gated&rdquo;: the model is a <b>Gated DeltaNet</b>.</li>
+      <li><b>Read.</b> The table multiplied by the question gives what the head passes on.</li>
+    </ol>
+    <p>Below are two real tables of Qwen3.5-0.8B, the smallest model with the same layers as Qwen3.8-27B. Each square is one number, orange above zero and blue below; I'm showing every fourth row and every fourth column, 32 by 32 of the 128 by 128. Press <em>Play</em> and watch the tables while the model reads the question and writes its answer:</p>
+
+    <figure class="fig" id="fig-table" aria-label="Two tables of Qwen3.5-0.8B, one that forgets fast and one that keeps, word piece by word piece">
+      <div class="ctl top"><span class="seg dn-ask" role="group" aria-label="Which question"></span></div>
+      <div class="dn-text" aria-label="The conversation so far, with the word piece the tables have just taken in marked"></div>
+      <p class="dn-note">The boxed word pieces are those of the chat template. <span class="sp">think</span><span class="sp">/think</span> with nothing between them is how the template of Qwen3.5 turns the model's thinking off; brnfck-qwen3.5-0.8b sends it with every question too.</p>
+      <canvas class="dn-tables" role="img"></canvas>
+      <p class="tell" aria-live="polite"></p>
+      <div class="ctl dn-play"></div>
+      <p class="measured">Recorded with <code>compiler/qwen3.5/compare/record.js</code>: Qwen3.5-0.8B, with its 18 DeltaNet layers in whole numbers (<code>compiler/qwen3.5/reference/deltanet.js</code>). Each table is drawn on its own scale, as the square root of each number so that small ones still show; the darkest colour is reached by the largest 2% of its numbers.</p>
+    </figure>
+
+    <p>The two heads were picked from the 288 of this model: of the heads that hold the most at the end, the one that forgets fastest and the one that forgets slowest. The <b>half-life</b> under each table is the number of word pieces after which half of what it holds has faded, if nothing new comes in. The left one keeps two thirds to four fifths of its table from one word piece to the next, so it holds mainly the last few. The right one, in the very first layer, fills up while the question is read and keeps that through the whole answer: its half-life is more than 100,000 word pieces.</p>
+    <p>No head chooses one or the other for good. The decay is worked out for every word piece. Head 0 of layer 17 has a half-life of 40 to 70 word pieces, until a sentence ends: at every full stop of these three answers it drops below one word piece, and the table loses about half of what it holds.</p>
+
+    <p class="next-q">What happens inside one table at one word piece?</p>
+  </section>
+
+  <section id="step" aria-labelledby="step-h">
+    <h2 id="step-h">One word piece, step by step</h2>
+    <p>Here is one head at work, with all 16,384 numbers of its table. The four steps are numbered as in the list above. Each row of the table belongs to one number of the key, each column to one number of the value. Asking with a key adds up the rows, each times its number of the key; writing adds the key times the difference, row by row. Pick a head, click a word piece or press <em>Play</em>:</p>
+
+    <figure class="fig" id="fig-step" aria-label="One DeltaNet head of Qwen3.5-0.8B at one word piece: its table before, faded, written and after, and the vectors of each step">
+      <div class="ctl top"><span class="seg dn-hpick" role="group" aria-label="Which head"></span></div>
+      <div class="dn-text" aria-label="The conversation so far, with the word piece the head has just taken in marked"></div>
+      <canvas class="dn-steps" role="img"></canvas>
+      <p class="tell" aria-live="polite"></p>
+      <div class="ctl dn-play"></div>
+      <p class="measured">Recorded with <code>compiler/qwen3.5/compare/record-parts.js</code>: Qwen3.5-0.8B in floating point, as it was trained. For each word piece it stores the decay, the write strength and the key, value, question and gate of the head, each number in 16 bits; this page does the four steps again from those, and comes to the model's own table within 0.012%. All four tables share one scale, the first three vectors another; orange is above zero, blue below, drawn as the square root so that small numbers still show.</p>
+    </figure>
+
+    <p>Watch head 8 of layer 0, which never fades. The first time <em>the</em> comes in, its value differs from what the table holds under its key by 69%. Later in the answer the difference is 3% to 27%: the table already holds most of it, and the write is small. Writing the same thing twice changes nothing. Head 0 of layer 17 does the opposite at the full stop after <em>Paris</em>: it keeps 28% of its table and writes into one that is nearly empty.</p>
+    <p>Two things around the table are new too. Before it, the key, value and question each pass the short window of the last four word pieces. After it, what the head reads is brought to one size and multiplied, number by number, by a gate that the layer works out from the word piece itself: <em>silu(z)</em>, near 0 for numbers it shuts and close to z for numbers it lets through.</p>
+
+    <p class="next-q">Those are three heads. What do the other 285 do?</p>
+  </section>
+
+  <section id="heads" aria-labelledby="heads-h">
+    <h2 id="heads-h">All the tables at once</h2>
+    <p>Below, each row is one layer of Qwen3.5-0.8B and each square one head. The colour says how much a table holds: the closer to the colour of the page, the emptier the table. (The size of a table is the square root of the sum of its 16,384 squares.) The thin rows are the layers that look back; they have no table. Press <em>Play</em>, and click a square to follow that head:</p>
+
+    <figure class="fig" id="fig-heads" aria-label="The tables of all 288 heads of the 18 DeltaNet layers of Qwen3.5-0.8B, word piece by word piece">
+      <div class="ctl top"><span class="seg dn-ask" role="group" aria-label="Which question"></span></div>
+      <div class="dn-text" aria-label="The conversation so far, with the word piece the tables have just taken in marked"></div>
+      <div class="dn-two">
+        <div class="dn-mapbox">
+          <canvas class="dn-map" tabindex="0" role="img"></canvas>
+          <div class="dn-key" aria-hidden="true"><span class="dn-ramp"></span><span class="dn-lo"></span><span class="dn-hi"></span><span class="dn-ring">Folded in at this word piece</span><span class="dn-look">A layer that looks back: no table</span></div>
+        </div>
+        <div class="dn-head">
+          <p class="dn-who"></p>
+          <canvas class="dn-hist" role="img"></canvas>
+          <p class="tell dn-said" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="ctl dn-play"></div>
+      <p class="measured">Recorded as the figure above. The colour scale runs over the powers of ten that the sizes of this answer cover. Arrow keys on the map move the chosen head.</p>
+    </figure>
+
+    <p>Most tables fill up within the first two word pieces. Layers 1 and 2 then flicker: many of their heads forget within a word piece or two. Layer 0 already holds on, and in layers 16 to 21 many heads stay full to the end. No head stays empty; the emptiest are in layers 1, 10, 13 and 14. Click head 0 of layer 17 and play: its table drops at every full stop. Within one layer, every head decides for itself what it keeps.</p>
+    <p>The colours change, but the number of squares does not. With a question ten times as long the map would have the same 288 squares, and Qwen3.8-27B would have 48 rows of 48.</p>
+
+    <p class="next-q">One thing on this map is not part of the model. What are the yellow rings?</p>
+  </section>
+
+  <section id="whole" aria-labelledby="whole-h">
+    <h2 id="whole-h">Fading in whole numbers</h2>
+    <p>A brainfuck program has no fractions. Its cells hold whole numbers, and the programs keep a number such as 0.97 as a whole number with an agreed number of binary places. The recordings on this page come from the step before the program: the DeltaNet layers written out in whole numbers, with every product and sum in a cell of 32 bits, as the programs need. The program came next: brnfck-qwen3.5-0.8b, 7,709,034,855 characters, with a tape of 1,067,424,772 cells. It was checked: after its writing part the tape equals the loaded model in 1,018 sums, and it prints the reference answer. The program computes its own whole-number recipe, <code>compiler/qwen3.5/engine/spec.js</code>, bit for bit: whole numbers in every layer, not only in the DeltaNet layers, and weights of 10 bits. That recipe picks the same next word piece as the model in floating point at 214 of 225 positions of its answers (95.1%); with weights of 8 bits it would be 209.</p>
+    <p>The Chatbot loads brnfck-qwen3.5-0.8b again for every question, 2 min 10 s to 2 min 37 s each time. The other programs put their tape back after an answer and go on: brnfck-smollm2-135m from a copy of the whole tape, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b from the cells an answer changes, which their meta files list as restore ranges. The meta file of brnfck-qwen3.5-0.8b has no restore ranges yet. <a href="../?m=0.8b">Ask it in the Chatbot</a>.</p>
+    <p>The fading is the hard part. Multiplying all 16,384 numbers of a table by the decay for every word piece costs as much as the reading and writing together. Worse, with a decay close to 1 a small whole number is rounded back to itself: 5 times 0.9999 is still 5 after rounding, for ever. Such a head would never forget.</p>
+    <p>So each head keeps one extra number, its <b>scale</b>. The table is the scale times a table of whole numbers. The fading multiplies only the scale. When the scale has fallen below one half, it is multiplied into the table once and set back to 1: the table is <b>folded in</b>. That is the yellow ring on the map. The chart beside the map draws the scale of the chosen head as a saw: down with each word piece, up at each fold.</p>
+    <p>A head that forgets fast folds at three word pieces in four. A head that keeps folds about once in forty, and one head in five never folds in these answers. On average a head folds once every 4.6 to 4.8 word pieces, so at each word piece the expensive multiplication is done for about a fifth of the tables.</p>
+
+    <p class="next-q">And the one layer in four that still looks back: is it the same as in Qwen2.5?</p>
+  </section>
+
+  <section id="attn" aria-labelledby="attn-h">
+    <h2 id="attn-h">The layers that still look back</h2>
+    <p>Not quite. The six layers that look back work as in Qwen2.5, but their heads changed in four ways:</p>
+    <ol class="steps">
+      <li><b>Longer.</b> A head has 256 numbers instead of 64, and a layer has 8 question heads instead of 14.</li>
+      <li><b>A norm instead of a bias.</b> The question and the key of each head are brought to one size, and each number is then multiplied by its own gain. In Qwen2.5 a fixed number, the bias, is added to each of them instead.</li>
+      <li><b>Only a quarter turned.</b> The <a href="../how/#s7">position</a> of a word piece turns only the first 64 numbers of a head, in 32 pairs. The other 192 carry no position at all.</li>
+      <li><b>A gate on the way out.</b> What a head brings back is multiplied, number by number, by a gate between 0 and 1 that the layer works out from the word piece.</li>
+    </ol>
+    <p>Below, one head of each model drawn to the same scale, then the gains and the gate of one head of layer 23, the last layer that looks back, while it reads the question and writes the answer:</p>
+
+    <figure class="fig" id="fig-head" aria-label="One head of Qwen3.5-0.8B that looks back, beside one of Qwen2.5-0.5B, with its gains and its output gate at every word piece">
+      <div class="ctl top"><span class="seg dn-hpick" role="group" aria-label="Which head of layer 23"></span></div>
+      <div class="dn-text" aria-label="The conversation so far, with the word piece the head has just taken in marked"></div>
+      <canvas class="dn-att" role="img"></canvas>
+      <p class="tell" aria-live="polite"></p>
+      <div class="ctl dn-play"></div>
+      <p class="measured">Recorded with <code>compiler/qwen3.5/compare/record-parts.js</code>, in floating point, the same answer as the figure above. The gains are the weights of the two norms (1 + w); the turned numbers are orange. The gate is drawn darker the more it lets through. A dial shows how far one pair of numbers is turned at the position of the word piece; both models have 32 pairs, only their speeds differ.</p>
+    </figure>
+
+    <p>The gate is mostly shut. In layer 23 it lets through 17% on average, in layer 3 only 8%. In every one of the six layers more than a third of all numbers get less than a tenth through, and some stay shut for the whole answer. Heads 2 and 6 of layer 23 are the most open: about a quarter of their numbers get more than half through. A head of Qwen2.5 has no gate: everything it reads goes on.</p>
+    <p>The turning: number f of the first 64 turns together with number f + 32, each pair at a speed of its own. The fastest pair turns one radian, about a sixth of a circle, per word piece; the slowest goes round once in 38 million word pieces. In Qwen2.5-0.5B the slowest pair goes round once in 4 million. The norm keeps the questions and keys of a head the same size at every word piece; before it, the questions of layer 23 range from 6.5 to 24.6.</p>
+  </section>
+
+  <section id="live" aria-labelledby="live-h">
+    <h2 id="live-h">Ask it yourself</h2>
+    <p>Everything above was recorded. Here the model itself runs, Qwen3.5-0.8B, in this page, with the same code that made the recordings and a live look inside the DeltaNet memory. This is not the brainfuck program. It is the model in floating point with its 18 DeltaNet layers in whole numbers, with 8-bit weights unless you choose otherwise: close to the program, but not what it computes. The program does every layer in whole numbers with 10-bit weights, and runs in <a href="../?m=0.8b">the Chatbot</a>.</p>
+    <p>This demo downloads the weights of the text part, 1.50 GB, and needs about 2 GB of memory; the program in the Chatbot downloads 1.36 GB and needs about 5 GB. Your browser does all the work: your question is not sent anywhere.</p>
+    <p>Choose how the 18 DeltaNet layers count: in floating point, as the model was trained, or in whole numbers, as a brainfuck program would, with 8 or with 10 binary digits for each weight. The layers that look back and the rest of the model stay in floating point. Then load the model, type a question and press <em>Ask</em>:</p>
+
+    <figure class="fig" id="fig-live" aria-label="Qwen3.5-0.8B running in this page, with the tables of its 288 heads after every word piece">
+      <div class="ctl top"><span class="seg lv-mode" role="group" aria-label="The DeltaNet layers count in"><button type="button" data-m="float" aria-pressed="false">Floats</button><button type="button" data-m="int8" aria-pressed="true">Whole, 8-bit</button><button type="button" data-m="int10" aria-pressed="false">Whole, 10-bit</button></span></div>
+      <label class="lv-label"><span>Your question</span><textarea class="lv-q" rows="2" spellcheck="false">What is the capital of France?</textarea></label>
+      <div class="lv-ex" role="group" aria-label="Example questions"><button type="button">What is pi?</button><button type="button">Wat is de hoofdstad van Nederland?</button><button type="button">Write a haiku about the sea.</button></div>
+      <div class="ctl"><button type="button" class="primary lv-go" disabled>Load the model</button><button type="button" class="quiet lv-stop" hidden>Stop</button></div>
+      <progress class="lv-meter" max="1" value="0" hidden></progress>
+      <p class="tell one lv-status" role="status" aria-live="polite">Looking for the model files</p>
+      <p class="exchange io lv-io" hidden><span class="q lv-asked"></span><span class="a lv-answer" aria-live="polite"></span></p>
+      <div class="dn-two" hidden>
+        <div class="dn-mapbox">
+          <canvas class="dn-map" tabindex="0" role="img"></canvas>
+          <div class="dn-key" aria-hidden="true"><span class="dn-ramp"></span><span class="dn-lo">0.0032</span><span class="dn-hi">31.6</span><span class="dn-look">A layer that looks back: no table</span></div>
+        </div>
+        <div class="dn-head">
+          <p class="dn-who"></p>
+          <canvas class="dn-hist" role="img"></canvas>
+          <p class="tell dn-said" aria-live="polite"></p>
+        </div>
+      </div>
+      <p class="measured">The code of <code>compiler/qwen3.5</code> (<code>float.js</code> and <code>deltanet.js</code>) in a worker, with the multiplications shared out over the cores of your computer. This demo needs about 2 GB of memory (1.8 GB measured in one tab); on a phone it may not fit. The colour scale is the one of the recordings.</p>
+    </figure>
+
+    <p>The answers differ a little between the three ways of counting. With whole numbers and 8-bit weights, 97 of every 100 word pieces are the same as in floating point; with 10-bit weights the first answers match word for word up to the last word or two. That is the error the whole-number layers bring. The program goes further, with every layer in whole numbers and 10-bit weights: its recipe picks the same next word piece as the model in floating point at 95.1% of the positions tested (214 of 225).</p>
+  </section>
+
+  <section id="fromhere" aria-labelledby="fromhere-h">
+    <h2 id="fromhere-h">Where to go next</h2>
+    <p>The Chatbot runs the brainfuck program itself. How it works follows one question through a program, Inside the program takes one apart, and the map shows one whole.</p>
+    <ol class="dest">
+      <li style="--c: var(--c-in)"><a href="../?m=0.8b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen3.5-0.8b</b><small>Chatbot</small><span>The program of this page, in your browser: about 5 GB of memory, ready in 2 min 10 s to 2 min 37 s.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../how/"><i aria-hidden="true">[]</i><b>How it works</b><small>Article</small><span>One question followed from your keyboard to the printed answer. No programming needed.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../inside/"><i aria-hidden="true">[]</i><b>Inside the program</b><small>Article</small><span>Take the writing part and the engine apart, with figures drawn from the program itself.</span></a></li>
+      <li style="--c: var(--c-gt)"><a href="../map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>The whole program</small><span>See every character of a program in one picture, and zoom in until you can read the commands.</span></a></li>
+      <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the search for the highest score.</span></a></li>
+    </ol>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <ol class="refs">
+      <li id="ref-1"><b>Qwen3.5-0.8B</b>, the model recorded here and run by brnfck-qwen3.5-0.8b, and <b>Qwen3.8-27B</b>, a much larger model with the same kind of layers. Made by the Qwen team of Alibaba Cloud. Qwen3.5-0.8B is published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B">huggingface.co/Qwen/Qwen3.5-0.8B</a>. The numbers of Qwen3.8-27B (64 layers, 48 DeltaNet layers with 48 value heads of 128, 16 layers that look back with 4 key and value heads of 256) are from its configuration file.</li>
+      <li id="ref-2"><b>Gated Delta Networks: Improving Mamba2 with Delta Rule</b>, Songlin Yang, Jan Kautz and Ali Hatamizadeh, 2024. The layer as Qwen3.5 uses it.</li>
+      <li id="ref-3"><b>Linear Transformers Are Secretly Fast Weight Programmers</b>, Imanol Schlag, Kazuki Irie and J&uuml;rgen Schmidhuber, 2021. The write-the-difference rule in this form.</li>
+      <li id="ref-4"><b>The recordings.</b> <code>compiler/qwen3.5/compare/record.js</code> runs Qwen3.5-0.8B with its 18 DeltaNet layers in whole numbers (<code>compiler/qwen3.5/reference/deltanet.js</code>, 8-bit weights, 32-bit cells) and greedy choice of the next word piece. For every word piece it stores the size of all 288 tables, their decay, write strength and scale, and every fourth row and column of two tables. The folds are counted again in the recorder and compared with the count of the layer itself, word piece by word piece. <code>compiler/qwen3.5/REPORT.md</code> compares the whole-number layers with the model in floating point.</li>
+      <li id="ref-5"><b>The shapes and the steps.</b> <code>compiler/qwen3.5/compare/shapes.js</code> counts the weights of the four models from the headers of their weight files, and works out from their <code>config.json</code> what each keeps and how many multiplications a word piece costs. <code>compiler/qwen3.5/compare/record-parts.js</code> runs Qwen3.5-0.8B in floating point on <em>What is the capital of France?</em> and stores, for three DeltaNet heads, everything that goes into their tables, and for the six layers that look back the size of their questions and keys and, for layer 23, the gate of every number.</li>
+    </ol>
+  </section>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="compare.js?v=r9"></script>
+</body>
+</html>

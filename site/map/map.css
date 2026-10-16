@@ -186,6 +186,10 @@ main.mapapp p { max-width: none; text-wrap: wrap; }
   .mbar h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .mbar #m-panel-toggle { display: none; }
   .mbar #modelbar { margin-right: auto; }
+  .mbar .mpre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* four programs: the family over the size is enough here */
+  .mbar #modelbar > a { flex-direction: column; justify-content: center; gap: 0; line-height: 1.1; }
+  .mbar .mfam { font-size: 0.72em; color: var(--muted); }
+  .mbar #modelbar > a[aria-current] .mfam { color: inherit; }
   .mbar #modelbar > a { padding-left: var(--s2); padding-right: var(--s2); }
   .mbar .mlaysel { flex: 1 1 auto; min-width: 0; }
   .mbar .mlaysel select { width: 100%; min-width: 0; }

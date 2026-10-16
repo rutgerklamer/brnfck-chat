@@ -4,6 +4,7 @@
 *.bin
 out/
 /site/programs/
+/site/models/
 /compiler/downloads/
 
 # Made for the site by tools/make-chunks.js and tools/map-data/

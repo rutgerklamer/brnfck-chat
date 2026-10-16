@@ -103,7 +103,7 @@ main[tabindex="-1"]:focus { outline: none; }
 .pagebar .in { min-height: 0; gap: var(--s3); padding-top: 1px; padding-bottom: 1px; }
 .pagebar .now { flex: 0 1 18rem; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font: 500 .75rem/1.2 var(--mono); }
 .pagebar .now b { margin-right: .4em; color: var(--ink); }
-.pagebar ol { list-style: none; display: flex; flex: 1 1 auto; gap: 2px; margin: 0; padding: 0; }
+.pagebar ol { list-style: none; display: flex; flex: 1 1 auto; min-width: 0; overflow: hidden; gap: 2px; margin: 0; padding: 0; }
 .pagebar li { --f: 0; flex: 1 1 0; min-width: 3px; margin: 0; }
 .pagebar a { display: block; position: relative; height: 22px; background: linear-gradient(var(--sunk), var(--sunk)) center / 100% 10px no-repeat; outline-offset: -2px; }
 .pagebar a::before { content: ""; position: absolute; inset: 6px 0; background: var(--sec); transform: scaleX(var(--f)); transform-origin: left; }

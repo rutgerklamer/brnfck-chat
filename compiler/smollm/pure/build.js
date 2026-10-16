@@ -1,6 +1,6 @@
 'use strict';
 
-// Builds site/programs/brnfck-135m.bf: ONE brainfuck program, question in, answer out, no data file.
+// Builds site/programs/brnfck-smollm2-135m.bf: ONE brainfuck program, question in, answer out, no data file.
 
 const fs = require('fs');
 const path = require('path');
@@ -13,7 +13,7 @@ const { encodeTape } = require('./encode');
 
 const OUT = path.join(__dirname, 'out');
 const PROGRAMS = path.join(__dirname, '..', '..', '..', 'site', 'programs');
-const FILES = { program: path.join(PROGRAMS, 'brnfck-135m.bf'), meta: path.join(PROGRAMS, 'brnfck-135m.meta.json') };
+const FILES = { program: path.join(PROGRAMS, 'brnfck-smollm2-135m.bf'), meta: path.join(PROGRAMS, 'brnfck-smollm2-135m.meta.json') };
 const PIECE = 1 << 20;                  // cells per checksum
 const num = (n) => Math.round(n).toLocaleString('en-US');
 const now = () => Number(process.hrtime.bigint()) / 1e9;
@@ -87,7 +87,7 @@ function build() {
   console.log(`    ${(st.chars / dataBytes).toFixed(3)} characters per data byte (${num(dataBytes)} bytes), ${(st.chars / st.nonZero).toFixed(3)} per non-zero cell (${num(st.nonZero)})`);
 
   const meta = {
-    program: 'brnfck-135m.bf', programBytes: total, writerBytes: st.chars, restBytes: rest.length, sha256: hash.digest('hex'),
+    program: 'brnfck-smollm2-135m.bf', programBytes: total, writerBytes: st.chars, restBytes: rest.length, sha256: hash.digest('hex'),
     cellBits: 32, tapeSize: tape.length, pointerAfterWriting: pointer, replacesDataBytes: dataBytes,
     maxQuestionBytes: TOK.maxChars, encoder: st, pieceCells: PIECE, tapeSums: sumsOf(tape),
   };

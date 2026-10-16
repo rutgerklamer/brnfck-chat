@@ -7,18 +7,18 @@
 <meta name="description" content="What the billions of characters of a brainfuck chat program do: a long part that writes numbers into memory and a short engine that uses them. With figures drawn from the real program.">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
 <script>
-(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : 'qwen'); })();
+(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b' && m !== '0.8b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' ? 'qwen3.5' : 'qwen'); })();
 </script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/inside.css?v=r6">
+<link rel="stylesheet" href="../ui/inside.css?v=r9">
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="insights"></script>
+<script src="../site.js?v=r16" data-section="insights"></script>
 <main class="doc inside" id="main">
 
   <header class="plain">
@@ -28,7 +28,7 @@
     <div class="top-nav">
       <nav id="choose" aria-labelledby="choose-h">
         <p class="label" id="choose-h">Program shown</p>
-        <div class="seg"><a href="?m=small" data-m="small">brnfck-135m</a><a href="?m=0.5b" data-m="0.5b">brnfck-0.5b</a><a href="?m=1.5b" data-m="1.5b">brnfck-1.5b</a></div>
+        <div class="seg"><a href="?m=small" data-m="small">brnfck-smollm2-135m</a><a href="?m=0.5b" data-m="0.5b">brnfck-qwen2.5-0.5b</a><a href="?m=1.5b" data-m="1.5b">brnfck-qwen2.5-1.5b</a><a href="?m=0.8b" data-m="0.8b">brnfck-qwen3.5-0.8b</a></div>
       </nav>
       <nav id="contents" aria-labelledby="contents-h">
         <p class="label" id="contents-h">Contents</p>
@@ -62,7 +62,7 @@
     <p>Watch the bar for &ldquo;step right&rdquo; when you switch. In the long part it is all but gone, and the plus and minus signs make up more than half of the text. In the short part, left and right are nearly in balance and the plus and minus signs are few. So the two parts are not only unequal in length. They are different kinds of text.</p>
     <p>The long part is the <b>writing part</b>: <span data-f="writer"></span> characters, the first <span data-f="writerPct"></span> of the program. It moves through memory in one direction. It steps one place to the left, adds or takes off a little, and steps on, from its beginning to its end. It reads nothing and prints nothing. When it is done, the numbers of the model are in memory.</p>
     <p>The last <span data-f="engine"></span> characters, <span data-f="enginePct"></span> of the program, are the <b>engine</b>. It reads your question, calculates with the numbers the writing part left behind, and prints the answer. It writes little and walks a lot, back and forth between those numbers. It can be short because it works in loops. The commands <code>[</code> and <code>]</code> repeat whatever stands between them, so a calculation that is written once runs for thousands of numbers, and again for every piece of the answer. How long a part is says nothing about how long it runs.</p>
-    <p>Look at the last two bars with the whole program chosen. The read command <code>,</code> and the print command <code>.</code> each occur once. Both stand inside loops, so each is used for every letter that goes in or comes out. The <code>,</code> is character <span data-f="commaAt"></span>, about <span data-f="commaInto"></span> characters into the engine, and everything before it runs the same way whatever you ask. <span data-only="small">That is why the chatbot can keep a copy of the memory and skip the writing part the next time.</span><span data-only="0.5b">That is why the chatbot runs the writing part only once: for the next question it puts back the 1.6 million places in memory that an answer changes.</span><span data-only="1.5b">Whatever runs this program has to carry out the whole writing part once before it can read a question.</span></p>
+    <p>Look at the last two bars with the whole program chosen. The read command <code>,</code> and the print command <code>.</code> each occur once. Both stand inside loops, so each is used for every letter that goes in or comes out. The <code>,</code> is character <span data-f="commaAt"></span>, about <span data-f="commaInto"></span> characters into the engine, and everything before it runs the same way whatever you ask. <span data-only="small">That is why the chatbot can keep a copy of the memory and skip the writing part the next time.</span><span data-only="0.5b">That is why the chatbot runs the writing part only once: for the next question it puts back the 1.6 million places in memory that an answer changes.</span><span data-only="0.8b">Whatever runs this program carries out the whole writing part again for every question: it cannot yet put back the places in memory that an answer changes.</span><span data-only="1.5b">Whatever runs this program has to carry out the whole writing part once before it can read a question.</span></p>
 
     <details class="q fold"><summary>The mix of commands from the first character to the last</summary><div class="a">
       <p>The same count, taken along the program instead of over a whole part. The writing part looks the same from start to end; the mix changes only in the engine, at the far right. Drag along the strip, or use the slider, to read one slice.</p>
@@ -80,7 +80,16 @@
       <div class="chips" id="g-ways" role="group" aria-label="Ways to picture the size"></div>
       <p id="g-fact" aria-live="polite"></p>
       <p class="measured"><span id="g-basis"></span> <span class="ev">estimated from a measured count</span></p>
+      <p>Printed, the program fills a library. Below, every book is drawn: a paperback of 300 pages with 1,800 characters on a page, coloured by what its characters write into memory. Point at a book, or press it, to see what is in it.</p>
+    <figure class="fig" id="lib-card" aria-label="The program printed as paperbacks on shelves, every book drawn and coloured by what it writes">
+      <p class="lib-head"><b id="lib-count"></b><span id="lib-shelf"></span></p>
+      <canvas id="g-lib" tabindex="0" role="img" aria-describedby="lib-said"></canvas>
+      <ul class="legend" id="lib-key"></ul>
+      <p class="tell" id="lib-said" aria-live="polite"></p>
+      <p class="measured"><span id="lib-note"></span> <span class="ev">measured</span></p>
+    </figure>
     </div></details>
+
 
     <p class="next-q">Both parts work on the same thing, the program's memory. What does that memory look like?</p>
   </section>
@@ -105,7 +114,7 @@
 
     <p>The box went to 65, then to 66, and the machine printed B. Brainfuck has no letters, only numbers: 65 is the number computers use for A, and 66 is the one for B. So <code>,</code> read a letter as a number, <code>+</code> added one to it, and <code>.</code> printed the result as a letter again.</p>
     <p>Now press <kbd>&gt;</kbd> and then <kbd>+</kbd>. A different box changes. The filled box with the small mark under it is where the machine is working, and <code>&gt;</code> and <code>&lt;</code> move that place one box at a time. The row of boxes is called the <b>tape</b>, one box is a <b>cell</b>, and the mark is the <b>pointer</b>. That is all the memory brainfuck has. There are no names for things and no way to jump to a cell: to use a number, the pointer has to walk to it.</p>
-    <p>I'm showing nine cells here, and each holds a number from 0 to 255. The tape of this program has <span data-f="tape"></span> cells, and each holds a number up to about four billion<span data-only="small"> (0.70 GiB of your computer's memory)</span><span data-only="0.5b"> (2.45 GiB of your computer's memory)</span><span data-only="1.5b"> (6.81 GiB of your computer's memory, more than the 4 GiB a browser tab can address in the usual way)</span>. The commands are the same ones you just pressed.</p>
+    <p>I'm showing nine cells here, and each holds a number from 0 to 255. The tape of this program has <span data-f="tape"></span> cells, and each holds a number up to about four billion<span data-only="small"> (0.70 GiB of your computer's memory)</span><span data-only="0.5b"> (2.45 GiB of your computer's memory)</span><span data-only="0.8b"> (3.98 GiB of your computer's memory, just under the 4 GiB a browser tab can address in the usual way)</span><span data-only="1.5b"> (6.81 GiB of your computer's memory, more than the 4 GiB a browser tab can address in the usual way)</span>. The commands are the same ones you just pressed.</p>
     <p>What is in all those cells? The bar below is the real tape after the writing part has run, drawn to scale, with cell 0 at the left. Each colour is one kind of content. Press a colour to read what lies there, or drag along the bar, or use the slider under it, to move a marker over the tape. A press on a layer zooms in to it:</p>
 
     <figure class="fig" id="t-card" aria-label="The tape of this program, to scale, coloured by what lies where">
@@ -114,14 +123,15 @@
       <div class="ctl"><div class="slide"><label for="t-pos">Place on the tape</label><output for="t-pos" aria-live="off"></output><input type="range" id="t-pos" min="0" max="2000" step="1" value="0"></div></div>
       <p class="tell one muted" id="t-hint"></p>
       <p class="tell" id="t-said" aria-live="polite"></p>
-      <div class="ctl"><button type="button" class="quiet" id="t-all">Whole tape</button><button type="button" class="quiet" id="t-layer">One layer</button><button type="button" class="quiet" id="t-slot">One memory slot</button></div>
+      <div class="ctl"><button type="button" class="quiet" id="t-all">Whole tape</button><button type="button" class="quiet" id="t-layer">One layer</button><button type="button" class="quiet" id="t-slot">One memory slot</button><button type="button" class="quiet" id="t-dn" data-only="0.8b">One table</button></div>
       <div class="key" id="key"><ul class="legend" id="legend-kinds"></ul></div>
       <p class="measured">Read from the tape the program writes. Pale stretches are cells with nothing in them. <span class="ev">measured</span></p>
     </figure>
 
     <p>Almost the whole bar is filled, and almost all of the filling is of one kind: weights. A <b>weight</b> is one of the numbers the model learned when it was trained. A model is a very long list of them plus a fixed recipe for multiplying and adding them, so a tape full of weights is the model.</p>
     <p>The model does not read letters. It reads <b>word pieces</b>: a word piece is a word or a part of a word, such as &ldquo;capital&rdquo; or &ldquo;ing&rdquo; (elsewhere it is called a token). The stretch marked W, at the right, is the table of word pieces. It has one row of <span data-f="dim"></span> numbers for each of the <span data-f="vocab"></span> word pieces the model knows. The stretch marked O, at the far left, is the output table, which is used at the very end to choose the next word piece.</p>
-    <p>Between those two lie <span data-f="layers"></span> stretches that look alike. Each is a <b>layer</b>: one round of the model's calculation, with weights of its own. Every word piece goes through all <span data-f="layers"></span>. If you pressed <em>One layer</em> you saw that a layer has weights of two kinds. The ones marked A are for attention, the part of a layer that looks back at the earlier word pieces. The ones marked F are for the part that works on the current word piece alone. Between them, marked M, lie 256 memory slots, one for each word piece of the conversation. That is where the model keeps what it has read, and it is why a conversation here ends after 256 word pieces. The first 24 slots are filled before you ask anything: they hold the fixed opening lines that tell the model to be a helpful assistant.</p>
+    <p data-only="0.8b">Between those two lie <span data-f="layers"></span> stretches. Each is a <b>layer</b>: one round of the model's calculation, with weights of its own. Every word piece goes through all <span data-f="layers"></span>. They are of two kinds and come in groups of four; press <em>Four layers</em> to see one group. In three of every four, the <b>DeltaNet</b> layers, the weights marked D mix in what came before. Such a layer does not look back at the earlier word pieces. It keeps <span data-f="dnHeads"></span> tables of <span data-f="dnTable"></span> numbers, marked M, writes every word piece into them and reads from them; press <em>One table</em> to see one. The fourth layer of a group looks back, as all layers of the other programs do: the weights marked A are for that, and between them lie 256 memory slots, one for each word piece of the conversation. That is why a conversation here ends after 256 word pieces. The weights marked F, in every layer, are for the part that works on the current word piece alone. All of this memory is empty before you ask anything.</p>
+    <p data-only="smol qwen2">Between those two lie <span data-f="layers"></span> stretches that look alike. Each is a <b>layer</b>: one round of the model's calculation, with weights of its own. Every word piece goes through all <span data-f="layers"></span>. If you pressed <em>One layer</em> you saw that a layer has weights of two kinds. The ones marked A are for attention, the part of a layer that looks back at the earlier word pieces. The ones marked F are for the part that works on the current word piece alone. Between them, marked M, lie 256 memory slots, one for each word piece of the conversation. That is where the model keeps what it has read, and it is why a conversation here ends after 256 word pieces. The first 24 slots are filled before you ask anything: they hold the fixed opening lines that tell the model to be a helpful assistant.</p>
     <p data-only="qwen">The table of word pieces is on this tape twice: once at the right, and once more at the far left as the output table, in <span data-f="chunks"></span> parts. Together the two copies take <span data-f="tableTapePct"></span> of the tape.</p>
 
     <details class="q fold"><summary>The parts of the tape, in cells</summary><div class="a">
@@ -166,7 +176,8 @@
     <p>That is how we write numbers ourselves. 513 is a 5, times ten, plus 1, times ten, plus 3: three small <b>digits</b> instead of 513 strokes. The block does the same with every one of its cells at once. A pass of plus and minus signs writes one digit into each cell, and the shared loop does the multiplying for all of them. The loop is written once, however many cells the block has.</p>
     <p>The digits here can be negative. Where the loop multiplies by 5 they run from &minus;2 to 2, so such a digit never costs more than two characters. A digit of 0 costs none: the commands just step past that cell.</p>
     <p>Two details keep this working. The shared loop stops at the first cell that holds zero, so no cell may be zero on the way: that is what the start value is for. And the digits count from a middle value of the block, not from zero, which keeps them small. The last loop takes the start value off again and puts the middle value back.</p>
-    <p data-only="qwen">All three programs were written by the same encoder, so a block of this program is built like a block of brnfck-135m. What differs is what is in the cells: these weights have 8 bits where brnfck-135m's have 10, and there are strips of larger constants. Choose one under <em>More controls</em> to see a block with many more digits per cell.</p>
+    <p data-only="qwen2">All four programs were written by the same encoder, so a block of this program is built like a block of brnfck-smollm2-135m. What differs is what is in the cells: these weights have 8 bits where brnfck-smollm2-135m's have 10, and there are strips of larger constants. Choose one under <em>More controls</em> to see a block with many more digits per cell.</p>
+    <p data-only="0.8b">All four programs were written by the same encoder, so a block of this program is built like a block of brnfck-smollm2-135m. Its weights have 10 bits, as brnfck-smollm2-135m's do, and between them lie strips of larger constants. Choose one under <em>More controls</em> to see a block with more digits per cell.</p>
 
     <p>The block above needed only a few signs per cell. Is that luck? The next figure counts every weight on the tape by its value. Choose a part of the model to see its weights alone, and slide the marker along the values to read how many weights have each:</p>
 
@@ -194,7 +205,8 @@
       <div class="bars" id="d-compare"></div>
       <p class="measured" id="d-compare-note"></p>
       <p>How far is this from the best possible? The numbers on the tape carry <span data-f="entropy"></span> bits of information per cell. A brainfuck character can carry at most 3 bits, because there are 8 commands. So no way of writing this tape can be much shorter than <span data-f="floorShort"></span> characters. The writing part uses <span data-f="writerShort"></span>: <span data-f="floorRatio"></span> times that floor. The floor is <span class="ev">estimated</span>: the information on the tape, counted per million cells, divided by 3.</p>
-      <p data-only="qwen">In this model every row of a table of weights has its own scale. Before the weights were stored, each row was multiplied by a power of two of its own, as large as it could be while the largest weight of the row still fits in 8 bits. That is why these values spread wider than those of brnfck-135m, and why a cell costs a little more.</p>
+      <p data-only="qwen2">In this model every row of a table of weights has its own scale. Before the weights were stored, each row was multiplied by a power of two of its own, as large as it could be while the largest weight of the row still fits in 8 bits. That is why these values spread wider than those of brnfck-smollm2-135m, and why a cell costs a little more.</p>
+    <p data-only="0.8b">In this model every row of a table of weights has its own scale. Before the weights were stored, each row was multiplied by a power of two of its own, as large as it could be while the largest weight of the row still fits in 10 bits. The values spread wider than those of brnfck-smollm2-135m, which also has 10 bits per weight: a typical weight lies about twice as far from zero (a standard deviation of 55.9 against 27.3), only 16% of them lie between &minus;8 and 8 against 39%, and a cell costs 7.39 characters against 6.14.</p>
     </div></details>
 
     <p class="next-q">When the writing part ends, the tape holds the whole model and nothing has been read yet. What happens when you ask something?</p>
@@ -226,7 +238,8 @@
     </figure>
 
     <p>Read from top to bottom, the list is a recipe. Read the question and cut it into word pieces. Then, for one word piece at a time: fetch its row of <span data-f="dim"></span> numbers from the table, take those numbers through the layers, give every word piece the model knows a score, and keep the one with the highest. Print that word piece. It then becomes the next one to go through, and so the answer grows a word piece at a time, until the model picks a word piece that means &ldquo;end&rdquo; or the 256 slots are full.</p>
-    <p>Look at the heading &ldquo;In each of the <span data-f="layers"></span> layers&rdquo;. The sections under it stand in the program once. One loop runs them <span data-f="layers"></span> times, and each time the pointer has moved on to the next layer's weights. This works because the engine never names a place. Its commands only say &ldquo;so many cells to the left&rdquo;, and the layers are laid out alike, so the same commands fit every one of them.</p>
+    <p data-only="0.8b">Look at the four headings that begin &ldquo;The first layer of a group of 4&rdquo; to &ldquo;The fourth&rdquo;. The sections under them stand in the program once: three DeltaNet layers and one attention layer. One loop runs the four of them <span data-f="groups"></span> times, and each time the pointer has moved on to the next four layers' weights. This works because the engine never names a place. Its commands only say &ldquo;so many cells to the left&rdquo;, and every group of four is laid out like the others, so the same commands fit every one of them.</p>
+    <p data-only="smol qwen2">Look at the heading &ldquo;In each of the <span data-f="layers"></span> layers&rdquo;. The sections under it stand in the program once. One loop runs them <span data-f="layers"></span> times, and each time the pointer has moved on to the next layer's weights. This works because the engine never names a place. Its commands only say &ldquo;so many cells to the left&rdquo;, and the layers are laid out alike, so the same commands fit every one of them.</p>
     <p>If you opened <em>Read its commands</em> you saw mostly long runs of <code>&lt;</code> and <code>&gt;</code>. Most of the engine is walking; its longest single walk is <span data-f="longestWalk"></span> cells. The arithmetic is done by a few small patterns that return everywhere. The one to remember is the <b>bit peel</b>, which reads a number one binary digit at a time. Dividing, rounding, comparing and multiplying two numbers are all built on it.</p>
 
     <details class="q fold"><summary>The five patterns the engine is built from</summary><div class="a">
@@ -238,8 +251,22 @@
         <dt>The walk over slots</dt><dd>A loop whose commands end a fixed number of cells further than they began. The same commands then run on the next slot. This is how the engine visits every earlier word piece.</dd>
       </dl>
     </div></details>
-    <details class="q fold" data-only="qwen"><summary>How this engine differs from brnfck-135m's</summary><div class="a">
-      <p>The two bigger models are of another make (Qwen2.5), and their engine was written again for them <a class="cite" href="#r5">[5]</a>. It has the same 23 sections as brnfck-135m's, but most of them work differently:</p>
+    <details class="q fold" data-only="0.8b"><summary>How this engine differs from those of brnfck-smollm2-135m and the Qwen2.5 programs</summary><div class="a">
+      <p>This model is of a newer make (Qwen3.5), and its engine was written for it <a class="cite" href="#r5">[5]</a>. It uses the building blocks of the Qwen2.5 engine for the feed-forward part, the scaling, the output table and the walk home. The rest is new:</p>
+      <ul>
+        <li><b>Two kinds of layer.</b> <span data-f="dnLayers"></span> DeltaNet layers and <span data-f="attLayers"></span> attention layers, in groups of four: three of one, one of the other. The text of a group is written once and runs <span data-f="groups"></span> times.</li>
+        <li><b>A memory that does not grow.</b> A DeltaNet layer has <span data-f="dnHeads"></span> heads, and each keeps one table of <span data-f="dnTable"></span> numbers. For every word piece the engine makes three passes over the columns of a table: what it already says for the key, the difference written in, and what it says for the query. There are no memory slots in these layers.</li>
+        <li><b>A table that fades without being touched.</b> A DeltaNet head forgets a little of its past with every word piece. Instead of multiplying the whole table, the engine multiplies one scale number of the head, and halves the table only when that number gets small.</li>
+        <li><b>The three word pieces before.</b> A short convolution adds the inputs of the last three word pieces to those of this one. They stay on the tape between word pieces.</li>
+        <li><b>Gates.</b> In both kinds of layer the output is multiplied by a gate the layer makes itself, bent by a curve.</li>
+        <li><b>No bias, gains per head.</b> The attention layers have no bias. Every head of the questions and keys is brought to a common size with gains of its own, and only the first <span data-f="rotDim"></span> of its <span data-f="headSize"></span> numbers are turned by position.</li>
+        <li><b>A scale for every row</b>, as in the Qwen2.5 programs, with 10 bits per weight instead of their 8.</li>
+        <li><b>Nothing worked out beforehand.</b> brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b keep the opening lines of every conversation in memory. This one starts from an empty memory and runs every word piece, from the first.</li>
+        <li><b>One table, used twice</b>, as in Qwen2.5: <span data-f="vocab"></span> word pieces, and the output table in <span data-f="chunks"></span> parts of <span data-f="chunk"></span> rows.</li>
+      </ul>
+    </div></details>
+    <details class="q fold" data-only="qwen2"><summary>How this engine differs from brnfck-smollm2-135m's</summary><div class="a">
+      <p>The two Qwen2.5 models are of another make, and their engine was written again for them <a class="cite" href="#r5">[5]</a>. It has the same 23 sections as brnfck-smollm2-135m's, but most of them work differently:</p>
       <ul>
         <li><b>A scale for every row.</b> Weights are 8 bits here. Each row of a table of weights has its own number of doublings, kept in a strip next to the place where the totals are rounded.</li>
         <li><b>A bias.</b> The totals of the first table of a layer get a constant added, one for each of its <span data-f="qkvRows"></span> rows.</li>
@@ -280,6 +307,7 @@
       <ul class="legend" aria-label="The letters in the strip">
         <li><i class="sw glyph part" style="background:var(--k-ff)" aria-hidden="true">F</i>Feed-forward</li>
         <li><i class="sw glyph part" style="background:var(--k-att)" aria-hidden="true">A</i>Attention</li>
+        <li data-only="0.8b"><i class="sw glyph part" style="background:var(--k-dn)" aria-hidden="true">D</i>DeltaNet</li>
         <li><i class="sw glyph part" style="background:var(--k-out)" aria-hidden="true">O</i>Output table</li>
         <li><i class="sw glyph part" style="background:var(--k-emb)" aria-hidden="true">W</i>Table of word pieces</li>
         <li><i class="sw glyph part" style="background:var(--k-mem)" aria-hidden="true">M</i>Memory of earlier pieces</li>
@@ -312,14 +340,14 @@
       <div class="bars" id="w-kinds"></div>
     </div></details>
 
-    <details class="q fold" id="s8"><summary>The three programs side by side</summary><div class="a">
-      <p>The three programs were made in the same way, and their models differ by a factor of eleven in size. This comparison is the same whichever program is chosen at the top. brnfck-135m was counted to its last position, the two bigger ones for one short question each; the table says for every number where it comes from.</p>
-      <figure class="fig" id="x-card" aria-label="Size and make-up of the three programs">
+    <details class="q fold" id="s8"><summary>The four programs side by side</summary><div class="a">
+      <p>The four programs were made in the same way, and their models differ by a factor of eleven in size. This comparison is the same whichever program is chosen at the top. brnfck-smollm2-135m was counted to its last position, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b for one short question each; the table says for every number where it comes from.</p>
+      <figure class="fig" id="x-card" aria-label="Size and make-up of the four programs">
         <p class="label">The program: writing part, and the engine as the dark end</p>
         <div class="bars parts" id="x-text"></div>
         <p class="label">The tape: what the cells hold</p>
         <div class="bars parts" id="x-tape"></div>
-        <div class="ctl"><span class="seg" id="x-seg" role="group" aria-label="How to draw the three programs">
+        <div class="ctl"><span class="seg" id="x-seg" role="group" aria-label="How to draw the four programs">
           <button type="button" data-how="scale" aria-pressed="true">To scale</button><button type="button" data-how="own" aria-pressed="false">Each to its own length</button>
         </span></div>
         <p class="label" style="margin-top:var(--s4)">The share of each command in the whole program</p>
@@ -330,12 +358,12 @@
       <figure class="fig" id="y-card" aria-label="Where the steps go in each program, and what grows with the model">
         <p class="label">Steps for one word piece at position 24, by part of the model</p>
         <div class="bars parts" id="y-steps"></div>
-        <p class="label">How much larger than in brnfck-135m (each doubling is the same length)</p>
+        <p class="label">How much larger than in brnfck-smollm2-135m (each doubling is the same length)</p>
         <div class="bars" id="y-grow"></div>
-        <p class="measured"><span id="y-said"></span> Position 24 is the first word piece after the fixed opening lines; it was counted in all three programs. <span id="y-what"></span> <span class="ev">measured</span></p>
+        <p class="measured"><span id="y-said"></span> In brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b position 24 is the first word piece after the fixed opening lines; brnfck-qwen3.5-0.8b keeps none in memory and runs every position from 0, so its position 24 is the 25th word piece of the run. Position 24 was counted in all four. <span id="y-what"></span> <span class="ev">measured</span></p>
       </figure>
       <div id="x-explain"></div>
-      <div class="scroll" tabindex="0" role="group" aria-label="The three programs in numbers; scrolls sideways on a narrow screen"><table id="x-table" style="min-width:36rem"><caption>The three programs in numbers. Counts are counted in the programs. Times come from the project's logs, on one desktop computer. <span class="ev">measured</span> <span class="ev">from the project's log</span></caption></table></div>
+      <div class="scroll" tabindex="0" role="group" aria-label="The four programs in numbers; scrolls sideways on a narrow screen"><table id="x-table"><caption>The four programs in numbers. Counts are counted in the programs. Times come from the project's logs, on one desktop computer. <span class="ev">measured</span> <span class="ev">from the project's log</span></caption></table></div>
     </div></details>
 
     <p class="next-q">Billions of steps for one word piece cannot be checked by reading along. How do we know the program calculates what the model calculates?</p>
@@ -364,13 +392,14 @@
     <details class="q fold" id="limits"><summary>Every limit of these measurements</summary><div class="a">
       <ul>
         <li data-only="small"><b>Only ten questions were compared.</b> The engine has no known difference with the reference, on these ten and on 279 generated word pieces over 5 prompts. Other questions were not compared.</li>
-        <li data-only="qwen"><b>Only a few questions were compared.</b> The program printed the reference text for <span data-f="questionsWords"></span> questions. Some of those runs were stopped by the check after 30 word pieces. Other questions were not compared.</li>
+        <li data-only="0.8b"><b>Only one question was compared.</b> The program printed the reference text for it, and the check stopped the run after 30 word pieces. Other questions were not compared.</li>
+        <li data-only="qwen2"><b>Only a few questions were compared.</b> The program printed the reference text for <span data-f="questionsWords"></span> questions. Some of those runs were stopped by the check after 30 word pieces. Other questions were not compared.</li>
         <li><b>Never run one command at a time.</b> For this program it would take far too long.</li>
         <li><b>Steps were counted, not seconds.</b> The seconds in the tables come from the faster interpreter that the project's checks use.</li>
         <li data-only="1.5b"><b>Measured from the command line.</b> The tape of this program is 6.81 GiB, more than a 32-bit memory can hold. Everything here about it was measured with command-line tools on 64-bit memory. Your browser only reads the results.</li>
         <li><b>No meaning of single weights.</b> It is known which table a block belongs to, not what its numbers stand for.</li>
         <li><b>Reading the commands needs a server that can send part of a file.</b> The block and the pieces of the engine are read out of the program itself. Where a server cannot send a part of a file, only the pieces stored beside the figures are shown.</li>
-        <li><b>Three programs, measured unevenly.</b> Everything about the programs and their tapes was measured in the same way for all three. The step counts were not: brnfck-135m was run to its last position, the two bigger ones for one short question.</li>
+        <li><b>Four programs, measured unevenly.</b> Everything about the programs and their tapes was measured in the same way for all four. The step counts were not: brnfck-smollm2-135m was run to its last position, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b for one short question each.</li>
         <li><b>One computer, one browser.</b> The figures and the chatbot were tried in one desktop Chromium browser.</li>
       </ul>
     </div></details>
@@ -390,9 +419,11 @@
       <li style="--c: var(--c-gt)"><a href="../map/" class="tomap"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>This program</small><span>See every character of it in one picture, and zoom in to the block or the section you read about here.</span></a></li>
       <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the bit peel yourself.</span></a></li>
       <li style="--c: var(--c-open)"><a href="../how/"><i aria-hidden="true">[]</i><b>How it works</b><small>Article</small><span>Follow one question from your keyboard to the first printed word piece.</span></a></li>
-      <li style="--c: var(--c-in)" data-only="small"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-135m</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
-      <li style="--c: var(--c-in)" data-only="0.5b"><a href="../?m=0.5b"><i aria-hidden="true">,</i><b>Ask brnfck-0.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
-      <li style="--c: var(--c-in)" data-only="1.5b"><a href="../?m=1.5b"><i aria-hidden="true">,</i><b>Ask brnfck-1.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="small"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-smollm2-135m</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="0.5b"><a href="../?m=0.5b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen2.5-0.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="1.5b"><a href="../?m=1.5b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen2.5-1.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-in)" data-only="0.8b"><a href="../?m=0.8b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen3.5-0.8b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
+      <li style="--c: var(--c-minus)"><a href="../compare/"><i aria-hidden="true">-</i><b>Compare the models</b><small>Article</small><span>What Qwen3.5-0.8B keeps instead of looking back, next to the models that look back in every layer.</span></a></li>
     </ol>
   </section>
 
@@ -408,27 +439,28 @@
     <h3 id="sources">Sources</h3>
     <ol class="refs">
       <li id="r1">The program: <a id="r-file" download></a> (<span data-f="fileSize"></span>) and its description <code data-f="metaName"></code>, which holds the sizes, the SHA-256 and the <span data-f="sums"></span> checksums of the tape.</li>
-      <li id="r2">The project's checks: <span data-only="small"><code>compiler/smollm/pure/verify.js</code> and its log <code>compiler/smollm/pure/out/verify.log</code>.</span><span data-only="qwen"><code>compiler/qwen/program/verify_pure.js</code> and its log <code data-f="logName"></code>.</span></li>
-      <li id="r4">What wrote the writing part: <code>compiler/smollm/pure/encode.js</code> (the encoder of all three programs) and <span data-only="small"><code>compiler/smollm/pure/build.js</code>.</span><span data-only="qwen"><code>compiler/qwen/program/build_pure.js</code>.</span></li>
-      <li id="r5">The generators of the engine: <span data-only="small"><code>compiler/smollm/engine/gen.js</code>, <code>compiler/smollm/engine/stations.js</code>, <code>compiler/smollm/tokenizer/gen.js</code>, <code>compiler/smollm/program/gen.js</code></span><span data-only="qwen"><code>compiler/qwen/engine/gen.js</code>, <code>compiler/qwen/engine/stations.js</code>, <code>compiler/qwen/tokenizer/gen.js</code>, <code>compiler/qwen/program/gen.js</code>, with the arithmetic they reproduce in <code>compiler/qwen/engine/spec.js</code>,</span> and the building blocks in <code>patterns.js</code>.</li>
-      <li id="r6"><span data-only="small">The model: SmolLM2-135M-Instruct by Hugging Face, published under the Apache 2.0 licence. 30 layers, 576 numbers per word piece, 49,152 word pieces.</span><span data-only="0.5b">The model: Qwen2.5-0.5B-Instruct by Alibaba Cloud, published under the Apache 2.0 licence. 24 layers, 896 numbers per word piece, a vocabulary table of 151,936 rows.</span><span data-only="1.5b">The model: Qwen2.5-1.5B-Instruct by Alibaba Cloud, published under the Apache 2.0 licence. 28 layers, 1,536 numbers per word piece, a vocabulary table of 151,936 rows.</span></li>
+      <li id="r2">The project's checks: <span data-only="small"><code>compiler/smollm/pure/verify.js</code> and its log <code>compiler/smollm/pure/out/verify.log</code>.</span><span data-only="qwen2"><code>compiler/qwen/program/verify_pure.js</code> and its log <code data-f="logName"></code>.</span><span data-only="0.8b"><code>compiler/qwen3.5/program/verify_pure.js</code> and its log <code data-f="logName"></code>.</span></li>
+      <li id="r4">What wrote the writing part: <code>compiler/smollm/pure/encode.js</code> (the encoder of all four programs) and <span data-only="small"><code>compiler/smollm/pure/build.js</code>.</span><span data-only="qwen2"><code>compiler/qwen/program/build_pure.js</code>.</span><span data-only="0.8b"><code>compiler/qwen3.5/program/build_pure.js</code>.</span></li>
+      <li id="r5">The generators of the engine: <span data-only="small"><code>compiler/smollm/engine/gen.js</code>, <code>compiler/smollm/engine/stations.js</code>, <code>compiler/smollm/tokenizer/gen.js</code>, <code>compiler/smollm/program/gen.js</code></span><span data-only="qwen2"><code>compiler/qwen/engine/gen.js</code>, <code>compiler/qwen/engine/stations.js</code>, <code>compiler/qwen/tokenizer/gen.js</code>, <code>compiler/qwen/program/gen.js</code>, with the arithmetic they reproduce in <code>compiler/qwen/engine/spec.js</code>,</span><span data-only="0.8b"><code>compiler/qwen3.5/engine/gen.js</code> with its two layer kinds <code>compiler/qwen3.5/engine/mixers/deltanet.js</code> and <code>compiler/qwen3.5/engine/mixers/attention.js</code>, <code>compiler/qwen3.5/tokenizer/gen.js</code>, <code>compiler/qwen3.5/program/gen.js</code>, the parts of the Qwen2.5 engine they use, and the arithmetic they reproduce in <code>compiler/qwen3.5/engine/spec.js</code>,</span> and the building blocks in <code>patterns.js</code>.</li>
+      <li id="r6"><span data-only="small">The model: SmolLM2-135M-Instruct by Hugging Face, published under the Apache 2.0 licence. 30 layers, 576 numbers per word piece, 49,152 word pieces.</span><span data-only="0.5b">The model: Qwen2.5-0.5B-Instruct by Alibaba Cloud, published under the Apache 2.0 licence. 24 layers, 896 numbers per word piece, a vocabulary table of 151,936 rows.</span><span data-only="1.5b">The model: Qwen2.5-1.5B-Instruct by Alibaba Cloud, published under the Apache 2.0 licence. 28 layers, 1,536 numbers per word piece, a vocabulary table of 151,936 rows.</span><span data-only="0.8b">The model: Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, published under the Apache 2.0 licence. 24 layers, 18 of them Gated DeltaNet, 1,024 numbers per word piece, a vocabulary table of 248,320 rows. Its new kind of layer is explained on <a href="../compare/">Compare the models</a>.</span></li>
       <li id="r7">The folded line of the program map: D. Hilbert, 1891, on a continuous line that passes through every point of a square.</li>
       <li id="r8">The colours of the figures follow the palette of M. Okabe and K. Ito (2008), made to stay apart for people with colour-blindness.</li>
       <li id="r9">Brainfuck: a language designed by Urban M&uuml;ller in 1993.</li>
     </ol>
 
     <details class="q fold" id="data"><summary>How the numbers behind the figures were made</summary><div class="a">
-      <p>Seven scripts in <code>tools/map-data/</code> read the real programs and the project's logs and write the data the figures load, one folder for each program. None of them changes a program. <span id="n-cost"></span></p>
+      <p>Eight scripts in <code>tools/map-data/</code> read the real programs and the project's logs and write the data the figures load, one folder for each program. None of them changes a program. <span id="n-cost"></span></p>
       <div class="scroll"><table>
-        <caption>Each script takes the program as its first word: <code>small</code>, <code>0.5b</code> or <code>1.5b</code>.</caption>
+        <caption>Each script takes the program as its first word: <code>small</code>, <code>0.5b</code>, <code>1.5b</code> or <code>0.8b</code>.</caption>
         <tr><th>Script</th><th>What it does</th><th>Used for</th></tr>
         <tr><td><code>writer.js</code></td><td>Runs the writing part to get the tape. Runs the project's encoder again on that tape while noting every block, and checks that its output, with the engine behind it, has the SHA-256 of the program. Counts commands, weight values, digits, and the information on the tape.</td><td>The two parts, the tape, the block, the digits</td></tr>
         <tr><td><code>sections.js</code></td><td>Runs the engine's generator again while noting where every named section lands. Compares the result with the end of the program, character for character.</td><td>The sections of the engine, the program map</td></tr>
         <tr><td><code>tiles.js</code></td><td>Reads the program once and makes the pictures of the program map and the pieces of text behind it.</td><td>The program map</td></tr>
         <tr><td><code>depth.js</code></td><td>Reads the program once and notes how deep its loops are nested along it.</td><td>The program map, the layout "Skyline"</td></tr>
+        <tr><td><code>stops.js</code></td><td>Reads the engine and finds its only comma and its only full stop: the section of each, how many loops are open there, the characters around it, and the mix of commands along the way.</td><td>The figure "Once, in more than a billion characters" on How it works</td></tr>
         <tr><td><code>trace.js</code></td><td>Runs the real program on a question with an interpreter that counts every step by section, layer and word piece and notes where the pointer is. The printed answer must equal the reference. It can stop after a number of positions.</td><td>The trip of the pointer, the step counts</td></tr>
         <tr><td><code>checks.js</code></td><td>Reads the logs of the project's own checks. It runs nothing.</td><td>The checksums, the checks, the questions</td></tr>
-        <tr><td><code>compare.js</code></td><td>Gathers the main numbers of the three programs from what the other scripts wrote.</td><td>The three programs side by side</td></tr>
+        <tr><td><code>compare.js</code></td><td>Gathers the main numbers of the four programs from what the other scripts wrote.</td><td>The four programs side by side</td></tr>
       </table></div>
       <pre class="cmd" id="n-cmd"></pre>
     </div></details>
@@ -454,8 +486,8 @@
 <script src="../program-download.js?v=r6"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../command-play.js?v=r6"></script>
-<script src="engine-sections.js?v=r9"></script>
-<script src="core.js?v=r12"></script>
-<script src="inside.js?v=r6"></script>
+<script src="engine-sections.js?v=r11"></script>
+<script src="core.js?v=r15"></script>
+<script src="inside.js?v=r13"></script>
 </body>
 </html>

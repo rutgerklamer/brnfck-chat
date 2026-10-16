@@ -35,7 +35,7 @@
     reset();
   };
 
-  // ---- 2. word pieces (the pieces and numbers of this question in brnfck-135m) ----
+  // ---- 2. word pieces (the pieces and numbers of this question in brnfck-smollm2-135m) ----
   figs['fig-pieces'] = function () {
     var PIECES = [['What', 1780], [' is', 314], [' the', 260], [' capital', 3575], [' of', 282], [' France', 4649], ['?', 47]];
     var letters = [], chips = [];
@@ -218,12 +218,13 @@
     draw();
   };
 
-  // ---- 7c. the three models
+  // ---- 7c. the four programs
   figs['fig-size'] = function () {
     var M = {
       small: ['SmolLM2-135M-Instruct', 'about 135 million', '1,030,902,380 characters', '188,012,789 cells (717 MiB)', 'about 1.5 GB', 'about 9 to 16 s', 'about 0.6 to 1.0 s'],
       '0.5b': ['Qwen2.5-0.5B-Instruct', 'about 494 million', '4,169,659,608 characters', '657,597,114 cells', 'about 4 GB', '33 to 47 s', 'about 2.3 s'],
-      '1.5b': ['Qwen2.5-1.5B-Instruct', 'about 1.54 billion', '11,430,468,880 characters', '1,827,870,014 cells (6.81 GiB)', 'about 8 GB', '90 to 169 s', '7 to 12 s']
+      '0.8b': ['Qwen3.5-0.8B', 'about 752 million (the text part)', '7,709,034,855 characters', '1,067,424,772 cells (3.98 GiB)', 'about 5 GB', '2 min 10 s to 2 min 37 s in the browser; 103 s on the command line', 'about 5.6 s in the browser; 5.56 s on the command line'],
+      '1.5b': ['Qwen2.5-1.5B-Instruct', 'about 1.54 billion', '11,430,468,880 characters', '1,827,870,014 cells (6.81 GiB)', 'about 8 GB', '90 to 169 s on the command line; 2 min 27 s in the browser', '7 to 12 s on the command line; 9.0 s in the browser']
     };
     var dds = $('z-facts').querySelectorAll('dd'), buttons = $('z-seg').querySelectorAll('button');
     function show(key) {
@@ -234,14 +235,118 @@
     show('small');
   };
 
+  // ---- 8b. one comma, one full stop: where they are, in four steps ----------------------
+  // stops.json (tools/map-data/stops.js) has, for each of the two, the section of the engine that holds
+  // it, the mix of commands along the program, the engine and that section, and the text around it.
+  figs['fig-stop'] = function () {
+    var canvas = $('stop-view'), cache = {}, D = null, k = 1, model = 'small';
+    var NAME = { ask: 'The part that reads the question', print: 'The part that prints a word piece' };
+    var ORDER = '+-<>[].,', STACK = '<>+-[],.';                 // the walking at the bottom of a column, then the digits, then the loops
+    var VAR = { '+': '--c-plus', '-': '--c-minus', '<': '--c-lt', '>': '--c-gt', '[': '--c-open', ']': '--c-close', ',': '--c-in', '.': '--c-out' };
+    var probe = el('i'); probe.hidden = true; canvas.after(probe);
+    var colour = function (v) { probe.style.color = 'var(' + v + ')'; return getComputedStyle(probe).color; };
+    var bytes = function (b64) { var s = atob(b64), u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+    function load(m) {
+      if (!cache[m]) cache[m] = fetch('../inside/data-hosts.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }).then(function (h) {
+        var base = h && typeof h[m] === 'string' && h[m] ? new URL(h[m], new URL('../inside/', location.href)).href : '../inside/data/' + m + '/';
+        return fetch(base + 'stops.json').then(function (r) { if (!r.ok) throw new Error('no data'); return r.json(); });
+      }).then(function (J) { J.programB = bytes(J.program); J.engineB = bytes(J.engine); J.stops.forEach(function (s) { s.mixB = bytes(s.mix); }); return J; });
+      return cache[m];
+    }
+    // a part of the text, squeezed into a strip: every column the shares of the eight commands in it
+    function strip(ctx, u, bins, x0, y, w, h, col) {
+      for (var x = 0; x < Math.ceil(w); x++) {
+        var b0 = Math.floor(x / w * bins), b1 = Math.max(b0 + 1, Math.floor((x + 1) / w * bins)), s = [0, 0, 0, 0, 0, 0, 0, 0], t = 0;
+        for (var b = b0; b < b1 && b < bins; b++) for (var q = 0; q < 8; q++) { s[q] += u[b * 8 + q]; t += u[b * 8 + q]; }
+        var yy = y + h;
+        for (var j = 0; j < 8; j++) { var q2 = ORDER.indexOf(STACK[j]), hh = t ? s[q2] / t * h : 0; if (hh > 0) { ctx.fillStyle = col[STACK[j]]; ctx.fillRect(x0 + x, yy - hh, 1.02, hh); yy -= hh; } }
+      }
+    }
+    function draw() {
+      if (!D) return;
+      var S = D.stops[k], W = canvas.clientWidth, n = Math.max(21, Math.min(81, 2 * Math.floor(W / (W < 500 ? 12 : 15) / 2) + 1)), half = (n - 1) / 2;
+      var LAB = 20, BAR = 30, GAP = 34, cw = W / n, TXT = Math.round(Math.min(44, cw * 1.8)), top = function (i) { return i * (LAB + BAR + GAP); };
+      canvas.style.height = (top(3) + LAB + TXT + 2) + 'px';
+      var dpr = window.devicePixelRatio || 1, h = canvas.clientHeight;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(h * dpr);
+      var ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, h);
+      var col = {}; Object.keys(VAR).forEach(function (c) { col[c] = colour(VAR[c]); });
+      var ink = colour('--ink'), muted = colour('--muted'), panel = colour('--panel'), go = colour('--go'), line = colour('--line');
+      // the four parts, each as [from, to) of the program, and the window of each inside it
+      var P = [[0, D.chars], [D.writer, D.chars], [S.from, S.to], [S.at - half, S.at + half + 1]];
+      var X = function (i, v) { return (v - P[i][0]) / (P[i][1] - P[i][0]) * W; };
+      var win = function (i) { var a = X(i, P[i + 1][0]), b = X(i, P[i + 1][1]), c = (a + b) / 2; if (b - a < 4) { a = c - 2; b = c + 2; } return [Math.max(0, a), Math.min(W, b)]; };
+      // the funnels from each window to the whole width of the strip under it
+      for (var i = 0; i < 3; i++) {
+        var w0 = win(i), y0 = top(i) + LAB + BAR, y1 = top(i + 1) + LAB;
+        ctx.fillStyle = go; ctx.globalAlpha = 0.16;
+        ctx.beginPath(); ctx.moveTo(w0[0], y0); ctx.lineTo(w0[1], y0); ctx.lineTo(W, y1); ctx.lineTo(0, y1); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 0.7; ctx.strokeStyle = go; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(w0[0], y0); ctx.lineTo(0.5, y1); ctx.moveTo(w0[1], y0); ctx.lineTo(W - 0.5, y1); ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      strip(ctx, D.programB, D.bins, 0, top(0) + LAB, W, BAR, col);
+      strip(ctx, D.engineB, D.bins, 0, top(1) + LAB, W, BAR, col);
+      strip(ctx, S.mixB, D.bins, 0, top(2) + LAB, W, BAR, col);
+      // the characters themselves, the one in question on a yellow block
+      var text = S.before.slice(-half) + S.command + S.after.slice(0, half), y3 = top(3) + LAB, fs = Math.min(22, cw * 1.15);
+      ctx.fillStyle = colour('--sunk'); ctx.fillRect(0, y3, W, TXT);
+      ctx.font = '700 ' + fs.toFixed(1) + 'px "IBM Plex Mono", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (var c = 0; c < text.length; c++) {
+        var ch = text[c], cx = (c + 0.5) * cw;
+        if (c === half) { ctx.fillStyle = go; ctx.fillRect(c * cw, y3, cw, TXT); ctx.fillStyle = '#111'; }
+        else ctx.fillStyle = col[ch] || muted;
+        ctx.fillText(ch === '-' ? '−' : ch, cx, y3 + TXT / 2 + 1);
+      }
+      // the frames: what the next strip opens up
+      ctx.strokeStyle = go; ctx.lineWidth = 2;
+      for (var f = 0; f < 3; f++) { var wf = win(f); ctx.strokeRect(wf[0] + 1, top(f) + LAB + 1, Math.max(2, wf[1] - wf[0] - 2), BAR - 2); }
+      ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.strokeRect(0.5, y3 + 0.5, W - 1, TXT - 1);
+      // the names over the strips, and their sizes where there is room
+      var LABELS = [['The whole program', fmt(D.chars) + ' characters'], ['The engine', fmt(D.chars - D.writer) + ' characters'], [NAME[S.section] || S.section, fmt(S.to - S.from) + ' characters'], [n + ' characters around the ' + (S.command === ',' ? 'comma' : 'full stop'), 'character ' + fmt(S.at + 1)]];
+      ctx.textBaseline = 'alphabetic';
+      LABELS.forEach(function (L, i) {
+        var y = top(i) + LAB - 6;
+        ctx.font = '600 13px "IBM Plex Sans", system-ui, sans-serif'; var lw = ctx.measureText(L[0]).width;
+        ctx.font = '500 12px "IBM Plex Mono", ui-monospace, monospace'; var rw = ctx.measureText(L[1]).width;
+        ctx.fillStyle = panel; ctx.fillRect(0, y - 14, lw + 8, 18); if (lw + rw + 24 < W) ctx.fillRect(W - rw - 8, y - 14, rw + 8, 18);
+        ctx.font = '600 13px "IBM Plex Sans", system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = ink; ctx.fillText(L[0], 0, y);
+        if (lw + rw + 24 < W) { ctx.font = '500 12px "IBM Plex Mono", ui-monospace, monospace'; ctx.textAlign = 'right'; ctx.fillStyle = muted; ctx.fillText(L[1], W, y); }
+      });
+      // in words
+      var said = $('stop-said'), into = S.at - D.writer, after = D.chars - S.at - 1, b = function (t) { return el('b', '', t); };
+      said.replaceChildren();
+      if (S.command === '.') said.append('The full stop of ' + D.label + ' is character ', b(fmt(S.at + 1)), ' of ', b(fmt(D.chars)) , ', with only ', b(fmt(after)), ' characters after it. It stands inside ', b(S.depth + (S.depth === 1 ? ' loop' : ' loops')), ', so this one character prints every letter of every answer.');
+      else said.append('The comma of ' + D.label + ' is character ', b(fmt(S.at + 1)), ', ', b(fmt(into)), ' characters into the engine. It stands inside ', b(S.depth + (S.depth === 1 ? ' loop' : ' loops')), ', so this one character reads every letter of every question.');
+      canvas.setAttribute('aria-label', 'From the whole program of ' + fmt(D.chars) + ' characters to the engine, then to ' + (NAME[S.section] || S.section).toLowerCase() + ', then to the ' + n + ' characters around the ' + (S.command === ',' ? 'comma' : 'full stop') + ': ' + text);
+    }
+    function show() {
+      $('stop-said').textContent = 'Loading…';
+      load(model).then(function (J) { D = J; draw(); }).catch(function () { $('stop-said').textContent = 'The data of this program could not be loaded.'; });
+    }
+    function pick(group, attr, set) {
+      group.addEventListener('click', function (e) {
+        var btn = e.target.closest('button'); if (!btn) return;
+        Array.prototype.forEach.call(group.children, function (o) { o.setAttribute('aria-pressed', String(o === btn)); });
+        set(btn.dataset[attr]); show();
+      });
+    }
+    pick($('stop-cmd'), 'k', function (v) { k = Number(v); });
+    pick($('stop-prog'), 'm', function (v) { model = v; });
+    var started = false, start = function () { if (!started) { started = true; show(); } };
+    if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); } }, { rootMargin: '400px' }); io.observe(canvas); } else start();
+    new ResizeObserver(function () { draw(); }).observe(canvas.parentNode);
+    new MutationObserver(function () { draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  };
+
   Object.keys(figs).forEach(function (id) { if ($(id)) figs[id](); });
 
   (function () {
     if (!$('c-go')) return;
-    var WHERE = { name: 'small', manifestUrl: '../dist/small/manifest.json', metaUrl: '../programs/brnfck-135m.meta.json', fileUrl: '../programs/brnfck-135m.bf' };
+    var WHERE = { name: 'small', manifestUrl: '../dist/small/manifest.json', metaUrl: '../programs/brnfck-smollm2-135m.meta.json', fileUrl: '../programs/brnfck-smollm2-135m.bf' };
     // the one big file is only on a computer that built it: do not offer a link that leads nowhere
     fetch(WHERE.fileUrl, { method: 'HEAD' }).then(function (r) { return r.ok; }, function () { return false; }).then(function (there) {
-      if (!there) Array.prototype.forEach.call(document.querySelectorAll('.bf-file'), function (s) { s.textContent = 'the program file (programs/brnfck-135m.bf; it is not at this address: the README of the project says how to make it)'; });
+      if (!there) Array.prototype.forEach.call(document.querySelectorAll('.bf-file'), function (s) { s.textContent = 'the program file (programs/brnfck-smollm2-135m.bf; it is not at this address: the README of the project says how to make it)'; });
     });
     var out = function (key) { return document.querySelector('#c-table [data-c="' + key + '"]'); };
     var ctl = null;

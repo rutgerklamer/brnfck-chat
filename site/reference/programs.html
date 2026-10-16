@@ -15,13 +15,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/reference.css?v=r7">
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="learn"></script>
+<script src="../site.js?v=r16" data-section="learn"></script>
 <main class="doc article reference" id="main">
 
   <header class="plain">
@@ -45,7 +45,7 @@
           <li><a href="#decss">A program as an argument</a></li>
           <li><a href="#ray">A ray tracer</a></li>
           <li><a href="#nn">Neural networks</a></li>
-          <li><a href="#chat">This site's project: three chat models</a></li>
+          <li><a href="#chat">This site's project: four chat models</a></li>
           <li><a href="#limits">Limits</a></li>
         </ol>
       </nav>
@@ -71,7 +71,7 @@
         <tr><th scope="row"><a href="#hello">Shortest "Hello, World!"</a></th><td>KSab</td><td>2018</td><td>72 commands</td><td>found by search</td></tr>
         <tr><th scope="row"><a href="#nn">lobotoml, a small neural network</a></th><td>Ad1th</td><td>not dated</td><td>9,731 bytes</td><td>generated</td></tr>
         <tr><th scope="row"><a href="#ray">A ray tracer</a></th><td>see the section</td><td>2026</td><td>23 megabytes</td><td>generated</td></tr>
-        <tr><th scope="row"><a href="#chat">Three chat models</a></th><td>this site</td><td>2026</td><td>1.03, 4.17 and 11.43 billion commands</td><td>generated</td></tr>
+        <tr><th scope="row"><a href="#chat">Four chat models</a></th><td>this site</td><td>2026</td><td>1.03, 4.17, 7.71 and 11.43 billion commands</td><td>generated</td></tr>
       </tbody>
     </table>
     </div>
@@ -86,9 +86,10 @@
         <span class="lab">Mandelbrot viewer</span><div><div class="bar ink" style="width:33.9%"></div></div><span>about 11,600 bytes</span>
         <span class="lab">Lost Kingdom</span><div><div class="bar ink" style="width:52.7%"></div></div><span>2.08 megabytes</span>
         <span class="lab">Ray tracer</span><div><div class="bar ink" style="width:61.3%"></div></div><span>23 megabytes</span>
-        <span class="lab">Chat model, brnfck-135m</span><div><div class="bar b2" style="width:75.1%"></div></div><span>1,030,902,380 commands</span>
-        <span class="lab">Chat model, brnfck-0.5b</span><div><div class="bar b2" style="width:80.2%"></div></div><span>4,169,659,608 commands</span>
-        <span class="lab">Chat model, brnfck-1.5b</span><div><div class="bar b2" style="width:83.8%"></div></div><span>11,430,468,880 commands</span>
+        <span class="lab">Chat model, brnfck-smollm2-135m</span><div><div class="bar b2" style="width:75.1%"></div></div><span>1,030,902,380 commands</span>
+        <span class="lab">Chat model, brnfck-qwen2.5-0.5b</span><div><div class="bar b2" style="width:80.2%"></div></div><span>4,169,659,608 commands</span>
+        <span class="lab">Chat model, brnfck-qwen2.5-1.5b</span><div><div class="bar b2" style="width:83.8%"></div></div><span>11,430,468,880 commands</span>
+        <span class="lab">Chat model, brnfck-qwen3.5-0.8b</span><div><div class="bar b2" style="width:82.4%"></div></div><span>7,709,034,855 commands</span>
       </div>
     </figure>
     <p>Notice the gap between the hand-written programs at the top and the generated ones at the bottom. On an even scale, if the shortest "Hello, World!" were 1 millimetre long, the biggest chat program would be about 159 kilometres. Sizes in bytes count the whole file, comments included, so they are a little more than the number of commands. The hatched bars are this site's own programs.</p>
@@ -184,18 +185,19 @@
   </section>
 
   <section id="chat" aria-labelledby="chat-h">
-    <h2 id="chat-h">This site's project: three chat models</h2>
-    <p>The project this site began with belongs in this list as one entry among the others. Three published chat models were each written out as a single brainfuck program. A model is a long list of numbers (weights) and a fixed recipe of sums. Almost all of each program writes those numbers onto the tape; the last part does the sums. The only thing a program reads is the question, and the only thing it prints is the answer&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</p>
-    <div class="scroll" tabindex="0" role="group" aria-label="The three programs; scrolls sideways on a narrow screen">
+    <h2 id="chat-h">This site's project: four chat models</h2>
+    <p>The project this site began with belongs in this list as one entry among the others. Four published chat models were each written out as a single brainfuck program. A model is a long list of numbers (weights) and a fixed recipe of sums. Almost all of each program writes those numbers onto the tape; the last part does the sums. The only thing a program reads is the question, and the only thing it prints is the answer&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</p>
+    <p>brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, the smallest model with the same kind of layers as Qwen3.8-27B, a much larger model. 18 of its 24 layers are of another kind, Gated DeltaNet, explained on <a href="../compare/">Compare the models</a>. The program follows its whole-number recipe exactly; <a href="../compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers, close to the program but not what it computes. The tape after its writing part equals the loaded model in 1,018 checksums. You can ask it a question in <a href="../?m=0.8b">the chat with brnfck-qwen3.5-0.8b</a>.</p>
+    <div class="scroll" tabindex="0" role="group" aria-label="The four programs; scrolls sideways on a narrow screen">
     <table id="tab-chat" class="cmp">
-      <caption>The three programs. Counts are counted in the program files; times were measured on one desktop computer&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</caption>
-      <thead><tr><th scope="col">What</th><th scope="col">brnfck-135m</th><th scope="col">brnfck-0.5b</th><th scope="col">brnfck-1.5b</th></tr></thead>
+      <caption>The four programs. Counts are counted in the program files; times were measured on one desktop computer&nbsp;<a class="cite" href="#ref-26" aria-label="Source 26">[26]</a>.</caption>
+      <thead><tr><th scope="col">What</th><th scope="col">brnfck-smollm2-135m</th><th scope="col">brnfck-qwen2.5-0.5b</th><th scope="col">brnfck-qwen2.5-1.5b</th><th scope="col">brnfck-qwen3.5-0.8b</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Model</th><td>SmolLM2-135M-Instruct (Hugging Face)</td><td>Qwen2.5-0.5B-Instruct (Alibaba Cloud)</td><td>Qwen2.5-1.5B-Instruct (Alibaba Cloud)</td></tr>
-        <tr><th scope="row">Commands in the program <span class="ev">counted</span></th><td>1,030,902,380</td><td>4,169,659,608</td><td>11,430,468,880</td></tr>
-        <tr><th scope="row">Tape, in cells of 32 bits <span class="ev">counted</span></th><td>188,012,789</td><td>657,597,114</td><td>1,827,870,014</td></tr>
-        <tr><th scope="row">Time for one word piece <span class="ev">measured</span></th><td>0.6 to 1.0 s</td><td>about 2.3 s</td><td>7 to 12 s</td></tr>
-        <tr><th scope="row">Same next word piece as the original model <span class="ev">measured</span></th><td>94.8% (345 of 364)</td><td>96.6% (477 of 494)</td><td>97.2% (318 of 327)</td></tr>
+        <tr><th scope="row">Model</th><td>SmolLM2-135M-Instruct (Hugging Face)</td><td>Qwen2.5-0.5B-Instruct (Alibaba Cloud)</td><td>Qwen2.5-1.5B-Instruct (Alibaba Cloud)</td><td>Qwen3.5-0.8B (the Qwen team of Alibaba Cloud)</td></tr>
+        <tr><th scope="row">Commands in the program <span class="ev">counted</span></th><td>1,030,902,380</td><td>4,169,659,608</td><td>11,430,468,880</td><td>7,709,034,855</td></tr>
+        <tr><th scope="row">Tape, in cells of 32 bits <span class="ev">counted</span></th><td>188,012,789</td><td>657,597,114</td><td>1,827,870,014</td><td>1,067,424,772</td></tr>
+        <tr><th scope="row">Time for one word piece <span class="ev">measured</span></th><td>0.6 to 1.0 s</td><td>about 2.3 s</td><td>7 to 12 s on the command line; 9.0 s in the browser</td><td>about 5.6 s in the browser; 5.56 s on the command line (median)</td></tr>
+        <tr><th scope="row">Same next word piece as the original model <span class="ev">measured</span></th><td>94.8% (345 of 364)</td><td>96.6% (477 of 494)</td><td>97.2% (318 of 327)</td><td>95.1% (214 of 225), its whole-number version against the original</td></tr>
       </tbody>
     </table>
     </div>
@@ -204,7 +206,7 @@
       <li><b>Brainfuck only runs the models.</b> They were made and trained by others, in the usual way.</li>
       <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was converted to whole-number arithmetic. The last row of <a href="#tab-chat">the table</a> says how often that version agrees with the original.</li>
       <li><b>It needs cells of 32 bits that wrap.</b> On the usual 8-bit cells the programs print nonsense.</li>
-      <li><b>It needs a fast interpreter.</b> One word piece of brnfck-135m is 1.6 to 1.9 billion steps <span class="ev">measured</span>. The pages translate the program to WebAssembly and do simple loops in one operation. The result is the same as going one command at a time; one at a time would take far too long.</li>
+      <li><b>It needs a fast interpreter.</b> One word piece of brnfck-smollm2-135m is 1.6 to 1.9 billion steps <span class="ev">measured</span>. The pages translate the program to WebAssembly and do simple loops in one operation. The result is the same as going one command at a time; one at a time would take far too long.</li>
       <li><b>Nobody typed it.</b> A generator written in JavaScript wrote the brainfuck.</li>
       <li><b>The answers can be wrong</b>, as the answers of small models are. Brainfuck runs them faithfully, mistakes included.</li>
       <li><b>It was tried in one desktop browser.</b></li>

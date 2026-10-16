@@ -31,3 +31,39 @@ main.how .twocap .sw { margin: 0; }
 @media (max-width: 36em) {
   #fig-read .keypad { --key-h: 4rem; --key-fs: 1.375rem; }
 }
+
+/* ---- one comma, one full stop: from the whole program to the characters around it (how.js) ---- */
+#stop-view { display: block; width: 100%; height: 26rem; margin-top: var(--s3); }
+#fig-stop .ctl { gap: var(--s2); }
+
+/* ---- with pencil and paper: one answer of each program on the calendar (home-figures.js) ---- */
+.hand { position: relative; font: var(--fs-ui)/1.4 var(--sans); }
+.hand-marks { position: relative; z-index: 1; }      /* over the dashed lines of the events in the rows above */
+.hand-mark { position: absolute; top: 0; padding: 0 3px; background: var(--panel); white-space: nowrap; font: 500 .75rem/1.25 var(--mono); }
+.hand-mark b { display: block; color: var(--ink); font-weight: 600; }
+.hand-mark span { color: var(--muted); }
+.hand-mark.right { text-align: right; }
+.hand-guide { position: absolute; bottom: 0; width: 0; border-left: 1px dashed var(--rule); opacity: .55; pointer-events: none; }
+.hand-axis { position: relative; z-index: 1; height: 1.75rem; border-top: var(--edge) solid var(--ink); }
+.hand-axis i { position: absolute; top: 0; height: 6px; border-left: 1px solid var(--ink); }
+.hand-axis span { position: absolute; top: 7px; padding: 0 3px; background: var(--panel); transform: translateX(-50%); white-space: nowrap; color: var(--muted); font: .75rem/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+.hand-axis span.now { transform: translateX(-100%); color: var(--ink); font-weight: 600; }
+.hand-lane { position: relative; margin-top: var(--s3); }
+.hand-lane .who { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--s3); margin: 0 0 4px; }
+.hand-lane .who > span { position: relative; background: var(--panel); }      /* over the dashed lines of the events */
+.hand-lane .who b { font-family: var(--mono); }
+.hand-lane .who q { color: var(--muted); quotes: "\201C" "\201D"; }
+.hand-lane .when { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.hand-track { position: relative; height: 1.5rem; background: var(--sunk); border: 1px solid var(--ink); cursor: pointer; touch-action: pan-y; }
+.hand-track i { position: absolute; top: 0; bottom: 0; background: var(--c-in); box-shadow: inset -1px 0 0 var(--panel); }
+.hand-track i.print { background: var(--c-out); }
+.hand-track i.end { background: var(--c-lt); }
+.hand-track i.on { outline: 2px solid var(--ink); outline-offset: 1px; z-index: 1; }
+.hand-say { min-height: 3.1em; margin: var(--s3) 0 0; font: var(--fs-ui)/1.55 var(--sans); }
+.hand-say b { font-family: var(--mono); }
+.hand-tick { margin: var(--s2) 0 0; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+#fig-hand .key { margin: var(--s2) 0 0; }
+#fig-hand .key { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+#fig-hand .key > span { display: inline-flex; align-items: center; gap: 6px; }
+#fig-hand .key > span::before { content: ""; width: 12px; height: 12px; background: var(--k); }
+#fig-hand .hand-tick { font-family: var(--mono); }

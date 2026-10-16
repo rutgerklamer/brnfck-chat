@@ -12,18 +12,20 @@
 
   // ---- which program
   const MODELS = {
-    small: { short: 'brnfck-135m', built: 'in about a minute' },
-    '0.5b': { short: 'brnfck-0.5b', built: 'in about two and a half minutes' },
-    '1.5b': { short: 'brnfck-1.5b', built: 'in about seven minutes' },
+    small: { short: 'brnfck-smollm2-135m', built: 'in about a minute' },
+    '0.5b': { short: 'brnfck-qwen2.5-0.5b', built: 'in about two and a half minutes' },
+    '1.5b': { short: 'brnfck-qwen2.5-1.5b', built: 'in about seven minutes' },
+    '0.8b': { short: 'brnfck-qwen3.5-0.8b', built: 'in about six and a half minutes' },
   };
-  const MODEL = MODELS[document.documentElement.getAttribute('data-model')] ? document.documentElement.getAttribute('data-model') : '1.5b';     // brnfck-1.5b, the largest, is the one a page shows when nothing is asked
-  const QWEN = MODEL !== 'small', ROOT = new URL('..', HERE).href;
+  const MODEL = MODELS[document.documentElement.getAttribute('data-model')] ? document.documentElement.getAttribute('data-model') : '1.5b';     // brnfck-qwen2.5-1.5b, the largest, is the one a page shows when nothing is asked
+  const QWEN = MODEL !== 'small', Q35 = MODEL === '0.8b', ROOT = new URL('..', HERE).href;      // Q35: Qwen3.5, with DeltaNet layers
   let DATA = HERE + 'data/' + MODEL + '/';
   const dataBase = fetch(HERE + 'data-hosts.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((h) => { if (h && typeof h[MODEL] === 'string' && h[MODEL]) DATA = new URL(h[MODEL], HERE).href; });
-  const FILES = { small: ['programs/brnfck-135m.meta.json', 'programs/brnfck-135m.bf'], '0.5b': ['programs/brnfck-0.5b.meta.json', 'programs/brnfck-0.5b.bf'], '1.5b': ['programs/brnfck-1.5b.meta.json', 'programs/brnfck-1.5b.bf'] };
+  const FILES = { small: ['programs/brnfck-smollm2-135m.meta.json', 'programs/brnfck-smollm2-135m.bf'], '0.5b': ['programs/brnfck-qwen2.5-0.5b.meta.json', 'programs/brnfck-qwen2.5-0.5b.bf'], '1.5b': ['programs/brnfck-qwen2.5-1.5b.meta.json', 'programs/brnfck-qwen2.5-1.5b.bf'], '0.8b': ['programs/brnfck-qwen3.5-0.8b.meta.json', 'programs/brnfck-qwen3.5-0.8b.bf'] };
   let programP = null;
   const program = (model = MODEL) => { const go = () => (window.ProgramStart ? window.ProgramStart.find({ name: model, manifestUrl: ROOT + 'dist/' + model + '/manifest.json', metaUrl: ROOT + FILES[model][0], fileUrl: ROOT + FILES[model][1], hostsUrl: ROOT + 'program-hosts.json' }).catch(() => null) : Promise.resolve(null)); if (model !== MODEL) return go(); return programP || (programP = go()); };
-  const mine = (only) => only.split(/\s+/).some((t) => t === MODEL || (t === 'qwen' && QWEN) || (t === 'smol' && !QWEN));
+  // a word of data-only: a program, 'smol', 'qwen' (the programs of Qwen2.5 and Qwen3.5) or 'qwen2' (the programs of Qwen2.5)
+  const mine = (only) => only.split(/\s+/).some((t) => t === MODEL || (t === 'qwen' && QWEN) || (t === 'qwen2' && QWEN && !Q35) || (t === 'smol' && !QWEN));
   document.querySelectorAll('[data-only]').forEach((n) => { if (!mine(n.getAttribute('data-only'))) n.remove(); });
   const switches = [...document.querySelectorAll('#modelbar a[data-m], #choose a[data-m]')];
   const heads = () => [...document.querySelectorAll('main h2[id]')];
@@ -36,7 +38,7 @@
   // ---- data
   const cache = new Map();
   const get = (name, kind) => {
-    const url = name[0] === '/' ? HERE + 'data' + name : DATA + name;                 // "/x": shared by the three programs
+    const url = name[0] === '/' ? HERE + 'data' + name : DATA + name;                 // "/x": shared by all programs
     if (!cache.has(url)) cache.set(url, dataBase.then(() => fetch(name[0] === '/' ? url : DATA + name)).then((r) => { if (!r.ok) throw new Error('could not load ' + url + ' (' + r.status + ')'); return kind === 'buf' ? r.arrayBuffer() : r.json(); }));
     return cache.get(url);
   };
@@ -80,6 +82,8 @@
     out: { v: '--k-out', name: 'Output table', letter: 'O' },
     att: { v: '--k-att', name: 'Attention', letter: 'A' },
     att2: { v: '--k-att2', name: 'Attention, output', letter: 'A' },
+    dn: { v: '--k-dn', name: 'DeltaNet', letter: 'D' },
+    dn2: { v: '--k-dn2', name: 'DeltaNet, output', letter: 'D' },
     mem: { v: '--k-mem', name: 'Memory of earlier pieces', letter: 'M' },
     ff: { v: '--k-ff', name: 'Feed-forward', letter: 'F' },
     ff2: { v: '--k-ff2', name: 'Feed-forward, back', letter: 'F' },
@@ -88,9 +92,9 @@
     tidy: { v: '--k-tidy', name: 'Scaling and rounding', letter: 'S' },
     work: { v: '--k-work', name: 'Walking and free cells', letter: '·' },
   };
-  const LEGEND = [['out', 'Output table'], ['att', 'Attention'], ['mem', 'Memory of earlier pieces'], ['ff', 'Feed-forward'], ['emb', 'Table of word pieces'], ['text', 'Text in and out'], ['tidy', 'Scaling and rounding'], ['work', 'Walking and free cells']];
+  const LEGEND = [['out', 'Output table'], ['att', 'Attention'], ...(Q35 ? [['dn', 'DeltaNet']] : []), ['mem', 'Memory of earlier pieces'], ['ff', 'Feed-forward'], ['emb', 'Table of word pieces'], ['text', 'Text in and out'], ['tidy', 'Scaling and rounding'], ['work', 'Walking and free cells']];
   // A swatch always carries the letter of its family, so colour is never the only sign.
-  const swatch = (fam) => { const s = el('i', fam === 'att2' || fam === 'ff2' ? 'sw tint' : 'sw', FAM[fam].letter); s.style.background = 'var(' + FAM[fam].v + ')'; s.setAttribute('aria-hidden', 'true'); return s; };
+  const swatch = (fam) => { const s = el('i', fam === 'att2' || fam === 'ff2' || fam === 'dn2' ? 'sw tint' : 'sw', FAM[fam].letter); s.style.background = 'var(' + FAM[fam].v + ')'; s.setAttribute('aria-hidden', 'true'); return s; };
   const blockSpan = (t) => el('span', '', t);
   const clearRows = (tbl) => tbl.querySelectorAll('tr').forEach((r) => r.remove());
   const KIND = {
@@ -99,11 +103,15 @@
     emb: { fam: 'emb', name: 'Table of word pieces' }, tokbytes: { fam: 'text', name: QWEN ? 'Tables of bytes' : 'Table of letters' }, tokids: { fam: 'text', name: 'Work space for the question' },
     toktable: { fam: 'text', name: 'Vocabulary' }, glob: { fam: 'work', name: 'Counters' }, work: { fam: 'work', name: 'Free cells' },
     bias: { fam: 'tidy', name: 'Strips of constants: bias' }, scale: { fam: 'tidy', name: 'Strips of constants: scale per row' }, gain: { fam: 'tidy', name: 'Strips of constants: gain' },
+    // the DeltaNet layers of brnfck-qwen3.5-0.8b
+    lin: { fam: 'dn', name: 'DeltaNet weights' }, lino: { fam: 'dn2', name: 'DeltaNet output weights' }, conv: { fam: 'dn', name: 'DeltaNet: convolution weights' },
+    state: { fam: 'mem', name: 'DeltaNet: tables of the heads' }, dscale: { fam: 'mem', name: 'DeltaNet: scale of a table' }, convwin: { fam: 'mem', name: 'DeltaNet: the last three word pieces' },
+    dconst: { fam: 'tidy', name: 'Strips of constants: forgetting' },
   };
   const layerNo = (l) => 'Layer ' + (l + 1);
   let EJ = null, WJ = null;                       // engine.json and writer.json of this program (set in `ready`)
-  const MATRIX = { qkv: 'the first matrix (question, key, value)', o: 'the attention output matrix', w13: 'the widening matrix', w2: 'the matrix that brings the numbers back' };
-  const GAIN = { first: 'used when the numbers are scaled at the start of layer 1', ffn: 'used when the numbers are scaled before the feed-forward part of this layer', next: 'used when the numbers are scaled after this layer' };
+  const MATRIX = { qkv: Q35 ? 'the first matrix (question, key, gate, value)' : 'the first matrix (question, key, value)', o: 'the attention output matrix', w13: 'the widening matrix', w2: 'the matrix that brings the numbers back', lin: 'the first matrix of the DeltaNet layer', lino: 'the DeltaNet output matrix' };
+  const GAIN = { first: 'used when the numbers are scaled at the start of layer 1', ffn: 'used when the numbers are scaled before the feed-forward part of this layer', next: 'used when the numbers are scaled after this layer', qk: 'used when every head of the questions and keys is brought to a common size', gated: 'used when the output of every head is brought to a common size' };
   const regionTitle = (r) => {
     const d = (rows, cols) => ' (' + fmt(rows) + ' × ' + fmt(cols) + ')', m = EJ.model;
     switch (r.kind) {
@@ -113,6 +121,13 @@
       case 'w13': return layerNo(r.layer) + ': feed-forward weights, widening' + d(r.rows, r.cols);
       case 'w2': return layerNo(r.layer) + ': feed-forward weights, back' + d(r.rows, r.cols);
       case 'slots': return layerNo(r.layer) + ': memory of earlier word pieces (' + m.maxTokens + ' slots)';
+      case 'lin': return layerNo(r.layer) + ': DeltaNet weights' + d(r.rows, r.cols);
+      case 'lino': return layerNo(r.layer) + ': DeltaNet output weights' + d(r.rows, r.cols);
+      case 'conv': return layerNo(r.layer) + ': convolution weights (' + fmt(r.n) + ' numbers)';
+      case 'convwin': return layerNo(r.layer) + ': the last three word pieces (' + fmt(r.n) + ' cells)';
+      case 'state': return layerNo(r.layer) + ': the table of head ' + (r.head + 1) + ' (' + fmt(r.cols) + ' × ' + fmt(r.rows) + ' numbers)';
+      case 'dscale': return layerNo(r.layer) + ': the scale of the table of head ' + (r.head + 1);
+      case 'dconst': return layerNo(r.layer) + ': strip of constants, ' + (r.what === 'dt' ? 'a shift for how fast each head forgets' : 'the forgetting rate of each head') + ' (' + fmt(r.n) + ' numbers)';
       case 'emb': return 'Table of word pieces' + d(r.rows, r.cols);
       case 'tokbytes': return QWEN ? 'Vocabulary: tables of bytes' : 'Vocabulary: table of letters';
       case 'tokids': return 'Vocabulary: work space for the question';
@@ -132,6 +147,10 @@
       case 'w13': return 'L' + (r.layer + 1) + ' feed-forward';
       case 'w2': return 'L' + (r.layer + 1) + ' ff. back';
       case 'slots': return 'L' + (r.layer + 1) + ' memory';
+      case 'lin': return 'L' + (r.layer + 1) + ' DeltaNet';
+      case 'lino': return 'L' + (r.layer + 1) + ' DN out';
+      case 'state': return 'L' + (r.layer + 1) + ' table ' + (r.head + 1);
+      case 'conv': case 'convwin': case 'dscale': case 'dconst': return 'L' + (r.layer + 1) + ' ' + KIND[r.kind].name.replace(/^.*: /, '');
       case 'emb': return 'Table of word pieces';
       case 'toktable': return 'Vocabulary';
       case 'bias': return 'L' + (r.layer + 1) + ' bias';
@@ -146,11 +165,19 @@
       case 'cls': return QWEN
         ? 'One part of the output table: the rows of word pieces ' + fmt(r.layer * r.rows) + ' to ' + fmt((r.layer + 1) * r.rows - 1) + '. They turn the final ' + fmt(m.dim) + ' numbers into a score for each of those pieces. The numbers are those of the table of word pieces, written a second time in the order this search needs.'
         : 'These weights turn the final ' + fmt(m.dim) + ' numbers into a score for word pieces ' + fmt(r.layer * r.rows) + ' to ' + fmt((r.layer + 1) * r.rows - 1) + '.';
-      case 'qkv': return 'These weights make three things out of the running numbers of a word piece: a question, a key and a value. Attention works with those.';
+      case 'qkv': return Q35 ? 'These weights make four things out of the running numbers of a word piece: a question, a key, a gate for the question and a value. Attention works with those.' : 'These weights make three things out of the running numbers of a word piece: a question, a key and a value. Attention works with those.';
       case 'o': return 'These weights mix what attention has collected back into the running numbers.';
       case 'w13': return 'These weights widen the ' + fmt(m.dim) + ' running numbers to ' + fmt(M.w13.rows) + ' (two sets of ' + fmt(m.hidden) + ').';
       case 'w2': return 'These weights bring ' + fmt(m.hidden) + ' products back to ' + fmt(m.dim) + ' numbers.';
-      case 'slots': return 'The key and the value of every word piece read so far. The ' + fixed + ' pieces of the fixed opening lines are filled in by the program text; the other ' + (m.maxTokens - fixed) + ' slots are empty until the program runs.';
+      case 'slots': return fixed ? 'The key and the value of every word piece read so far. The ' + fixed + ' pieces of the fixed opening lines are filled in by the program text; the other ' + (m.maxTokens - fixed) + ' slots are empty until the program runs.'
+        : 'The key and the value of every word piece read so far, one slot for each. Only ' + (m.layers - m.types.filter((t) => t === 'lin').length) + ' of the ' + m.layers + ' layers have slots. All ' + m.maxTokens + ' are empty until the program runs: this program keeps no opening lines in memory.';
+      case 'lin': return 'These weights make, out of the running numbers of a word piece, the queries, keys and values of the ' + m.deltanet.valueHeads + ' heads, a gate, and for every head how much it forgets and how strongly it writes.';
+      case 'lino': return 'These weights mix the output of the ' + m.deltanet.valueHeads + ' heads back into the running numbers.';
+      case 'conv': return 'Four weights for each of the ' + fmt(m.deltanet.convDim) + ' numbers of the queries, keys and values: how much of this word piece and of each of the three before it goes into them.';
+      case 'convwin': return 'The queries, keys and values of the last three word pieces, which the convolution needs again. Empty until the program runs; the same size however long the conversation.';
+      case 'state': return 'Everything this head of this layer keeps of the conversation: ' + fmt(r.cols) + ' columns of ' + fmt(r.rows) + ' numbers, each column with room beside it to work in. Empty until the program runs, and the same size after the first word piece as after the last. Instead of looking back, the layer writes every word piece into this table and reads from it.';
+      case 'dscale': return 'One number for the table of head ' + (r.head + 1) + ': the scale the whole table is read at. Fading the table multiplies this number, not the ' + fmt(m.deltanet.keySize * m.deltanet.valueSize) + ' numbers of the table.';
+      case 'dconst': return r.what === 'dt' ? 'One constant for every head: it is added to the input that says how fast the head forgets.' : 'One constant for every head, as a logarithm: how fast the head forgets for a given input.';
       case 'emb': return 'One row of ' + fmt(m.dim) + ' numbers for each of the ' + fmt(m.vocab) + ' word pieces. The first thing the engine does with a word piece is fetch its row.';
       case 'tokbytes': return QWEN
         ? 'For each possible byte: its word piece number and what kind of character it is. Characters of more than one byte have further tables of 64 entries. ' + fmt(lay.tokByteRecords) + ' records in all.'
@@ -161,7 +188,7 @@
         : 'One table of ' + fmt(lay.tokRecords) + ' records. It holds the text of every word piece (for printing) and the rules for joining letters into pieces (for reading).';
       case 'glob': return 'The current word piece, the position, and a few counters.';
       case 'bias': return 'One constant for every row of the first matrix of this layer (question, key, value). It is added to the total of its row before the total is rounded.';
-      case 'scale': return 'For every row of ' + (MATRIX[r.what] || 'a matrix') + ': how many times the total of that row is doubled before it is rounded. Every row of weights was stored at its own scale, so that 8 bits per weight are enough. For most rows the number is 0.';
+      case 'scale': return 'For every row of ' + (MATRIX[r.what] || 'a matrix') + ': how many times the total of that row is doubled before it is rounded. Every row of weights was stored at its own scale, so that ' + m.weightBits + ' bits per weight are enough. For most rows the number is 0.';
       case 'gain': return 'One multiplier for each of the ' + fmt(m.dim) + ' running numbers, ' + (GAIN[r.what] || 'used when the numbers are scaled') + '.';
       default: return 'Cells with nothing stored in them. The engine uses them as work space while it runs.';
     }
@@ -196,7 +223,7 @@
   const billions = (a, b) => { const f = (v) => (v / 1e9).toFixed(v < 1e10 ? 1 : 0); return f(a) === f(b) ? f(a) + ' billion' : f(a) + ' to ' + f(b) + ' billion'; };
   const ready = dataBase.then(() => Promise.all([json('writer'), json('engine'), json('tiles'), LIGHT ? null : json('checks'), LIGHT ? [] : json('traces').catch(() => [])]).then(async ([W, E, TI, C, names]) => {
     WJ = W; EJ = E;
-    W.fixedSlots = 24;
+    W.fixedSlots = Q35 ? 0 : 24;          // the opening lines that are in memory before a question; brnfck-qwen3.5-0.8b has none
     SEC = window.EngineSections.of(E);
     TR.names = names;
     if (names.length) { TR.main = await json('trace-' + names[0]); TR.long = names.length > 1 ? await json('trace-' + names[names.length - 1]) : TR.main; W.fixedSlots = TR.main.fixedPositions; }
@@ -218,7 +245,12 @@
       tableTwicePct: pct((kindChars('cls') + kindChars('emb')) / P.chars, 0), tableTapePct: pct((cells('cls') + cells('emb')) / P.tape, 0),
       fileSize: (P.chars / 1e9).toFixed(P.chars < 2e9 ? 0 : 1) + ' GB', metaName: (W.file || TI.file || '').split('/').pop().replace(/\.bf$/, '.meta.json'),
       logName: C ? (C.from || [])[0] || '' : '',
+      headSize: String(m.headSize), rotDim: String(m.rotDim || m.headSize),
     });
+    if (m.deltanet) {          // brnfck-qwen3.5-0.8b: the DeltaNet layers
+      const dl = m.types.filter((t) => t === 'lin').length;
+      Object.assign(F, { dnLayers: String(dl), attLayers: String(m.layers - dl), groups: String(m.groups), dnHeads: String(m.deltanet.valueHeads), dnTable: fmt(m.deltanet.keySize) + ' × ' + fmt(m.deltanet.valueSize) });
+    }
     const L = TR.long;
     if (L) {
       const a = L.positions[0].position, b = L.positions[L.positions.length - 1].position;
@@ -372,7 +404,7 @@
 
   window.Inside = {
     $, el, fmt, pct, short, minus, words, billions, lineFit, json, get, lazy, ready, cssVar, rgbOf, onTheme, onResize, fit,
-    MODEL, QWEN, MODELS, get DATA() { return DATA; }, program, F, FAM, KIND, CMD, LEGEND, CHUNK, swatch, blockSpan, clearRows, layerNo,
+    MODEL, QWEN, Q35, MODELS, get DATA() { return DATA; }, program, F, FAM, KIND, CMD, LEGEND, CHUNK, swatch, blockSpan, clearRows, layerNo,
     regionTitle, regionShort, regionSays, markLabel, tiles, canRange, hasChunk, chunk, textAt, pretty,
     get SEC() { return SEC; }, get W() { return WJ; }, get E() { return EJ; }, get TR() { return TR; },
   };

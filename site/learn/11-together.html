@@ -12,15 +12,15 @@
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
-<link rel="stylesheet" href="../site.css?v=r9">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/lessons.css?v=r5">
 <link rel="stylesheet" href="../ui/learn-course.css?v=r6">
 <script src="core.js?v=r6"></script>
 <script src="ui.js?v=r7"></script>
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="learn"></script>
+<script src="../site.js?v=r16" data-section="learn"></script>
 <main class="doc article lesson" id="main">
   <header class="plain">
     <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Choosing the word</span></p>
@@ -109,8 +109,8 @@
     <p><b>The race, measured.</b> In the chat program, finding the highest of 512 scores took 119,000 to 595,000 steps with a simple countdown, and about 5,000 with this race. The 49,152 scores are handled in groups, and a "best so far" travels from group to group.</p>
     <p><b>Equal scores.</b> The slide stops at the first empty cell it meets. So when two scores are equal, the one that lies first on the tape wins. Try it in step 1.</p>
     <p><b>Scores below zero.</b> In step 2 the program adds 128 to each of the three results before the race, so that the scores run from 0 to 255. That is a choice of this lesson.</p>
-    <div class="scroll" tabindex="0" role="group" aria-label="The chat program of brnfck-135m in numbers; scrolls sideways on a narrow screen"><table>
-      <caption><b>Table 1.</b> The chat program of brnfck-135m in numbers (counted in the program file; times measured on one desktop computer).</caption>
+    <div class="scroll" tabindex="0" role="group" aria-label="The chat program of brnfck-smollm2-135m in numbers; scrolls sideways on a narrow screen"><table>
+      <caption><b>Table 1.</b> The chat program of brnfck-smollm2-135m in numbers (counted in the program file; times measured on one desktop computer).</caption>
       <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td></tr>
       <tr><td>Weights</td><td class="n">about 135 million</td></tr>
       <tr><td>Layers</td><td class="n">30</td></tr>
@@ -121,7 +121,8 @@
       <tr><td>Work for one word piece</td><td class="n">1.6 to 1.9 billion steps</td></tr>
       <tr><td>Time for one word piece</td><td class="n">about 0.6 to 1.0 seconds</td></tr>
     </table></div>
-    <p><b>brnfck-0.5b and brnfck-1.5b.</b> The site also runs Qwen2.5-0.5B-Instruct (about 494 million weights) and Qwen2.5-1.5B-Instruct (about 1.54 billion weights) as brainfuck programs, of 4,169,659,608 and 11,430,468,880 characters. They use the same tricks. <a href="../?m=0.5b">brnfck-0.5b</a> runs in the browser at about 2.3 seconds for a word piece; <a href="../?m=1.5b">brnfck-1.5b</a> runs from the command line at 7 to 12 seconds for a word piece, and ran in one desktop Chromium browser at about 9 seconds for a word piece (measured). Unlike brnfck-135m, they get simple sums right.</p>
+    <p><b>brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b.</b> The site also runs Qwen2.5-0.5B-Instruct (about 494 million weights) and Qwen2.5-1.5B-Instruct (about 1.54 billion weights) as brainfuck programs, of 4,169,659,608 and 11,430,468,880 characters. They use the same tricks. <a href="../?m=0.5b">brnfck-qwen2.5-0.5b</a> runs in the browser at about 2.3 seconds for a word piece; <a href="../?m=1.5b">brnfck-qwen2.5-1.5b</a> runs from the command line at 7 to 12 seconds for a word piece, and ran in one desktop Chromium browser at about 9 seconds for a word piece (measured). Unlike brnfck-smollm2-135m, they get simple sums right.</p>
+    <p><b>brnfck-qwen3.5-0.8b.</b> The site also runs Qwen3.5-0.8B (about 752 million weights, 24 layers) as a brainfuck program of 7,709,034,855 characters, on a tape of 1,067,424,772 cells. Only 6 of its layers look back at every earlier word piece. The other 18 are Gated DeltaNet layers: they keep a memory of a fixed size. The page <a href="../compare/">Compare the models</a> explains them. The program follows its whole-number recipe exactly, and that recipe picks the same next word piece as the original model at 95.1% of the positions tested. <a href="../compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. <a href="../?m=0.8b">brnfck-qwen3.5-0.8b</a> runs in the browser at about 5.6 s for a word piece.</p>
     <p><b>What "one brainfuck program" does not mean.</b> The model was not made in brainfuck: it was trained in the usual way, and brainfuck only runs it. Its numbers were rounded to whole numbers first (<a href="09-neuron.html#s2">step 2 of lesson 9</a>). It needs a fast interpreter (<a href="03-multiply.html#s3">step 3 of lesson 3</a>) and cells of 32 bits (<a href="05-peel.html#note-honest">the note "Two honest notes" of lesson 5</a>). And nobody typed a billion characters: a generator wrote them. These lessons build small versions of the parts; the chat program is far larger and was not written by hand. The full list is in How it works, under the question <a href="../how/#pure">What does "pure brainfuck" mean, and what does it not mean?</a> The question <a href="../how/#real">How do I know the program does what it says?</a> on that page has a button that counts every character of the program in your browser.</p>
     <p><b>Has this been done before?</b> An earlier public project ran a neural network of 7 neurons in brainfuck, for the XOR function. A search for an earlier language model in brainfuck found none. The search was limited, so this is not a claim to be the first.</p>
   </section>

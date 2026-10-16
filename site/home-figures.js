@@ -1,5 +1,5 @@
 // The figures further down the home page: a zoom from one command to the whole program, the engine
-// as text and as work, and one question answered by the three programs. Each starts when it scrolls into view.
+// as text and as work, and one question answered by the four programs. Each starts when it scrolls into view.
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
@@ -14,7 +14,7 @@
     io.observe(el);
   };
   // the data of a program for the pages inside/ and map/: in inside/data/<name>/, or where data-hosts.json says
-  const INSIDE = new URL('inside/', document.baseURI).href;
+  const INSIDE = new URL('inside/', document.currentScript ? document.currentScript.src : document.baseURI).href;
   const hosts = () => fetch(INSIDE + 'data-hosts.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   async function data(name, files) {
     const h = await hosts(), base = h && typeof h[name] === 'string' && h[name] ? new URL(h[name], INSIDE).href : INSIDE + 'data/' + name + '/';
@@ -29,7 +29,7 @@
     return { ctx, w, h };
   }
 
-  // ---- 1. Zoom out: from one command to the whole program of brnfck-1.5b ----
+  // ---- 1. Zoom out: from one command to the whole program of brnfck-qwen2.5-1.5b ----
   // Every square has the area of its number of characters, and lies inside the square it is part of
   // (where it lies there is not where it is in the program). The text drawn is one real block of the
   // writing part, from the data of the page inside/.
@@ -69,7 +69,7 @@
     const clamp = (x) => Math.max(0, Math.min(1, x));
 
     const canvas = $('zoomView'), slider = $('zoomAt'), MAX = Number(slider.max);
-    const vMin = 22, vMax = LEVELS[LEVELS.length - 1].side * 1.05;
+    const vMin = 22, vMax = LEVELS[LEVELS.length - 1].side * 1.2;       // room above the whole program for its label
     const viewAt = (z) => Math.exp(Math.log(vMin) + z * (Math.log(vMax) - Math.log(vMin)));
     const zFor = (v) => (Math.log(v) - Math.log(vMin)) / (Math.log(vMax) - Math.log(vMin));
     let z = 0, anim = 0;
@@ -80,14 +80,15 @@
       b.addEventListener('click', () => go(Math.max(0, Math.min(1, zFor(Math.max(vMin, l.side * 1.25)))), 900));
       li.append(b); list.append(li);
     });
-    // a label on a dark plate; (x, y) is its corner: right/bottom say which one
-    function label(ctx, x, y, lines, right, bottom) {
-      ctx.font = '600 12px "IBM Plex Mono", ui-monospace, monospace';
-      const w = Math.max(...lines.map((t) => ctx.measureText(t).width)) + 12, h = lines.length * 16 + 6;
-      const bx = right ? x - w : x, by = bottom ? y - h : y;
-      ctx.fillStyle = 'rgba(13,14,16,.86)'; ctx.fillRect(bx, by, w, h);
+    // a label: a dark plate with a chip in the colour of its square; (x, y) is its upper left corner
+    const LINE = 15, PAD = 4;
+    const plate = (ctx, lines) => { ctx.font = '600 12px "IBM Plex Mono", ui-monospace, monospace'; return { w: Math.max(...lines.map((t) => ctx.measureText(t).width)) + 2 * PAD + 6, h: lines.length * LINE + 2 * PAD - 4 }; };
+    function label(ctx, x, y, lines, chip) {
+      const { w, h } = plate(ctx, lines);
+      ctx.fillStyle = 'rgba(13,14,16,.92)'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = chip; ctx.fillRect(x, y, 3, h);
       ctx.textBaseline = 'top';
-      lines.forEach((t, i) => { ctx.fillStyle = i ? '#a9a79f' : '#f4f3ee'; ctx.fillText(t, bx + 6, by + 4 + i * 16); });
+      lines.forEach((t, i) => { ctx.fillStyle = i ? '#a9a79f' : '#f4f3ee'; ctx.fillText(t, x + PAD + 6, y + PAD - 1 + i * LINE); });
     }
     // the command in focus: the middle of the block
     const rows = Math.ceil(text.length / across), FR = Math.floor(rows / 2), FC = Math.floor(across / 2);
@@ -143,16 +144,22 @@
       // one command: outlined over the text, fading once it is too small to see
       ctx.globalAlpha = clamp(k / 3);
       ctx.strokeStyle = '#f2b01e'; ctx.lineWidth = 2; ctx.strokeRect(bx + FC * k, by + FR * k, k, k);
-      // labels: every square that is large enough and still fits the view, fading in and out, at its
-      // lower right corner; the whole program at its upper right (its lower right is nearly that of the writing part)
+      // labels: each square has its own at its upper left corner, inside the band between it and the square
+      // within it, so that no two labels ever cover each other; the whole program, whose band is less than a
+      // pixel, has its label just above it. A label shows its numbers too when the band is deep enough, and
+      // fades in and out as its room grows and shrinks.
       for (let i = top; i >= 2; i--) {
-        const [x, y, s] = sq(LEVELS[i].side * k), a = Math.min(clamp((s - 150) / 90), clamp((w - 6 - (x + s)) / 60), clamp((h - 6 - (y + s)) / 60));
+        const [x, y, s] = sq(LEVELS[i].side * k), band = i === 2 ? s / 2 : (s - LEVELS[i - 1].side * k) / 2;
+        // the longest of three that fits: name and both numbers, name and characters, the name alone
+        const name = LEVELS[i].name, n = fmt(LEVELS[i].chars) + ' characters';
+        const outside = i === top, lx = x + (outside ? 0 : 6), room = outside ? y - 4 : band - 6, wide = outside ? w - lx - 6 : s - 12;
+        const tiers = [[name, n + (i > 2 ? ' · ' + fmt(LEVELS[i].chars / B.len) + ' blocks' : '')], [name, n], [name]];
+        const one = plate(ctx, [name]), lines = tiers.find((t) => { const q = plate(ctx, t); return q.h <= room && q.w <= wide; }) || [name], p = plate(ctx, lines);
+        const ly = outside ? y - p.h - 4 : y + 6;
+        const a = Math.min(clamp((room - one.h) / 10), clamp((wide - one.w) / 16), clamp(Math.min(lx, ly) / 8), clamp((h - ly - p.h) / 8));
         if (a <= 0) continue;
         ctx.globalAlpha = a;
-        const lines = [LEVELS[i].name, fmt(LEVELS[i].chars) + ' characters'];
-        if (i > 2) lines.push('as many as ' + fmt(LEVELS[i].chars / B.len) + ' blocks');
-        if (i === top) label(ctx, x + s - 6, y + 6, lines, true, false);
-        else label(ctx, x + s - 6, y + s - 6, lines, true, true);
+        label(ctx, lx, ly, lines, LEVELS[i].fill || '#f4f3ee');
       }
       ctx.globalAlpha = 1;
       // what is in view
@@ -195,7 +202,7 @@
     draw();
   });
 
-  // ---- 2. The engine of brnfck-1.5b: its text and its work, both to scale ----
+  // ---- 2. The engine of brnfck-qwen2.5-1.5b: its text and its work, both to scale ----
   // Above, the characters of every section (engine.json); below, the steps of one printed word piece,
   // counted by the project's interpreter (trace-sum.json); a band joins the two of each section.
   const short = (n) => (n >= 1e9 ? (n / 1e9).toFixed(2) + ' billion' : n >= 1e6 ? (n / 1e6).toFixed(1) + ' million' : fmt(n));
@@ -282,7 +289,7 @@
         once ? null : [fmt(it.steps / it.chars), 'steps for every character of its text']].filter(Boolean);
       const f = $('engFacts'); f.textContent = '';
       for (const [v, l] of facts) { const d = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = l; dd.textContent = v; d.append(dt, dd); f.append(d); }
-      $('engSay').textContent = 'Two bars, to scale: above, the ' + fmt(C) + ' characters of the engine of brnfck-1.5b; below, the ' + fmt(T) + ' steps of one word piece. The chosen section, ' + s.name + ', is ' + pct(it.chars / C) + ' of the text and ' + pct(it.steps / T) + ' of the work. Left and right arrows choose another section.';
+      $('engSay').textContent = 'Two bars, to scale: above, the ' + fmt(C) + ' characters of the engine of brnfck-qwen2.5-1.5b; below, the ' + fmt(T) + ' steps of one word piece. The chosen section, ' + s.name + ', is ' + pct(it.chars / C) + ' of the text and ' + pct(it.steps / T) + ' of the work. Left and right arrows choose another section.';
       $('engPrev').disabled = sel === 0; $('engNext').disabled = sel === items.length - 1;
     }
     // which section is under the pointer: at any height, along the band between the two bars
@@ -311,14 +318,17 @@
     choose(sel);
   });
 
-  // ---- 3. One question, three programs ----
-  // The answers are the ones the three programs print, checked at build time (compiler/*/out/ref*.json);
-  // the times are the middle of each range in the table of this page. Reading a word piece of the
-  // question takes as long as printing one: the program does the same steps for both.
+  // ---- 3. One question, four programs ----
+  // The answers are the ones the four programs print, checked at build time (compiler/*/out/ref*.json;
+  // brnfck-qwen3.5-0.8b stops at its limit of 30 word pieces, its pieces as in compare/data/step.json); the times
+  // are the middle of each range in the table of this page (brnfck-qwen3.5-0.8b: 2 min 10 s to 2 min 37 s, about
+  // 5.6 s a piece). Reading a word piece of the question takes about as long as printing one.
   const RACE = [
-    { label: 'brnfck-135m', startup: 12.5, piece: 0.8, question: 13, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
-    { label: 'brnfck-0.5b', startup: 40, piece: 2.3, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
-    { label: 'brnfck-1.5b', startup: 147, piece: 9, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
+    { label: 'brnfck-smollm2-135m', startup: 12.5, piece: 0.8, question: 13, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
+    { label: 'brnfck-qwen2.5-0.5b', startup: 40, piece: 2.3, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
+    { label: 'brnfck-qwen2.5-1.5b', startup: 147, piece: 9, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
+    { label: 'brnfck-qwen3.5-0.8b', startup: 143.5, piece: 5.6, question: 19, answer: ['The', ' capital', ' of', ' France', ' is', ' **', 'Paris', '**.', '\n\n',
+      'Located', ' in', ' the', ' heart', ' of', ' the', ' country', ',', ' Paris', ' is', ' the', ' largest', ' city', ' in', ' France', ' and', ' serves', ' as', ' the', ' seat', ' of'] },
   ];
   const clock = (s) => (s < 60 ? Math.floor(s) + ' s' : Math.floor(s / 60) + ' min ' + String(Math.floor(s % 60)).padStart(2, '0') + ' s');
   soon($('fig-race'), () => {
@@ -326,8 +336,9 @@
     const lanes = RACE.map((r) => {
       const total = r.startup + (r.question + r.answer.length) * r.piece;
       const lane = document.createElement('div'); lane.className = 'lane';
-      lane.innerHTML = '<p class="who"><b></b><span class="when"></span></p><div class="track"><i class="on"></i><i class="tip"></i></div><p class="said"><span class="out"></span><span class="cursor"></span></p>';
+      lane.innerHTML = '<p class="who"><b></b><span class="when"></span></p><div class="track"><i class="on"></i><i class="tip"></i></div><p class="said"><span class="whole" aria-hidden="true"></span><span><span class="out"></span><span class="cursor"></span></span></p>';
       lane.querySelector('b').textContent = r.label;
+      lane.querySelector('.whole').textContent = r.answer.join('') + '\u00a0';   // keeps the room of the whole answer and the cursor, so nothing below jumps
       // the three stretches of time, to scale: one gradient with hard edges
       const a = 100 * r.startup / end, b = 100 * (r.startup + r.question * r.piece) / end, c = 100 * total / end;
       const track = lane.querySelector('.track');
@@ -362,4 +373,133 @@
     if (still) { t = end; show(); $('racePlay').textContent = 'Run again'; }
     else play();
   }, { threshold: 0.5 });                                    // the race starts when it can be watched
+
+  // ---- 4. With pencil and paper: one run of each program, one step a second, on the calendar ----
+  // The steps are those the project's interpreter counted for every word piece of a real run
+  // (trace-*.json): each piece of the question read, each piece of the answer printed, and the last
+  // one, which decides the answer is done. The bar of a run ends now and starts as many seconds ago as
+  // the run has steps. Years are calendar years: below 1 they are BCE, and there is no year 0.
+  const HAND = [
+    { name: 'small', label: 'brnfck-smollm2-135m', file: 'trace-france.json' },
+    { name: '0.5b', label: 'brnfck-qwen2.5-0.5b', file: 'trace-sum.json' },
+    { name: '1.5b', label: 'brnfck-qwen2.5-1.5b', file: 'trace-sum.json' },
+  ];
+  const MARKS = [
+    { bce: 9700, name: 'The last ice age ends' },
+    { bce: 3200, name: 'The first writing' },
+    { bce: 2560, name: 'The Great Pyramid' },
+    { ce: 1450, name: 'The printing press' },
+  ];
+  const YEAR = 31556952, Y0 = 1 - 13000;                    // seconds in a year; the left end, 13,000 BCE
+  const nowYear = () => 1970 + Date.now() / 1000 / YEAR;
+  const yearOf = (m) => (m.bce ? 1 - m.bce : m.ce);
+  // a calendar year as people write it, rounded as far as the measure allows
+  const said = (a) => { const y = Math.round(a); if (y >= 1) return 'c. ' + y; const b = 1 - y, r = b >= 1000 ? Math.round(b / 10) * 10 : b; return 'c. ' + (r >= 10000 ? fmt(r) : String(r)) + ' BCE'; };
+  const span = (years) => (years >= 10 ? fmt(years) + ' years' : years >= 1 ? years.toFixed(1) + ' years' : Math.round(years * 365.2425) + ' days');
+  soon($('fig-hand'), async () => {
+    let runs;
+    try { runs = await Promise.all(HAND.map((h) => data(h.name, [h.file]).then(([T]) => ({ ...h, T })))); }
+    catch (e) { $('fig-hand').hidden = true; return; }
+    const box = $('hand'), now = nowYear(), x = (a) => 100 * (a - Y0) / (now - Y0);
+    // the runs: each piece is a stretch of the bar, to scale, with the calendar years it covers
+    for (const r of runs) {
+      const T = r.T, P = T.positions, before = T.steps - P.reduce((a, p) => a + p.total, 0);
+      r.start = now - T.steps / YEAR;
+      let at = r.start + before / YEAR;
+      r.pieces = P.map((p, i) => { const from = at; at += p.total / YEAR; return { p, i, from, to: at, kind: p.printed ? 'print' : i === P.length - 1 ? 'end' : 'read' }; });
+      r.answer = P.map((p) => p.printed).join('');
+    }
+    box.innerHTML = '<div class="hand-marks"></div><div class="hand-axis"></div>';
+    const marks = box.firstChild, axis = box.lastChild, guides = [];
+    for (const m of MARKS) {
+      const d = document.createElement('div'), g = document.createElement('i');
+      d.className = 'hand-mark'; d.innerHTML = '<b></b><span></span>';
+      d.firstChild.textContent = m.name; d.lastChild.textContent = m.bce ? 'c. ' + m.bce + ' BCE' : 'c. ' + m.ce;
+      g.className = 'hand-guide'; marks.append(d); box.append(g); guides.push([m, d, g]);
+    }
+    const lanes = runs.map((r) => {
+      const lane = document.createElement('div'); lane.className = 'hand-lane';
+      lane.innerHTML = '<p class="who"><span><b></b> <q></q></span><span class="when"></span></p><div class="hand-track" tabindex="0"></div>';
+      lane.querySelector('b').textContent = r.label;
+      lane.querySelector('q').textContent = r.T.question;
+      lane.querySelector('.when').textContent = span(r.T.steps / YEAR) + ', since ' + said(r.start);
+      const track = lane.lastChild;
+      track.setAttribute('aria-label', r.label + ': ' + r.pieces.length + ' word pieces, ' + span(r.T.steps / YEAR) + ' by hand');
+      for (const q of r.pieces) { const s = document.createElement('i'); s.className = q.kind; s.style.left = x(q.from) + '%'; s.style.width = (x(q.to) - x(q.from)) + '%'; track.append(s); q.el = s; }
+      box.append(lane);
+      return { r, lane, track };
+    });
+    // what a piece is, or what a whole run is, in one sentence
+    const say = $('handSay');
+    function tell(r, q) {
+      if (!q) {
+        say.innerHTML = '<b></b> needed <b></b> steps for <q></q>, which it answered with <q></q>. At one step a second that is <b></b>: started <b></b>, it would end about now.';
+        const b = say.querySelectorAll('b'), qs = say.querySelectorAll('q');
+        b[0].textContent = r.label; b[1].textContent = fmt(r.T.steps); b[2].textContent = span(r.T.steps / YEAR); b[3].textContent = said(r.start);
+        qs[0].textContent = r.T.question; qs[1].textContent = r.answer;
+        return;
+      }
+      const what = q.kind === 'print' ? 'prints “' + q.p.printed.replace(/ /g, '␣') + '”' : q.kind === 'end' ? 'decides the answer is done and prints nothing' : 'reads a word piece of the question';
+      say.innerHTML = '<b></b>, word piece <b></b> of <b></b>: it <span></span>. <b></b> steps, so <b></b> by hand, from <b></b> to <b></b>.';
+      const b = say.querySelectorAll('b');
+      b[0].textContent = r.label; b[1].textContent = q.i + 1; b[2].textContent = r.pieces.length; say.querySelector('span').textContent = what;
+      b[3].textContent = fmt(q.p.total); b[4].textContent = span(q.p.total / YEAR); b[5].textContent = said(q.from); b[6].textContent = q.i === r.pieces.length - 1 ? 'now' : said(q.to);
+    }
+    let cur = null;
+    function choose(L, i) {
+      if (cur) cur.el.classList.remove('on');
+      cur = L && i >= 0 ? L.r.pieces[i] : null;
+      if (cur) { cur.el.classList.add('on'); tell(L.r, cur); } else tell(runs[0]);
+    }
+    for (const L of lanes) {
+      const at = (e) => { const b = L.track.getBoundingClientRect(), a = Y0 + (e.clientX - b.left) / b.width * (now - Y0); let best = 0, far = Infinity; L.r.pieces.forEach((q, i) => { const d = a < q.from ? q.from - a : a > q.to ? a - q.to : 0; if (d < far) { far = d; best = i; } }); return best; };
+      L.track.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') choose(L, at(e)); });
+      L.track.addEventListener('pointerdown', (e) => choose(L, at(e)));
+      L.track.addEventListener('focus', () => { if (!cur || !L.r.pieces.includes(cur)) choose(L, L.r.pieces.length - 1); });
+      L.track.addEventListener('keydown', (e) => {
+        const n = L.r.pieces.length, i = cur && L.r.pieces.includes(cur) ? cur.i : n - 1;
+        const to = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: n - 1 }[e.key];
+        if (to === undefined) return; e.preventDefault(); choose(L, Math.max(0, Math.min(n - 1, to)));
+      });
+    }
+    box.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') choose(null); });
+    // the events above the line, each in the first row where it does not touch another; the axis
+    // under them with as many years as fit
+    function layout() {
+      const W = box.clientWidth, rows = [], ROW = 34;
+      for (const [m, d, g] of guides) {
+        const px = x(yearOf(m)) / 100 * W, w = d.offsetWidth + 10, right = px + w > W;
+        const a = right ? px - w : px, b = right ? px : px + w;
+        let row = rows.findIndex((busy) => busy.every(([u, v]) => b < u || a > v));
+        if (row < 0) { row = rows.length; rows.push([]); }
+        rows[row].push([a, b]);
+        d.classList.toggle('right', right);
+        d.style.left = right ? 'auto' : px + 'px'; d.style.right = right ? (W - px) + 'px' : 'auto';
+        d.style.top = row * ROW + 'px'; d.dataset.row = row;
+        g.style.left = px + 'px';
+      }
+      marks.style.height = rows.length * ROW + 4 + 'px';
+      for (const [, d, g] of guides) g.style.top = (Number(d.dataset.row) * ROW + 31) + 'px';
+      const step = [1000, 2000, 4000, 5000].find((s) => W / ((now - Y0) / s) >= 78) || 5000;
+      axis.innerHTML = '';
+      // ticks on round calendar years: v < 0 is that many years BCE; 0, which the calendar skips, is 1 CE
+      for (let v = -Math.floor((1 - Y0) / step) * step; v < now; v += step) {
+        const t = document.createElement('i'), l = document.createElement('span'), a = v < 0 ? v + 1 : v || 1;
+        t.style.left = l.style.left = x(a) + '%';
+        l.textContent = v < 0 ? (-v >= 10000 ? fmt(-v) : -v) + ' BCE' : v ? String(v) : '1 CE';
+        axis.append(t, l);
+      }
+      const n = document.createElement('span'); n.className = 'now'; n.style.left = '100%'; n.textContent = 'now'; axis.append(n);
+      // a year whose label would leave the figure or touch "now" keeps its tick only
+      for (const l of axis.querySelectorAll('span:not(.now)')) { const px = parseFloat(l.style.left) / 100 * W, half = l.offsetWidth / 2; if (px - half < 0 || px + half > W - n.offsetWidth - 8) l.remove(); }
+    }
+    new ResizeObserver(layout).observe(box);
+    layout();
+    choose(null);
+    $('handSum').textContent = runs.map((r) => r.label + ' needed ' + fmt(r.T.steps) + ' steps for "' + r.T.question + '": ' + span(r.T.steps / YEAR) + ' at one step a second, since ' + said(r.start) + '.').join(' ');
+    // the clock of this page: steps a person would have done since it opened
+    const tick = $('handTick');
+    const count = () => { const s = Math.floor(performance.now() / 1000); tick.textContent = 'Since you opened this page, at one step a second: ' + fmt(s) + ' of the ' + fmt(runs[0].T.steps) + ' steps of ' + runs[0].label + '.'; };
+    count(); setInterval(count, 1000);
+  });
 })();

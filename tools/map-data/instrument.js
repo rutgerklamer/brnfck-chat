@@ -16,6 +16,14 @@ function family(model) {
       make: () => buildSplit(realArch(), TOK, { check: false }),
     };
   }
+  if (model === '0.8b') {
+    // Qwen3.5: the engine notes its own named steps (layout().marks); its text is kept in pieces that count their characters
+    const { ChatProgram } = require(path.join(ROOT, 'compiler', 'qwen3.5', 'program', 'gen'));
+    return {
+      Engine: require(path.join(ROOT, 'compiler', 'qwen3.5', 'engine', 'gen')).Engine, T: require(path.join(ROOT, 'compiler', 'qwen3.5', 'tokenizer', 'gen')),
+      ChatProgram, Top: ChatProgram, make: () => require(path.join(ROOT, 'compiler', 'qwen3.5', 'program', 'build')).generate(), ownStages: true,
+    };
+  }
   const C = require(path.join(ROOT, 'compiler', 'qwen', 'program', 'common')), { ChatProgram } = require(path.join(ROOT, 'compiler', 'qwen', 'program', 'gen'));
   return {
     Engine: require(path.join(ROOT, 'compiler', 'qwen', 'engine', 'gen')).Engine, T: require(path.join(ROOT, 'compiler', 'qwen', 'tokenizer', 'gen')),
@@ -24,21 +32,23 @@ function family(model) {
 }
 
 function build(model = 'small') {
-  const { Engine, T, ChatProgram, Top, make } = family(model);
+  const { Engine, T, ChatProgram, Top, make, ownStages } = family(model);
   const marks = [];                 // { kind, name, code (the code array), from, to, depth, info }
   let nest = 0;
+  // where a code list is now: the number of its pieces, or its characters when it counts them (Qwen3.5)
+  const here = (code) => (code.chars !== undefined ? code.chars : code.length);
   const wrap = (proto, name, kind, info) => {
     const orig = proto[name];
     if (typeof orig !== 'function') throw new Error('no method ' + name);
     proto[name] = function (...args) {
-      const p = this.code ? this : this.p, m = { kind, name, code: p.code, from: p.code.length, depth: nest, info: info ? info.apply(this, args) : null };
+      const p = this.code ? this : this.p, m = { kind, name, code: p.code, from: here(p.code), depth: nest, info: info ? info.apply(this, args) : null };
       nest++;
-      try { return orig.apply(this, args); } finally { nest--; m.to = p.code.length; marks.push(m); }
+      try { return orig.apply(this, args); } finally { nest--; m.to = here(p.code); marks.push(m); }
     };
     return () => { proto[name] = orig; };
   };
   const undo = [];
-  undo.push(wrap(Engine.prototype, 'S', 'stage', (name) => name));
+  if (!ownStages) undo.push(wrap(Engine.prototype, 'S', 'stage', (name) => name));
   const INFO = {
     sweep: (org, M) => ({ rows: M.R, cols: M.C, bits: M.nb }), unsweep: (a, M) => ({ rows: M.R, cols: M.C }),
     slide: (n, base, dir, stride) => ({ n, stride, dir }), stripRight: (l, dist) => ({ dist }), stripRight4: (l, dist) => ({ dist }),
@@ -55,9 +65,9 @@ function build(model = 'small') {
   for (const n of ['emitLoad', 'emitEncode', 'emitPopId', 'emitPrint']) {
     const orig = T[n];
     T[n] = function (q, ...rest) {
-      const m = { kind: 'tok', name: n, code: q.code, from: q.code.length, depth: nest };
+      const m = { kind: 'tok', name: n, code: q.code, from: here(q.code), depth: nest };
       nest++;
-      try { return orig.call(this, q, ...rest); } finally { nest--; m.to = q.code.length; marks.push(m); }
+      try { return orig.call(this, q, ...rest); } finally { nest--; m.to = here(q.code); marks.push(m); }
     };
     undo.push(() => { T[n] = orig; });
   }
@@ -66,7 +76,7 @@ function build(model = 'small') {
   const origReal = ChatProgram.prototype.real;
   ChatProgram.prototype.real = function (fn) {
     let qcode = null;
-    const at = this.p.code.length;
+    const at = here(this.p.code);
     origReal.call(this, (q) => { qcode = q.code; fn(q); });
     chunks.push({ code: qcode, at, main: this.p.code });
   };
@@ -81,35 +91,53 @@ function build(model = 'small') {
   undo.forEach((u) => u());
 
   // code-list index -> character offset
-  const main = prog.p.code, sums = new Map();
+  const main = prog.p.code, sums = new Map(), counted = main.chars !== undefined;
   const prefix = (code) => {
     let s = sums.get(code);
     if (!s) { s = new Float64Array(code.length + 1); for (let i = 0; i < code.length; i++) s[i + 1] = s[i] + code[i].length; sums.set(code, s); }
     return s;
   };
-  const mainSum = prefix(main), chunkOf = new Map(chunks.map((c) => [c.code, c]));
+  const mainAt = counted ? (i) => i : (i) => prefix(main)[i], chunkOf = new Map(chunks.map((c) => [c.code, c]));
   const out = [];
   for (const m of marks) {
     let from, to;
-    if (m.code === main) { from = mainSum[m.from]; to = mainSum[m.to]; }
+    if (m.code === main) { from = mainAt(m.from); to = mainAt(m.to); }
     else {
       const c = chunkOf.get(m.code);
       if (!c) continue;
-      const s = prefix(m.code), base = mainSum[c.at];
+      const s = prefix(m.code), base = mainAt(c.at);
       from = base + s[m.from]; to = base + s[m.to];
     }
     if (to > from) out.push({ kind: m.kind, name: m.name, from, to, depth: m.depth, info: m.info });
   }
-  if (mainSum[main.length] !== S.src.length) throw new Error('offsets do not add up');
+  if (ownStages) {
+    // the named steps the engine noted itself, with the kind of layer and its place in the group of layers
+    for (const m of S.layout.marks) out.push({ kind: 'stage', name: m.name, from: m.start, to: m.end, depth: 0, info: m.name, layerKind: m.kind, u: m.u });
+    S.restSrc = S.restChunks.join('');
+    S.restChunks = null; S.chunks = null;
+  }
+  if ((counted ? main.chars : prefix(main)[main.length]) !== (counted ? S.length : S.src.length)) throw new Error('offsets do not add up');
   return { ...S, marks: out, engine: prog };
 }
 
+// The steps of the Qwen3.5 engine that hold other steps: the heads of a DeltaNet layer are shown by their parts,
+// the heads of an attention layer as one step (its one part, the gain, is short).
+const nested = (m) => (m.name === 'heads' && m.layerKind === 'lin') || (m.name === 'gain' && m.layerKind === 'att');
+// The name a step has on the pages: a step that does the same in every layer keeps its name; a step of a DeltaNet
+// layer that does something else than the step of that name in an attention layer gets a name of its own.
+const DN_OWN = new Set(['sweep1', 'round', 'conv', 'qk', 'load', 'decay', 'vq', 'predict', 'delta', 'write', 'read', 'next', 'gated', 'sweep2', 'xatt']);
+const keyOf = (m) => (m.layerKind === 'lin' && DN_OWN.has(m.name) ? 'dn.' + m.name : m.name);
+
 function sections(G) {
   const L = G.loadSrc.length, total = G.restSrc.length;
-  const stages = G.marks.filter((m) => m.kind === 'stage').sort((a, b) => a.from - b.from);
+  const stages = G.marks.filter((m) => m.kind === 'stage' && !nested(m)).sort((a, b) => a.from - b.from);
   const enc = G.marks.find((m) => m.kind === 'tok' && m.name === 'emitEncode');
   const list = [{ id: 'ask', from: 0 }, { id: 'queue', from: enc.to - L }];
-  for (const s of stages) list.push({ id: s.info, from: null, start: s.from - L, end: s.to - L });
+  for (const s of stages) {
+    if (s.u === undefined || s.u === null) list.push({ id: s.info, from: null, start: s.from - L, end: s.to - L });
+    // a step of the group of layers of Qwen3.5: its text is written once for each place in the group
+    else list.push({ id: 'u' + s.u + '.' + s.name, key: keyOf(s), u: s.u, layerKind: s.layerKind, from: null, start: s.from - L, end: s.to - L });
+  }
   for (let i = 2; i < list.length; i++) list[i].from = i === 2 ? list[i].start : list[i - 1].end;
   list.forEach((s, i) => { s.to = i + 1 < list.length ? list[i + 1].from : total; delete s.start; delete s.end; });
   for (const s of list) if (!(s.to > s.from)) throw new Error('empty section ' + s.id);

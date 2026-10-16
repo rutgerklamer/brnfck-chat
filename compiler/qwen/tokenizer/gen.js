@@ -1,22 +1,26 @@
 'use strict';
 
 // Text front and back end for the Qwen2.5 chat models: tokenizer, chat template and printing.
+// compiler/qwen3.5/tokenizer/gen.js uses it with other options (a table of 2^19 slots).
 
 const { switchOn } = require('../../core/switch');
 
 const DEFAULTS = {
   maxChars: 200,            // longest question in bytes; the rest of a longer line is read and dropped
   eol: 10,
-  hiBits: 7, midBits: 6, loBits: 5,   // record number = (hi, mid, lo); together 18 bits
-  mult: [251, 239],         // hash of the pair (a, b) = ((a + 1) * 251 + (b + 1) * 239) mod 2^18
+  hiBits: 7, midBits: 6, loBits: 5,   // record number = (hi, mid, lo); together slotBits bits
+  slotBits: 18,             // records of the table
+  mult: [251, 239],         // hash of the pair (a, b) = ((a + 1) * 251 + (b + 1) * 239) mod 2^slotBits
   maxPre: 24,               // room for the template tokens before the question
   maxSuf: 8,                // ... and after it
   subTables: 192,           // room for the class tables of multi-byte characters (64 entries each)
   stackCap: 16,             // PRINT's stack (pack.js checks the deepest token against it)
+  subBytes: 1,              // bytes of a class table number in the stream
 };
 
-const ID_BITS = 18;
+const ID_BITS = 18;                    // token ids (and the keys of the merge table)
 const NONE = (1 << ID_BITS) - 1;       // "this pair does not merge": larger than every token id
+// flags of the stream (pack.js); S_BYTE and S_PAIR sit right above the 18 bits of a record number (Qwen3.5 has its own)
 const S_BYTE = 1 << 18, S_PAIR = 1 << 19, C2_FAKE = 1 << 18, C2_VALID = 1 << 23;
 
 const CLASS = { L: 1, O: 2, D: 3, SP: 4, WS: 5, NL: 6, APOS: 7, L1: 8, LRV: 9, LE: 10, LL: 11, CB: 12, X: 13, NLI: 14, SPL: 15, WSL: 16 };
@@ -32,7 +36,7 @@ const RC = 3;             // cells of a table record
 
 function layout(base = 0, opts = {}) {
   const o = { ...DEFAULTS, ...opts };
-  if (o.hiBits + o.midBits + o.loBits !== ID_BITS) throw new Error('hiBits + midBits + loBits must be 18');
+  if (o.hiBits + o.midBits + o.loBits !== o.slotBits) throw new Error(`hiBits + midBits + loBits must be ${o.slotBits}`);
   if (o.midBits + o.loBits < 8) throw new Error('midBits + loBits must be at least 8');
   if (o.eol < 0 || o.eol > 255 || o.maxChars < 1) throw new Error('bad eol or maxChars');
   const U = 1 << o.loBits, BSZ = HD + RC * U, SB = BSZ << o.midBits;
@@ -58,7 +62,7 @@ function layout(base = 0, opts = {}) {
   return {
     ...o, base, size: end - base, tapeSize: end,
     U, BSZ, SB, blocks, byteRecs, outCap, BH, RD, PRE, SUF, OUTG, OUT, STK, HS, WSENT, WORK, T0, PR,
-    slots: 1 << ID_BITS,
+    slots: 1 << o.slotBits,
     pairA: WORK + 4, pairB: WORK + 5,       // hand-in cells of emitPairLookup: a + 1 and b + 1
     count: OUTG + 2,                        // number of tokens in the output after emitEncode
     // cells that hold data after emitLoad: every other cell is 0 between calls
@@ -86,7 +90,7 @@ function walker(p, L) {
   const recAt = (r, f) => c.LANE + HD + RC * r + f;
   return {
     c,
-    // The three numbers of a record index, low 18 bits of X (X ends as 0), into R, M, G.
+    // The three numbers of a record index, low slotBits bits of X (X ends as 0), into R, M, G.
     split(X, hs, more = []) {
       const outs = [{ cell: c.R, bits: L.loBits }, { cell: c.M, bits: L.midBits }, { cell: c.G, bits: L.hiBits }, ...more];
       p.requantCore(X, outs, 0, outs.reduce((n, x) => n + x.bits, 0), false, hs);
@@ -149,7 +153,7 @@ function emitLoad(p, L) {
     const B = L.BH - BS, ID = B, CLS = B + 1, SUB = B + 2, G = B + 3, BK = B + 4, T = B + 7;
     p.addBig(G, L.byteRecs - 1, [T, B + 6]);
     p.to(G); raw('['); p.add(G, -1);
-    readN(ID, 2, T); p.read(CLS); p.read(SUB);
+    readN(ID, 2, T); p.read(CLS); readN(SUB, L.subBytes, T);
     p.add(BK, 1); p.move(BK, BK - BS);
     p.move(G, G - BS);
     p.to(G - BS); raw(']'); p.ptr = G;
@@ -184,7 +188,7 @@ function emitPairLookup(p, L) {
   const { BSZ, U } = L, raw = (s) => p.code.push(s);
   const tw = walker(p, L), c = tw.c, hs = range(10, (i) => L.HS + i);
   const [X, VH, FOUND, NF, h0, h1, V, ...d] = range(12, (i) => L.HS + 10 + i);
-  // the keys travel in QA, QB; X = their hash, whose low 18 bits are the slot
+  // the keys travel in QA, QB; X = their hash, whose low slotBits bits are the slot
   p.scatter(L.pairA, [[c.QA, 1], [X, L.mult[0]]]);
   p.scatter(L.pairB, [[c.QB, 1], [X, L.mult[1]]]);
   tw.split(X, hs);
@@ -517,7 +521,7 @@ function emitPrint(p, L, idCell, { tmp }) {
     tw.fetch([[2, c.G]], T(1), T(2), T(3));
     p.clear(c.R);
     tw.back([c.G]);
-    // S: record number or byte in the low 18 bits, then "is a byte", "is a pair"
+    // S: record number or byte in the low slotBits bits, then "is a byte", "is a pair"
     p.move(c.G, SV);
     tw.split(SV, hs, [{ cell: ISB, bits: 1 }, { cell: ISP, bits: 1 }]);
     p.add(F, 1);
@@ -549,6 +553,6 @@ function emitPrint(p, L, idCell, { tmp }) {
 }
 
 module.exports = {
-  DEFAULTS, CLASS, ID_BITS, S_BYTE, S_PAIR, C2_FAKE, C2_VALID,
-  layout, emitLoad, emitEncode, emitPrint, emitPopId,
+  DEFAULTS, CLASS, ID_BITS, NONE, RC, S_BYTE, S_PAIR, C2_FAKE, C2_VALID,
+  layout, emitLoad, emitEncode, emitPrint, emitPopId, emitPairLookup,
 };

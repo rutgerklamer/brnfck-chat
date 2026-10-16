@@ -4,6 +4,8 @@
 :root {
   --k-att: var(--d1);
   --k-att2: color-mix(in srgb, var(--d1) 62%, var(--ink));
+  --k-dn: color-mix(in srgb, var(--d1) 50%, var(--d4));          /* the DeltaNet layers of brnfck-qwen3.5-0.8b */
+  --k-dn2: color-mix(in srgb, var(--k-dn) 62%, var(--ink));
   --k-text: var(--d2);
   --k-ff: var(--d3);
   --k-ff2: color-mix(in srgb, var(--d3) 62%, var(--ink));
@@ -16,8 +18,9 @@
   --k-engine: var(--c-open);
 }
 html[data-model="small"] [data-only]:not([data-only~="small"]):not([data-only~="smol"]),
-html[data-model="0.5b"] [data-only]:not([data-only~="0.5b"]):not([data-only~="qwen"]),
-html[data-model="1.5b"] [data-only]:not([data-only~="1.5b"]):not([data-only~="qwen"]) { display: none; }
+html[data-model="0.5b"] [data-only]:not([data-only~="0.5b"]):not([data-only~="qwen"]):not([data-only~="qwen2"]),
+html[data-model="0.8b"] [data-only]:not([data-only~="0.8b"]):not([data-only~="qwen"]),
+html[data-model="1.5b"] [data-only]:not([data-only~="1.5b"]):not([data-only~="qwen"]):not([data-only~="qwen2"]) { display: none; }
 
 /* ---- 2. the page ---- */
 html { scroll-padding-top: 7.5rem; }                       /* the two rows of the bar stay in view */
@@ -100,6 +103,7 @@ main.inside { max-width: var(--wide); padding-top: var(--s5); }
 .inside .bars .rowbtn[aria-pressed="true"] > div > .bar { outline: 2px solid var(--ink); outline-offset: 1px; }
 .inside .bars .rowbtn:focus-visible > .lab { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
 #w-stages { row-gap: 0; }
+#x-table { min-width: 42rem; }           /* the four programs side by side: scrolls sideways on a narrow screen */
 .inside .stack { height: 2rem; min-width: 0; background: var(--sunk); }
 .inside .bars .stack { height: 1.5rem; }
 .inside .stack > .in { display: flex; gap: 1px; height: 100%; min-width: 3px; }
@@ -221,3 +225,10 @@ main.inside { max-width: var(--wide); padding-top: var(--s5); }
   #e-detail { min-height: 40.5rem; }
 }
 @media print { .inside .top-nav, .inside .fig .ctl { display: none; } .inside details.fold > .a { display: block; } }
+
+/* ---- the program printed: a wall of shelves, every book drawn (inside.js) ---- */
+.inside .lib-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--s3); margin: 0 0 var(--s2); font: var(--fs-ui)/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+.inside .lib-head span { color: var(--muted); }
+.inside #g-lib { display: block; width: 100%; height: 24rem; border: var(--edge) solid var(--ink); background: var(--night); cursor: pointer; touch-action: pan-y; }
+.inside #lib-key { margin-top: var(--s3); }
+.inside #lib-key .ring { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--go); box-sizing: border-box; }

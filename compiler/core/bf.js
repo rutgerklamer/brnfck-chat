@@ -2,14 +2,16 @@
 
 // The compile step of an optimising brainfuck interpreter: runs of + - and < > become one operation,
 // and a loop that only adds and moves becomes one multiplication. tools/map-data/trace.js checks its
-// own position-keeping copy against it.
+// own position-keeping copy against it; compiler/qwen3.5/engine/bfrun.js builds on its pieces.
 
 const ADD = 0, OUT = 1, IN = 2, JZ = 3, JNZ = 4, CLEAR = 5, MUL1 = 6, MUL2 = 7, MULN = 8, NOP = 9;
 
-function asMulLoop(body, trailingMove) {
+// ops[from..] is a loop body; its multiplications as [offset, factor] pairs, or null when it is no multiply loop
+function asMulLoop(ops, from, trailingMove) {
   const delta = new Map();
   let off = 0;
-  for (const op of body) {
+  for (let i = from; i < ops.length; i++) {
+    const op = ops[i];
     if (op.t !== ADD) return null;
     off += op.mv;
     delta.set(off, (delta.get(off) || 0) + op.n);
@@ -45,7 +47,7 @@ function compile(src) {
     } else {
       if (!stack.length) throw new Error('unmatched ]');
       const start = stack.pop();
-      const mul = asMulLoop(ops.slice(start + 1), mv);
+      const mul = asMulLoop(ops, start + 1, mv);
       if (mul) {
         mv = ops[start].mv;
         ops.length = start;
@@ -59,8 +61,11 @@ function compile(src) {
   }
   if (stack.length) throw new Error('unmatched [');
   if (mv) push({ t: NOP, n: 0 });
+  return flatten(ops);
+}
 
-  // Flatten into typed arrays: far faster to interpret than objects.
+// Flatten into typed arrays: far faster to interpret than objects.
+function flatten(ops) {
   const T = new Uint8Array(ops.length), N = new Int32Array(ops.length), M = new Int32Array(ops.length);
   const table = [];
   ops.forEach((op, i) => {
@@ -76,4 +81,4 @@ function compile(src) {
   return { T, N, M, X: Int32Array.from(table), length: ops.length };
 }
 
-module.exports = { compile };
+module.exports = { compile, asMulLoop, flatten, ADD, OUT, IN, JZ, JNZ, CLEAR, MUL1, MUL2, MULN, NOP };

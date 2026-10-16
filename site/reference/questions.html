@@ -15,13 +15,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/reference.css?v=r7">
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="learn"></script>
+<script src="../site.js?v=r16" data-section="learn"></script>
 <main class="doc article reference" id="main">
 
   <header class="plain">
@@ -75,10 +75,10 @@
 
     <h3 id="fast">How fast is it?</h3>
     <p>That depends almost entirely on what runs it. A simple interpreter is slow: one small step for every command. An optimising one merges those steps. In one published comparison, the same program took 38.6 seconds on a simple interpreter and 0.93 seconds when translated to optimised machine code&nbsp;<a class="cite" href="#ref-12" aria-label="Source 12">[12]</a>&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>. That is still far slower than the same task written in an ordinary language, because a brainfuck program has to build even multiplication out of adding.</p>
-    <p>A measure from this site: one word piece of an answer from its chat model brnfck-135m costs 1.6 to 1.9 billion steps, and takes 0.6 to 1.0 seconds on a desktop computer with an optimising executor <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. <a href="implementations.html">Implementations</a>.</p>
+    <p>A measure from this site: one word piece of an answer from its chat model brnfck-smollm2-135m costs 1.6 to 1.9 billion steps, and takes 0.6 to 1.0 seconds on a desktop computer with an optimising executor <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. <a href="implementations.html">Implementations</a>.</p>
 
     <h3 id="ai">Can a chat model really run in it?</h3>
-    <p>Yes, with honest limits. This site runs three, as programs of 1 to 11.4 billion commands. Brainfuck only runs them: the models were trained elsewhere, their numbers were rounded to whole numbers, the programs need 32-bit cells and an optimising executor, and their answers can be wrong&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. <a href="programs.html#chat">Notable programs: this site's project</a>.</p>
+    <p>Yes, with honest limits. This site runs four, as programs of 1 to 11.4 billion commands. Brainfuck only runs them: the models were trained elsewhere, their numbers were rounded to whole numbers, the programs need 32-bit cells and an optimising executor, and their answers can be wrong&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. <a href="programs.html#chat">Notable programs: this site's project</a>.</p>
 
     <h3 id="biggest">What is the largest brainfuck program?</h3>
     <p>We do not know of a record that anyone keeps. The largest we can vouch for is this site's biggest chat program: 11,430,468,880 commands, counted in the file&nbsp;<a class="cite" href="#ref-14" aria-label="Source 14">[14]</a>. A text adventure of 2005 was called "probably the largest" of its day by its author, at 2.08 megabytes&nbsp;<a class="cite" href="#ref-15" aria-label="Source 15">[15]</a>. <a href="programs.html">Notable programs</a>.</p>

@@ -131,7 +131,7 @@
     tree: '<path d="M3 4h10M7 9h12M7 14h9M4 4v10" fill="none" stroke-width="2"/>', lanes: '<path d="M2 4h24M2 8h14M10 12h16M2 16h3M20 16h1" stroke-width="2"/>',
     density: '<path d="M2 18V8h5v10zM8 18V4h5v14zM14 18V10h5v8zM20 18V6h5v12z"/>', skyline: '<path d="M2 18v-2h13v-9h3v-4h3v8h3v-3h2v10z"/>', parts: '<path d="M2 4h22M2 8h14M2 12h15M2 16h13" stroke-width="2.5"/>',
     tape: '<rect x="2" y="3" width="24" height="4"/><rect x="2" y="13" width="24" height="4"/><path d="M8 7l-4 6M18 7l4 6" fill="none" stroke-width="1.5"/>',
-    time: '<rect x="2" y="3" width="24" height="4"/><rect x="2" y="13" width="24" height="4"/><path d="M12 7L3 13M14 7l11 6" fill="none" stroke-width="1.5"/>', three: '<rect x="2" y="3" width="6" height="3"/><rect x="2" y="8.5" width="14" height="3"/><rect x="2" y="14" width="24" height="3"/>',
+    time: '<rect x="2" y="3" width="24" height="4"/><rect x="2" y="13" width="24" height="4"/><path d="M12 7L3 13M14 7l11 6" fill="none" stroke-width="1.5"/>', three: '<rect x="2" y="2" width="3" height="2.5"/><rect x="2" y="6.5" width="9" height="2.5"/><rect x="2" y="11" width="16" height="2.5"/><rect x="2" y="15.5" width="24" height="2.5"/>',
   };
   const BEST = (t) => { const m = /Best [^.]*\./.exec(t); return m ? m[0] : t; };
   const cardBox = $('m-layout-cards'), cards = {};
@@ -221,12 +221,23 @@
 
   // ---- places
   let groups = [], flat = [], current = null, lastPlace = null;
-  const others = () => ['small', '0.5b', '1.5b'].filter((m) => m !== I.MODEL);
-  const fillAlso = (box, p) => { box.textContent = ''; box.append('The same place in '); others().forEach((m, k) => { if (k) box.append(' or '); const a = el('a', '', I.MODELS[m].short); a.href = '?m=' + m + '#preset=' + p.id; box.append(a); }); box.append('.'); box.hidden = false; };
+  const others = () => ['small', '0.5b', '1.5b', '0.8b'].filter((m) => m !== I.MODEL);
+  const fillAlso = (box, p) => { box.textContent = ''; box.append('The same place in '); const o = others(); o.forEach((m, k) => { if (k) box.append(k === o.length - 1 ? ' or ' : ', '); const a = el('a', '', I.MODELS[m].short); a.href = '?m=' + m + '#preset=' + p.id; box.append(a); }); box.append('.'); box.hidden = false; };
+  // a section of the engine by its id, or (brnfck-qwen3.5-0.8b, whose layers are written four times) the first one of that name
+  const secOf = (E, id) => E.sections.find((s) => s.id === id) || E.sections.find((s) => s.key === id);
+  // the text of the layers: one layer, or the four layers of a group of brnfck-qwen3.5-0.8b
+  const layerText = (E) => {
+    const n = E.model;
+    if (!n.unit) return { from: secOf(E, 'xn1').from, to: secOf(E, 'xout').to, text: 'The text for one layer. It is written once; a loop runs it ' + n.layers + ' times, each time on the next layer’s weights.' };
+    const ss = E.sections.filter((s) => s.u !== undefined);
+    return { from: ss[0].from, to: ss[ss.length - 1].to, text: 'The text for four layers: three DeltaNet layers and one attention layer, each written out. A loop runs the four ' + n.groups + ' times, each time on the next four layers’ weights.' };
+  };
   function makePlaces(C) {
     const W = I.W, E = I.E, total = M.total, spans = M.spans, n = E.model;
-    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => E.sections.find((s) => s.id === id);
-    const emb = spans.find((s) => s.kind === 'emb'), cls = spans.filter((s) => s.kind === 'cls'), strip = spans.find((s) => s.kind === 'bias' && s.layer === Math.min(12, n.layers - 1));
+    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), Q35 = !!n.unit, LT = layerText(E);
+    const emb = spans.find((s) => s.kind === 'emb'), cls = spans.filter((s) => s.kind === 'cls'), LAY = Math.min(12, n.layers - 1);
+    const strip = spans.find((s) => s.kind === 'bias' && s.layer === LAY) || spans.find((s) => s.kind === 'gain' && s.layer === LAY && s.region && s.region.what === 'ffn');
+    const layerSays = Q35 ? ': a DeltaNet layer. Four matrices of weights, and between them the room for the tables of its ' + n.deltanet.valueHeads + ' heads, empty until the program runs.' : ': four matrices of weights, and the memory of the fixed opening lines.';
     const G = [], g = (name, list) => G.push({ name, list: list.filter(Boolean) });
     g('Start here', [      // the first place is the view the map opens with
       { id: 'folded', title: 'The whole program, folded', layout: 'fold', mode: 'purpose', home: true, text: 'All ' + fmt(total) + ' characters at once. The program is one line; here it is folded into a square, so that neighbours in the line stay neighbours. A colour is one part of the model.' },
@@ -239,17 +250,18 @@
       { id: 'border', title: 'Where the two parts meet', layout: 'line', mode: 'purpose', at: W.program.writer, z: 3, text: 'Character ' + fmt(W.program.writer + 1) + ': the last steps of the writing part, and the first commands of the engine.' },
     ]);
     g('Inside the writing part', [
-      { id: 'layer', title: 'The weights of one layer', layout: 'fold', mode: 'purpose', from: P('layer').from, to: P('layer').to, text: P('layer').name.replace('Weights of l', 'L') + ' of ' + n.layers + ': four matrices of weights, and the memory of the fixed opening lines.' },
+      { id: 'layer', title: 'The weights of one layer', layout: 'fold', mode: 'purpose', from: P('layer').from, to: P('layer').to, text: P('layer').name.replace('Weights of l', 'L') + ' of ' + n.layers + layerSays },
       { id: 'block', title: 'One block, up close', layout: 'fold', mode: 'purpose', at: P('block').at, z: 4, text: 'The start of a block: a short piece of text that writes up to 8,192 numbers at once. The white frame marks its first command.' },
       { id: 'vocab', title: 'The vocabulary', layout: 'fold', mode: 'purpose', from: P('vocab').from, to: P('vocab').to, text: 'The table that says which letters make which word piece. The program needs it to read your question and to print its answer.' },
       I.QWEN && emb && cls.length ? { id: 'twice', title: 'The table that is written twice', layout: 'line', mode: 'purpose', home: true, text: 'This model uses one table to read word pieces and to choose them. The program writes it twice: as the output table at the start of the line (letter O) and as the table of word pieces near the end (letter W). Together ' + pct((emb.to - emb.from + cls.reduce((a, s) => a + s.to - s.from, 0)) / total, 0) + ' of the text.' } : null,
-      strip ? { id: 'strips', title: 'A strip of constants', layout: 'fold', mode: 'purpose', from: strip.from, to: strip.to, text: 'Between the big matrices lie thin strips: one constant for every row. This one is the bias of ' + strip.title.split(':')[0].toLowerCase() + '.' } : null,
+      strip ? { id: 'strips', title: 'A strip of constants', layout: 'fold', mode: 'purpose', from: strip.from, to: strip.to, text: strip.kind === 'bias' ? 'Between the big matrices lie thin strips: one constant for every row. This one is the bias of ' + strip.title.split(':')[0].toLowerCase() + '.' : 'Between the big matrices lie thin strips of constants. This one holds a gain for each of the ' + fmt(n.dim) + ' running numbers of ' + strip.title.split(':')[0].toLowerCase() + '.' } : null,
     ]);
     g('Inside the engine', [
       { id: 'ask', title: 'Reading the question', layout: 'fold', mode: 'purpose', from: sec('ask').from, to: sec('ask').to, text: 'The first thing the engine does: read the letters of your question and cut them into word pieces.' },
       { id: 'fetch', title: 'Looking up a word piece', layout: 'fold', mode: 'purpose', from: sec('emb').from, to: sec('emb').to, text: 'For every word piece the engine fetches one row of ' + fmt(n.dim) + ' numbers from the table of word pieces.' },
-      { id: 'onelayer', title: 'One layer of the model', layout: 'fold', mode: 'purpose', from: sec('xn1').from, to: sec('xout').to, text: 'The text for one layer. It is written once; a loop runs it ' + n.layers + ' times, each time on the next layer’s weights.' },
-      { id: 'back', title: 'Looking back at earlier words', layout: 'fold', mode: 'purpose', from: sec('att').from, to: sec('att').to, text: 'The engine walks past every word piece it has seen so far and takes something from each. This is how the model remembers the conversation.' },
+      { id: 'onelayer', title: Q35 ? 'Four layers of the model' : 'One layer of the model', layout: 'fold', mode: 'purpose', from: LT.from, to: LT.to, text: LT.text },
+      Q35 ? { id: 'deltanet', title: 'Writing into a table', layout: 'fold', mode: 'purpose', from: sec('dn.decay').from, to: sec('dn.next').to, text: 'One head of a DeltaNet layer: it fades a table of ' + fmt(n.deltanet.keySize) + ' × ' + fmt(n.deltanet.valueSize) + ' numbers, writes the new word piece into it and reads from it. The text is written once and runs for each of the ' + n.deltanet.valueHeads + ' heads.' } : null,
+      { id: 'back', title: 'Looking back at earlier words', layout: 'fold', mode: 'purpose', from: sec('att').from, to: sec('att').to, text: 'The engine walks past every word piece it has seen so far and takes something from each. This is how the model remembers the conversation.' + (Q35 ? ' In this model only ' + (n.layers - n.types.filter((t) => t === 'lin').length) + ' of the ' + n.layers + ' layers do it.' : '') },
       { id: 'choose', title: 'Choosing the next word piece', layout: 'fold', mode: 'purpose', from: sec('cls').from, to: sec('cls').to, text: 'A score for each of the ' + fmt(n.vocab) + ' rows of the table; the highest wins and is printed.' },
     ]);
     g('Where it reads and prints', [
@@ -259,29 +271,33 @@
     const midLayer = spans.filter((s) => s.part === 0 && s.layer === Math.min(12, n.layers - 1) && s.kind !== 'cls');
     g('Other layouts and colours', [
       { id: 'lanes', title: 'Where each command lives', layout: 'lanes', mode: 'purpose', home: true, text: 'Seven lanes along the line, one for each command. The writing part is all adding, taking off and stepping left. The single read and the single print are lone ticks near the right end.' },
-      { id: 'parts', title: 'The layers, one under the other', layout: 'parts', mode: 'purpose', home: true, text: 'Every part of the program on a row of its own, all at the same scale. The ' + n.layers + ' layers show the same pattern, one after the other; the output table and the table of word pieces run far off to the right.' },
+      { id: 'parts', title: 'The layers, one under the other', layout: 'parts', mode: 'purpose', home: true, text: 'Every part of the program on a row of its own, all at the same scale. The ' + n.layers + ' layers show ' + (Q35 ? 'two patterns, three DeltaNet layers and then an attention layer, again and again' : 'the same pattern, one after the other') + '; the output table and the table of word pieces run far off to the right.' },
       { id: 'memory', title: 'From text to memory', layout: 'tape', mode: 'purpose', home: true, text: 'Above, the text; below, the ' + fmt(W.program.tape) + ' cells of memory it fills. A band joins each part of the text to its cells. The engine, at the right end, has no band: it writes nothing here.' },
       { id: 'mix', title: 'What the text is made of', layout: 'density', mode: 'purpose', home: true, text: 'A bar chart along the line: in every stretch, the share of each command, stacked. Nearly all of it is +, \u2212 and <; the brackets are a thin edge at the top.' },
       { id: 'skyline', title: 'Where the loops pile up', layout: 'skyline', mode: 'purpose', from: W.program.writer - E.chars, to: total, text: 'Height is how many loops lie inside one another. The writing part never goes deeper than ' + W.counts.maxDepthWriter + '; the engine, at the right, goes up to ' + W.counts.maxDepthEngine + '.' },
       { id: 'time', title: 'A little text, most of the time', layout: 'time', mode: 'purpose', home: true, text: 'Above, the text of the engine; below, the steps of one word piece as measured in a run. A band joins each section to its share of the steps.' },
-      { id: 'three', title: 'The three programs at one scale', layout: 'three', mode: 'purpose', home: true, text: 'This program above; below it the three programs as bars at one scale, each cut into the output table, the layers, the table of word pieces, the vocabulary and the engine.' },
+      { id: 'three', title: 'The four programs at one scale', layout: 'three', mode: 'purpose', home: true, text: 'This program above; below it the four programs as bars at one scale, each cut into the output table, the layers, the table of word pieces, the vocabulary and the engine.' },
       midLayer.length ? { id: 'memlayer', title: 'One layer, and the memory it fills', layout: 'tape', mode: 'purpose', from: midLayer[0].from, to: midLayer[midLayer.length - 1].to, text: 'The text of one layer above its cells. Where a band is wide above and narrow below, a cell costs much text; darker cells are left empty.' } : null,
       { id: 'bycommand', title: 'The square, coloured by command', layout: 'fold', mode: 'command', home: true, text: 'The folded program with a colour for each command instead of each part. The engine stands out: it is where the loops and the steps to the right are.' },
     ]);
-    if (C && C.models && C.models.length === 3) {
-      const cm = Object.fromEntries(C.models.map((m) => [m.id, m])), ids = ['small', '0.5b', '1.5b'], me = cm[I.MODEL];
+    if (C && C.models && C.models.length > 1) {
+      const cm = Object.fromEntries(C.models.map((m) => [m.id, m])), ids = C.models.map((m) => m.id), me = cm[I.MODEL];
+      const and = (t) => (t.length > 1 ? t.slice(0, -1).join(', ') + ' and ' + t[t.length - 1] : t[0] || ''), count = I.words(ids.length);
+      const memory = (m) => ['slots', 'state', 'dscale', 'convwin'].reduce((a, k) => a + (m.tapeKinds[k] || 0), 0);
+      const longest = C.models.reduce((a, m) => (m.engine > a.engine ? m : a));
       const each = (fn) => ids.map((id) => cm[id].label + ': ' + fn(cm[id])).join('; ');
       const layers = spans.filter((s) => s.part === 0 && s.layer >= 0 && s.kind !== 'cls'), lay = P('layer');
       const hasStrips = (m) => !!(m.textKinds.bias || m.textKinds.scale || m.textKinds.gain);
       const tables = (m) => pct((m.textKinds.cls + m.textKinds.emb) / m.chars, 0);
-      if (me) g('Compare the three programs', [
-        { id: 'cmp-size', title: 'How long each one is', layout: 'line', mode: 'purpose', home: true, text: 'This is ' + I.MODELS[I.MODEL].short + ', ' + short(me.chars) + ' characters on one line. All three: ' + each((m) => short(m.chars)) + '.' },
-        { id: 'cmp-engine', title: 'The engine hardly grows', layout: 'line', mode: 'purpose', from: W.program.writer, to: total, text: 'The engine in characters, and as a share of its program. ' + each((m) => short(m.engine) + ' (' + pct(m.engine / m.chars) + ')') + '. The bigger the model, the smaller the share: nearly all the growth is numbers.' },
+      if (me) g('Compare the ' + count + ' programs', [
+        { id: 'cmp-size', title: 'How long each one is', layout: 'line', mode: 'purpose', home: true, text: 'This is ' + I.MODELS[I.MODEL].short + ', ' + short(me.chars) + ' characters on one line. All ' + count + ': ' + each((m) => short(m.chars)) + '.' },
+        { id: 'cmp-engine', title: 'A short engine', layout: 'line', mode: 'purpose', from: W.program.writer, to: total, text: 'The engine in characters, and as a share of its program. ' + each((m) => short(m.engine) + ' (' + pct(m.engine / m.chars) + ')') + '. In every program nearly all the text is numbers. The longest engine is that of ' + longest.label + (longest.family === 'qwen3.5' ? ', which writes out the text of four layers of two kinds' : '') + '.' },
         layers.length ? { id: 'cmp-layers', title: 'How many layers', layout: 'line', mode: 'purpose', from: layers[0].from, to: layers[layers.length - 1].to, text: 'The weights of the layers, one stretch of the line for each. Layers, and how many numbers run through each: ' + each((m) => m.layers + ' layers of ' + fmt(m.dim)) + '.' } : null,
         { id: 'cmp-tables', title: 'The two big tables', layout: 'line', mode: 'purpose', home: true, text: 'The output table (letter O, at the start of the line) and the table of word pieces (letter W, near its end) have a row for every word piece. Word pieces, and the share of the text the two tables take: ' + each((m) => fmt(m.vocab) + ', ' + tables(m)) + '.' },
-        lay ? { id: 'cmp-strips', title: 'Strips of constants: only in two', layout: 'fold', mode: 'purpose', from: strip ? strip.from : lay.from, to: strip ? strip.to : lay.to, text: (strip ? 'A thin strip of constants between two matrices. ' : 'One layer of this program: matrices and memory, with nothing between them. ') + 'Such strips (a bias, a scale for every row, gains) are in ' + ids.filter((id) => hasStrips(cm[id])).map((id) => I.MODELS[id].short).join(' and ') + '; ' + ids.filter((id) => !hasStrips(cm[id])).map((id) => I.MODELS[id].short).join(' and ') + ' has none.' } : null,
+        lay ? { id: 'cmp-strips', title: 'Strips of constants: ' + (ids.filter((id) => !hasStrips(cm[id])).length === 1 ? 'all but one' : 'in ' + I.words(ids.filter((id) => hasStrips(cm[id])).length)), layout: 'fold', mode: 'purpose', from: strip ? strip.from : lay.from, to: strip ? strip.to : lay.to, text: (strip ? 'A thin strip of constants between two matrices. ' : 'One layer of this program: matrices and memory, with nothing between them. ') + 'Such strips (a scale for every row, gains, and in the Qwen2.5 programs a bias) are in ' + and(ids.filter((id) => hasStrips(cm[id])).map((id) => I.MODELS[id].short)) + '; ' + and(ids.filter((id) => !hasStrips(cm[id])).map((id) => I.MODELS[id].short)) + ' has none.' } : null,
+        lay ? { id: 'cmp-memory', title: 'Room to remember', layout: 'tape', mode: 'purpose', from: lay.from, to: lay.to, text: 'Cells of the tape kept for what the model remembers of the conversation: ' + each((m) => short(memory(m))) + '. The memory slots grow full as the conversation goes on; the tables of the DeltaNet layers of brnfck-qwen3.5-0.8b stay the same size. ' + (Q35 ? 'In this program they take ' + short(me.tapeKinds.state || 0) + ' of its cells.' : 'This program has no such tables.') } : null,
         { id: 'cmp-depth', title: 'Loops inside loops', layout: 'fold', mode: 'command', from: W.program.writer, to: total, text: 'The engine, coloured by command. Its loops sit inside one another; the deepest nesting is ' + each((m) => String(m.engineDepth)) + '. The writing part of this program never goes deeper than ' + W.counts.maxDepthWriter + '.' },
-        { id: 'cmp-io', title: 'One comma, one full stop', layout: 'line', mode: 'purpose', at: E.comma, z: 5, text: 'Each of the three programs reads through a single comma and prints through a single full stop. This is the comma of this one, character ' + fmt(E.comma + 1) + '.' },
+        { id: 'cmp-io', title: 'One comma, one full stop', layout: 'line', mode: 'purpose', at: E.comma, z: 5, text: 'Each of the ' + count + ' programs reads through a single comma and prints through a single full stop. This is the comma of this one, character ' + fmt(E.comma + 1) + '.' },
       ].map((p) => (p ? Object.assign(p, { cmp: true }) : p)));
     }
     groups = G; flat = [];
@@ -327,7 +343,7 @@
   let tours = [], tour = null, tourTimer = 0;
   function makeTours() {
     const W = I.W, E = I.E, total = M.total, n = E.model, F = I.F, SEC = I.SEC;
-    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => E.sections.find((s) => s.id === id), place = (id) => flat.find((p) => p.id === id);
+    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), place = (id) => flat.find((p) => p.id === id), Q35 = !!n.unit, LT = layerText(E);
     const sample = W.samples.find((s) => s.id === 'w13') || W.samples[0];
     const wparts = M.names.filter((x) => x.tier === 1 && x.to <= W.program.writer).sort((a, b) => a.from - b.from), firstLayer = wparts.find((x) => /^Layer /.test(x.text));
     const stop = (title, text, view) => Object.assign({ title, text }, view);
@@ -337,7 +353,7 @@
         stop('Seven lanes', 'The same line with a lane for each command. Almost everything is adding, taking off and stepping left; the loops are thin ticks.', { layout: 'lanes', home: true }),
         stop('Single commands', 'Zoom in far enough and the line is commands, one after another. These write a few of the model’s numbers into memory.', { layout: 'line', at: P('block').at, z: 4 }),
         stop('Folded into a square', 'A line this long cannot be taken in at once. So it is folded into a square, in such a way that neighbours in the line stay neighbours.', { layout: 'fold', home: true }),
-        stop('Part by part', 'Cut at its parts and laid out in rows, the program shows its ' + n.layers + ' layers: the same pattern, again and again.', { layout: 'parts', home: true }),
+        stop('Part by part', 'Cut at its parts and laid out in rows, the program shows its ' + n.layers + ' layers: ' + (Q35 ? 'three DeltaNet layers and an attention layer' : 'the same pattern') + ', again and again.', { layout: 'parts', home: true }),
         stop('The weights', 'The big fields are the weights of the model, written layer after layer. This is ' + lc(P('layer').name.replace('Weights of ', '')) + '.', { layout: 'fold', from: P('layer').from, to: P('layer').to }),
         stop('The vocabulary', 'The vocabulary: the table that says which letters make which word piece.', { layout: 'fold', from: P('vocab').from, to: P('vocab').to }),
         stop('The engine', 'The engine: the last ' + pct(E.chars / total) + ' of the text. Everything before it only stores numbers. This part does the sums.', { layout: 'fold', from: W.program.writer, to: total }),
@@ -346,7 +362,7 @@
       { id: 'writing', title: 'How ' + short(W.tape.nonZero) + ' numbers get written', text: 'The first ' + pct(W.program.writer / total) + ' of the program does nothing but put numbers into memory. How?', stops: [
         stop('Almost all of it writes', 'The first ' + pct(W.program.writer / total) + ' of the line does one thing: it puts a number into each of ' + fmt(W.tape.nonZero) + ' cells of memory. It reads nothing and prints nothing.', { layout: 'line', mode: 'purpose', from: 0, to: W.program.writer }),
         wparts.length > 1 ? stop('In the order of memory', 'The program fills memory from left to right, so the line follows memory. It starts with the ' + lc(wparts[0].text) + ' and ends with the ' + lc(wparts[wparts.length - 1].text) + (firstLayer ? '; of the layers, ' + lc(firstLayer.text) + ' comes first' : '') + '.', { layout: 'line', mode: 'purpose', home: true }) : null,
-        stop('One layer', P('layer').name.replace('Weights of l', 'L') + ' of ' + n.layers + ': four matrices of weights, and the memory of the fixed opening lines.', { layout: 'fold', from: P('layer').from, to: P('layer').to }),
+        stop('One layer', P('layer').name.replace('Weights of l', 'L') + ' of ' + n.layers + (Q35 ? ': a DeltaNet layer. Four matrices of weights, and between them the room for the tables of its ' + n.deltanet.valueHeads + ' heads, empty until the program runs.' : ': four matrices of weights, and the memory of the fixed opening lines.'), { layout: 'fold', from: P('layer').from, to: P('layer').to }),
         stop('One block', 'The numbers are written block by block. This block is ' + fmt(sample.len) + ' characters long and writes ' + fmt(sample.K) + ' cells. The program has ' + fmt(W.encoder.blocks) + ' blocks.', { layout: 'fold', from: sample.off, to: sample.off + sample.len }),
         stop('The start of a block', 'Close up, a block is plain commands. The white frame marks its first one.', { layout: 'fold', at: sample.off + 6, z: 4 }),
         stop('Text above, memory below', 'The same line with the memory under it: ' + fmt(W.program.tape) + ' cells. A band joins each part of the text to the cells it writes.', { layout: 'tape', home: true }),
@@ -358,17 +374,18 @@
         stop('It reads', 'First the question comes in, letter by letter, through this one comma.', { layout: 'line', at: E.comma, z: 5 }),
         stop('Letters become word pieces', 'This stretch reads the question and cuts it into word pieces, by looking pairs up in the vocabulary table.', { layout: 'line', from: sec('ask').from, to: sec('ask').to }),
         stop('A row of numbers', 'For every word piece the engine fetches one row of ' + fmt(n.dim) + ' numbers from the table of word pieces.', { layout: 'line', from: sec('emb').from, to: sec('emb').to }),
-        stop('One layer', 'The text for one layer. It is written once; a loop runs it ' + n.layers + ' times, each time on the next layer’s weights.', { layout: 'line', from: sec('xn1').from, to: sec('xout').to }),
+        stop(Q35 ? 'Four layers' : 'One layer', LT.text, { layout: 'line', from: LT.from, to: LT.to }),
+        Q35 ? stop('Writing into a table', 'A DeltaNet layer does not look back. For each of its ' + n.deltanet.valueHeads + ' heads this text fades a table of ' + fmt(n.deltanet.keySize * n.deltanet.valueSize) + ' numbers, writes the new word piece into it and reads from it.', { layout: 'line', from: sec('dn.decay').from, to: sec('dn.next').to }) : null,
         stop('Text and time', 'Text is not time. Below the engine lie the steps of one word piece, as measured: a band joins each section to its share.', { layout: 'time', home: true }),
         stop('The largest matrix', SEC.sweep3.desc, { layout: 'line', from: sec('sweep3').from, to: sec('sweep3').to }),
-        stop('Looking back', 'The engine walks past every word piece it has seen so far and takes something from each. This is how the model remembers the conversation.', { layout: 'line', from: sec('att').from, to: sec('att').to }),
+        stop('Looking back', 'The engine walks past every word piece it has seen so far and takes something from each. This is how the model remembers the conversation.' + (Q35 ? ' Here only one layer in four does it.' : ''), { layout: 'line', from: sec('att').from, to: sec('att').to }),
         stop('Choosing', 'A score for each of the ' + fmt(n.vocab) + ' word pieces; the highest wins.', { layout: 'line', from: sec('cls').from, to: sec('cls').to }),
         stop('Loops inside loops', 'The same stretch as a skyline: the height is how many loops lie inside one another. The engine goes up to ' + W.counts.maxDepthEngine + '.', { layout: 'skyline', from: W.program.writer, to: total }),
         stop('It prints', 'The chosen word piece goes out through this one full stop. Then the engine goes round again for the next piece.', { layout: 'line', at: E.dot, z: 5 }),
-      ] },
+      ].filter(Boolean) },
     ];
     const cmp = flat.filter((p) => p.cmp);
-    if (cmp.length) tours.push({ id: 'compare', title: 'Spot the difference between the three programs', text: 'What changes from brnfck-135m to brnfck-1.5b, and what stays the same. Shown on ' + I.MODELS[I.MODEL].short + ', with the numbers of all three.', stops: cmp.map((p) => Object.assign({}, p, { place: p })) });
+    if (cmp.length) tours.push({ id: 'compare', title: 'Spot the difference between the four programs', text: 'What changes between brnfck-smollm2-135m, the two Qwen2.5 programs and brnfck-qwen3.5-0.8b, and what stays the same. Shown on ' + I.MODELS[I.MODEL].short + ', with the numbers of all four.', stops: cmp.map((p) => Object.assign({}, p, { place: p })) });
   }
   function drawTours() {
     const ul = $('m-tours'); ul.textContent = '';

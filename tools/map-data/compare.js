@@ -1,8 +1,13 @@
 'use strict';
-// The main numbers of the three programs side by side, from what the other scripts wrote: compare.json.
+// The main numbers of the four programs side by side, from what the other scripts wrote: compare.json.
 const fs = require('fs');
 const path = require('path');
-const { DEFS, IDS, DATA, num } = require('./models');
+const { DEFS, IDS, DATA, ROOT, num } = require('./models');
+
+// The names and colour families of the sections of an engine, as the pages have them (site/inside/engine-sections.js)
+global.window = global.window || {};
+require(path.join(ROOT, 'site', 'inside', 'engine-sections.js'));
+const famsOf = (E, ids) => { const SEC = window.EngineSections.of(E); return ids.map((id) => SEC[id].fam); };
 
 // bytes and files below a folder
 function folder(dir) {
@@ -31,20 +36,23 @@ for (const id of IDS) {
   const names = fs.existsSync(path.join(dir, 'traces.json')) ? read('traces.json') : [];
   if (names.length) {
     const runs = names.map((n) => read(`trace-${n}.json`)), long = runs[runs.length - 1], first = runs[0], tot = long.positions.map((p) => p.total);
-    const p24 = first.positions.find((p) => p.position === first.fixedPositions) || first.positions[0];
+    // position 24: the first after the fixed opening lines in brnfck-smollm2-135m and the Qwen2.5 programs; brnfck-qwen3.5-0.8b has none, and runs it too
+    const p24 = first.positions.find((p) => p.position === 24) || first.positions.find((p) => p.position === first.fixedPositions) || first.positions[0];
     steps = {
       question: long.question, runs: runs.length, complete: long.complete !== false, from: long.positions[0].position, to: long.positions[long.positions.length - 1].position, count: long.positions.length,
-      first: tot[0], min: Math.min(...tot), max: Math.max(...tot), sections: first.sections, pos24: { position: p24.position, question: first.question, total: p24.total, steps: p24.steps },
+      first: tot[0], min: Math.min(...tot), max: Math.max(...tot), sections: first.sections, fams: famsOf(E, first.sections),
+      ...(first.textSections ? { textSections: first.textSections } : {}),
+      pos24: { position: p24.position, question: first.question, total: p24.total, steps: p24.steps, ...(p24.textSteps ? { textSteps: p24.textSteps } : {}) },
     };
   }
   const disk = folder(dir), tilesDisk = folder(path.join(dir, 'tiles')), deepDisk = folder(path.join(dir, 'deep'));
   const a = E.model;
   models.push({
-    id, label: DEFS[id].label, name: W.modelName || a.name, family: E.family, file: W.file, layers: a.layers, dim: a.dim, hidden: a.hidden, heads: a.heads, kvHeads: a.kvHeads, vocab: a.vocab, weightBits: a.weightBits,
+    id, label: DEFS[id].label, name: W.modelName || a.name, family: E.family, file: W.file, layers: a.layers, attLayers: a.types ? a.types.filter((t) => t === 'att').length : a.layers, dim: a.dim, hidden: a.hidden, heads: a.heads, kvHeads: a.kvHeads, vocab: a.vocab, weightBits: a.weightBits,
     chars: W.program.chars, writer: W.program.writer, engine: W.program.engine, counts: { order: W.counts.order, all, engine: eng },
     engineLoops: eng[4], engineMoves: eng[2] + eng[3], engineOther: W.program.engine - eng[2] - eng[3], engineSections: E.sections.length, engineDepth: W.counts.maxDepthEngine,
     tape: W.program.tape, memoryBits: W.program.memoryBits || 32, nonZero: W.tape.nonZero, entropy: W.tape.entropyBitsPerCell, floor: W.tape.floorCharsAt3Bits, plainCounting: W.tape.plainCounting,
-    blocks: W.encoder.blocks, matrixWeights: cells(E.family === 'qwen' ? ['qkv', 'o', 'w13', 'w2'] : ['qkv', 'o', 'w13', 'w2', 'cls']), tableCells: cells(['emb']), tapeKinds, textKinds,
+    blocks: W.encoder.blocks, matrixWeights: cells(W.weights.kinds), tableCells: cells(['emb']), tapeKinds, textKinds,
     timing: { ...C.timing, writeSeconds: C.tapeRun ? C.tapeRun.seconds : null, log: C.from[0] },
     steps, order: T.order, side: T.side,
     data: { totalBytes: disk.bytes, files: disk.files, tiles: tilesDisk.files, tileBytes: tilesDisk.bytes, deepPieces: deepDisk.files, deepBytes: deepDisk.bytes },

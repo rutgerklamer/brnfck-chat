@@ -1,6 +1,6 @@
 'use strict';
 
-// The self-contained program site/programs/brnfck-<model>.bf, checked.
+// The self-contained program site/programs/brnfck-qwen2.5-<model>.bf, checked.
 
 const fs = require('fs');
 const os = require('os');

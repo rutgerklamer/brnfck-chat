@@ -15,13 +15,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/reference.css?v=r7">
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="learn"></script>
+<script src="../site.js?v=r16" data-section="learn"></script>
 <main class="doc article reference" id="main">
 
   <header class="plain">
@@ -122,7 +122,7 @@
 
     <figure class="fig col" id="fig-cost" aria-label="A loop that multiplies two numbers, with its step count in two ways"></figure>
     <p>One command at a time, eight times eight takes 105 steps, and sixteen times eight about twice as many; the merged count hardly moves. The loop has a simple shape, and a program that runs brainfuck can recognise the shape and do the whole multiplication in one operation. The result is identical. This is the main idea behind every fast implementation: see <a href="implementations.html">Implementations</a>.</p>
-    <p>How large the costs get is easy to underrate. The chat models of this site need division, rounding and table look-ups many millions of times. Done by plain counting, one division with rounding took 1.2 to 1.5 million steps; built from loops of the simple shape it takes about 100 <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>. Even so, one word piece of an answer from brnfck-135m costs 1.6 to 1.9 billion steps <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>.</p>
+    <p>How large the costs get is easy to underrate. The chat models of this site need division, rounding and table look-ups many millions of times. Done by plain counting, one division with rounding took 1.2 to 1.5 million steps; built from loops of the simple shape it takes about 100 <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>. Even so, one word piece of an answer from brnfck-smollm2-135m costs 1.6 to 1.9 billion steps <span class="ev">measured</span>&nbsp;<a class="cite" href="#ref-11" aria-label="Source 11">[11]</a>.</p>
   </section>
 
   <section id="limits" aria-labelledby="limits-h">

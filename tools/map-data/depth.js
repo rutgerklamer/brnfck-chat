@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // How deep the loops are nested along a program: the data of the map layout "Skyline".
-//   node tools/map-data/depth.js          all three programs
-//   node tools/map-data/depth.js 0.5b     one of small, 0.5b, 1.5b
+//   node tools/map-data/depth.js          all four programs
+//   node tools/map-data/depth.js 0.5b     one of small, 0.5b, 1.5b, 0.8b
 'use strict';
 const fs = require('fs');
 const path = require('path');

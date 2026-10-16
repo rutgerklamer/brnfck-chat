@@ -10,13 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
-<link rel="stylesheet" href="../ui/how.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
+<link rel="stylesheet" href="../ui/how.css?v=r9">
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="insights"></script>
+<script src="../site.js?v=r16" data-section="insights"></script>
 <main class="doc article how" id="main">
 
   <header class="plain">
@@ -35,7 +35,7 @@
           <li><a href="#s2">Multiplying with eight commands</a></li>
           <li><a href="#s9">Why it is slow and heavy</a></li>
           <li><a href="#questions">Questions and numbers</a></li>
-          <li><a href="#notes">Sources</a></li>
+          <li><a href="#notes">Notes and sources</a></li>
         </ol>
       </nav>
     </div>
@@ -43,7 +43,7 @@
 
   <section id="s1" aria-labelledby="s1-h">
     <h2 id="s1-h">Letters become numbers</h2>
-    <p>One question goes the whole route here, with the answer that the program of brnfck-135m prints for it:</p>
+    <p>One question goes the whole route here, with the answer that the program of brnfck-smollm2-135m prints for it:</p>
     <p class="exchange io"><span class="q">What is the capital of France?</span><span class="a">The capital of France is Paris.</span></p>
     <p>Start where the question goes in. The machine below has a row of nine boxes that all hold 0, and three keys. Above the keys stands the question, with a mark on the letter that comes next. Press <kbd>,</kbd> and watch the first box. Then press <kbd>&gt;</kbd> and <kbd>,</kbd> again, a few times:</p>
 
@@ -58,7 +58,7 @@
     <p>The first box went to 87 and the next one to 104. Brainfuck has no letters, only numbers: 87 is the number computers use for W, and 104 is the one for h. A space is a number too, 32. Each press of <kbd>,</kbd> took the next letter of the question and put its number in the box where the machine was working.</p>
     <p id="s3">That key is one of the eight <b>commands</b> of brainfuck. Each command is written as one character and does one small thing: <code>,</code> reads a letter, and <code>&gt;</code> and <code>&lt;</code> move the place where the machine works by one box. The row of boxes is called the <b>tape</b>, one box is a <b>cell</b>, and the mark under the working cell is the <b>pointer</b>. A <b>program</b> is a list of commands, carried out from left to right.</p>
     <p>If you clicked a box, the pointer jumped to it. That is a shortcut of this figure, and so is the slider that chooses the next letter. A brainfuck program can do neither: it moves one cell at a time and reads the letters in the order you typed them.</p>
-    <p>I'm showing nine cells, and each holds a number from 0 to 255. The tape of brnfck-135m has 188,012,789 cells, and each holds a number from 0 to 4,294,967,295. That program is 1,030,902,380 characters long, and the command <code>,</code> occurs in it exactly once. It stands inside a stretch that repeats, so it is used again for every letter you type.</p>
+    <p>I'm showing nine cells, and each holds a number from 0 to 255. The tape of brnfck-smollm2-135m has 188,012,789 cells, and each holds a number from 0 to 4,294,967,295. That program is 1,030,902,380 characters long, and the command <code>,</code> occurs in it exactly once. It stands inside a stretch that repeats, so it is used again for every letter you type.</p>
 
     <p class="next-q">The question is on the tape now, one letter to a cell. But the model does not work with letters. What does it work with?</p>
   </section>
@@ -73,8 +73,8 @@
       <p class="tell one" id="p-said" aria-live="polite"></p>
     </figure>
 
-    <p>Each button lit up a whole word with the space in front of it, or a single sign such as the question mark. Such a chunk is a <b>word piece</b>: a common word, or a part of a rarer one (elsewhere it is called a token). The model reads and writes text one word piece at a time, never one letter at a time. brnfck-135m knows 49,152 word pieces, and each has a number: &ldquo;&#9251;capital&rdquo; is 3,575 and &ldquo;&#9251;France&rdquo; is 4,649.</p>
-    <p>These are the seven word pieces of this question and their numbers in brnfck-135m. One thing is left out of the drawing: a few fixed lines that tell the model to be a helpful assistant are put around your question, and with those the tape holds 37 word pieces.</p>
+    <p>Each button lit up a whole word with the space in front of it, or a single sign such as the question mark. Such a chunk is a <b>word piece</b>: a common word, or a part of a rarer one (elsewhere it is called a token). The model reads and writes text one word piece at a time, never one letter at a time. brnfck-smollm2-135m knows 49,152 word pieces, and each has a number: &ldquo;&#9251;capital&rdquo; is 3,575 and &ldquo;&#9251;France&rdquo; is 4,649.</p>
+    <p>These are the seven word pieces of this question and their numbers in brnfck-smollm2-135m. One thing is left out of the drawing: a few fixed lines that tell the model to be a helpful assistant are put around your question, and with those the tape holds 37 word pieces.</p>
     <p>To cut the letters into word pieces, the program looks up which letters belong together in a list of all word pieces, which lies on the tape like everything else.</p>
 
     <p class="next-q">A number such as 3,575 says which word piece was typed and nothing about what it means. Where does the meaning come from?</p>
@@ -87,14 +87,14 @@
     <figure class="fig col" id="fig-lookup" aria-label="A program of sixteen commands that walks to the row of a word piece"></figure>
 
     <p>The number you chose did not stay in cell 0. It moved three cells to the right and lost one, and again, until it was 0. At that moment the pointer stood in front of the right row. Brainfuck has no command for &ldquo;go to row 2&rdquo;, and its tape has no index. So a program finds a row the way you find a house in a street without numbers: by walking along and counting doors.</p>
-    <p>The sixteen commands above the cells are the whole program for this walk. Its square brackets make a part of it repeat; they come back <a href="#s2">further down</a>. The three rows are a small example with numbers I picked. The table of brnfck-135m has 49,152 rows of 576 numbers each, so its walk is very much longer.</p>
+    <p>The sixteen commands above the cells are the whole program for this walk. Its square brackets make a part of it repeat; they come back <a href="#s2">further down</a>. The three rows are a small example with numbers I picked. The table of brnfck-smollm2-135m has 49,152 rows of 576 numbers each, so its walk is very much longer.</p>
     <p>A row of numbers is where the calculating starts. The next tape has four cells: three numbers, and a total. Each number has a slider. Move the sliders and watch the cell marked &ldquo;total&rdquo;. Then drag <em>Step</em> to the left to see how that total was made:</p>
 
     <figure class="fig col" id="fig-sum" aria-label="Three numbers, each multiplied by a weight you set, added up in a fourth cell"></figure>
 
-    <p>Each number was multiplied by the value of its slider, and the three results were added up in the last cell. The value on a slider is a <b>weight</b>: a number that says how strongly one number counts in a total. A model is a very long list of weights, 135 million of them in brnfck-135m, with a fixed recipe that says what is multiplied by what. The weights were found by training the model, long before and not in brainfuck <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
+    <p>Each number was multiplied by the value of its slider, and the three results were added up in the last cell. The value on a slider is a <b>weight</b>: a number that says how strongly one number counts in a total. A model is a very long list of weights, 135 million of them in brnfck-smollm2-135m, with a fixed recipe that says what is multiplied by what. The weights were found by training the model, long before and not in brainfuck <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>.</p>
     <p>If you dragged the run back, you saw the three numbers shrink to 0 while the total grew. A brainfuck program can only read a cell by emptying it. These are small whole numbers, with weights from 0 to 5. The weights of the model can also be below zero, and one total there adds up hundreds of products, not three.</p>
-    <p>The totals are not the answer. They become the numbers for the next round of multiplying and adding, with other weights. One such round over all the numbers of a word piece is called a <b>layer</b>. brnfck-135m has 30 layers, and it takes every word piece through all of them: about 134 million multiplications for one word piece.</p>
+    <p>The totals are not the answer. They become the numbers for the next round of multiplying and adding, with other weights. One such round over all the numbers of a word piece is called a <b>layer</b>. brnfck-smollm2-135m has 30 layers, and it takes every word piece through all of them: about 134 million multiplications for one word piece.</p>
 
     <p class="next-q">So far every word piece was calculated by itself. But &ldquo;capital&rdquo; is only useful together with &ldquo;France&rdquo;. How does one word piece get to know about the others?</p>
   </section>
@@ -124,12 +124,25 @@
       <p class="tell one" id="k-said" aria-live="polite"></p>
     </figure>
 
-    <p>Only one thing counts: which score is the highest. How far ahead it is makes no difference, and the others are dropped. For the question followed here, after &ldquo;The capital of France is&rdquo;, the highest score goes to &ldquo;&#9251;Paris&rdquo;. The five scores above are made up. brnfck-135m has 49,152 scores each time, and the program has to find the highest of them with the commands you have seen.</p>
+    <p>Only one thing counts: which score is the highest. How far ahead it is makes no difference, and the others are dropped. For the question followed here, after &ldquo;The capital of France is&rdquo;, the highest score goes to &ldquo;&#9251;Paris&rdquo;. The five scores above are made up. brnfck-smollm2-135m has 49,152 scores each time, and the program has to find the highest of them with the commands you have seen.</p>
     <p>The winner is a number, 7,042 for &ldquo;&#9251;Paris&rdquo;, and it has to become letters again. The tape below holds the six characters of that word piece as numbers. The program above it is made of two commands: <code>&gt;</code>, and a new one, <code>.</code> Press <em>Play</em> and watch the line &ldquo;Printed&rdquo;. With the upper slider you change the number in cell 1:</p>
 
     <figure class="fig col" id="fig-print" aria-label="A program that prints six cells as six characters"></figure>
 
-    <p>Each <code>.</code> printed the cell under the pointer as one character: 80 came out as P, and with another number in that cell another letter came out. So <code>.</code> is the opposite of <code>,</code>. Like the comma, it occurs exactly once in the whole program of brnfck-135m, inside a stretch that repeats, and it is used for every letter of every answer. The two bigger programs also have one of each.</p>
+    <p>Each <code>.</code> printed the cell under the pointer as one character: 80 came out as P, and with another number in that cell another letter came out. So <code>.</code> is the opposite of <code>,</code>. Like the comma, it occurs exactly once in the whole program of brnfck-smollm2-135m, inside a stretch that repeats, and it is used for every letter of every answer. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b also have one of each.</p>
+    <details class="q fold" id="onestop"><summary>Where is that one full stop?</summary><div class="a">
+    <p>Once, in more than a billion characters. The figure below finds it. Each strip is the framed part of the strip above it, opened up, down to the characters themselves:</p>
+
+    <figure class="fig" id="fig-stop" aria-label="Where the only full stop and the only comma of a program are, found in four steps from the whole program to the characters around it">
+      <div class="ctl">
+        <span class="seg" id="stop-cmd" role="group" aria-label="Which command"><button type="button" data-k="1" aria-pressed="true">The full stop .</button><button type="button" data-k="0" aria-pressed="false">The comma ,</button></span>
+        <span class="seg" id="stop-prog" role="group" aria-label="Which program"><button type="button" data-m="small" aria-pressed="true">brnfck-smollm2-135m</button><button type="button" data-m="0.5b" aria-pressed="false">brnfck-qwen2.5-0.5b</button><button type="button" data-m="1.5b" aria-pressed="false">brnfck-qwen2.5-1.5b</button><button type="button" data-m="0.8b" aria-pressed="false">brnfck-qwen3.5-0.8b</button></span>
+      </div>
+      <canvas id="stop-view" role="img" aria-describedby="stop-said"></canvas>
+      <p class="tell" id="stop-said" aria-live="polite"></p>
+      <p class="measured">Every strip is the text of its part, squeezed: each thin column shows how many of its characters are each command, in the colours of the commands. The yellow frame marks what the next strip opens up. The characters at the bottom are copied from the program file.</p>
+    </figure>
+    </div></details>
     <p>Now the round can be closed. The next figure shows the answer as it grows. Drag <em>Round</em> to the right, or press <em>Play</em>:</p>
 
     <figure class="fig col" id="fig-rounds" aria-label="The answer, built one word piece each round">
@@ -139,7 +152,7 @@
     </figure>
 
     <p>Each round printed one word piece. The printed word piece then went back in, as if you had typed it yourself, and the whole route ran again, from the row of numbers through the 30 layers to the highest score, now with one more word piece on the tape. That is all an answer is: the same calculation again and again, each time over a text that is one word piece longer.</p>
-    <p>It ends when the highest score goes to a special word piece that means &ldquo;end&rdquo;. For this answer that was the eighth round, after seven printed word pieces. These seven and their numbers are what the program of brnfck-135m prints for this question.</p>
+    <p>It ends when the highest score goes to a special word piece that means &ldquo;end&rdquo;. For this answer that was the eighth round, after seven printed word pieces. These seven and their numbers are what the program of brnfck-smollm2-135m prints for this question.</p>
 
     <p class="next-q">That is the route. Two questions are left. The first: a machine that can add one and take one away has just done millions of multiplications. How?</p>
   </section>
@@ -152,7 +165,7 @@
 
     <p>With the sliders as they were, every round took 1 from the left cell and added 4 to the right one. The left cell started at 3, so after three rounds it was empty and the right cell held 12. The program multiplied 3 by 4, and there is no &ldquo;times&rdquo; command anywhere in it.</p>
     <p>The brackets <code>[</code> and <code>]</code> mean: repeat what stands between us until the cell under the pointer is zero. Such a repeat is called a <b>loop</b>. &ldquo;Is this cell zero?&rdquo; is the only question a brainfuck program can ask, and everything the chat model does is built from that question. The multiplying in a layer is this loop, with a number from a row in the left cell and a weight as the plus signs. It is what ran in the figure with the three weights.</p>
-    <p>Notice what the cells cannot hold: 0.5, or any other fraction. Brainfuck has whole numbers only, and the models were made with fractions. So each model was first converted to arithmetic with whole numbers. The converted version picks the same next word piece as the original model in 94.8% of the tested cases for brnfck-135m (345 of 364), in 96.6% for brnfck-0.5b (477 of 494) and in 97.2% for brnfck-1.5b (318 of 327). The program follows a rounded copy of the model, not the model itself.</p>
+    <p>Notice what the cells cannot hold: 0.5, or any other fraction. Brainfuck has whole numbers only, and the models were made with fractions. So each model was first converted to arithmetic with whole numbers. The converted version picks the same next word piece as the original model in 94.8% of the tested cases for brnfck-smollm2-135m (345 of 364), in 96.6% for brnfck-qwen2.5-0.5b (477 of 494) and in 97.2% for brnfck-qwen2.5-1.5b (318 of 327). The program follows a rounded copy of the model, not the model itself.</p>
     <p>A loop like this one only counts down. Comparing two numbers, dividing, and multiplying numbers below zero are built from the same loop in less obvious ways. <a href="../learn/">The lessons</a> build them one at a time.</p>
 
     <p class="next-q">Three rounds for 3 times 4 is nothing. One word piece takes about 134 million multiplications. So the second question: why does it not take a year, and why does it still need so much of your computer?</p>
@@ -174,10 +187,10 @@
 
     <p>The upper count grows with the number in the cell: eight commands for every round, so a million in the left cell is eight million commands. The lower count stays at 1. The right cell ends at the same number both ways.</p>
     <p>Software that carries out a brainfuck program is called an <b>interpreter</b>, and one thing an interpreter does is a <b>step</b>. The interpreter in your browser does not act out the commands one by one. It first translates the program into the computer's own instructions (machine code; the kind a browser runs is called WebAssembly). While translating, it recognises simple loops like this one and replaces each by one operation: &ldquo;add 4 times the left cell to the right cell, and empty the left cell&rdquo;. And the program was written so that its heavy work has exactly these simple shapes.</p>
-    <p>It is still a great deal of work. One word piece of brnfck-135m costs 1.6 to 1.9 billion steps <span class="ev">measured</span>, and takes about 0.6 to 1.0 seconds on the one desktop computer where it was timed <a class="cite" href="#ref-5" aria-label="Note 5">[5]</a>. An answer of seven word pieces is that eight times over. Done one command at a time it would take far too long, and for that reason the whole program has never been run that way: that both ways give the same result was checked on small test models.</p>
+    <p>It is still a great deal of work. One word piece of brnfck-smollm2-135m costs 1.6 to 1.9 billion steps <span class="ev">measured</span>, and takes about 0.6 to 1.0 seconds on the one desktop computer where it was timed <a class="cite" href="#ref-5" aria-label="Note 5">[5]</a>. An answer of seven word pieces is that eight times over. Done one command at a time it would take far too long, and for that reason the whole program has never been run that way: that both ways give the same result was checked on small test models.</p>
 
     <details class="q fold" id="fast"><summary>Why is it this fast?</summary><div class="a">
-      <p>Brainfuck itself is not fast. Three things together make a word piece of brnfck-135m take 0.6 to 1.0 seconds:</p>
+      <p>Brainfuck itself is not fast. Three things together make a word piece of brnfck-smollm2-135m take 0.6 to 1.0 seconds:</p>
       <ul>
         <li><b>Machine code.</b> The browser turns the commands into WebAssembly, instructions the computer carries out directly.</li>
         <li><b>Whole loops in one operation.</b> Simple loops, like the one that multiplies, are recognised and done in one go. The result is the same as running one command at a time; for the whole program that was checked on small test models only.</li>
@@ -192,7 +205,7 @@
         <tr><td>Look up one of 256 values in a table</td><td class="n">about 500</td><td class="n">about 68</td></tr>
         <tr><td>Find the highest of 512 scores</td><td class="n">119,000 to 595,000</td><td class="n">about 5,000</td></tr>
       </table></div>
-      <p>Even so, one word piece of brnfck-135m is 1.6 to 1.9 billion steps: 1.60 billion early in an answer, 1.92 billion at the last position the program has room for. Starting up takes 9 to 16 seconds when the file comes from the same computer. The two bigger models have more weights, so they take longer: about 2.3 seconds for a word piece of brnfck-0.5b and 7 to 12 seconds for brnfck-1.5b. <a href="../learn/05-peel.html">The lesson &ldquo;peeling off bits&rdquo;</a> shows the trick behind the first row of the table.</p>
+      <p>Even so, one word piece of brnfck-smollm2-135m is 1.6 to 1.9 billion steps: 1.60 billion early in an answer, 1.92 billion at the last position the program has room for. Starting up takes 9 to 16 seconds when the file comes from the same computer. The bigger models have more weights, so they take longer: about 2.3 seconds for a word piece of brnfck-qwen2.5-0.5b, 7 to 12 seconds for brnfck-qwen2.5-1.5b and about 5.6 seconds for brnfck-qwen3.5-0.8b. <a href="../learn/05-peel.html">The lesson &ldquo;peeling off bits&rdquo;</a> shows the trick behind the first row of the table.</p>
     </div></details>
 
     <h3 id="weights">A billion characters of numbers</h3>
@@ -210,10 +223,10 @@
     </figure>
 
     <p>Counting takes one plus sign for every unit. The second program writes the number the way we write 93 with two digits and not with ninety-three tally marks: a few plus signs, a short loop that multiplies by five, a few more plus signs. Both programs ran in your browser, and the last column is what each left in its cell. For a small number counting is the shorter of the two. For a large one it is far longer.</p>
-    <p>This is a small example. In the program of brnfck-135m the loop that multiplies is written once for a block of up to 8,192 cells, so per cell little more than the plus signs is left. It also uses digits below zero and other multipliers than five. That way its first 1,004,387,443 characters fill 163,494,188 cells, at about 6 characters for each <span class="ev">counted</span>. As rows of plus signs the same numbers would take about 43 trillion characters <span class="ev">estimated</span>.</p>
+    <p>This is a small example. In the program of brnfck-smollm2-135m the loop that multiplies is written once for a block of up to 8,192 cells, so per cell little more than the plus signs is left. It also uses digits below zero and other multipliers than five. That way its first 1,004,387,443 characters fill 163,494,188 cells, at about 6 characters for each <span class="ev">counted</span>. As rows of plus signs the same numbers would take about 43 trillion characters <span class="ev">estimated</span>.</p>
     <p>Those first characters are the <b>writing part</b> of the program: they put the model on the tape and read nothing. The last 26.5 million characters are the <b>engine</b>. The engine holds the one comma and the one full stop, and it does everything on the route above: reading the question, cutting it into word pieces, the layers, choosing and printing. Drawn to scale, the two parts look like this:</p>
 
-    <figure class="fig col" id="fig-parts" aria-label="The program of brnfck-135m as one bar, to scale: the writing part is 97.43% of it, the engine the last 2.57%">
+    <figure class="fig col" id="fig-parts" aria-label="The program of brnfck-smollm2-135m as one bar, to scale: the writing part is 97.43% of it, the engine the last 2.57%">
       <div class="stack" aria-hidden="true"><i class="d5" style="width:97.43%"></i><i class="d2" style="width:2.57%"></i></div>
       <div class="twocap small"><span><i class="sw d5" aria-hidden="true"></i>The writing part: the first 1,004,387,443 characters</span><span><i class="sw d2" aria-hidden="true"></i>The engine: the last 26.5 million</span></div>
     </figure>
@@ -221,7 +234,7 @@
     <p>Nearly all of the program only writes numbers. The part that answers is the sliver at the right end. <a href="../inside/">Inside the program</a> takes both parts apart.</p>
     <p>A bigger model has more weights, and everything grows with them. Choose a model and compare:</p>
 
-    <figure class="fig col" id="fig-size" aria-label="What each of the three models costs: program, tape, memory and time">
+    <figure class="fig col" id="fig-size" aria-label="What each of the four programs costs: program, tape, memory and time">
       <dl class="facts" id="z-facts" aria-live="polite">
         <div><dt>The model</dt><dd></dd></div>
         <div><dt>Weights</dt><dd></dd></div>
@@ -231,12 +244,23 @@
         <div><dt>Start-up</dt><dd></dd></div>
         <div><dt>Time for one word piece</dt><dd></dd></div>
       </dl>
-      <div class="ctl"><span class="seg" id="z-seg" role="group" aria-label="Which model"><button type="button" data-m="small">brnfck-135m</button><button type="button" data-m="0.5b">brnfck-0.5b</button><button type="button" data-m="1.5b">brnfck-1.5b</button></span></div>
+      <div class="ctl"><span class="seg" id="z-seg" role="group" aria-label="Which model"><button type="button" data-m="small">brnfck-smollm2-135m</button><button type="button" data-m="0.5b">brnfck-qwen2.5-0.5b</button><button type="button" data-m="1.5b">brnfck-qwen2.5-1.5b</button><button type="button" data-m="0.8b">brnfck-qwen3.5-0.8b</button></span></div>
       <p class="measured">Counts are counted in the program files. Times were measured on one desktop computer with the program file on its own disk; they depend on how busy the machine is. <span class="ev">measured</span></p>
     </figure>
 
-    <p>The tape is the heavy part. A cell that can hold a number up to 4,294,967,295 takes 4 bytes of your computer's memory, so the 188,012,789 cells of brnfck-135m are 717 MiB, and its chat page needs about 1.5 GB of free memory. The tape of brnfck-1.5b is 6.81 GiB. That is more than a browser tab can address in the usual way, so it needs a browser with 64-bit WebAssembly memory and about 8 GB free.</p>
-    <p>All three were tried in one desktop Chromium browser only. A phone will most likely not manage the two smaller ones, and a phone cannot run the biggest.</p>
+    <p>The tape is the heavy part. A cell that can hold a number up to 4,294,967,295 takes 4 bytes of your computer's memory, so the 188,012,789 cells of brnfck-smollm2-135m are 717 MiB, and its chat page needs about 1.5 GB of free memory. The tape of brnfck-qwen2.5-1.5b is 6.81 GiB. That is more than a browser tab can address in the usual way, so it needs a browser with 64-bit WebAssembly memory and about 8 GB free.</p>
+    <p>All four were tried in one desktop Chromium browser only; brnfck-qwen3.5-0.8b ran there from start to answer too. A phone will most likely not manage brnfck-smollm2-135m, brnfck-qwen2.5-0.5b or brnfck-qwen3.5-0.8b, and it cannot run brnfck-qwen2.5-1.5b at all.</p>
+    <details class="q fold" id="byhand"><summary>How long would it take with pencil and paper?</summary><div class="a">
+      <p>The work behind those seconds is counted in steps. A step is one thing the interpreter does: add a run of plus signs, test a loop, or do a small multiplying loop in one go. The browser gets through two to three billion of them a second. A person with pencil and paper might manage one.</p>
+      <figure class="fig" id="fig-hand" aria-labelledby="cap-hand">
+              <div class="hand" id="hand" role="img" aria-describedby="handSum"></div>
+        <p class="hand-say" id="handSay" aria-live="polite"></p>
+        <p class="key small"><span style="--k: var(--c-in)">reads a word piece of the question</span><span style="--k: var(--c-out)">prints a word piece of the answer</span><span style="--k: var(--c-lt)">decides the answer is done</span></p>
+        <p class="hand-tick small muted" id="handTick"></p>
+        <p id="handSum" class="sr-only"></p>
+      <p class="measured" id="cap-hand">Every bar is one real run, counted step by step with the project's interpreter, and ends today. It is split into the word pieces of the run: point at one, or press it, to see its share. The dates count back from now at one step a second, without sleep; the events above the line are approximate.</p>
+    </figure>
+    </div></details>
   </section>
 
   <section id="questions" aria-labelledby="questions-h">
@@ -248,7 +272,7 @@
         <div>
           <h4>Done by the brainfuck program</h4>
           <ul>
-            <li>Writing the model's weights and its list of word pieces onto the tape (for brnfck-135m: 135 million weights and 49,152 word pieces)</li>
+            <li>Writing the model's weights and its list of word pieces onto the tape (for brnfck-smollm2-135m: 135 million weights and 49,152 word pieces)</li>
             <li>Turning your typed question into word pieces</li>
             <li>All layers of the model, for every word piece</li>
             <li>Choosing the next word piece</li>
@@ -264,21 +288,21 @@
           </ul>
         </div>
       </div>
-      <p>What goes into a program is letters and what comes out is letters. The word pieces, the weights and the arithmetic are all inside it. This holds for all three programs: each has only the eight commands, exactly one <code>,</code> and one <code>.</code>, and its only input is the question.</p>
+      <p>What goes into a program is letters and what comes out is letters. The word pieces, the weights and the arithmetic are all inside it. This holds for all four programs: each has only the eight commands, exactly one <code>,</code> and one <code>.</code>, and its only input is the question.</p>
       <p><b>What it does not mean:</b></p>
       <ul>
-        <li><b>The models were not made in brainfuck.</b> SmolLM2-135M-Instruct was trained by Hugging Face <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, and Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud <a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, all in the usual way. Brainfuck only runs them.</li>
-        <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was first converted to whole-number arithmetic. That version picks the same next word piece as the original model in 94.8% of the tested cases for brnfck-135m (345 of 364), 96.6% for brnfck-0.5b (477 of 494) and 97.2% for brnfck-1.5b (318 of 327).</li>
+        <li><b>The models were not made in brainfuck.</b> SmolLM2-135M-Instruct was trained by Hugging Face <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud <a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, and Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all in the usual way. Brainfuck only runs them.</li>
+        <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was first converted to whole-number arithmetic. That version picks the same next word piece as the original model in 94.8% of the tested cases for brnfck-smollm2-135m (345 of 364), 96.6% for brnfck-qwen2.5-0.5b (477 of 494) and 97.2% for brnfck-qwen2.5-1.5b (318 of 327). For brnfck-qwen3.5-0.8b it is 95.1% (214 of 225 positions of its answers): the program computes its whole-number version bit for bit, and that version was compared with the original.</li>
         <li><b>It needs cells of 32 bits.</b> A cell here holds a number from 0 to 4,294,967,295 and goes round to 0 after that. Many brainfuck interpreters have cells that hold 0 to 255; on those these programs print nonsense.</li>
         <li><b>It needs a fast interpreter.</b> See <a href="#fast">&ldquo;Why is it this fast?&rdquo;</a> One command at a time would take far too long.</li>
-        <li><b>The chat page keeps a copy of the tape.</b> The writing part reads no input, so the tape it leaves behind is the same for every question. The chat page of brnfck-135m runs it once and starts every question from a copy of that tape. The page of brnfck-0.5b saves only the cells that an answer changes and puts those back. The outcome is the same.</li>
+        <li><b>The chat page keeps a copy of the tape.</b> The writing part reads no input, so the tape it leaves behind is the same for every question. The chat page of brnfck-smollm2-135m runs it once and starts every question from a copy of that tape. The pages of brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b save only the cells that an answer changes and put those back. The outcome is the same. brnfck-qwen3.5-0.8b does not do this yet: the file that describes it does not list the cells an answer changes, so the Chatbot loads it again for each question.</li>
         <li><b>The program text was not typed.</b> It was written out by a generator, a JavaScript program. What runs is only the brainfuck.</li>
-        <li><b>An earlier version read its weights as input.</b> For brnfck-135m that program was 30,841,969 characters and read 355,761,802 bytes of model data with the comma command before your question. The present program writes the same numbers itself, and so do the two bigger programs: the two tapes were compared cell for cell (<a href="#real">&ldquo;How do I know the program does what it says?&rdquo;</a>).</li>
+        <li><b>An earlier version read its weights as input.</b> For brnfck-smollm2-135m that program was 30,841,969 characters and read 355,761,802 bytes of model data with the comma command before your question. The present program writes the same numbers itself, and so do brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b: the two tapes were compared cell for cell (<a href="#real">&ldquo;How do I know the program does what it says?&rdquo;</a>).</li>
       </ul>
     </div></details>
 
     <details class="q fold" id="real"><summary>How do I know the program does what it says?</summary><div class="a">
-      <p><b>What was checked for brnfck-135m</b> <a class="cite" href="#ref-6" aria-label="Note 6">[6]</a><b>:</b></p>
+      <p><b>What was checked for brnfck-smollm2-135m</b> <a class="cite" href="#ref-6" aria-label="Note 6">[6]</a><b>:</b></p>
       <ul>
         <li>The file holds 1,030,902,380 characters and every one of them is one of the eight commands. There is exactly one <code>,</code> in the whole file.</li>
         <li>The first 1,004,387,443 characters, the writing part, contain no <code>,</code> and no <code>.</code></li>
@@ -287,13 +311,19 @@
         <li>The engine was compared with that reference on 279 generated word pieces over 5 prompts: all the same.</li>
         <li>On small test models the complete program was also run under a slow interpreter that goes one command at a time and checks that the pointer never leaves the tape.</li>
       </ul>
-      <p><b>What was checked for the two bigger programs</b> <a class="cite" href="#ref-8" aria-label="Note 8">[8]</a><b>:</b></p>
+      <p><b>What was checked for brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b</b> <a class="cite" href="#ref-8" aria-label="Note 8">[8]</a><b>:</b></p>
       <ul>
-        <li>Each file holds only the eight commands: 4,169,659,608 characters for brnfck-0.5b and 11,430,468,880 for brnfck-1.5b. Each has exactly one <code>,</code> and one <code>.</code></li>
-        <li>The tape that the program writes is equal to the tape after loading the model's data files: 628 checksums for brnfck-0.5b and 1,744 for brnfck-1.5b.</li>
+        <li>Each file holds only the eight commands: 4,169,659,608 characters for brnfck-qwen2.5-0.5b and 11,430,468,880 for brnfck-qwen2.5-1.5b. Each has exactly one <code>,</code> and one <code>.</code></li>
+        <li>The tape that the program writes is equal to the tape after loading the model's data files: 628 checksums for brnfck-qwen2.5-0.5b and 1,744 for brnfck-qwen2.5-1.5b.</li>
         <li>For test questions each program prints exactly the text of the reference. Answers were compared up to 30 word pieces.</li>
       </ul>
-      <p><b>What you can check yourself.</b> The button reads the whole program of brnfck-135m in your browser and counts every character. Over the internet the program comes as compressed pieces (about 180 MB in all, each checked against its checksum; the same pieces the <a href="../?m=small">chat page of brnfck-135m</a> uses, and kept in your browser in the same way). On your own computer it is read as one file of 1 GB.</p>
+      <p><b>What was checked for brnfck-qwen3.5-0.8b</b> (all 11 checks passed)<b>:</b></p>
+      <ul>
+        <li>The file holds 7,709,034,855 characters, only the eight commands, with exactly one <code>,</code> and one <code>.</code></li>
+        <li>The tape after the writing part, the first 7,448,657,450 characters, is equal to the loaded model: 1,018 checksums (SHA-256) over all 1,067,424,772 cells.</li>
+        <li>Asked &ldquo;What is the capital of France?&rdquo;, it prints exactly the text of the reference: 30 word pieces.</li>
+      </ul>
+      <p><b>What you can check yourself.</b> The button reads the whole program of brnfck-smollm2-135m in your browser and counts every character. Over the internet the program comes as compressed pieces (about 180 MB in all, each checked against its checksum; the same pieces the <a href="../?m=small">chat page of brnfck-smollm2-135m</a> uses, and kept in your browser in the same way). On your own computer it is read as one file of 1 GB.</p>
       <div class="ctl">
         <button type="button" id="c-go">Count all the characters</button>
         <button type="button" id="c-stop" class="quiet" disabled>Stop</button>
@@ -313,28 +343,31 @@
         <tr><td><b>Anything else</b></td><td class="n"><b>0</b></td><td class="n" data-c="other">-</td></tr>
         <tr><td>Total</td><td class="n">1,030,902,380</td><td class="n" data-c="total">-</td></tr>
       </table></div>
-      <p>You can also take <span class="bf-file"><a href="../programs/brnfck-135m.bf" download>the program file</a></span> (1 GB, one very long line) and run it with any brainfuck interpreter that has 32-bit cells and a tape of at least 188,012,789 cells. Or repeat the project's own checks: see <a href="#run">&ldquo;Can I run it myself?&rdquo;</a></p>
+      <p>You can also take <span class="bf-file"><a href="../programs/brnfck-smollm2-135m.bf" download>the program file</a></span> (1 GB, one very long line) and run it with any brainfuck interpreter that has 32-bit cells and a tape of at least 188,012,789 cells. Or repeat the project's own checks: see <a href="#run">&ldquo;Can I run it myself?&rdquo;</a></p>
     </div></details>
 
     <details class="q fold" id="wrong"><summary>Why are the models wrong so often?</summary><div class="a">
       <p>Because they are small. SmolLM2-135M-Instruct <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> has 135 million weights; the well-known chat services use models that are very much larger. The original model, run in the normal way, makes the same kind of mistakes: wrong sums, invented facts, answers that wander off.</p>
-      <p>Size helps. Asked for 12 + 30, the program of brnfck-135m printed &ldquo;12 + 30 = 32&rdquo;. The program of brnfck-1.5b printed &ldquo;12 + 30 = 42&rdquo;. The two bigger models get simple sums and simple facts right. They are still wrong on harder facts.</p>
+      <p>Size helps. Asked for 12 + 30, the program of brnfck-smollm2-135m printed &ldquo;12 + 30 = 32&rdquo;. The program of brnfck-qwen2.5-1.5b printed &ldquo;12 + 30 = 42&rdquo;. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b usually get simple sums and simple facts right. They are still wrong on harder facts.</p>
+      <p>brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, which has about 752 million weights. Asked &ldquo;What is the capital of France?&rdquo;, the program began its answer with &ldquo;The capital of France is Paris.&rdquo; It gave 56 for 7 times 8 and Amsterdam as the capital of the Netherlands. Asked in Dutch where Leeuwarden lies, it said &ldquo;in de Oostzee&rdquo;, in the Baltic Sea: wrong.</p>
       <p>Brainfuck adds nothing and removes nothing. It only runs a model. The one difference is the rounding to whole numbers, described under <a href="#pure">what &ldquo;pure brainfuck&rdquo; means</a>. Do not rely on anything a model says.</p>
     </div></details>
 
     <details class="q fold" id="run"><summary>Can I run it myself?</summary><div class="a">
-      <p>Yes, with the project folder on your own computer: the code is on <a href="https://github.com/rutgerklamer/brainfuck-m">GitHub</a>, under the MIT licence. It needs Node.js 24 and Python 3.12 and nothing else. The README in that folder gives every step: what works straight away, how to build a program from the model's files, and how to check it. To open these pages, run this in the project folder and go to <code>http://localhost:8766/</code>:</p>
+      <p>Yes, with the project folder on your own computer: the code is on <a href="https://github.com/rutgerklamer/brnfck-chat">GitHub</a>, under the MIT licence. It needs Node.js 24 and Python 3.12 and nothing else. The README in that folder gives every step: what works straight away, how to build a program from the model's files, and how to check it. To open these pages, run this in the project folder and go to <code>http://localhost:8766/</code>:</p>
       <pre class="cmd" tabindex="0">python tools/serve.py</pre>
       <p>This small server can send a part of a file, which <a href="../map/">the program map</a> needs for its deepest zoom.</p>
-      <p>The programs are too large to come with the project folder: each is built from the model's files, which you download once (the README says which files and which commands; brnfck-0.5b takes a few minutes to build). Once a program is built, ask it a question without a browser. The three commands are for brnfck-0.5b, then brnfck-135m, then brnfck-1.5b:</p>
-      <pre class="cmd" tabindex="0">node compiler/qwen/program/ask.js --model 0.5b "What is 7 times 8?"
-node compiler/smollm/pure/ask.js "What is pi?"
-node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
-      <p>brnfck-1.5b runs on an interpreter with 64-bit memory and needs about 10 GiB of free memory. It takes 90 to 169 seconds to start and 7 to 12 seconds for each word piece. For the question in the third command it printed &ldquo;The capital of France is Paris.&rdquo; It also ran in one desktop Chromium browser, in <a href="../?m=1.5b">the chat with brnfck-1.5b</a>: ready in 2 min 27 s, the same answer, 9.0 seconds per word piece (measured on 11 October 2026).</p>
-      <p>The program of brnfck-135m is one file of 1 GB: <span class="bf-file"><a href="../programs/brnfck-135m.bf" download>brnfck-135m.bf</a></span>.</p>
+      <p>The programs are too large to come with the project folder: each is built from the model's files, which you download once (the README says which files and which commands; brnfck-qwen2.5-0.5b takes a few minutes to build). Once a program is built, ask it a question without a browser. The four commands are for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b:</p>
+      <pre class="cmd" tabindex="0">node compiler/smollm/pure/ask.js "What is pi?"
+node compiler/qwen/program/ask.js --model 0.5b "What is 7 times 8?"
+node compiler/qwen/program/ask.js "What is the capital of France?"
+node compiler/qwen3.5/program/ask.js "What is 7 times 8?"</pre>
+      <p>brnfck-qwen2.5-1.5b runs on an interpreter with 64-bit memory and needs about 10 GiB of free memory. It takes 90 to 169 seconds to start and 7 to 12 seconds for each word piece. Asked &ldquo;What is the capital of France?&rdquo;, it printed &ldquo;The capital of France is Paris.&rdquo; It also ran in one desktop Chromium browser, in <a href="../?m=1.5b">the chat with brnfck-qwen2.5-1.5b</a>: ready in 2 min 27 s, the same answer, 9.0 seconds per word piece (measured on 11 October 2026).</p>
+      <p>The program of brnfck-smollm2-135m is one file of 1 GB: <span class="bf-file"><a href="../programs/brnfck-smollm2-135m.bf" download>brnfck-smollm2-135m.bf</a></span>.</p>
       <p>To repeat the checks on the billion-character program:</p>
       <pre class="cmd" tabindex="0">node compiler/smollm/pure/verify.js</pre>
-      <p><b>What it needs:</b> an interpreter with 32-bit cells that go round (after the highest number comes 0), and a fast one. In the browser brnfck-135m needs about 1.5 GB of free memory, brnfck-0.5b about 4 GB, and brnfck-1.5b about 8 GB and a browser with 64-bit WebAssembly memory. All three have only been tried in one desktop Chromium browser; phones will most likely not manage the two smaller ones, and a phone cannot run the biggest.</p>
+      <p><b>What it needs:</b> an interpreter with 32-bit cells that go round (after the highest number comes 0), and a fast one. In the browser brnfck-smollm2-135m needs about 1.5 GB of free memory, brnfck-qwen2.5-0.5b about 4 GB, brnfck-qwen2.5-1.5b about 8 GB and a browser with 64-bit WebAssembly memory, and brnfck-qwen3.5-0.8b about 5 GB. All four have only been tried in one desktop Chromium browser; phones will most likely not manage brnfck-smollm2-135m, brnfck-qwen2.5-0.5b or brnfck-qwen3.5-0.8b, and a phone cannot run brnfck-qwen2.5-1.5b.</p>
+      <p><b>brnfck-qwen3.5-0.8b.</b> It runs in <a href="../?m=0.8b">the chat with brnfck-qwen3.5-0.8b</a> and needs about 5 GB of memory. Your browser downloads 1.36 GB; the program is ready after 2 min 10 s to 2 min 37 s and takes about 5.6 s for each word piece. It cannot clear its memory after an answer yet, so the Chatbot loads it again for a second question. On the command line (Node.js, one desktop) it took 103 seconds to start and 5.56 seconds for each word piece of the answer (median). Its tape of 1,067,424,772 cells fits a 32-bit memory. 18 of its 24 layers are of another kind, Gated DeltaNet, explained on <a href="../compare/">Compare the models</a>. The program follows its whole-number recipe exactly. <a href="../compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes.</p>
     </div></details>
 
     <details class="q fold" id="prior"><summary>Has this been done before?</summary><div class="a">
@@ -342,8 +375,8 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
     </div></details>
 
     <details class="q fold" id="numbers"><summary>The numbers</summary><div class="a">
-      <div class="scroll" tabindex="0" role="group" aria-label="The numbers of brnfck-135m; scrolls sideways on a narrow screen"><table id="tab-3">
-        <caption>brnfck-135m, its program and its running. The last column says where a number comes from: counted in the file, measured on one computer, worked out, or a property of the model.</caption>
+      <div class="scroll" tabindex="0" role="group" aria-label="The numbers of brnfck-smollm2-135m; scrolls sideways on a narrow screen"><table id="tab-3">
+        <caption>brnfck-smollm2-135m, its program and its running. The last column says where a number comes from: counted in the file, measured on one computer, worked out, or a property of the model.</caption>
         <tr><th>What</th><th class="n">Value</th><th class="n">Kind</th></tr>
         <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td><td class="n">model</td></tr>
         <tr><td>Weights</td><td class="n">about 135 million</td><td class="n">model</td></tr>
@@ -361,19 +394,19 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
         <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 seconds</td><td class="n">measured</td></tr>
         <tr><td>Work per word piece</td><td class="n">1.6 to 1.9 billion steps</td><td class="n">measured</td></tr>
       </table></div>
-      <div class="scroll" tabindex="0" role="group" aria-label="The three models side by side; scrolls sideways on a narrow screen"><table id="tab-4" class="wide">
-        <caption>The three models side by side. Counts are counted in the program files; times are measured.</caption>
-        <tr><th>What</th><th class="n">brnfck-135m</th><th class="n">brnfck-0.5b</th><th class="n">brnfck-1.5b</th></tr>
-        <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td></tr>
-        <tr><td>Weights</td><td class="n">about 135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td></tr>
-        <tr><td>Program length, in characters</td><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td></tr>
-        <tr><td>Characters that write the tape</td><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td></tr>
-        <tr><td>Tape, in cells of 32 bits</td><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014 (6.81 GiB)</td></tr>
-        <tr><td>Start-up</td><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s</td></tr>
-        <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s</td></tr>
-        <tr><td>Same next word piece as the original model</td><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td></tr>
-        <tr><td>Checksums of the tape, all equal</td><td class="n">180</td><td class="n">628</td><td class="n">1,744</td></tr>
-        <tr><td>Runs in</td><td class="n"><a href="../?m=small">the browser</a></td><td class="n"><a href="../?m=0.5b">the browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or the command line, about 10 GiB free</td></tr>
+      <div class="scroll" tabindex="0" role="group" aria-label="The four programs side by side; scrolls sideways on a narrow screen"><table id="tab-4" class="wide">
+        <caption>The four programs side by side. Counts are counted in the program files; times are measured.</caption>
+        <tr><th>What</th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th></tr>
+        <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B</td></tr>
+        <tr><td>Weights</td><td class="n">about 135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td><td class="n">about 752 million (the text part)</td></tr>
+        <tr><td>Program length, in characters</td><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td></tr>
+        <tr><td>Characters that write the tape</td><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td><td class="n">7,448,657,450</td></tr>
+        <tr><td>Tape, in cells of 32 bits</td><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014 (6.81 GiB)</td><td class="n">1,067,424,772 (3.98 GiB)</td></tr>
+        <tr><td>Start-up</td><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s on the command line; 2 min 27 s in the browser</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s on the command line</td></tr>
+        <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s on the command line; 9.0 s in the browser</td><td class="n">about 5.6 s in the browser; 5.56 s on the command line (median)</td></tr>
+        <tr><td>Same next word piece as the original model</td><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td><td class="n">95.1% (214 of 225), its whole-number version against the original</td></tr>
+        <tr><td>Checksums of the tape, all equal</td><td class="n">180</td><td class="n">628</td><td class="n">1,744</td><td class="n">1,018</td></tr>
+        <tr><td>Runs in</td><td class="n"><a href="../?m=small">the browser</a></td><td class="n"><a href="../?m=0.5b">the browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or the command line, about 10 GiB free</td><td class="n"><a href="../?m=0.8b">the browser</a>, about 5 GB of memory</td></tr>
       </table></div>
       <p class="measured">Times were measured on one desktop computer with the program file on its own disk. They depend on how busy the machine is.</p>
     </div></details>
@@ -381,12 +414,12 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
     <details class="q fold" id="limits"><summary>What all this does not show</summary><div class="a">
       <ul>
         <li><b>The figures simplify.</b> The row lookup, the three weights, the scores and the number written in fives use small or made-up numbers. The program of the model also uses digits below zero and other multipliers than five.</li>
-        <li><b>The route is that of brnfck-135m.</b> The question, its word pieces, the character count and the first table of numbers are of the program with 135 million weights. The two bigger programs are built in the same way; their numbers are in the table of the three models.</li>
-        <li><b>The answers can be wrong.</b> brnfck-135m is often wrong, also on simple sums. The two bigger ones get simple sums and facts right but are still wrong on harder facts. Brainfuck adds nothing and removes nothing; do not rely on anything a model says.</li>
-        <li><b>The numbers were rounded.</b> The whole-number versions pick the same next word piece as the original models in 94.8%, 96.6% and 97.2% of the tested cases, not in all.</li>
-        <li><b>Only some questions were compared.</b> The two bigger programs printed exactly the reference text for the test questions, with answers compared up to 30 word pieces. Other questions were not compared.</li>
+        <li><b>The route is that of brnfck-smollm2-135m.</b> The question, its word pieces, the character count and the first table of numbers are of the program with 135 million weights. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b are built in the same way; their numbers are in the table of the models side by side.</li>
+        <li><b>The answers can be wrong.</b> brnfck-smollm2-135m is often wrong, also on simple sums. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b usually get simple sums and facts right but are still wrong on harder facts. Brainfuck adds nothing and removes nothing; do not rely on anything a model says.</li>
+        <li><b>The numbers were rounded.</b> The whole-number versions pick the same next word piece as the original models in 94.8%, 96.6%, 95.1% and 97.2% of the tested cases, not in all.</li>
+        <li><b>Only some questions were compared.</b> brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b printed exactly the reference text for the test questions, with answers compared up to 30 word pieces; brnfck-qwen3.5-0.8b for one question, also of 30 word pieces. Other questions were not compared.</li>
         <li><b>It needs cells of 32 bits and a fast interpreter.</b> One command at a time would take far too long, and that it gives the same result was checked on small test models only.</li>
-        <li><b>The times come from one computer.</b> They depend on how busy the machine is. The chat pages have only been tried in one desktop Chromium browser. brnfck-1.5b ran there from start to answer on 11 October 2026: ready in 2 min 27 s, then 9.0 seconds per word piece (measured). It needs about 8 GB of free memory; a phone cannot run it.</li>
+        <li><b>The times come from one computer.</b> They depend on how busy the machine is. The chat pages have only been tried in one desktop Chromium browser. brnfck-qwen2.5-1.5b ran there from start to answer on 11 October 2026: ready in 2 min 27 s, then 9.0 seconds per word piece (measured). It needs about 8 GB of free memory; a phone cannot run it.</li>
         <li><b>The search for earlier work was limited.</b> There is no claim to be the first.</li>
       </ul>
     </div></details>
@@ -394,13 +427,13 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
     <details class="q fold" id="words"><summary>The words used here, in one line each</summary><div class="a">
       <dl class="glossary">
         <div><dt>Command</dt><dd>One of the eight characters brainfuck understands: <code>+ &minus; &lt; &gt; [ ] , .</code> Each does one small thing. A program is a list of commands.</dd></div>
-        <div><dt>Tape</dt><dd>The program's memory: one long row of cells. brnfck-135m has 188,012,789 of them, brnfck-1.5b 1,827,870,014.</dd></div>
+        <div><dt>Tape</dt><dd>The program's memory: one long row of cells. brnfck-smollm2-135m has 188,012,789 of them, brnfck-qwen2.5-1.5b 1,827,870,014.</dd></div>
         <div><dt>Cell</dt><dd>One place on the tape. It holds one whole number.</dd></div>
         <div><dt>Pointer</dt><dd>The cell the program is at. Commands work on the cell under the pointer.</dd></div>
         <div><dt>Loop</dt><dd>The commands between <code>[</code> and <code>]</code>, repeated until the cell under the pointer is zero.</dd></div>
         <div><dt>Word piece</dt><dd>A word or a part of a word. The model reads and writes text one word piece at a time. Elsewhere it is called a token.</dd></div>
         <div><dt>Weight</dt><dd>One of the numbers the model learned in training. It says how strongly one number counts in a total.</dd></div>
-        <div><dt>Layer</dt><dd>One round of the model's calculation over all the numbers of a word piece, with weights of its own. brnfck-135m has 30.</dd></div>
+        <div><dt>Layer</dt><dd>One round of the model's calculation over all the numbers of a word piece, with weights of its own. brnfck-smollm2-135m has 30.</dd></div>
         <div><dt>Attention</dt><dd>The part of a layer in which a word piece looks back at the earlier word pieces and takes in more from the useful ones.</dd></div>
         <div><dt>Writing part</dt><dd>The long first part of the program. It puts the model on the tape and neither reads nor prints.</dd></div>
         <div><dt>Engine</dt><dd>The short last part. It reads the question, calculates with the weights and prints the answer.</dd></div>
@@ -411,8 +444,9 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
 
     <details class="q fold" id="credits"><summary>Credits and licences</summary><div class="a">
       <ul>
-        <li><b>SmolLM2-135M-Instruct</b>, the model of brnfck-135m, is made by Hugging Face and published under the Apache 2.0 licence.</li>
-        <li><b>Qwen2.5-0.5B-Instruct</b> and <b>Qwen2.5-1.5B-Instruct</b>, the two bigger chat models, are made by Alibaba Cloud and published under the Apache 2.0 licence.</li>
+        <li><b>SmolLM2-135M-Instruct</b>, the model of brnfck-smollm2-135m, is made by Hugging Face and published under the Apache 2.0 licence: <a href="https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct">huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct</a>.</li>
+        <li><b>Qwen2.5-0.5B-Instruct</b> and <b>Qwen2.5-1.5B-Instruct</b>, the models of brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b, are made by Alibaba Cloud and published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">huggingface.co/Qwen/Qwen2.5-0.5B-Instruct</a> and <a href="https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct">huggingface.co/Qwen/Qwen2.5-1.5B-Instruct</a>.</li>
+        <li><b>Qwen3.5-0.8B</b>, the model of brnfck-qwen3.5-0.8b, is made by the Qwen team of Alibaba Cloud and published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B">huggingface.co/Qwen/Qwen3.5-0.8B</a>.</li>
         <li><b>stories260K</b>, a small story model that an earlier program ran, comes from Andrej Karpathy's llama2.c project. That project is published under the MIT licence, and so is the tinyllamas collection of model files it belongs to.</li>
         <li><b>Brainfuck</b> is a language designed by Urban M&uuml;ller in 1993.</li>
       </ul>
@@ -424,24 +458,25 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
     <p>Inside the program measures the two parts you met here, the writing part and the engine. The program map shows them as one picture. The lessons let you build the loop, the lookup and the harder arithmetic yourself.</p>
     <ol class="dest">
       <li style="--c: var(--c-open)"><a href="../inside/"><i aria-hidden="true">[]</i><b>Inside the program</b><small>Article</small><span>Take the writing part and the engine apart, with figures drawn from the program itself.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../compare/"><i aria-hidden="true">[]</i><b>Compare the models</b><small>Article</small><span>Watch the memory of Qwen3.8-27B fade and be written over, word piece by word piece.</span></a></li>
       <li style="--c: var(--c-gt)"><a href="../map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>The whole program</small><span>See every character of it in one picture, and zoom in until you can read the commands.</span></a></li>
       <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the search for the highest score.</span></a></li>
-      <li style="--c: var(--c-in)"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-135m</b><small>Chatbot</small><span>Put a question of your own through the route you just followed.</span></a></li>
-      <li style="--c: var(--c-in)"><a href="../?m=0.5b"><i aria-hidden="true">,</i><b>Ask brnfck-0.5b</b><small>Chatbot</small><span>Slower, and right more often.</span></a></li>
+      <li style="--c: var(--c-in)"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-smollm2-135m</b><small>Chatbot</small><span>Put a question of your own through the route you just followed.</span></a></li>
+      <li style="--c: var(--c-in)"><a href="../?m=0.5b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen2.5-0.5b</b><small>Chatbot</small><span>Slower, and right more often.</span></a></li>
     </ol>
   </section>
 
   <section id="notes" aria-labelledby="notes-h">
     <h2 id="notes-h">Notes and sources</h2>
     <ol class="refs">
-      <li id="ref-1"><b>SmolLM2-135M-Instruct</b>, the model of brnfck-135m. Made by Hugging Face and published under the Apache 2.0 licence.</li>
+      <li id="ref-1"><b>SmolLM2-135M-Instruct</b>, the model of brnfck-smollm2-135m. Made by Hugging Face and published under the Apache 2.0 licence.</li>
       <li id="ref-2"><b>llama2.c</b>, a project by Andrej Karpathy, published under the MIT licence, and the <b>tinyllamas</b> collection of model files it belongs to (also MIT). The small story model stories260K comes from there.</li>
       <li id="ref-3"><b>lobotoml</b>, an earlier public project: a neural network of 7 neurons in brainfuck, for the XOR function.</li>
       <li id="ref-4"><b>Brainfuck</b>, a language designed by Urban M&uuml;ller in 1993.</li>
-      <li id="ref-5"><b>Measurements.</b> Counts are counted in the program file (<a href="#c-table">the eight commands, counted</a>; you can repeat the count in your browser). Times and steps were measured on one desktop computer with the program file on its own disk (<a href="#tab-2">the building blocks</a>, <a href="#tab-3">brnfck-135m</a> and <a href="#tab-4">the three models</a>). The steps per word piece come from the counts under <a href="../inside/#s6">&ldquo;Where the time goes&rdquo; in Inside the program</a>.</li>
-      <li id="ref-6"><b>Checks of brnfck-135m.</b> The same text as the whole-number reference for 10 test questions; 279 generated word pieces over 5 prompts all the same; 180 checksums over all 188,012,789 cells. See <a href="#real">&ldquo;How do I know the program does what it says?&rdquo;</a></li>
-      <li id="ref-7"><b>Qwen2.5-0.5B-Instruct</b> and <b>Qwen2.5-1.5B-Instruct</b>, the two bigger chat models. Made by Alibaba Cloud and published under the Apache 2.0 licence.</li>
-      <li id="ref-8"><b>Checks of the two bigger programs.</b> Only the eight commands, one read command and one print command; the written tape equal to the tape after loading the data files (628 and 1,744 checksums); the reference text printed exactly for the test questions, with answers compared up to 30 word pieces.</li>
+      <li id="ref-5"><b>Measurements.</b> Counts are counted in the program file (<a href="#c-table">the eight commands, counted</a>; you can repeat the count in your browser). Times and steps were measured on one desktop computer with the program file on its own disk (<a href="#tab-2">the building blocks</a>, <a href="#tab-3">brnfck-smollm2-135m</a> and <a href="#tab-4">the models side by side</a>). The steps per word piece come from the counts under <a href="../inside/#s6">&ldquo;Where the time goes&rdquo; in Inside the program</a>.</li>
+      <li id="ref-6"><b>Checks of brnfck-smollm2-135m.</b> The same text as the whole-number reference for 10 test questions; 279 generated word pieces over 5 prompts all the same; 180 checksums over all 188,012,789 cells. See <a href="#real">&ldquo;How do I know the program does what it says?&rdquo;</a></li>
+      <li id="ref-7"><b>Qwen2.5-0.5B-Instruct</b> and <b>Qwen2.5-1.5B-Instruct</b>, the models of brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b. Made by Alibaba Cloud and published under the Apache 2.0 licence.</li>
+      <li id="ref-8"><b>Checks of brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b.</b> Only the eight commands, one read command and one print command; the written tape equal to the tape after loading the data files (628 and 1,744 checksums); the reference text printed exactly for the test questions, with answers compared up to 30 word pieces.</li>
     </ol>
   </section>
 </main>
@@ -449,6 +484,7 @@ node compiler/qwen/program/ask.js "What is the capital of France?"</pre>
 <script src="../program-start.js?v=r6"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../ui/article.js?v=r7"></script>
-<script src="../ui/how.js?v=r6"></script>
+<script src="../ui/how.js?v=r13"></script>
+<script src="../home-figures.js?v=r25"></script>
 </body>
 </html>

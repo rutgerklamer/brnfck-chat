@@ -124,6 +124,8 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .modelLine { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); margin: 0 0 var(--s2); font-family: var(--mono); }
 #modelText { overflow-wrap: anywhere; }
 #models .n { flex-basis: 4.75rem; }
+#models .n.wrap { white-space: normal; }
+#models b .nb { white-space: nowrap; }
 #storeLine { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin: var(--s2) 0 0; }
 #removeStored { text-align: right; }
 .rig details.q > summary { font: var(--ctl); }
@@ -184,7 +186,7 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .eng-detail dl.facts { margin: var(--s3) 0 0; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
 .eng-ctl { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 0; }
 
-/* ---- one question, three programs ---- */
+/* ---- one question, four programs ---- */
 #fig-race .frame-head { flex-wrap: wrap; row-gap: 2px; }
 .race-q { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s3); margin: 0 0 var(--s4); font: 600 1rem var(--mono); }
 .race-q .label { margin: 0; }
@@ -199,12 +201,15 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .track .on { clip-path: inset(0 calc(100% - var(--f)) 0 0); }
 .track .tip { position: absolute; top: -4px; bottom: -4px; left: var(--f); width: 2px; margin-left: -1px; background: var(--ink); }
 .lane[data-phase="done"] .tip { display: none; }
-.lane .said { min-height: 1.6em; margin: 6px 0 0; font: 600 1rem/1.5 var(--mono); }
+.lane .said { display: grid; min-height: 1.6em; margin: 6px 0 0; font: 600 1rem/1.5 var(--mono); overflow-wrap: anywhere; }
+.lane .said > * { grid-area: 1 / 1; }
+.lane .said .whole { visibility: hidden; }
 .lane .cursor { display: none; width: .55em; height: 1em; margin-left: 2px; vertical-align: -.12em; background: var(--c-out); }
 .lane:is([data-phase="read"], [data-phase="write"]) .cursor { display: inline-block; animation: blink 1s steps(1) infinite; }
 .lane[data-phase="read"] .cursor { background: var(--c-in); }
 @keyframes blink { 50% { opacity: 0; } }
 .race-ctl { margin-top: var(--s4); }
+
 @media (prefers-reduced-motion: reduce) { .lane .cursor { animation: none !important; } }
 
 /* ---- narrower ---- */

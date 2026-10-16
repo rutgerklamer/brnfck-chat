@@ -1,0 +1,78 @@
+/* "Compare the models" (compare/index.html). */
+
+/* the four steps of a head */
+main.dn ol.steps { padding-left: 1.5em; }
+main.dn ol.steps > li { margin: 0 0 var(--s2); }
+
+/* ---- one layer that looks back, one DeltaNet layer ---- */
+#fig-grow .bars { grid-template-columns: fit-content(40%) minmax(3rem, 1fr) auto; }
+#fig-grow .bars .track { display: block; }
+#fig-grow .bars .bar { display: block; height: 18px; }
+#fig-grow .bars .val { font-family: var(--mono); text-align: right; min-width: 8ch; }
+
+/* ---- the two played figures ---- */
+main.dn .ctl.top { margin: 0 0 var(--s3); }
+main.dn .ctl.top .seg { display: flex; flex: 1 1 auto; }
+main.dn .dn-text { height: 7.5em; overflow-y: auto; margin: 0 0 var(--s4); padding: var(--s2) var(--s3); border: 1px solid var(--line); background: var(--sunk);
+  font: var(--fs-ui)/1.6 var(--sans); white-space: pre-wrap; overflow-wrap: anywhere; scroll-behavior: auto; }
+main.dn .dn-text > span { cursor: pointer; }
+main.dn .dn-text > span.ask { color: var(--ink-2); font-style: italic; }
+main.dn .dn-text > span.ans { color: var(--ink); }
+main.dn .dn-text > span.sp { display: inline-block; margin: 0 2px; padding: 0 3px; border: 1px solid var(--line); color: var(--muted); font: 500 .6875rem/1.4 var(--mono); white-space: nowrap; vertical-align: .1em; }
+main.dn .dn-text > span.now { background: var(--go); color: var(--on-go); box-shadow: 0 0 0 1px var(--go); }
+main.dn .dn-text > span.gap.now::before { content: "↵"; padding: 0 2px; }      /* the empty lines of the think block are not drawn: this marks where they are */
+main.dn .dn-note { margin: calc(-1 * var(--s3)) 0 var(--s4); color: var(--muted); font: var(--fs-small)/1.5 var(--sans); }
+main.dn .dn-note .sp { display: inline-block; margin: 0 2px; padding: 0 3px; border: 1px solid var(--line); font: 500 .6875rem/1.4 var(--mono); white-space: nowrap; vertical-align: .1em; }
+main.dn canvas { display: block; width: 100%; }
+
+/* the map beside the chosen head, or above it on a narrow screen */
+main.dn .dn-two { display: grid; grid-template-columns: minmax(0, 30rem) minmax(0, 1fr); gap: var(--s4) var(--s5); align-items: start; }
+main.dn .dn-map { width: auto; max-width: 100%; cursor: pointer; }
+main.dn .dn-map:focus-visible { outline: var(--ring) solid var(--ink); outline-offset: 2px; }
+main.dn .dn-hist { cursor: pointer; }
+main.dn .dn-who { margin: 0 0 var(--s2); font: var(--fs-ui)/1.4 var(--sans); }
+main.dn .dn-key { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--s3); align-items: center; margin-top: var(--s3); max-width: 24rem; color: var(--muted); font: .75rem/1.3 var(--mono); }
+main.dn .dn-ramp { grid-column: 1 / -1; height: 10px; border: 1px solid var(--line); }
+main.dn .dn-hi { text-align: right; }
+main.dn :is(.dn-ring, .dn-look) { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: var(--s2); margin-top: var(--s2); font-family: var(--sans); }
+main.dn .dn-ring::before { content: ""; width: 10px; height: 10px; border: 3px solid var(--go); border-radius: 50%; }
+
+@media (max-width: 52em) {
+  main.dn .dn-two { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 36em) {
+  main.dn .dn-text { height: 9em; }
+  #fig-grow .bars { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--s1); }
+  #fig-grow .bars .name { grid-column: 1 / -1; margin-top: var(--s2); }
+}
+main.dn .dn-look { margin-top: 0; }
+main.dn .dn-look::before { content: ""; width: 16px; height: 6px; background: var(--sunk); outline: 1px solid var(--line); }
+
+/* ---- the model itself (fig-live) ---- */
+#fig-live .lv-label { display: grid; gap: var(--s1); margin: 0; font: var(--ctl); }
+#fig-live .lv-q { min-height: 4rem; font-family: var(--sans); color: var(--ink); }
+#fig-live .lv-ex { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 0; }
+#fig-live .lv-ex button { min-height: 2rem; padding: 2px 10px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: var(--fs-ui)/1.3 var(--sans); cursor: pointer; }
+#fig-live .lv-ex button:hover { border-color: var(--ink); }
+#fig-live .lv-meter { display: block; margin: var(--s3) 0 0; }
+#fig-live .lv-meter[hidden] { display: none; }
+#fig-live .lv-io { height: 10em; overflow-y: auto; margin: var(--s4) 0; padding: var(--s2) var(--s3); border: 1px solid var(--line); background: var(--sunk); }
+#fig-live .lv-io .q:empty, #fig-live .lv-io .a:empty { display: none; }
+@media (max-width: 36em) { #fig-live .lv-io { height: 13em; } }
+main.dn .dn-two[hidden], #fig-live .lv-io[hidden] { display: none; }
+
+/* ---- the two models to scale (fig-stack) ---- */
+main.dn .dn-legend { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: 0 0 var(--s3); color: var(--ink-2); font: var(--fs-ui)/1.4 var(--sans); }
+main.dn .dn-legend > span { display: inline-flex; align-items: center; gap: var(--s2); }
+main.dn .dn-stack { max-width: 44rem; cursor: pointer; }
+main.dn :is(.dn-stack, .dn-cost):focus-visible { outline: var(--ring) solid var(--ink); outline-offset: 2px; }
+
+/* ---- what the four programs keep (fig-cost) ---- */
+main.dn .dn-read { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px var(--s3); align-items: center; max-width: 34rem; margin: var(--s3) 0 0; font: var(--fs-ui)/1.4 var(--sans); font-variant-numeric: tabular-nums; }
+main.dn .dn-read > .r { display: contents; }
+main.dn .dn-read .v { font-family: var(--mono); text-align: right; }
+main.dn .dn-read > .me > :is(.n, .v) { font-weight: 600; }
+@media (max-width: 36em) { main.dn .dn-read { font-size: .8125rem; } }
+
+/* ---- the layers that still look back (fig-head): eight heads in one row ---- */
+#fig-head .dn-hpick > button { min-width: 0; padding-left: 4px; padding-right: 4px; }

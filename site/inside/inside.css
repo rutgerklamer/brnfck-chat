@@ -2,6 +2,8 @@
 :root {
   --k-att: var(--d1);
   --k-att2: color-mix(in srgb, var(--d1) 62%, var(--ink));
+  --k-dn: color-mix(in srgb, var(--d1) 50%, var(--d4));          /* the DeltaNet layers of brnfck-qwen3.5-0.8b */
+  --k-dn2: color-mix(in srgb, var(--k-dn) 62%, var(--ink));
   --k-text: var(--d2);
   --k-ff: var(--d3);
   --k-ff2: color-mix(in srgb, var(--d3) 62%, var(--ink));

@@ -365,4 +365,4 @@ function buildReal(name) {
   return { tok, net, shape: src.shape };
 }
 
-module.exports = { buildReal, settings, shapeOf, optionsFor, modelDir, generateIds, argmax, STOP };
+module.exports = { buildReal, settings, shapeOf, optionsFor, modelDir, generateIds, argmax, STOP, rq32, rqWrap, quantise };

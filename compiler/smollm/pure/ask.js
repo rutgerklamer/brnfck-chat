@@ -8,7 +8,7 @@ const { runFile } = require('./run');
 const { questionBytes } = require('../../../site/runtime/question');
 
 const PROGRAMS = path.join(__dirname, '..', '..', '..', 'site', 'programs');
-const FILE = path.join(PROGRAMS, 'brnfck-135m.bf'), META = path.join(PROGRAMS, 'brnfck-135m.meta.json');
+const FILE = path.join(PROGRAMS, 'brnfck-smollm2-135m.bf'), META = path.join(PROGRAMS, 'brnfck-smollm2-135m.meta.json');
 const PIECE_GAP_MS = 20;                 // output bytes closer together than this belong to one word piece
 
 function ask(question, { onText, onProgress, onStart } = {}) {

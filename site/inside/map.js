@@ -80,7 +80,13 @@
     for (let l = e.model.layers - 1; l >= 0; l--) groupsW.push(group((s) => s.part === 0 && s.layer === l && s.kind !== 'cls', 'Layer ' + (l + 1), 'L' + (l + 1)));
     groupsW.push(group((s) => s.kind === 'emb', 'Table of word pieces', 'Word pieces'), group((s) => s.kind === 'toktable' || s.kind === 'tokbytes', 'Vocabulary'));
     const ids = e.sections.map((s) => s.id), range = (a, b, text, short) => add(1, e.sections[ids.indexOf(a)].from, e.sections[ids.indexOf(b)].to, text, short);
-    const groupsE = [range('ask', 'queue', 'Reading the question', 'Question'), range('take', 'emb', 'Start of a word piece', 'Word piece'), range('xn1', 'xout', 'One layer (this text runs ' + e.model.layers + ' times)', 'One layer'), range('xnf', 'print', 'Choosing and printing', 'Choosing')];
+    // the text of the layers: one layer, or (brnfck-qwen3.5-0.8b) the four layers of a group, each written once
+    const layerGroups = () => {
+      if (!e.model.unit) return [range('xn1', 'xout', 'One layer (this text runs ' + e.model.layers + ' times)', 'One layer')];
+      const per = e.model.unit.length;
+      return e.model.unit.map((kind, u) => { const ss = e.sections.filter((s) => s.u === u), list = Array.from({ length: e.model.groups }, (_, i) => i * per + u + 1); return add(1, ss[0].from, ss[ss.length - 1].to, 'Layers ' + list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1] + ' (' + (kind === 'lin' ? 'DeltaNet' : 'attention') + ')', kind === 'lin' ? 'DeltaNet' : 'Attention'); });
+    };
+    const groupsE = [range('ask', 'queue', 'Reading the question', 'Question'), range('take', 'emb', 'Start of a word piece', 'Word piece'), ...layerGroups(), range('xnf', 'print', 'Choosing and printing', 'Choosing')];
     for (const s of spans) if (s.to - s.from > 2000 && !names.some((n) => n.tier === 1 && n.from === s.from && n.to === s.to)) add(2, s.from, s.to, s.title.replace(/ \(.*\)$/, ''), s.short);
     for (const m of e.marks) if (m.to - m.from >= 4096) add(3, m.from, m.to, I.markLabel(m));
     names.sort((a, b) => a.from - b.from);
@@ -90,7 +96,7 @@
       { text: 'The engine', says: 'It reads your question, does the model\'s sums with the numbers, and prints the answer.', from: engine.from, to: engine.to, kids: groupsE.map((g) => ({ text: g.text, from: g.from, to: g.to, kids: kids(g) })) },
     ] };
     const LAY = Math.min(12, e.model.layers - 1), inLayer = spans.filter((s) => s.part === 0 && s.layer === LAY && s.kind !== 'cls');
-    const sample = w.samples.find((s) => s.id === 'w13') || w.samples[0], strip = spans.find((s) => s.part === 0 && s.layer === LAY && s.kind === 'bias');
+    const sample = w.samples.find((s) => s.id === 'w13') || w.samples[0], strip = spans.find((s) => s.part === 0 && s.layer === LAY && s.kind === 'bias') || spans.find((s) => s.part === 0 && s.layer === LAY && s.kind === 'gain' && s.region.what === 'ffn');
     const tok = spans.find((s) => s.kind === 'toktable'), emb = spans.find((s) => s.kind === 'emb');
     places = [
       { name: 'Whole program', home: true },
@@ -338,7 +344,7 @@
   LAYOUTS.skyline = Object.assign({}, LAYOUTS.line, { name: 'Skyline', says: 'The one line with a height: how many loops lie inside one another there. Flat where the program only writes numbers, towers in the engine. Best to see where the program is complicated.' });
   LAYOUTS.time = Object.assign({}, LAYOUTS.line, { name: 'Text and time', says: 'Above, the text of the engine; below, the steps one word piece took, measured in a run. A band joins each section of the text to its share of the time. Best to see that a short piece of text can take most of the time.',
     zHome: () => Math.log2(Wd * 0.9 / E.chars), home: () => ({ cx: E.from + E.chars / 2, cy: 0 }) });
-  LAYOUTS.three = Object.assign({}, LAYOUTS.line, { name: 'Three programs', says: 'Above, this program; below, all three programs as bars at one scale, cut into the same five parts. Best to compare how long they are and what they are made of.' });
+  LAYOUTS.three = Object.assign({}, LAYOUTS.line, { name: 'Four programs', says: 'Above, this program; below, all four programs as bars at one scale, cut into the same five parts. Best to compare how long they are and what they are made of.' });
   const LINES = { line: 1, lanes: 1, tape: 1, density: 1, skyline: 1, time: 1, three: 1 }, SECOND = { tape: 1, time: 1, three: 1 };      // SECOND: the lower ribbon is something else than the same line closer
   const isLine = () => LINES[layout] === 1;
   let depthData = null, depthWait = null, cmpData = null, cmpWait = null;
@@ -659,8 +665,9 @@
     const C = needCmp(), u = g.u, y = g.mtop, h = g.mh, lw = Math.max(1, Math.round(dpr)), said = (t) => { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f3f1ea'; ctx.font = '600 ' + Math.round(12.5 * u) + 'px ' + UI; let q = t; while (q.length > 20 && ctx.measureText(q).width > Wd - 12 * dpr) q = q.slice(0, -2); ctx.fillText(q === t ? t : q + '\u2026', 6 * dpr, y - g.headH / 2); };
     const me = C && C.models && C.models.find((m) => m.id === I.MODEL), st = me && me.steps && me.steps.pos24;
     if (!st) { if (phase) said(C === null ? 'Reading the measured steps\u2026' : 'No steps were measured for this program.'); return; }
-    const ids = me.steps.sections, tot = st.total, right = Wd, slices = []; let acc = 0;
-    ids.forEach((id, i) => { const sec = E.sections.find((q) => q.id === id), x0 = acc / tot * right; acc += st.steps[i]; if (sec) slices.push({ id, sec, x0, x1: acc / tot * right, steps: st.steps[i] }); });
+    // by section of the text; brnfck-qwen3.5-0.8b counts its four copies of a step apart for this (textSteps)
+    const ids = st.textSteps ? me.steps.textSections : me.steps.sections, per = st.textSteps || st.steps, tot = st.total, right = Wd, slices = []; let acc = 0;
+    ids.forEach((id, i) => { const sec = E.sections.find((q) => q.id === id), x0 = acc / tot * right; acc += per[i]; if (sec) slices.push({ id, sec, x0, x1: acc / tot * right, steps: per[i] }); });
     if (!phase) {
       for (const q of slices) { const a = (q.sec.from - d0) * sc, b = (q.sec.to - d0) * sc; if (b < 0 || a > Wd || q.x1 - q.x0 < 0.5) continue; const f = PAL.fam[I.SEC[q.id].fam];
         ctx.fillStyle = 'rgba(' + f.map((v) => v | 0).join(',') + ',.4)'; ctx.beginPath(); ctx.moveTo(Math.max(0, a), g.top + g.bh); ctx.lineTo(Math.min(Wd, b), g.top + g.bh); ctx.lineTo(q.x1, y); ctx.lineTo(q.x0, y); ctx.closePath(); ctx.fill();
@@ -679,14 +686,15 @@
     const T = me.timing, foot = T ? 'Once, before the first word piece: writing the numbers, ' + T.writeSeconds + ' s. Then each word piece: about ' + T.perPiece.toFixed(1) + ' s (measured).' : '';
     ctx.font = Math.round(12 * u) + 'px ' + UI; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = 'rgba(243,241,234,.88)'; if (foot && ctx.measureText(foot).width < ctlLeft() - 16 * dpr) ctx.fillText(foot, 6 * dpr, y + h + 7 * dpr);
   }
-  // -- three programs: bars at one scale, cut into the same five parts (compare.json) --
+  // -- the programs: bars at one scale, cut into the same five parts (compare.json) --
   function drawThree(g, d0, sc) {
     const C = needCmp(), u = g.u, y = g.mtop, h = g.mh + g.rulerH, said = (t) => { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f3f1ea'; ctx.font = '600 ' + Math.round(12.5 * u) + 'px ' + UI; ctx.fillText(t, 6 * dpr, y - g.headH / 2); };
-    if (!C || !C.models) { said(C === null ? 'Reading the three programs\u2026' : 'The comparison of the three programs is not on this host.'); return; }
-    said('The three programs at one scale. The frame is what the ribbon above shows.');
-    const big = Math.max(...C.models.map((m) => m.chars)), left = 6 * dpr, width = Math.min(Wd, ctlLeft()) - 14 * dpr, rowH = Math.floor(h / 3), barH = Math.max(12 * dpr, rowH - Math.round(20 * u) - 4 * dpr), lw = Math.max(1, Math.round(dpr));
+    if (!C || !C.models) { said(C === null ? 'Reading the programs\u2026' : 'The comparison of the programs is not on this host.'); return; }
+    said('The ' + (I.words(C.models.length)) + ' programs at one scale. The frame is what the ribbon above shows.');
+    const big = Math.max(...C.models.map((m) => m.chars)), left = 6 * dpr, width = Math.min(Wd, ctlLeft()) - 14 * dpr, rowH = Math.floor(h / C.models.length), barH = Math.max(12 * dpr, rowH - Math.round(20 * u) - 4 * dpr), lw = Math.max(1, Math.round(dpr));
     C.models.forEach((m, r) => {
-      const k = m.textKinds, parts = [['Output table', k.cls, 'out'], [m.layers + ' layers', (k.qkv || 0) + (k.o || 0) + (k.w13 || 0) + (k.w2 || 0) + (k.slots || 0) + (k.bias || 0) + (k.scale || 0) + (k.gain || 0), 'ff'], ['Word pieces', k.emb, 'emb'], ['Vocabulary', (k.tokbytes || 0) + (k.toktable || 0) + (k.work || 0) + (k.glob || 0), 'text'], ['Engine', m.engine, 'work']];
+      const k = m.textKinds, inLayers = Object.keys(k).filter((x) => !['cls', 'emb', 'tokbytes', 'tokids', 'toktable', 'work', 'glob'].includes(x)).reduce((a, x) => a + k[x], 0);
+      const parts = [['Output table', k.cls, 'out'], [m.layers + ' layers', inLayers, 'ff'], ['Word pieces', k.emb, 'emb'], ['Vocabulary', (k.tokbytes || 0) + (k.toktable || 0) + (k.work || 0) + (k.glob || 0), 'text'], ['Engine', m.engine, 'work']];
       const yy = y + r * rowH, me = m.id === I.MODEL; let x = left;
       ctx.font = (me ? '800 ' : '600 ') + Math.round(12.5 * u) + 'px ' + UI; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#f3f1ea';
       ctx.fillText((me ? '\u25A0 ' : '') + m.label + ': ' + I.short(m.chars) + ' characters' + (me ? ' (this one)' : ''), left, yy);

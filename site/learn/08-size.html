@@ -12,15 +12,15 @@
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
-<link rel="stylesheet" href="../site.css?v=r9">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/lessons.css?v=r5">
 <link rel="stylesheet" href="../ui/learn-course.css?v=r6">
 <script src="core.js?v=r6"></script>
 <script src="ui.js?v=r7"></script>
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="learn"></script>
+<script src="../site.js?v=r16" data-section="learn"></script>
 <main class="doc article lesson" id="main">
   <header class="plain">
     <p class="kicker crumbs own"><a href="../brainfuck/">Start here</a><a href="./">Build toward a chatbot</a><span>Obstacle 4: size</span></p>
@@ -123,7 +123,7 @@
         <div class="meter split"><i style="width:97.43%"></i><i style="width:2.57%;background:var(--d2)"></i></div>
         <ul class="legend"><li><i class="sw d1"></i>writes numbers onto the tape: 1,004,387,443</li><li><i class="sw d2"></i>the engine: 26.5 million</li></ul>
       </div>
-      <figcaption id="parts-c"><b>The two parts.</b> The characters of the chat program of brnfck-135m, to scale.</figcaption>
+      <figcaption id="parts-c"><b>The two parts.</b> The characters of the chat program of brnfck-smollm2-135m, to scale.</figcaption>
     </figure>
     <p>Nearly all of the program only writes numbers. An earlier version had only the engine and read its weights as typed input, as step 3 does here: 355,761,802 bytes before your question.</p>
     <p><b>The real walk.</b> In the engine a walk costs two steps for each weight, and the row is not carried back each time: it goes to and fro between two places. The weights of the chat model are a little wider than those of this example, so they are put on the tape with 512 added, not 128.</p>

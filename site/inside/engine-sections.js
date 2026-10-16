@@ -57,6 +57,64 @@
       print: { fam: 'text', group: Z, name: 'End piece? Otherwise print', desc: 'If the chosen piece is one of the two "end" pieces, the program stops. Otherwise it walks to the piece\'s record in the vocabulary table. The record says: this piece is one byte, or it is two smaller pieces. The program follows those rules down, with a small stack, and prints the bytes with the one output command.' },
     };
   };
+  // Qwen3.5 (brnfck-qwen3.5-0.8b): three DeltaNet layers and one attention layer, then again. The text of each of the four
+  // places in such a group is written once, and a loop runs the group six times. A section of the text (u0.xn1, ...)
+  // has the entry of its name (xn1, dn.conv, ...) with the layers it runs for as its group; the step counts are by name.
+  const secQwen35 = (E) => {
+    const m = E.model, M = E.matrices, lay = E.layout, T = m.tables, D = m.deltanet, n = fmt, base = secQwen(E);
+    const nLin = m.types.filter((t) => t === 'lin').length, nAtt = m.layers - nLin, g = m.groups, per = m.unit.length;
+    const A = 'Before the first word piece', P = 'For every word piece', L = 'In each of the ' + m.layers + ' layers', DL = 'In each of the ' + nLin + ' DeltaNet layers', AL = 'In each of the ' + nAtt + ' attention layers', Z = 'After the last layer';
+    const rc = (x) => n(x.rows) + ' rows and ' + n(x.cols) + ' columns', head = n(D.keySize) + ' × ' + n(D.valueSize);
+    const S = {
+      ask: { ...base.ask, group: A },
+      queue: { fam: 'text', group: A, name: 'Count the pieces', desc: 'Hands the number of word pieces of the question to the counters of the engine and sets how many positions may still run: ' + m.maxTokens + '. Nothing is in memory yet: this program has no opening lines worked out beforehand, so every word piece of the question goes through the model, from the first one on.' },
+      take: { ...base.take, group: P, desc: 'If the question still has pieces left, the next one becomes the current piece. Otherwise the piece chosen last time is used.' },
+      emb: { ...base.emb, group: P },
+      xn1: { ...base.xn1, group: L },
+      'dn.sweep1': { fam: 'dn', group: DL, name: 'Weights × numbers: the DeltaNet input', desc: 'The first matrix of a DeltaNet layer: ' + rc(M.lin) + '. Its rows make, for this word piece, ' + n(D.keyDim) + ' numbers for the queries, ' + n(D.keyDim) + ' for the keys, ' + n(D.valueDim) + ' for the values, ' + n(D.valueDim) + ' for a gate at the end, and two numbers for each of the ' + D.valueHeads + ' heads: how much it forgets, and how strongly it writes.' },
+      'dn.round': { fam: 'tidy', group: DL, name: 'Scale each row, round', desc: 'Every one of the ' + n(M.lin.rows) + ' totals is doubled as often as the scale of its row says, then divided by a power of two, rounded and kept within limits. The scales come from a strip of constants.' },
+      'dn.conv': { fam: 'dn', group: DL, name: 'Mix with the three word pieces before', desc: 'A short convolution. Each of the ' + n(D.convDim) + ' numbers for the queries, keys and values is added to the same number of the last ' + (D.kernel - 1) + ' word pieces, each times a weight of its own (' + n(D.kernel * D.convDim) + ' weights), and bent by a curve from a table of ' + n(T.sig) + ' entries. The numbers of the last ' + (D.kernel - 1) + ' word pieces stay on the tape between word pieces: ' + n((D.kernel - 1) * D.convDim) + ' cells.' },
+      'dn.qk': { fam: 'tidy', group: DL, name: 'Queries and keys to a fixed length', desc: 'Every query and every key of ' + D.keySize + ' numbers is scaled to a fixed length: one over the square root of ' + D.keySize + ' for a query, one for a key.' },
+      'dn.load': { fam: 'work', group: DL, name: 'Load the heads\' conveyor', desc: 'The values, and two constants for every head, are laid on a conveyor: a strip of cells that travels through the ' + D.valueHeads + ' heads, one head further each round, with the queries, the keys and the running numbers on it.' },
+      'dn.decay': { fam: 'mem', group: DL, name: 'Fade the table', desc: 'How much this head forgets of the past, looked up in two tables (' + n(T.lsp) + ' and ' + n(T.dec) + ' entries): a number a little below one. The ' + n(D.keySize * D.valueSize) + ' numbers of the head\'s table are not all multiplied by it. One scale number of the head is, and only when that scale drops below a half are all numbers of the table halved, as often as needed.' },
+      'dn.vq': { fam: 'tidy', group: DL, name: 'Value and query to the scale of the table', desc: 'The value is divided by the scale of the table (one over the scale from a table of ' + n(T.recipD) + ' entries) and the query multiplied by it, so that both fit the numbers as they lie in the table.' },
+      'dn.predict': { fam: 'mem', group: DL, name: 'What the table says for the key', desc: 'A pass over the ' + D.keySize + ' columns of the table. Each column of ' + D.valueSize + ' numbers is added once for every bit of its number of the key: the table times the key, which is what the table remembers for it.' },
+      'dn.delta': { fam: 'tidy', group: DL, name: 'The difference, times the strength', desc: 'The value minus what the table already says for the key, times how strongly this head writes: ' + D.valueSize + ' numbers.' },
+      'dn.write': { fam: 'mem', group: DL, name: 'Write the difference into the table', desc: 'A second pass over the ' + D.keySize + ' columns: every column gets the difference times its number of the key added. All ' + n(D.keySize * D.valueSize) + ' numbers of the table change. That is all this layer keeps of the word piece.' },
+      'dn.read': { fam: 'mem', group: DL, name: 'Read the table with the query', desc: 'A third pass over the columns, now with the query: the table times the query gives the ' + D.valueSize + ' numbers this head hands on.' },
+      'dn.next': { fam: 'work', group: DL, name: 'On to the next head', desc: 'The conveyor moves on by one head, ' + n(D.headCells) + ' cells: the inputs of the heads still to come, the outputs of the heads so far, the running numbers and the gate. The same code then runs for the next head.' },
+      'dn.gated': { fam: 'tidy', group: DL, name: 'Scale every head, times a gain and the gate', desc: 'After the last head: the ' + D.valueSize + ' numbers of every head are brought to a common size, multiplied by a gain, and by the gate made at the start, bent by a curve. The result is laid ready for the next matrix.' },
+      'dn.sweep2': { fam: 'dn2', group: DL, name: 'Weights × numbers: the DeltaNet output', desc: 'The second matrix of a DeltaNet layer: ' + rc(M.lino) + '. The running numbers ride through it as a strip.' },
+      'dn.xatt': { fam: 'tidy', group: DL, name: 'Scale each row, add the running numbers', desc: 'Every total is doubled as often as the scale of its row says. The running number that came along is added, and the sum is rounded.' },
+      sweep1: { fam: 'att', group: AL, name: 'Weights × numbers: question, key, gate, value', desc: 'The first matrix of an attention layer: ' + rc(M.qkv) + '. Its rows make the question (' + n(m.qDim) + ' numbers), the key (' + n(m.kv) + '), a gate for the question (' + n(m.qDim) + ') and the value (' + n(m.kv) + ').' },
+      qkv: { fam: 'tidy', group: AL, name: 'Scale each row, round', desc: 'Every one of the ' + n(M.qkv.rows) + ' totals is doubled as often as the scale of its row says, then divided by a power of two, rounded and kept within limits. There is no bias in this model.' },
+      trig: { fam: 'att', group: AL, name: 'Sines and cosines of the position', desc: 'Looks up the sine and the cosine of this position for ' + m.rotDim / 2 + ' speeds of turning, in tables of ' + n(T.cos) + ' entries.' },
+      heads: { fam: 'att', group: AL, name: 'Every head to a common size, turned by position', desc: 'Each of the ' + m.heads + ' question heads and ' + m.kvHeads + ' key heads of ' + m.headSize + ' numbers is brought to a common size and multiplied by a gain of its own. Then the first ' + m.rotDim + ' numbers of every head are turned in pairs by an angle that depends on the position. This is how the model knows which piece came before which.' },
+      store: { ...base.store, group: AL },
+      att: { fam: 'mem', group: AL, name: 'Look back at every earlier piece', desc: 'Walks past every filled slot with the question in hand, and back again. On the way out each slot multiplies its key with the question, into one score for each of the ' + m.heads + ' heads; ' + m.share + ' heads share one key. The highest score of every head travels along. On the way back each slot takes how far its score lies below the highest, looks up the exponential of that in a table of ' + n(T.exp) + ' entries, and adds its value, times the result, to running sums.' },
+      mixed: { fam: 'tidy', group: AL, name: 'Divide by the total, times the gate', desc: 'Divides the sums of every head by the total of its weights (one over the total comes from a table of ' + n(T.recip) + ' entries), multiplies them by the gate, bent by a curve, and rounds.' },
+      hop: { fam: 'work', group: AL, name: 'Carry everything across the slots', desc: 'The next matrix lies on the other side of the ' + m.maxTokens + ' memory slots. The numbers are carried across one slot at a time: ' + n(E.hop.cells) + ' cells.' },
+      sweep2: { fam: 'att2', group: AL, name: 'Weights × numbers: attention output', desc: 'The second matrix of an attention layer: ' + rc(M.o) + '. The running numbers ride through it as a strip.' },
+      xatt: { ...base.xatt, group: AL },
+      xn2: { ...base.xn2, group: L },
+      sweep3: { ...base.sweep3, group: L },
+      hid: { ...base.hid, group: L },
+      sweep4: { ...base.sweep4, group: L },
+      xout: { ...base.xout, group: L, desc: 'As after the mixing part: double, add the running number that came along, round. The layer is done.' },
+      xnf: { ...base.xnf, group: Z },
+      cls: { ...base.cls, group: Z },
+      return: { ...base.return, group: Z },
+      print: { ...base.print, group: Z },
+    };
+    // the sections of the text: the entry of their name, grouped by the layers they run for
+    const nth = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+    for (const s of E.sections) {
+      if (!s.key) continue;
+      const layers = Array.from({ length: g }, (_, i) => i * per + s.u + 1), list = layers.slice(0, -1).join(', ') + ' and ' + layers[layers.length - 1];
+      S[s.id] = { ...S[s.key], group: 'The ' + nth[s.u] + ' layer of a group of ' + per + ' (' + (s.layerKind === 'lin' ? 'DeltaNet' : 'attention') + '): layers ' + list, key: s.key };
+    }
+    return S;
+  };
   // E: engine.json of a program
-  window.EngineSections = { of: (E) => (E.family === 'smol' ? secSmall() : secQwen(E)) };
+  window.EngineSections = { of: (E) => (E.family === 'smol' ? secSmall() : E.family === 'qwen3.5' ? secQwen35(E) : secQwen(E)) };
 })();

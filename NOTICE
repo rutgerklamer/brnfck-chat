@@ -5,16 +5,19 @@ The code and the site are licensed under the MIT licence: see LICENSE.
 The built programs hold the weights of a language model in another form. The model's licence,
 the Apache License 2.0 (LICENSES/Apache-2.0.txt), applies to them:
 
-  brnfck-135m.bf   SmolLM2-135M-Instruct by Hugging Face (HuggingFaceTB)
-                   https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct
-  brnfck-0.5b.bf   Qwen2.5-0.5B-Instruct, Copyright 2024 Alibaba Cloud
-                   https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct
-  brnfck-1.5b.bf   Qwen2.5-1.5B-Instruct, Copyright 2024 Alibaba Cloud
-                   https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct
+  brnfck-smollm2-135m.bf  SmolLM2-135M-Instruct by Hugging Face (HuggingFaceTB)
+                          https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct
+  brnfck-qwen2.5-0.5b.bf  Qwen2.5-0.5B-Instruct, Copyright 2024 Alibaba Cloud
+                          https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct
+  brnfck-qwen2.5-1.5b.bf  Qwen2.5-1.5B-Instruct, Copyright 2024 Alibaba Cloud
+                          https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct
+  brnfck-qwen3.5-0.8b.bf  Qwen3.5-0.8B by the Qwen team of Alibaba Cloud
+                          https://huggingface.co/Qwen/Qwen3.5-0.8B
 
 Changes made to the model: the weights are rounded to whole numbers of a few bits and written as
 brainfuck commands that put them in the program's memory, next to a brainfuck program that runs the
 model. The answers can differ slightly from those of the original model.
 
-The same licence applies to compiler/smollm/engine/data/calib.json and
-compiler/qwen/engine/data/*/calib.json: values measured inside these models.
+The same licence applies to compiler/smollm/engine/data/calib.json,
+compiler/qwen/engine/data/*/calib.json, compiler/qwen3.5/data/seq256.json and site/compare/data/:
+values measured inside these models, or text they wrote.

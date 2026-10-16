@@ -10,7 +10,7 @@ const { modelOf, ROOT, COMMANDS, commandIndex, num, gib } = require('./models');
 const { tapeRegions, regionAt } = require('./regions');
 
 const MODEL = modelOf(process.argv[2]);
-const FILE = MODEL.file, META = MODEL.meta, DATA = MODEL.dir, QWEN = MODEL.family === 'qwen';
+const FILE = MODEL.file, META = MODEL.meta, DATA = MODEL.dir, QWEN = MODEL.family !== 'smol', Q35 = MODEL.family === 'qwen3.5';
 const now = () => Date.now() / 1000;
 let t0 = now();
 const lap = (s) => { console.log(`${s}  [${(now() - t0).toFixed(1)} s]`); t0 = now(); };
@@ -137,7 +137,7 @@ let entropyBits = 0, nonZero = 0, unary = 0;
 if (nonZero !== META.encoder.nonZero) throw new Error('non-zero count differs from the meta file');
 lap(`entropy ${(entropyBits / nonZero).toFixed(3)} bits per non-zero cell; plain counting ${num(unary)} characters`);
 
-const WK = QWEN ? ['qkv', 'o', 'w13', 'w2'] : ['qkv', 'o', 'w13', 'w2', 'cls'], WMAX = 2 * OFFW - 1, EUNIT = QWEN ? 4 : 256;
+const WK = Q35 ? ['lin', 'lino', 'qkv', 'o', 'w13', 'w2'] : QWEN ? ['qkv', 'o', 'w13', 'w2'] : ['qkv', 'o', 'w13', 'w2', 'cls'], WMAX = 2 * OFFW - 1, EUNIT = QWEN ? 4 : 256;
 const whist = {}; for (const k of WK) whist[k] = new Float64Array(2 * OFFW);
 const embHist = new Float64Array(801);            // table value / EUNIT, clamped to -400..400
 let embMin = Infinity, embMax = -Infinity;
@@ -212,13 +212,14 @@ const samples = [];
   const L = G.engine.a.layers, la = Math.min(5, L - 1), lb = Math.min(12, L - 1), nth = (list, i) => list[Math.min(i, list.length - 1)];
   const strip = (kind) => pick(blocks.filter((e) => [e.region, ...e.also].some((id) => regions[id].kind === kind && regions[id].layer === lb)), (e) => e.len);
   const want = [
-    ['slots', 'Memory of the fixed opening lines, layer ' + (la + 1), pick(inKind('slots', la), (e) => -e.K)],
-    ['qkv', 'Attention weights, layer 1', nth(inKind('qkv', 0), 10)],
+    // (the memory of Qwen3.5 is empty before the first question: it runs every position from 0)
+    ...(Q35 ? [['lin', 'DeltaNet weights, layer 1', nth(inKind('lin', 0), 10)], ['qkv', 'Attention weights, layer 4', nth(inKind('qkv', 3), 10)]]
+      : [['slots', 'Memory of the fixed opening lines, layer ' + (la + 1), pick(inKind('slots', la), (e) => -e.K)], ['qkv', 'Attention weights, layer 1', nth(inKind('qkv', 0), 10)]]),
     ['w13', 'Feed-forward weights, layer ' + (lb + 1), nth(inKind('w13', lb), 40)],
     ['cls', 'Output table, part 1 of ' + G.engine.nC, nth(inKind('cls', 0), 20)],
     ['emb', 'Table of word pieces', nth(inKind('emb'), 100)],
     ['tok', QWEN ? 'Vocabulary table: the joining rules of word pieces' : 'Vocabulary table: the text of word pieces', nth(inKind('toktable'), 30)],
-    ...(QWEN ? [['bias', 'Strips of constants in layer ' + (lb + 1) + ': the block that holds the bias', strip('bias')], ['gain', 'Strips of constants in layer ' + (lb + 1) + ': the block that holds a gain strip', strip('gain')]] : []),
+    ...(Q35 ? [['conv', 'The convolution weights of layer ' + (lb + 1), nth(inKind('conv', lb), 2)], ['gain', 'Strips of constants in layer ' + (lb + 1) + ': the block that holds a gain strip', strip('gain')]] : QWEN ? [['bias', 'Strips of constants in layer ' + (lb + 1) + ': the block that holds the bias', strip('bias')], ['gain', 'Strips of constants in layer ' + (lb + 1) + ': the block that holds a gain strip', strip('gain')]] : []),
     ['tiny', 'The smallest block of the file', pick(blocks, (e) => e.len)],
     ['deep', 'The block with the most digit positions', pick(blocks, (e) => -e.D * 1e6 + e.K)],
   ];

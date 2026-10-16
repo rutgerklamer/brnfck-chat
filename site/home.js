@@ -7,15 +7,18 @@
   const size = ProgramStart.size;
 
   const MODELS = {
-    small: { name: 'small', label: 'brnfck-135m', model: 'SmolLM2-135M-Instruct', worker: 'workers/brnfck-135m.js?v=r9',
-      manifestUrl: 'dist/small/manifest.json', metaUrl: 'programs/brnfck-135m.meta.json', fileUrl: 'programs/brnfck-135m.bf',
+    small: { name: 'small', label: 'brnfck-smollm2-135m', model: 'SmolLM2-135M-Instruct', worker: 'workers/brnfck-smollm2-135m.js?v=r9',
+      manifestUrl: 'dist/small/manifest.json', metaUrl: 'programs/brnfck-smollm2-135m.meta.json', fileUrl: 'programs/brnfck-smollm2-135m.bf',
       needGB: 1.5, download: '180 MB', startup: '9 to 16 s', perPiece: '0.6 to 1.0 s' },
-    '0.5b': { name: '0.5b', label: 'brnfck-0.5b', model: 'Qwen2.5-0.5B-Instruct', worker: 'workers/brnfck-0.5b.js?v=r9',
-      manifestUrl: 'dist/0.5b/manifest.json', metaUrl: 'programs/brnfck-0.5b.meta.json', fileUrl: 'programs/brnfck-0.5b.bf',
+    '0.5b': { name: '0.5b', label: 'brnfck-qwen2.5-0.5b', model: 'Qwen2.5-0.5B-Instruct', worker: 'workers/brnfck-qwen2.5-0.5b.js?v=r9',
+      manifestUrl: 'dist/0.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-0.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-0.5b.bf',
       needGB: 4, download: '749 MB', startup: '33 to 47 s', perPiece: 'about 2.3 s' },
-    '1.5b': { name: '1.5b', label: 'brnfck-1.5b', model: 'Qwen2.5-1.5B-Instruct', worker: 'workers/brnfck-1.5b.js?v=r9',
-      manifestUrl: 'dist/1.5b/manifest.json', metaUrl: 'programs/brnfck-1.5b.meta.json', fileUrl: 'programs/brnfck-1.5b.bf',
+    '1.5b': { name: '1.5b', label: 'brnfck-qwen2.5-1.5b', model: 'Qwen2.5-1.5B-Instruct', worker: 'workers/brnfck-qwen2.5-1.5b.js?v=r9',
+      manifestUrl: 'dist/1.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-1.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-1.5b.bf',
       needGB: 8, download: 'about 2.1 GB', startup: '2 min 27 s', perPiece: 'about 9 s', wide: true },
+    '0.8b': { name: '0.8b', label: 'brnfck-qwen3.5-0.8b', model: 'Qwen3.5-0.8B', worker: 'workers/brnfck-qwen3.5-0.8b.js?v=r2',
+      manifestUrl: 'dist/0.8b/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b.bf',
+      needGB: 5, download: '1.36 GB', startup: '2 min 10 s to 2 min 37 s', perPiece: 'about 5.6 s', loadsEach: true },
   };
   const EXAMPLES = ['What is the capital of France?', 'What is 12 + 30?', 'Who wrote Romeo and Juliet?', 'Hello'];
 
@@ -72,7 +75,7 @@
     }
   }
   const previews = fetch('home-source.json').then(r => r.ok ? r.json() : null).catch(() => null);
-  // the window always shows brnfck-1.5b, the program the site shows off, whichever program is chosen;
+  // the window always shows brnfck-qwen2.5-1.5b, the program the site shows off, whichever program is chosen;
   // only when the excerpt belongs to the program this site hosts (same SHA-256)
   async function showSource(name, meta) {
     const all = await previews, sample = all && all[name];
@@ -157,14 +160,16 @@
   }
   // one plain sentence: what is happening now, and why there is a wait
   const explain = (text) => { $('explain').textContent = text; };
+  const once = () => model.loadsEach ? 'This program cannot clear its memory after an answer yet, so it does this for every question.' : 'This happens once; after that, questions are answered without this wait.';
   const WHY = {
     load: () => live.L
-      ? `The model is one brainfuck program of ${fmt(P.meta.programBytes)} characters. Your browser is running it now, and it is writing the model into memory. The strip is that memory, all ${fmt(live.L.size)} cells to scale: a part lights up when the page reads numbers there, and the mark is where the program is. This happens once; after that, questions are answered without this wait.`
-      : `The model is one brainfuck program of ${fmt(P.meta.programBytes)} characters. Your browser is running it now, and it is writing the model into memory: each lit block is a part that is done. This happens once; after that, questions are answered without this wait.`,
+      ? `The model is one brainfuck program of ${fmt(P.meta.programBytes)} characters. Your browser is running it now, and it is writing the model into memory. The strip is that memory, all ${fmt(live.L.size)} cells to scale: a part lights up when the page reads numbers there, and the mark is where the program is. ${once()}`
+      : `The model is one brainfuck program of ${fmt(P.meta.programBytes)} characters. Your browser is running it now, and it is writing the model into memory: each lit block is a part that is done. ${once()}`,
     engine: 'Almost ready: preparing the last part of the program, the part that does the thinking.',
     read: () => `The program is reading your question, one word piece at a time (${model.perPiece} each). Nothing is printed until it has read all of it.`,
     write: () => `The program is printing the answer, one word piece at a time (${model.perPiece} each). The highlighted piece is the newest.`,
     done: 'Done. The model stays loaded: ask another question and it starts reading right away.',
+    again: 'Done. This program cannot clear its memory after an answer yet, so the next question loads it again.',
   };
   // how long the loading still takes, from how fast it went so far
   const left = (part) => {
@@ -177,7 +182,7 @@
     const fit = `Close other tabs and programs until about ${model.needGB} GB is free and try again, or choose a smaller model below.`;
     const help = {
       meta: 'Choose another model below.',
-      support: 'The two smaller models below run in any current browser.',
+      support: 'brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen3.5-0.8b run in any current browser.',
       program: 'Check the connection and try again: what was downloaded is kept.',
       compile: 'A current desktop version of Chrome, Edge or Firefox is needed.',
       memory: fit,
@@ -232,7 +237,7 @@
   // ---- the worker: loads the program, keeps its tape, runs it per question ----
   const has64 = () => { try { return WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 5, 3, 1, 4, 1])); } catch (e) { return false; } };
   function startWorker() {
-    if (model.wide && !has64()) return fail('support', 'This browser has no 64-bit WebAssembly memory, which brnfck-1.5b needs');
+    if (model.wide && !has64()) return fail('support', 'This browser has no 64-bit WebAssembly memory, which brnfck-qwen2.5-1.5b needs');
     setState('loading');
     $('bar').value = 0;
     lastStep = '';
@@ -299,7 +304,7 @@
       endRun(m.pieces === 0 ? 'The model gave an empty answer.' : '');
       if (live.mem) { live.newest = -1; sayMemory(live.limit); drawLive(); }
       // without a way to put the tape back, the next question starts the program again
-      if (m.reusable) { explain(WHY.done); setState('ready'); } else { worker.terminate(); worker = null; emptyTape(); explain(''); setState('idle'); }
+      if (m.reusable) { explain(WHY.done); setState('ready'); } else { worker.terminate(); worker = null; emptyTape(); explain(WHY.again); setState('idle'); }
     } else if (m.type === 'error') {
       fail(m.stage, m.message);
     }
@@ -365,7 +370,7 @@
     $('acts').hidden = run.pieces === 0;
     title(document.hidden && run.pieces ? 'Answer ready' : '');
     announce(a.textContent);
-    // brnfck-135m answered: the better one is one click away, with its size on the button
+    // brnfck-smollm2-135m answered: the better one is one click away, with its size on the button
     const better = MODELS['0.5b'];
     if (model.name === 'small' && run.pieces > 0 && !remark && !ProgramStart.device(better.needGB)) {
       $('better').textContent = env.stored.includes(better.name) ? `Ask ${better.label} instead` : `Ask ${better.label} instead: loads ${better.download} the first time`;
@@ -449,14 +454,18 @@
     const label = document.createElement('label'), r = document.createElement('input'), name = document.createElement('span'), b = document.createElement('b'), s = document.createElement('small');
     const cell = (what, text) => { const c = document.createElement('span'), w = document.createElement('small'); c.className = 'n'; w.textContent = what; c.append(text, ' ', w); return c; };
     r.type = 'radio'; r.name = 'model'; r.value = m.name;
-    b.textContent = m.label;
+    // on a narrow screen the name breaks after brnfck-, never inside the model's own name
+    { const rest = document.createElement('span'); rest.className = 'nb'; rest.textContent = m.label.replace(/^brnfck-/, ''); b.append('brnfck-', document.createElement('wbr'), rest); }
     s.textContent = m.model;
     name.append(b, ' ', s);
     r.addEventListener('change', () => {
       try { localStorage.setItem('brnfck.model', m.name); } catch (e) { }
       select(m.name);
     });
-    label.append(r, name, cell('download', m.download), cell('start-up', m.startup));
+    // a long start-up ('2 min 10 s to 2 min 37 s') may break in two before 'to', nowhere else
+    const long = m.startup.length > 12, startup = cell('start-up', long ? m.startup.replace(/ (?!to )/g, '\u00a0') : m.startup);
+    if (long) startup.classList.add('wrap');
+    label.append(r, name, cell('download', m.download), startup);
     $('models').append(label);
   }
 

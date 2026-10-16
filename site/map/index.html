@@ -7,36 +7,37 @@
 <meta name="description" content="Every character of a chat model written as a brainfuck program, on one map you can zoom: from the whole program of 1 to 11 billion characters down to single commands. Folded into a square, as one line, as rows, or as an outline.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/tools.css?v=r6">
-<link rel="stylesheet" href="../inside/inside.css?v=r6">
+<link rel="stylesheet" href="../inside/inside.css?v=r8">
 <link rel="stylesheet" href="../program-download.css?v=r6">
-<link rel="stylesheet" href="map.css?v=r9">
+<link rel="stylesheet" href="map.css?v=r12">
 <script>
-(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : 'qwen'); })();
+(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b' && m !== '0.8b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' ? 'qwen3.5' : 'qwen'); })();
 window.InsideOptions = { light: true };
 </script>
 </head>
 <body class="mappage">
-<script src="../site.js?v=r13" data-page="map" data-wide></script>
+<script src="../site.js?v=r16" data-page="map" data-wide></script>
 <main class="doc mapapp tool" id="main">
   <div class="mbar" id="m-bar">
     <button type="button" class="quiet" id="m-panel-toggle" aria-expanded="true" aria-controls="m-panel"><span class="ico" aria-hidden="true">&#9776;</span><span id="m-panel-toggle-t">Hide panel</span></button>
     <h1 class="label" id="m-h1">Program map</h1>
     <span class="label mprog" aria-hidden="true">Program</span>
     <nav class="seg" id="modelbar" aria-label="Which program the map shows">
-      <a href="?m=small" data-m="small">brnfck-135m <span class="mbil">1.03 billion</span></a>
-      <a href="?m=0.5b" data-m="0.5b">brnfck-0.5b <span class="mbil">4.17 billion</span></a>
-      <a href="?m=1.5b" data-m="1.5b">brnfck-1.5b <span class="mbil">11.43 billion</span></a>
+      <a href="?m=small" data-m="small"><span class="mpre">brnfck-</span><span class="mfam">smollm2-</span>135m <span class="mbil">1.03 billion</span></a>
+      <a href="?m=0.5b" data-m="0.5b"><span class="mpre">brnfck-</span><span class="mfam">qwen2.5-</span>0.5b <span class="mbil">4.17 billion</span></a>
+      <a href="?m=1.5b" data-m="1.5b"><span class="mpre">brnfck-</span><span class="mfam">qwen2.5-</span>1.5b <span class="mbil">11.43 billion</span></a>
+      <a href="?m=0.8b" data-m="0.8b"><span class="mpre">brnfck-</span><span class="mfam">qwen3.5-</span>0.8b <span class="mbil">7.71 billion</span></a>
     </nav>
     <span class="seg mlay" id="m-layout" role="group" aria-label="Layout of the map">
       <button type="button" data-layout="fold" aria-pressed="true">Folded</button><button type="button" data-layout="line" aria-pressed="false">One line</button><button type="button" data-layout="rows" aria-pressed="false">Rows</button><button type="button" data-layout="tree" aria-pressed="false">Outline</button>
     </span>
     <label class="mmore"><span class="sr-only">More layouts of the map</span>
-      <select id="m-more"><option value="">More layouts</option><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Three programs</option></select>
+      <select id="m-more"><option value="">More layouts</option><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Four programs</option></select>
     </label>
     <label class="mlaysel"><span class="sr-only">Layout of the map</span>
-      <select id="m-layout-sel"><optgroup label="Basic layouts"><option value="fold" selected>Folded</option><option value="line">One line</option><option value="rows">Rows</option><option value="tree">Outline</option></optgroup><optgroup label="More layouts"><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Three programs</option></optgroup></select>
+      <select id="m-layout-sel"><optgroup label="Basic layouts"><option value="fold" selected>Folded</option><option value="line">One line</option><option value="rows">Rows</option><option value="tree">Outline</option></optgroup><optgroup label="More layouts"><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Four programs</option></optgroup></select>
     </label>
   </div>
 
@@ -132,9 +133,10 @@ window.InsideOptions = { light: true };
         <h3 class="label">Program</h3>
         <p class="muted small">The map shows the program of <b data-f="modelName"></b>: <span data-f="chars"></span> characters.</p>
         <ul class="tiles progs" id="m-progs">
-          <li><a href="?m=small" data-m="small"><b>brnfck-135m</b><span>1.03 billion characters</span></a></li>
-          <li><a href="?m=0.5b" data-m="0.5b"><b>brnfck-0.5b</b><span>4.17 billion characters</span></a></li>
-          <li><a href="?m=1.5b" data-m="1.5b"><b>brnfck-1.5b</b><span>11.43 billion characters</span></a></li>
+          <li><a href="?m=small" data-m="small"><b>brnfck-smollm2-135m</b><span>1.03 billion characters</span></a></li>
+          <li><a href="?m=0.5b" data-m="0.5b"><b>brnfck-qwen2.5-0.5b</b><span>4.17 billion characters</span></a></li>
+          <li><a href="?m=1.5b" data-m="1.5b"><b>brnfck-qwen2.5-1.5b</b><span>11.43 billion characters</span></a></li>
+          <li><a href="?m=0.8b" data-m="0.8b"><b>brnfck-qwen3.5-0.8b</b><span>7.71 billion characters</span></a></li>
         </ul>
 
         <h3 class="label" id="h-move">Move without dragging</h3>
@@ -167,7 +169,7 @@ window.InsideOptions = { light: true };
 
         <h3 class="label">About this map</h3>
         <p class="muted small">The brainfuck program of <span data-f="modelName"></span>: <span data-f="chars"></span> characters, every one of them on this map. The first <span data-f="writerPct"></span> writes the model's numbers into memory; the last <span data-f="enginePct"></span>, the engine, does the model's sums. Far out the picture comes from stored counts of the commands; from 16 commands per pixel on, the page reads the program file itself. <span class="ev">measured</span></p>
-        <p class="muted small"><a href="../inside/" id="m-inside">Inside the program</a> walks through what the parts do. <a href="../how/#questions">Questions and caveats</a> and <a href="../how/#credits">credits</a> are on the other pages. The three models (SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, all Apache 2.0) are only run by brainfuck; their answers can be wrong.</p>
+        <p class="muted small"><a href="../inside/" id="m-inside">Inside the program</a> walks through what the parts do. <a href="../how/#questions">Questions and caveats</a> and <a href="../how/#credits">credits</a> are on the other pages. The four models (SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all Apache 2.0) are only run by brainfuck; their answers can be wrong. The DeltaNet layers of Qwen3.5-0.8B are explained on <a href="../compare/">Compare the models</a>.</p>
       </div>
     </div>
 
@@ -208,9 +210,9 @@ window.InsideOptions = { light: true };
 <script src="../program-source.js?v=r6"></script>
 <script src="../program-start.js?v=r6"></script>
 <script src="../program-download.js?v=r6"></script>
-<script src="../inside/engine-sections.js?v=r9"></script>
-<script src="../inside/core.js?v=r12"></script>
-<script src="../inside/map.js?v=r12"></script>
-<script src="app.js?v=r10"></script>
+<script src="../inside/engine-sections.js?v=r11"></script>
+<script src="../inside/core.js?v=r15"></script>
+<script src="../inside/map.js?v=r14"></script>
+<script src="app.js?v=r12"></script>
 </body>
 </html>

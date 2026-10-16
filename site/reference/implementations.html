@@ -15,13 +15,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r9">
+<link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/reference.css?v=r7">
 </head>
 <body>
-<script src="../site.js?v=r13" data-section="learn"></script>
+<script src="../site.js?v=r16" data-section="learn"></script>
 <main class="doc article reference" id="main">
 
   <header class="plain">
@@ -171,7 +171,7 @@
   <section id="further" aria-labelledby="further-h">
     <h2 id="further-h">How far it can go</h2>
     <p>A compiler knows the tape starts empty. If a program reads no input, the compiler can simply run it while compiling and keep only what it prints. Kang Seonghoon's Esotope compiler was made to do this: its README shows a "Hello World!" program that compiles to a single statement that prints the text, and says it was the first compiler to manage that&nbsp;<a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>. Wilfred Hughes's bfc does the same under the name "speculative execution", next to dead code removal and an analysis of how many cells a program can reach&nbsp;<a class="cite" href="#ref-5" aria-label="Source 5">[5]</a>.</p>
-    <p>For programs that read input, part of the work can still be done ahead. The chat programs of this site use the idea by hand: the first billion commands of brnfck-135m read no input, so the tape they leave is the same for every question, and the page keeps a copy of it&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</p>
+    <p>For programs that read input, part of the work can still be done ahead. The chat programs of this site use the idea by hand: the first billion commands of brnfck-smollm2-135m read no input, so the tape they leave is the same for every question, and the page keeps a copy of it&nbsp;<a class="cite" href="#ref-13" aria-label="Source 13">[13]</a>.</p>
   </section>
 
   <section id="small" aria-labelledby="small-h">

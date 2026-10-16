@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Serves site/ like `python -m http.server`, and also sends part of a file (HTTP Range requests).
+The page compare/ and the model files in models/ are sent cross-origin isolated (COOP and COEP), so that
+the model in the browser may share memory between threads.
 
     python tools/serve.py        http://localhost:8766/
     python tools/serve.py 9000   another port
@@ -13,6 +15,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "site")
 RANGE = re.compile(r"^bytes=(\d*)-(\d*)$")
+ISOLATED = ("/compare/", "/models/")
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -65,6 +68,9 @@ class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         if not getattr(self, "range", None):
             self.send_header("Accept-Ranges", "bytes")
+        if self.path.startswith(ISOLATED):
+            self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+            self.send_header("Cross-Origin-Embedder-Policy", "credentialless")
         super().end_headers()
 
     def send_error(self, code, message=None, explain=None):

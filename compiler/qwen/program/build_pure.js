@@ -1,6 +1,6 @@
 'use strict';
 
-// Builds site/programs/brnfck-<model>.bf: ONE brainfuck program, question in, answer out, no data file.
+// Builds site/programs/brnfck-qwen2.5-<model>.bf: ONE brainfuck program, question in, answer out, no data file.
 
 const fs = require('fs');
 const path = require('path');
@@ -77,7 +77,7 @@ function main() {
   console.log(`    ${(st.chars / dataBytes).toFixed(3)} characters per data byte (${num(dataBytes)} bytes), ${(st.chars / st.nonZero).toFixed(3)} per non-zero cell (${num(st.nonZero)})`);
 
   const meta = {
-    model, program: `brnfck-${model}.bf`, programBytes: total, writerBytes: st.chars, restBytes: rest.length, sha256: hash.digest('hex'),
+    model, program: `brnfck-qwen2.5-${model}.bf`, programBytes: total, writerBytes: st.chars, restBytes: rest.length, sha256: hash.digest('hex'),
     cellBits: 32, tapeSize: tape.length, memoryBits: S.bits, pointerAfterWriting: pointer, replacesDataBytes: dataBytes,
     maxQuestionBytes: TOK.maxChars, restore: restoreInfo(G.layout, realArch(model)), encoder: st, pieceCells: PIECE, tapeSums: sums,
   };

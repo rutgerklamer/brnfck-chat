@@ -22,7 +22,7 @@ function files(model) {
     tokenizer: path.join(OUT, 'tokenizer.bin'),
     weights: fs.existsSync(engineWeights) ? engineWeights : path.join(OUT, `weights-${model}.bin`),
     ref: path.join(OUT, `ref-${model}.json`),
-    pure: path.join(PROGRAMS, `brnfck-${model}.bf`), pureMeta: path.join(PROGRAMS, `brnfck-${model}.meta.json`),
+    pure: path.join(PROGRAMS, `brnfck-qwen2.5-${model}.bf`), pureMeta: path.join(PROGRAMS, `brnfck-qwen2.5-${model}.meta.json`),
   };
 }
 

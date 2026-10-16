@@ -1,6 +1,6 @@
 'use strict';
 
-// The real model: site/programs/brnfck-135m.bf, checked.
+// The real model: site/programs/brnfck-smollm2-135m.bf, checked.
 
 const fs = require('fs');
 const path = require('path');

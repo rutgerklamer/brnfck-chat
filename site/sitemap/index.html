@@ -7,11 +7,11 @@
 <meta name="description" content="Every page of the site: Chatbot, Learn, Program insights, Program map, Play and About.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
-<link rel="stylesheet" href="../site.css?v=r9">
-<link rel="stylesheet" href="../ui/article.css?v=r6">
+<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
 </head>
 <body>
-<script src="../site.js?v=r13"></script>
+<script src="../site.js?v=r16"></script>
 <main class="doc article sitemap" id="main">
   <header class="plain">
     <p class="kicker crumbs"><a href="../about/">About the project</a><span>Sitemap</span></p>
@@ -34,7 +34,7 @@
 
   <section id="chat" aria-labelledby="chat-h">
     <h2 id="chat-h">Chatbot</h2>
-    <p>Three chat models, each running as one brainfuck program. Ask one a question.</p>
+    <p>Four chat models, each running as one brainfuck program. Ask one a question: <a href="../?m=small">brnfck-smollm2-135m</a>, <a href="../?m=0.5b">brnfck-qwen2.5-0.5b</a>, <a href="../?m=1.5b">brnfck-qwen2.5-1.5b</a> or <a href="../?m=0.8b">brnfck-qwen3.5-0.8b</a>.</p>
     <ul class="linklist">
       <li><a href="../"><b>Chatbot</b><span>Ask a question to a chat model that runs as one brainfuck program.</span></a></li>
     </ul>
@@ -83,7 +83,8 @@
     <p>How a question becomes an answer, part by part.</p>
     <ul class="linklist">
       <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
-      <li><a href="../inside/"><b>Inside the program</b><span>A walk through each of the three programs, with measurements.</span></a></li>
+      <li><a href="../inside/"><b>Inside the program</b><span>A walk through each of the four programs, with measurements.</span></a></li>
+      <li><a href="../compare/"><b>Compare the models</b><span>The four programs side by side, and the memory of Qwen3.8-27B: a table per head that fades and is written over, recorded word piece by word piece. Then ask Qwen3.5-0.8B yourself and watch that memory live: the model in floating point with its DeltaNet layers in whole numbers, close to brnfck-qwen3.5-0.8b but not what it computes.</span></a></li>
     </ul>
   </section>
 
@@ -107,7 +108,7 @@
   <section id="about" aria-labelledby="about-h">
     <h2 id="about-h">About</h2>
     <ul class="linklist">
-      <li><a href="../about/"><b>About the project</b><span>The three programs side by side, the map, how it was built, limitations and sources.</span></a></li>
+      <li><a href="../about/"><b>About the project</b><span>The four programs side by side, the map, how it was built, limitations and sources.</span></a></li>
       <li><a href="../how/#questions"><b>Questions and caveats</b><span>What "pure" means and does not mean, how it was checked, the numbers.</span></a></li>
       <li><a href="../how/#run"><b>Run it yourself</b><span>What you need to build, run and check a program on your own computer.</span></a></li>
       <li><a href="../how/#credits"><b>Credits</b><span>The models and the other work this project rests on, with their licences.</span></a></li>

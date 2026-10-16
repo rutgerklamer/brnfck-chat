@@ -1033,7 +1033,7 @@
   const tapeOf = (memory, tapeSize, cellBits) => (cellBits === 8 ? new Uint8Array(memory.buffer, BASE, tapeSize)
     : cellBits === 16 ? new Uint16Array(memory.buffer, BASE, tapeSize) : new Uint32Array(memory.buffer, BASE, tapeSize));
 
-  // Node, before the first 64-bit memory or module: explicit bounds checks run brnfck-1.5b in about 30% less time than V8's default (trap handling)
+  // Node, before the first 64-bit memory or module: explicit bounds checks run brnfck-qwen2.5-1.5b in about 30% less time than V8's default (trap handling)
   let checksChosen = false;
   function explicitBoundsChecks() {
     if (checksChosen || typeof process !== 'object' || !process.versions || !process.versions.v8 || typeof require !== 'function') return;

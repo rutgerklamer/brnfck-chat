@@ -72,7 +72,11 @@ lap(`engine: ${num(rest.length)} characters = ${num(prog.length)} instructions (
 const NS = secs.length, stageOf = new Uint8Array(prog.length);
 { let s = 0; for (let i = 0; i < prog.length; i++) { while (prog.AT[i] >= secs[s].to) s++; stageOf[i] = s; } }
 const idOf = (id) => secs.findIndex((s) => s.id === id);
-const TAKE = idOf('take'), XN1 = idOf('xn1'), XOUT = idOf('xout');
+// The steps are counted by the name of a section. In Qwen3.5 the text of a step is written once for every place in
+// the group of layers (u0.xn1, u1.xn1, ...): those copies share one name (xn1), and their counts are added.
+const keyOf = (s) => s.key || s.id, KEYS = [...new Set(secs.map(keyOf))], NK = KEYS.length, keyIx = Int32Array.from(secs, (s) => KEYS.indexOf(keyOf(s)));
+const TAKE = idOf('take'), XN1 = secs.findIndex((s) => keyOf(s) === 'xn1'), XOUT = secs.findLastIndex((s) => s.u !== undefined || s.id === 'xout');
+const layerKeys = [...new Set(secs.slice(XN1, XOUT + 1).map(keyOf))], OWN = KEYS.length !== NS;
 
 // ---- the tape
 const first = MODEL.runWriter();
@@ -100,15 +104,16 @@ function save(complete, list, endSteps, endP, endLo, endHi) {
   for (let i = 0; i + 5 < all.length; i += 5) E.push({ s: all[i], from: all[i + 1], to: all[i + 6], p0: all[i + 2], lo: Math.min(all[i + 2], all[i + 8]), hi: Math.max(all[i + 2], all[i + 9]) });
   const positions = [];
   let cur = null, layer = -1;
-  const before = new Float64Array(NS);
+  const before = new Float64Array(NK);
   for (const e of E) {
-    if (e.s === TAKE) { cur = { from: e.from, steps: new Float64Array(NS), layers: [], events: [] }; positions.push(cur); layer = -1; }
-    if (!cur) { before[e.s] += e.to - e.from; continue; }
-    if (e.s === XN1) { layer++; cur.layers.push(new Float64Array(NS)); }
+    const k = keyIx[e.s];
+    if (e.s === TAKE) { cur = { from: e.from, steps: new Float64Array(NK), text: new Float64Array(NS), layers: [], events: [] }; positions.push(cur); layer = -1; }
+    if (!cur) { before[k] += e.to - e.from; continue; }
+    if (keyIx[e.s] === keyIx[XN1]) { layer++; cur.layers.push(new Float64Array(NK)); }
     const inLayer = e.s >= XN1 && e.s <= XOUT;
-    cur.steps[e.s] += e.to - e.from; cur.to = e.to;
-    if (inLayer) cur.layers[layer][e.s] += e.to - e.from;
-    cur.events.push([e.s, inLayer ? layer : -1, e.from - cur.from, e.to - e.from, e.p0, e.lo, e.hi]);
+    cur.steps[k] += e.to - e.from; cur.text[e.s] += e.to - e.from; cur.to = e.to;
+    if (inLayer) cur.layers[layer][k] += e.to - e.from;
+    cur.events.push([k, inLayer ? layer : -1, e.from - cur.from, e.to - e.from, e.p0, e.lo, e.hi]);
   }
   if (!positions.length) return null;
   const outPos = outAt.map((at) => positions.findIndex((q) => at >= q.from && at < q.to));
@@ -125,13 +130,14 @@ function save(complete, list, endSteps, endP, endLo, endHi) {
   const out = {
     made: 'tools/map-data/trace.js', model: MODEL.id, question, answer: text, complete, maxPositions: MAXPOS < Infinity ? MAXPOS : null,
     sameAsReference: !!refCase && (complete ? refCase.text === text : refCase.text.startsWith(text)), reference: refCase ? REF.file : null, referenceText: refCase ? refCase.text : null,
-    inputBytes: input.length, steps: endSteps, fixedPositions: fixed, sections: secs.map((x) => x.id),
+    inputBytes: input.length, steps: endSteps, fixedPositions: fixed, sections: KEYS,
+    ...(OWN ? { textSections: secs.map((x) => x.id) } : {}),
     beforeFirstPosition: Array.from(before),
-    kindNames, kinds: secs.map((_, i) => Array.from(kinds.subarray(i * 16, i * 16 + 10)).map((x, j) => x + cnt[i * 16 + j])),
-    positions: positions.map((q, i) => ({ position: fixed + i, steps: Array.from(q.steps), total: q.to - q.from, layers: q.layers.length, printed: printed[i] })),
+    kindNames, kinds: KEYS.map((_, k) => { const r = new Array(10).fill(0); secs.forEach((x, i) => { if (keyIx[i] === k) for (let j = 0; j < 10; j++) r[j] += kinds[i * 16 + j] + cnt[i * 16 + j]; }); return r; }),
+    positions: positions.map((q, i) => ({ position: fixed + i, steps: Array.from(q.steps), ...(OWN ? { textSteps: Array.from(q.text) } : {}), total: q.to - q.from, layers: q.layers.length, printed: printed[i] })),
     detail: {
       position: fixed + jIndex, printed: printed[jIndex], total: J.to - J.from,
-      layers: J.layers.map((l) => Array.from(l.subarray(XN1, XOUT + 1))), layerSections: secs.slice(XN1, XOUT + 1).map((x) => x.id),
+      layers: J.layers.map((l) => layerKeys.map((key) => l[KEYS.indexOf(key)])), layerSections: layerKeys,
       events: J.events,
       samples: dSamples, sampleEvery: SAMPLE * thin,
     },

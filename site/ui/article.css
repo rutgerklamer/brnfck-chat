@@ -67,7 +67,7 @@ main.article .measured { margin: var(--s3) 0 0; max-width: var(--measure); color
 
 main.article details.fold > summary { font-family: var(--mono); font-size: var(--fs-ui); }
 main.article details.fold > .a > * { max-width: var(--measure); }
-main.article details.fold > .a > :is(.scroll, table, .two, .ctl) { max-width: none; }
+main.article details.fold > .a > :is(table, .two, .ctl) { max-width: none; }
 main.article table.wide { min-width: 34rem; }
 main.article figure.fig > details.fold.more { margin: var(--s3) 0 0; border-bottom: 0; }
 main.article details.fold.more > .a { padding: var(--s1) 0 0; }

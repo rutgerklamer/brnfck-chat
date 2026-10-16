@@ -10,9 +10,9 @@
     { key: 'learn', name: 'Learn', glyph: '+', c: '--c-plus', path: 'brainfuck/', folders: ['brainfuck', 'learn', 'reference', 'challenges/basics'],
       does: 'Start from the eight commands, one small lesson at a time.',
       pages: [['Start here', 'brainfuck/'], ['Brainfuck basics', 'challenges/basics/'], ['Build toward a chatbot', 'learn/'], ['Reference', 'reference/']] },
-    { key: 'insights', name: 'Program insights', glyph: '[]', c: '--c-open', path: 'how/', folders: ['how', 'inside', 'about'],
+    { key: 'insights', name: 'Program insights', glyph: '[]', c: '--c-open', path: 'how/', folders: ['how', 'inside', 'deltanet', 'about'],
       does: 'Read how a question becomes an answer, part by part.',
-      pages: [['How it works', 'how/'], ['Inside the program', 'inside/'], ['About the project', 'about/']] },
+      pages: [['How it works', 'how/'], ['Inside the program', 'inside/'], ['Compare the models', 'compare/'], ['About the project', 'about/']] },
     { key: 'map', name: 'Program map', glyph: '<>', c: '--c-gt', path: 'map/', folders: ['map'],
       does: 'See every character of the program, and zoom in.' },
     { key: 'play', name: 'Play', glyph: '.', c: '--c-out', path: 'playground/', folders: ['playground', 'challenges', 'patterns'],
@@ -95,10 +95,10 @@
   showTheme();
 
   // ---- the footer: the same five sections, with their pages ----
-  var SOURCE = 'https://github.com/rutgerklamer/brainfuck-m';      // the code of the site and the compiler, MIT
+  var SOURCE = 'https://github.com/rutgerklamer/brnfck-chat';      // the code of the site and the compiler, MIT
   function foot() {
     var f = el('footer', 'foot'), box = el('div', 'in');
-    box.append(el('p', '', 'Three chat models, each running as one brainfuck program: SmolLM2-135M-Instruct by Hugging Face, and Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud (all Apache 2.0). Brainfuck only runs them. Their answers can be wrong.'));
+    box.append(el('p', '', 'Four chat models, each running as one brainfuck program: SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, and Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all four under the Apache 2.0 licence. Brainfuck only runs them. Their answers can be wrong.'));
     SECTIONS.concat([{ name: 'About', glyph: '', c: '--muted', pages: [['Run it yourself', 'how/#run'], ['Credits', 'how/#credits'], ['Every page', 'sitemap/'], ['Source code (MIT)', SOURCE]] }]).forEach(function (s) {
       var d = el('div'), h = el('h2'), l = el('ul');
       if (s.glyph) { var g = el('i', '', s.glyph); g.style.setProperty('--c', 'var(' + s.c + ')'); g.setAttribute('aria-hidden', 'true'); h.append(g); }

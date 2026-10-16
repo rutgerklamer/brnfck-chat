@@ -5,7 +5,7 @@ const path = require('path');
 const { build, sections } = require('./instrument');
 const { modelOf, commandIndex } = require('./models');
 
-const MODEL = modelOf(process.argv[2]), META = MODEL.meta, QWEN = MODEL.family === 'qwen';
+const MODEL = modelOf(process.argv[2]), META = MODEL.meta, QWEN = MODEL.family !== 'smol', Q35 = MODEL.family === 'qwen3.5';
 const G = build(MODEL.id), L = G.loadSrc.length, base = META.writerBytes;
 const rest = MODEL.readEngine(G);
 
@@ -34,7 +34,7 @@ for (const m of G.marks) if (m.kind === 'idiom' && m.from >= L) { const s = shap
 
 const text = rest.toString('latin1'), hot = {};
 for (const s of secs) {
-  if (!/^sweep|^cls$/.test(s.id)) continue;
+  if (!/^(ud.)?sweep|^cls$/.test(s.id)) continue;
   const re = /\[[<>]*\[[-+<>]+\][<>]*\[[-+<>]+\][<>]*\]/g;
   re.lastIndex = s.from;
   const m = re.exec(text);
@@ -42,25 +42,31 @@ for (const s of secs) {
 }
 
 const E = G.engine, a = E.a, tok = G.layout.tok;
-const hopSec = secs.find((s) => s.id === 'hop');
+const hopSec = secs.find((s) => s.id === 'hop' || s.id === 'u3.hop');
+// Qwen3.5: the attention layer of the group holds the slots, a DeltaNet layer its own state
+const AL = Q35 ? E.Lt.att : E.Lo, SS = Q35 ? AL.SS : E.SS, SO = Q35 ? AL.so : E.so, KV = Q35 ? a.kvHeads * a.headSize : E.kv;
 const out = {
   made: 'tools/map-data/sections.js', model: MODEL.id, family: MODEL.family,
-  from: base, chars: rest.length, oldProgramChars: G.src.length, oldLoadChars: L,
+  from: base, chars: rest.length, oldProgramChars: G.src ? G.src.length : G.length, oldLoadChars: L,
   comma: base + rest.indexOf(','), dot: base + rest.indexOf('.'),
   commas: rest.filter((c) => c === 44).length, dots: rest.filter((c) => c === 46).length,
-  sections: secs.map((s) => ({ id: s.id, from: base + s.from, to: base + s.to, counts: s.counts, depthAtStart: s.depthAtStart, maxDepth: s.maxDepth, loops: s.loops, longestMove: s.longestMove })),
+  sections: secs.map((s) => ({ id: s.id, ...(s.key ? { key: s.key, u: s.u, layerKind: s.layerKind } : {}), from: base + s.from, to: base + s.to, counts: s.counts, depthAtStart: s.depthAtStart, maxDepth: s.maxDepth, loops: s.loops, longestMove: s.longestMove })),
   depthChars: Array.from(depthChars.subarray(0, depthChars.findLastIndex((v) => v > 0) + 1)),
   marks, shapes, hot,
-  slot: { size: E.SS, kv: E.kv, fields: E.so, headFrame: 32 },
+  slot: { size: SS, kv: KV, fields: SO, headFrame: 32 },
   model: {
     name: MODEL.name, dim: a.dim, layers: a.layers, heads: a.heads, kvHeads: a.kvHeads, headSize: a.headSize, hidden: a.hidden, vocab: a.vocab, chunk: a.chunk, chunks: E.nC, maxTokens: a.maxTokens, weightBits: a.cfg.weightBits,
-    kv: E.kv, share: a.heads / a.kvHeads, stops: a.stops || null, embBits: a.cfg.embBits || null, xBits: a.cfg.xBits || null, biasBits: a.cfg.biasBits || null, gainBits: a.cfg.gainBits || null,
-    tables: a.tables ? Object.fromEntries(Object.entries(a.tables).map(([k, v]) => [k, v.length])) : null,
+    kv: KV, share: a.heads / a.kvHeads, stops: a.stops || null, embBits: a.cfg.embBits || null, xBits: a.cfg.xBits || null, biasBits: a.cfg.biasBits || null, gainBits: a.cfg.gainBits || null,
+    tables: a.tables ? Object.fromEntries(Object.entries(a.tables).filter(([, v]) => v && v.length).map(([k, v]) => [k, v.length])) : null,
+    ...(Q35 ? {
+      types: a.types, unit: a.unit, groups: a.groups, qDim: a.qDim, rotDim: a.rotDim,
+      deltanet: { keyHeads: a.nk, valueHeads: a.nv, keySize: a.dk, valueSize: a.dv, kernel: a.kernel, keyDim: a.keyDim, valueDim: a.valueDim, convDim: a.convDim, stateNumbers: a.nv * a.dk * a.dv, columnCells: E.Lt.lin.CS, column: E.Lt.lin.co, headCells: E.Lt.lin.RS, stateBits: a.cfg.sBits },
+    } : {}),
   },
-  matrices: Object.fromEntries(Object.entries(E.M).map(([k, m]) => [k, { rows: m.R, cols: m.C, bits: m.nb || null }])),
-  hop: { cells: QWEN ? E.Lo.HL : null, longest: hopSec ? hopSec.longestMove : null },
+  matrices: Object.fromEntries(Object.entries(Q35 ? { lin: E.Lt.lin.Min, lino: E.Lt.lin.Mo, qkv: E.Lt.att.Min, o: E.Lt.att.Mo, ...E.M } : E.M).map(([k, m]) => [k, { rows: m.R, cols: m.C, bits: m.nb || null }])),
+  hop: { cells: QWEN ? AL.HL : null, longest: hopSec ? hopSec.longestMove : null },
   layout: QWEN
-    ? { N: E.N, tapeSize: G.layout.tapeSize, layerStride: E.stride, slotSize: E.SS, chunkStride: E.CST, weightCells: G.layout.weightCells, tokBase: tok.base, tokRecords: tok.slots, tokRecord: 3, tokHop: tok.U, tokBlock: tok.BSZ, tokBlocks: tok.blocks, tokLongHop: tok.SB, tokByteRecords: tok.byteRecs, maxQuestion: tok.maxChars }
+    ? { N: E.N, tapeSize: G.layout.tapeSize, layerStride: Q35 ? null : E.stride, groupStride: Q35 ? E.GS : undefined, slotSize: SS, chunkStride: E.CST, weightCells: G.layout.weightCells, tokBase: tok.base, tokRecords: tok.slots, tokRecord: 3, tokHop: tok.U, tokBlock: tok.BSZ, tokBlocks: tok.blocks, tokLongHop: tok.SB, tokByteRecords: tok.byteRecs, maxQuestion: tok.maxChars }
     : { N: E.N, tapeSize: G.layout.tapeSize, layerStride: E.stride, slotSize: E.SS, chunkStride: E.CST, weightCells: G.layout.weightCells, tokBase: tok.base, tokRecords: tok.records, tokRecord: tok.SS, tokHop: tok.U, maxQuestion: tok.maxChars },
 };
 fs.writeFileSync(path.join(MODEL.dir, 'engine.json'), JSON.stringify(out));

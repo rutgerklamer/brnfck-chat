@@ -71,7 +71,7 @@
     const W = WJ, total = W.program.chars;
     // ways to picture it
     const WAYS = [
-      ['As books', () => { const pages = total / 1800, books = pages / 300; return ['Printed as paperbacks it would be <b>' + fmt(books) + ' books</b> of 300 pages: a shelf of ' + fmt(books * 0.025) + ' metres, with nothing in it but eight symbols.', 'Counted with 1,800 characters on a page and 2.5 cm per book.']; }],
+      ['As books', () => { const pages = total / 1800, books = pages / 300; return ['Printed as paperbacks it would be <b>' + fmt(Math.ceil(books)) + ' books</b> of 300 pages: a shelf of ' + fmt(books * 0.025) + ' metres, with nothing in it but eight symbols.', 'Counted with 1,800 characters on a page and 2.5 cm per book.']; }],
       ['As one line', () => ['Typed as the one line it is, in letters 2 mm wide, it would be <b>' + fmt(total * 0.002 / 1000) + ' kilometres</b> long.', 'Counted with 2 mm per character.']],
       ['Read aloud', () => ['Read aloud at three symbols a second, without ever stopping, it would take <b>' + (total / 3 / 86400 / 365.25).toFixed(1) + ' years</b>.', 'Counted with 3 characters per second, day and night.']],
       ['As pixels', () => ['With one pixel for every character it fills <b>' + fmt(total / (3840 * 2160)) + ' screens</b> of 3,840 by 2,160 pixels. The map of this site does exactly this, and lets you move over it.', 'Counted with 8,294,400 pixels per screen.']],
@@ -127,6 +127,104 @@
     $('g-profile-mid').textContent = 'the engine starts at the thin line near the right end';
     const br = W.counts.writer[4] + W.counts.writer[5];
     $('g-profile-note').textContent = 'Each thin column is one 2,048th of the file (' + fmt(W.profile.charsPerBin) + ' characters). Its colours show how many of those characters are each command. In the writing part one character in ' + fmt(W.program.writer / br) + ' is a bracket; in the engine one in ' + fmt(W.program.engine / (W.counts.engine[4] + W.counts.engine[5])) + '.';
+  });
+
+  // ---- 1b. the program printed: every book on its shelf, coloured by what its characters write ----
+  // A book is 300 pages of 1,800 characters, as under "How much is it?". Its colour is the family of the
+  // region that most of its characters write (the stretches of writer.json); characters between the
+  // stretches only walk. The books of the engine are light, and the two that hold the only
+  // comma and the only full stop are ringed.
+  const BOOK = 300 * 1800;
+  lazy($('lib-card'), async () => {
+    const W = WJ, E = EJ, total = W.program.chars, writer = W.program.writer, N = Math.ceil(total / BOOK);
+    const books = Array.from({ length: N }, () => ({ c: {}, r: null, rn: 0 }));
+    const add = (from, to, fam, r) => {
+      for (let b = Math.floor(from / BOOK); b < N && b * BOOK < to; b++) {
+        const n = Math.min(to, (b + 1) * BOOK) - Math.max(from, b * BOOK), B = books[b];
+        if (n <= 0) continue;
+        B.c[fam] = (B.c[fam] || 0) + n;
+        if (r && n > B.rn) { B.r = r; B.rn = n; }
+      }
+    };
+    let at = 0;
+    for (const s of [...W.stretches].sort((a, b) => a[1] - b[1])) {
+      if (s[1] > at) add(at, s[1], 'work');
+      const r = W.regions[s[0]]; add(s[1], s[2], (KIND[r.kind] || KIND.work).fam, r); at = Math.max(at, s[2]);
+    }
+    if (at < writer) add(at, writer, 'work');
+    add(writer, total, 'engine');
+    for (const B of books) { let n = -1; for (const k in B.c) if (B.c[k] > n) { n = B.c[k]; B.fam = k; } }
+    const bookOf = (ch) => Math.floor(ch / BOOK), comma = bookOf(E.comma), dot = bookOf(E.dot), first = bookOf(writer);
+    // the key: the families that colour at least one book, in the order of the page legend
+    const used = new Set(books.map((B) => B.fam));
+    for (const [k, name] of LEGEND) if (used.has(k)) { const li = el('li'); li.append(swatch(k), name); $('lib-key').append(li); }
+    { const li = el('li'), s = el('i', 'sw glyph part', 'E'); s.style.background = 'var(--night-ink)'; s.style.outline = '1px solid var(--rule)'; s.setAttribute('aria-hidden', 'true'); li.append(s, 'The engine'); $('lib-key').append(li); }
+    { const li = el('li'), s = el('i', 'ring'); s.setAttribute('aria-hidden', 'true'); li.append(s, 'The books with the only ', el('code', '', ','), ' and the only ', el('code', '', '.')); $('lib-key').append(li); }
+    $('lib-count').textContent = MODELS[MODEL].short + ': ' + fmt(N) + ' books';
+    const cv = $('g-lib');
+    let G = null, sel = -1;
+    // the wall: spines of whole device pixels, seven times as tall as wide, as many to a shelf as fit
+    function geo(w) {
+      const dpr = window.devicePixelRatio || 1, target = Math.max(300, Math.min(560, w * 0.62));
+      const sw = Math.max(1, Math.round(Math.max(1, Math.min(7, Math.sqrt(target * w / (7 * N)))) * dpr)) / dpr;
+      const per = Math.floor((w - 12) / sw), rows = Math.ceil(N / per), bh = Math.max(6, Math.round(sw * 7)), rh = bh + 5;
+      return { dpr, sw, per, rows, bh, rh, x0: Math.round((w - per * sw) / 2), y0: 6, h: rows * rh + 10 };
+    }
+    const spot = (i) => ({ x: G.x0 + (i % G.per) * G.sw, y: G.y0 + Math.floor(i / G.per) * G.rh });
+    function draw() {
+      G = geo(cv.clientWidth); cv.style.height = (G.h + 4) + "px";               // 4: the border, inside the height
+      const { ctx, w } = fit(cv), col = { engine: cssVar('--night-ink') };            // the engine: light, apart from every family
+      for (const k in FAM) col[k] = cssVar(FAM[k].v);
+      ctx.fillStyle = cssVar('--night'); ctx.fillRect(0, 0, w, G.h);
+      // the planks, then the books: next to each other, a little darker every other book where they are wide enough to tell apart
+      ctx.fillStyle = cssVar('--night-line');
+      for (let r = 0; r < G.rows; r++) ctx.fillRect(G.x0 - 4, G.y0 + r * G.rh + G.bh, (r < G.rows - 1 ? G.per : N - r * G.per) * G.sw + 8, 2);
+      const gap = G.sw * G.dpr >= 3 ? 1 / G.dpr : 0;
+      for (let i = 0; i < N; i++) {
+        const { x, y } = spot(i), last = i === N - 1 ? (total - i * BOOK) / BOOK : 1;
+        ctx.fillStyle = col[books[i].fam]; ctx.globalAlpha = !gap && G.sw * G.dpr >= 2 && i % 2 ? 0.8 : 1;
+        ctx.fillRect(x, y + G.bh * (1 - Math.max(0.35, last)), G.sw - gap, G.bh * Math.max(0.35, last));       // the last book is only partly written
+      }
+      ctx.globalAlpha = 1;
+      const ring = (i, c, wd) => { const { x, y } = spot(i); ctx.strokeStyle = c; ctx.lineWidth = wd; ctx.strokeRect(x - wd / 2 - 1, y - wd / 2 - 1, G.sw + wd + 2, G.bh + wd + 2); };
+      ring(comma, cssVar('--go'), 2); ring(dot, cssVar('--go'), 2);
+      if (sel >= 0) ring(sel, '#f4f3ee', 2);
+    }
+    const share = (B) => Object.entries(B.c).sort((a, b) => b[1] - a[1]).map(([k, n]) => pct(n / Object.values(B.c).reduce((x, y) => x + y, 0), 0) + ' ' + (k === 'engine' ? 'the engine' : FAM[k].name.toLowerCase().replace(/deltanet/g, 'DeltaNet')));
+    function tell() {
+      const s = $('lib-said');
+      if (sel < 0) {
+        s.innerHTML = '';
+        s.append('The writing part fills books 1 to ', el('b', '', fmt(first)), ' and the start of book ', el('b', '', fmt(first + 1)), '. The engine, which reads the question, works and prints, fills the last ', el('b', '', fmt(N - first)), '. The only comma is in book ', el('b', '', fmt(comma + 1)), ', the only full stop in book ', el('b', '', fmt(dot + 1)), '.');
+        return;
+      }
+      const B = books[sel], a = sel * BOOK + 1, z = Math.min(total, (sel + 1) * BOOK), parts = share(B);
+      s.innerHTML = '';
+      s.append(el('b', '', 'Book ' + fmt(sel + 1) + ' of ' + fmt(N)), ': characters ' + fmt(a) + ' to ' + fmt(z) + '. ');
+      if (B.fam === 'engine' && B.c.engine === z - a + 1) s.append('All of it is the engine.');
+      else if (B.r) s.append('Mostly ', el('b', '', regionTitle(B.r)), '.');
+      else s.append('Mostly characters that only walk.');
+      if (parts.length > 1) s.append(' In it: ' + parts.join(', ') + '.');
+      if (sel === comma) s.append(' It holds the only comma of the program, character ' + fmt(E.comma + 1) + ': every letter of a question goes in through it.');
+      if (sel === dot) s.append(' It holds the only full stop, character ' + fmt(E.dot + 1) + ': every letter of every answer comes out through it.');
+    }
+    const at2 = (e) => {
+      const r = cv.getBoundingClientRect(), x = e.clientX - r.left - 2, y = e.clientY - r.top - 2;
+      const row = Math.floor((y - G.y0) / G.rh), c = Math.floor((x - G.x0) / G.sw), i = row * G.per + c;
+      return row >= 0 && c >= 0 && c < G.per && i < N ? i : -1;
+    };
+    const choose = (i) => { sel = i; draw(); tell(); };
+    cv.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { const i = at2(e); if (i !== sel && i >= 0) choose(i); } });
+    cv.addEventListener('pointerdown', (e) => { const i = at2(e); if (i >= 0) choose(i); });
+    cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') choose(-1); });
+    cv.addEventListener('keydown', (e) => {
+      const i = sel < 0 ? first : sel, to = { ArrowLeft: i - 1, ArrowRight: i + 1, ArrowUp: i - G.per, ArrowDown: i + G.per, Home: 0, End: N - 1 }[e.key];
+      if (to === undefined) return; e.preventDefault(); choose(Math.max(0, Math.min(N - 1, to)));
+    });
+    function sayShelf() { $('lib-shelf').textContent = fmt(G.per) + ' to a shelf, ' + fmt(G.rows) + ' shelves'; }
+    draw(); sayShelf(); tell(); onResize(() => { draw(); sayShelf(); });
+    $('fig1').addEventListener('toggle', () => { draw(); sayShelf(); });            // it lies in a fold: drawn again when that opens
+    $('lib-note').textContent = 'A book holds ' + fmt(BOOK) + ' characters: 300 pages of 1,800. Its colour is the part of the model that most of its characters write into memory; where a book holds more than one part, pointing at it gives the shares. The last book is only partly filled, and is drawn shorter. Counted from the stretches of the writing part, character by character.';
   });
 
   // ---- 3. one block
@@ -305,8 +403,8 @@
       B = await json('block-' + id);
       stopPlay(); phases = parse(B.text, B.K); buildStops();
       const R = W.regions.find((r) => r.kind === B.kind && r.layer === B.layer) || { kind: B.kind, layer: B.layer };
-      const also = [...new Set((B.also || []).filter((k) => k !== B.kind))].map((k) => KIND[k].name.toLowerCase());
-      $('b-meta').textContent = 'Characters ' + fmt(B.off + 1) + ' to ' + fmt(B.off + B.len) + ' of the file · ' + B.D + ' digit position' + (B.D === 1 ? '' : 's') + (B.R.length ? ', base ' + [...B.R].reverse().join(' then ') : '') + ' · middle value ' + fmt(B.m) + ' · writes: ' + (R.from !== undefined ? regionTitle(R).replace(/ \(.*\)$/, '').toLowerCase() : KIND[B.kind].name.toLowerCase()) + (also.length ? ' (and in the same block: ' + also.join(', ') + ')' : '');
+      const also = [...new Set((B.also || []).filter((k) => k !== B.kind))].map((k) => KIND[k].name.toLowerCase().replace(/deltanet/g, 'DeltaNet'));
+      $('b-meta').textContent = 'Characters ' + fmt(B.off + 1) + ' to ' + fmt(B.off + B.len) + ' of the file · ' + B.D + ' digit position' + (B.D === 1 ? '' : 's') + (B.R.length ? ', base ' + [...B.R].reverse().join(' then ') : '') + ' · middle value ' + fmt(B.m) + ' · writes: ' + (R.from !== undefined ? regionTitle(R).replace(/ \(.*\)$/, '') : KIND[B.kind].name).toLowerCase().replace(/deltanet/g, 'DeltaNet') + (also.length ? ' (and in the same block: ' + also.join(', ') + ')' : '');
       $('b-onmap').href = mapLink(B.off, B.off + B.len);
       reset();
     }
@@ -345,7 +443,7 @@
     await load(W.samples[0].id);
 
     // ---- distributions ----
-    const KN = { qkv: 'Attention weights', o: 'Attention output', w13: 'Feed-forward, widening', w2: 'Feed-forward, back', cls: 'Output table', all: 'All ' + words(W.weights.kinds.length) + ' together' };
+    const KN = { lin: 'DeltaNet weights', lino: 'DeltaNet output', qkv: 'Attention weights', o: 'Attention output', w13: 'Feed-forward, widening', w2: 'Feed-forward, back', cls: 'Output table', all: 'All ' + words(W.weights.kinds.length) + ' together' };
     const OFFW = W.tape.weightOffset;
     let kind = 'all';
     const histOf = (k) => {
@@ -402,7 +500,7 @@
   lazy($('s4'), async () => {
     const E = EJ; await tiles();
     const items = E.sections.map((s) => ({ ...s, fam: SEC[s.id].fam, chars: s.to - s.from }));
-    let sel = items.find((s) => s.id === 'sweep3');
+    let sel = items.find((s) => s.id === 'sweep3' || s.key === 'sweep3');
     let hit = () => null;
     const epos = $('e-pos'), emax = Number(epos.max) || 1000;
     let ec = Math.floor((sel.from + sel.to) / 2);
@@ -480,15 +578,30 @@
     const W = WJ, E = EJ, m = E.model;
     const regions = W.regions.map((r) => ({ ...r, fam: KIND[r.kind].fam, alpha: r.kind === 'work' ? 0.28 : 1 }));
     const size = W.program.tape;
-    const LAYER = Math.min(12, m.layers - 1);
-    const lay = regions.filter((r) => r.layer === LAYER && r.kind !== 'cls');
+    // brnfck-qwen3.5-0.8b: a group of four layers (three DeltaNet, one attention), its attention layer, and a table of a DeltaNet head
+    const per = m.unit ? m.unit.length : 1, LAYER = m.unit ? Math.min(3, m.groups - 1) * per - 1 : Math.min(12, m.layers - 1), FIRST = LAYER - per + 1;
+    const lay = regions.filter((r) => r.layer >= FIRST && r.layer <= LAYER && r.kind !== 'cls');
     const layerView = [lay[0].from, lay[lay.length - 1].to];
+    const layerName = per > 1 ? 'Layers ' + (FIRST + 1) + ' to ' + (LAYER + 1) : layerNo(LAYER);
+    if (per > 1) $('t-layer').textContent = 'Four layers';
     const slots = regions.find((r) => r.kind === 'slots' && r.layer === LAYER);
     // one slot, in the order of the real tape (the engine's own addresses run the other way)
     const S = E.slot, F2 = S.fields, kv = S.kv, dim = m.dim;
-    const fields = [['U', 1, 'mem', 'Flag: this slot is in use'], ['cn', 1, 'work', 'A counter'], ['scr', kv + 82, 'work', 'Work space'], ['KS', kv, 'mem', 'The key: ' + fmt(kv) + ' numbers. Stays.'], ['VS', kv, 'mem', 'The value: ' + fmt(kv) + ' numbers. Stays.'], ['QS', dim, 'att', 'The question of the current piece, passing through (' + fmt(dim) + ' cells)'], ['WS', dim, 'tidy', 'How much of this slot\'s value to take, spread out (' + fmt(dim) + ' cells)'], ['SM', dim, 'att2', 'The sums collected so far, on their way back (' + fmt(dim) + ' cells)'], ['FL', kv, 'work', 'Markers'], ['Hc', 1, 'work', 'A counter'], ['H', m.heads * S.headFrame, 'tidy', m.heads + ' small work areas, one for each "head" that looks back']];
+    const fields = m.unit
+      ? [['U', 1, 'mem', 'Flag: this slot is in use'], ['KS', kv, 'mem', 'The key: ' + fmt(kv) + ' numbers. Stays.'], ['VS', kv, 'mem', 'The value: ' + fmt(kv) + ' numbers. Stays.'], ['scr', F2.QK - F2.scr - 1, 'work', 'Work space'], ['QK', F2.WS - F2.QK - 1, 'att', 'The question of the current piece, passing through, and behind it the new key and value (' + fmt(F2.WS - F2.QK - 1) + ' cells)'], ['WS', m.qDim, 'tidy', 'How much of this slot\'s value to take, spread out (' + fmt(m.qDim) + ' cells)'], ['SM', m.qDim, 'att2', 'The sums collected so far, on their way back (' + fmt(m.qDim) + ' cells)'], ['FL', kv, 'work', 'Markers'], ['Hc', 1, 'work', 'A counter'], ['H', m.heads * S.headFrame, 'tidy', m.heads + ' small work areas, one for each "head" that looks back'], ['WC', S.size - F2.WC - 2, 'work', 'The counter of a walk over the slots']]
+      : [['U', 1, 'mem', 'Flag: this slot is in use'], ['cn', 1, 'work', 'A counter'], ['scr', kv + 82, 'work', 'Work space'], ['KS', kv, 'mem', 'The key: ' + fmt(kv) + ' numbers. Stays.'], ['VS', kv, 'mem', 'The value: ' + fmt(kv) + ' numbers. Stays.'], ['QS', dim, 'att', 'The question of the current piece, passing through (' + fmt(dim) + ' cells)'], ['WS', dim, 'tidy', 'How much of this slot\'s value to take, spread out (' + fmt(dim) + ' cells)'], ['SM', dim, 'att2', 'The sums collected so far, on their way back (' + fmt(dim) + ' cells)'], ['FL', kv, 'work', 'Markers'], ['Hc', 1, 'work', 'A counter'], ['H', m.heads * S.headFrame, 'tidy', m.heads + ' small work areas, one for each "head" that looks back']];
     const slotIndex = 20, slotTo = slots.to - slotIndex * S.size, slotFrom = slotTo - S.size;
     const slotItems = fields.map(([k, len, fam, says]) => ({ from: slotTo - F2[k] - len, to: slotTo - F2[k], fam, says, name: k, alpha: fam === 'work' ? 0.28 : 1 }));
+    // the first columns of the table of one DeltaNet head (engine.json deltanet.column: the offsets in a column)
+    const DN = m.deltanet, COLS = 4;
+    let tableReg = DN ? regions.find((r) => r.kind === 'state' && r.layer === FIRST && r.head === 0) : null, tableItems = [], tableView = [0, 1];
+    const setTable = (r) => {
+      tableReg = r; const co = DN.column, CS = DN.columnCells, top = r.to, parts = [['S', DN.valueSize, 'mem', 'numbers of the table. They stay from one word piece to the next.'], ['AC', DN.valueSize, 'dn2', 'sums of a pass over the columns, handed on to the next column'], ['DV', DN.valueSize, 'tidy', 'the difference that is being written into the table, handed on'], ['QU', DN.keySize, 'dn', 'the numbers of the key or the query that still have to reach their column'], ['XK', 1, 'dn', 'this column\'s number of the key, kept for the write'], ['T', co.W - co.T - 1, 'work', 'a counter, the bits of a number, scratch'], ['W', CS - co.W - 2, 'work', 'room for the walks inside the column']];
+      tableItems = [];
+      for (let c = 0; c < COLS; c++) for (const [k, len, fam, says] of parts) tableItems.push({ from: top - c * CS - co[k] - len, to: top - c * CS - co[k], fam, says: 'Column ' + (c + 1) + ' of ' + DN.keySize + ': ' + (k === 'S' ? fmt(len) + ' ' : '') + says + (k === 'S' ? '' : ' (' + fmt(len) + (len === 1 ? ' cell)' : ' cells)')), name: k, alpha: fam === 'work' ? 0.28 : 1 });
+      tableView = [top - COLS * CS, top];
+    };
+    if (tableReg) setTable(tableReg);
     let view = [0, size], items = regions, mode = 'all', hit = () => null;
     const tpos = $('t-pos'), tmax = Number(tpos.max) || 1000;
     let tf = 0;
@@ -496,29 +609,33 @@
     const itemAt = (cell) => items.find((it) => cell >= it.from && cell < it.to) || null;
     const draw = () => {
       hit = drawRanges($('t-bar'), items, view, { min: 0.6, cursor: cursorCell() });
-      const c = Math.floor(cursorCell()), it = itemAt(c), says = it ? (mode === 'slot' ? it.says : regionTitle(it)) : ''; tpos.value = Math.round(tf * tmax); readOut(tpos, 'cell ' + fmt(c), 'cell ' + fmt(c) + (says ? ': ' + says : '')); $('t-hint').textContent = says;
+      const c = Math.floor(cursorCell()), it = itemAt(c), says = it ? (mode === 'slot' || mode === 'table' ? it.says : regionTitle(it)) : ''; tpos.value = Math.round(tf * tmax); readOut(tpos, 'cell ' + fmt(c), 'cell ' + fmt(c) + (says ? ': ' + says : '')); $('t-hint').textContent = says;
       $('t-from').textContent = 'cell ' + fmt(view[0]); $('t-to').textContent = 'cell ' + fmt(view[1] - 1); $('t-mid').textContent = fmt(view[1] - view[0]) + ' cells';
       // table: what is in view
       const by = new Map();
-      for (const it of items) { if (it.to <= view[0] || it.from >= view[1]) continue; const key = mode === 'slot' ? it.says : KIND[it.kind].name; const o = by.get(key) || { cells: 0, fam: it.fam, n: 0, nz: 0 }; o.cells += it.to - it.from; o.n++; o.nz += it.nonZero || 0; by.set(key, o); }
+      for (const it of items) { if (it.to <= view[0] || it.from >= view[1]) continue; const key = mode === 'slot' ? it.says : mode === 'table' ? it.says.replace(/^Column \d+ of \d+: (\d+ )?/, '').replace(/ \(\d+ cells?\)$/, '').replace(/^./, (c) => c.toUpperCase()) : KIND[it.kind].name; const o = by.get(key) || { cells: 0, fam: it.fam, n: 0, nz: 0 }; o.cells += it.to - it.from; o.n++; o.nz += it.nonZero || 0; by.set(key, o); }
       const tbl = $('t-table'); clearRows(tbl);
-      const head = el('tr'); [['What', ''], ['Cells', 'n'], ['Share', 'n'], [mode === 'slot' ? '' : 'Filled by the program text', 'n']].forEach(([h, c]) => head.append(el('th', c, h))); tbl.append(head);
-      [...by].sort((a, b) => b[1].cells - a[1].cells).forEach(([name, o]) => { const share = o.cells / (view[1] - view[0]); const tr = el('tr'), td = el('td'); td.append(swatch(o.fam), name); tr.append(td, el('td', 'n', fmt(o.cells)), el('td', 'n', share < 0.0005 ? 'under 0.1%' : pct(share)), el('td', 'n', mode === 'slot' ? '' : fmt(o.nz))); tbl.append(tr); });
+      const inner = mode === 'slot' || mode === 'table';
+      const head = el('tr'); [['What', ''], ['Cells', 'n'], ['Share', 'n'], [inner ? '' : 'Filled by the program text', 'n']].forEach(([h, c]) => head.append(el('th', c, h))); tbl.append(head);
+      [...by].sort((a, b) => b[1].cells - a[1].cells).forEach(([name, o]) => { const share = o.cells / (view[1] - view[0]); const tr = el('tr'), td = el('td'); td.append(swatch(o.fam), name); tr.append(td, el('td', 'n', fmt(o.cells)), el('td', 'n', share < 0.0005 ? 'under 0.1%' : pct(share)), el('td', 'n', inner ? '' : fmt(o.nz))); tbl.append(tr); });
     };
     const set = (mo) => {
       mode = mo;
       if (mo === 'all') { view = [0, size]; items = regions; $('t-said').textContent = 'The whole tape. From left to right: the output table in ' + m.chunks + ' parts, layer ' + m.layers + ' down to layer 1, the table of word pieces, and at the far right the vocabulary. Press a layer.'; }
+      else if (mo === 'layer' && per > 1) { view = layerView; items = regions; $('t-said').textContent = layerName + ', ' + fmt(layerView[1] - layerView[0]) + ' cells: one group of three DeltaNet layers and one attention layer, from right to left. Each has four matrices of weights. Between those of a DeltaNet layer lie the ' + DN.valueHeads + ' tables of its heads, between those of the attention layer the ' + m.maxTokens + ' memory slots. The pale parts are free cells: the gaps the columns cross, and work space. The strips of constants are too thin to see here; the table under the figure lists them.'; }
       else if (mo === 'layer') { view = layerView; items = regions; $('t-said').textContent = layerNo(LAYER) + ', ' + fmt(layerView[1] - layerView[0]) + ' cells. Four matrices of weights, and between them the ' + m.maxTokens + ' memory slots. The pale parts are free cells: the gaps the columns cross, and work space.' + (QWEN ? ' The strips of constants are too thin to see here; the table under the figure lists them.' : ''); }
+      else if (mo === 'table') { view = tableView; items = tableItems; $('t-said').textContent = 'The first ' + words(COLS) + ' of the ' + DN.keySize + ' columns of the table of head ' + (tableReg.head + 1) + ' in layer ' + (tableReg.layer + 1) + ', a DeltaNet layer. A column holds ' + DN.valueSize + ' numbers of the table and ' + fmt(DN.columnCells - DN.valueSize) + ' cells of room for the passes over it. The whole table is ' + fmt(tableReg.to - tableReg.from) + ' cells; the same ' + fmt(DN.keySize * DN.valueSize) + ' numbers stay there however long the conversation.'; }
       else { view = [slotFrom, slotTo]; items = slotItems; $('t-said').textContent = 'One memory slot of ' + layerNo(LAYER) + ': ' + fmt(S.size) + ' cells for one word piece. Only the key, the value and one flag stay between word pieces. The rest is room for what passes through when a later piece looks back.'; }
       draw();
     };
     $('t-all').addEventListener('click', () => set('all')); $('t-layer').addEventListener('click', () => set('layer')); $('t-slot').addEventListener('click', () => set('slot'));
-    const pickRegion = (it) => { if (!it) return; if (mode === 'all') { if (it.layer >= 0 && it.kind !== 'cls') set('layer'); else $('t-said').textContent = regionTitle(it) + ': cells ' + fmt(it.from) + ' to ' + fmt(it.to - 1) + '. ' + regionSays(it); } else if (mode === 'layer') { if (it.kind === 'slots') set('slot'); else $('t-said').textContent = regionTitle(it) + ': cells ' + fmt(it.from) + ' to ' + fmt(it.to - 1) + '. ' + regionSays(it); } else $('t-said').textContent = it.says + ' Cells ' + fmt(it.from) + ' to ' + fmt(it.to - 1) + '.'; };
+    if ($('t-dn')) $('t-dn').addEventListener('click', () => set('table'));
+    const pickRegion = (it) => { if (!it) return; if (mode === 'all') { if (it.layer >= 0 && it.kind !== 'cls') set('layer'); else $('t-said').textContent = regionTitle(it) + ': cells ' + fmt(it.from) + ' to ' + fmt(it.to - 1) + '. ' + regionSays(it); } else if (mode === 'layer') { if (it.kind === 'slots') set('slot'); else if (it.kind === 'state') { setTable(it); set('table'); } else $('t-said').textContent = regionTitle(it) + ': cells ' + fmt(it.from) + ' to ' + fmt(it.to - 1) + '. ' + regionSays(it); } else $('t-said').textContent = it.says + ' Cells ' + fmt(it.from) + ' to ' + fmt(it.to - 1) + '.'; };
     const wasDrag = dragAlong($('t-bar'), (f) => { tf = f; draw(); });
     tpos.addEventListener('input', () => { tf = Number(tpos.value) / tmax; draw(); });
     tpos.addEventListener('keydown', (e) => { if (e.key === 'Enter') pickRegion(itemAt(Math.floor(cursorCell()))); });         // Enter does what a press on the strip does
     $('t-bar').addEventListener('click', (e) => { if (wasDrag()) return; pickRegion(hit(e.clientX)); });
-    $('t-bar').addEventListener('mousemove', (e) => { const it = hit(e.clientX); $('t-hint').textContent = it ? (mode === 'slot' ? it.says : regionTitle(it)) : ''; });
+    $('t-bar').addEventListener('mousemove', (e) => { const it = hit(e.clientX); $('t-hint').textContent = it ? (mode === 'slot' || mode === 'table' ? it.says : regionTitle(it)) : ''; });
     onResize(draw); set('all');
 
     // ---- the journey ----
@@ -579,15 +696,15 @@
   });
 
   // ---- 6. where the time goes
-  const SWEEPS = ['sweep1', 'sweep2', 'sweep3', 'sweep4', 'cls'];
-  const STACK = ['ff', 'ff2', 'out', 'att', 'att2', 'work', 'emb', 'mem', 'tidy', 'text'];        // the order of the parts in a bar of steps, from the bottom or the left
+  const SWEEPS = ['sweep1', 'sweep2', 'dn.sweep1', 'dn.sweep2', 'sweep3', 'sweep4', 'cls'], sweepsOf = (ids) => SWEEPS.filter((id) => ids.includes(id));
+  const STACK = ['ff', 'ff2', 'out', 'att', 'att2', 'dn', 'dn2', 'work', 'emb', 'mem', 'tidy', 'text'];        // the order of the parts in a bar of steps, from the bottom or the left
   const tagEv = (t) => el('span', 'ev', t);
   lazy($('s6'), async () => {
     const T = TR.main, P = TR.long, m = EJ.model, W = WJ;
     if (!T) {
       $('w-intro').textContent = 'No run of this program was counted step by step.';
       $('w-card').hidden = true; $('w-card2').hidden = true;
-      $('w-explain').append(el('p', '', 'This program was not run under the counting interpreter, so there is no breakdown of its steps. Its times per word piece, from the project\'s log, are in the table of the three programs.'));
+      $('w-explain').append(el('p', '', 'This program was not run under the counting interpreter, so there is no breakdown of its steps. Its times per word piece, from the project\'s log, are in the table of the four programs side by side.'));
       return;
     }
     const D = T.detail, ids = T.sections, ix = (id) => ids.indexOf(id);
@@ -683,19 +800,23 @@
       const box = $('w-explain'), share = (p, list) => list.reduce((a, id) => a + p.steps[ix(id)], 0) / p.total;
       const famShare = (p, fam) => p.steps.reduce((a, s, i) => a + (SEC[ids[i]].fam === fam ? s : 0), 0) / p.total;
       const cellsOf = (kinds) => W.regions.filter((r) => kinds.includes(r.kind)).reduce((a, r) => a + r.rows * r.cols, 0);
-      const matrices = cellsOf(QWEN ? ['qkv', 'o', 'w13', 'w2'] : ['qkv', 'o', 'w13', 'w2', 'cls']), table = QWEN ? cellsOf(['cls']) : 0;
-      const tot = P.positions.map((p) => p.total), perWeight = share(firstP, SWEEPS) * firstP.total / (matrices + table);
-      const s0 = share(firstP, SWEEPS), s1 = share(lastP, SWEEPS), tidy = Math.max(...P.positions.map((p) => famShare(p, 'tidy')));
+      const matrices = cellsOf(W.weights.kinds), table = QWEN ? cellsOf(['cls']) : 0;
+      const tot = P.positions.map((p) => p.total), SW = sweepsOf(ids), perWeight = share(firstP, SW) * firstP.total / (matrices + table);
+      const s0 = share(firstP, SW), s1 = share(lastP, SW), tidy = Math.max(...P.positions.map((p) => famShare(p, 'tidy')));
       const p1 = el('p'), mil = (v) => (v >= 1e9 ? (v / 1e9).toFixed(2) + ' billion' : (v / 1e6).toFixed(1) + ' million');
       p1.append('One word piece costs ' + billions(tot[0], Math.max(...tot)) + ' steps' + (full ? '' : ' at the positions that were run') + '. Most of them are "weight times number": ' + pct(s0, 0) + ' at position ' + firstP.position + (Math.abs(s0 - s1) >= 0.02 ? ', and still ' + pct(s1, 0) + ' at position ' + lastP.position : ' and at position ' + lastP.position + ' alike') + '. The model has ' + mil(matrices) + ' weights in its matrices' + (table ? ', and the output table is another ' + mil(table) + ' numbers. Every one of them' : ' and every one of them') + ' is used once for every word piece. A weight is not multiplied the way a calculator does it. The number is split into bits, and for every bit that is set, the whole column of weights is added once, doubled the right number of times. Those additions happen while the column crosses the gap, so multiplying and moving are the same loop. It comes to about ' + perWeight.toFixed(perWeight < 9.5 && perWeight > 8.5 ? 0 : 1) + ' steps per weight.');
       const p2 = el('p', '', 'Most of what is left is walking: fetching the row of the word piece' + (QWEN ? ' (' + pct(share(firstP, ['emb']), 0) + ': the table is ' + fmt(m.vocab) + ' rows long)' : '') + ', and the walk home that puts every column back. The parts that sound hard (dividing, rounding, the exponential) are together under ' + Math.ceil(100 * tidy) + '%. That is the work of the bit peel: by plain counting, one rounding alone would cost over a million steps.');
       const a0 = firstP.steps[ix('att')], a1 = lastP.steps[ix('att')], p3 = el('p');
-      p3.append('The cost grows slowly with the conversation. At position ' + firstP.position + ', the first one after the fixed opening lines, a word piece costs ' + (firstP.total / 1e9).toFixed(2) + ' billion steps. At position ' + lastP.position + (full ? ', the last one,' : ', the last one that was run,') + ' it costs ' + (lastP.total / 1e9).toFixed(2) + ' billion. The growth is in looking back: that section goes from ' + short(a0) + ' steps to ' + short(a1) + ', because there are ' + (a1 > 5 * a0 ? 'ten times as many' : 'more') + ' earlier pieces to visit. The matrices cost nearly the same every time' + (full ? '.' : '; the small differences between positions come from how many bits are set in the numbers.'));
+      p3.append('The cost grows slowly with the conversation. At position ' + firstP.position + (firstP.position === T.fixedPositions && T.fixedPositions ? ', the first one after the fixed opening lines,' : ', the first one,') + ' a word piece costs ' + (firstP.total / 1e9).toFixed(2) + ' billion steps. At position ' + lastP.position + (full ? ', the last one,' : ', the last one that was run,') + ' it costs ' + (lastP.total / 1e9).toFixed(2) + ' billion. The growth is in looking back: that section goes from ' + short(a0) + ' steps to ' + short(a1) + ', because there are ' + (a1 > 5 * a0 ? words(Math.round((lastP.position + 1) / (firstP.position + 1))) + ' times as many' : 'more') + ' earlier pieces to visit. The matrices cost nearly the same every time' + (full ? '.' : '; the small differences between positions come from how many bits are set in the numbers.'));
+      if (m.deltanet) {         // brnfck-qwen3.5-0.8b: only its attention layers look back
+        const dn = (p) => p.steps.reduce((a, s, i) => a + (/^dn\./.test(ids[i]) ? s : 0), 0), all = P.positions.map(dn);
+        p3.append(' Only ' + I.F.attLayers + ' of the ' + m.layers + ' layers look back. The ' + I.F.dnLayers + ' DeltaNet layers do the same work at every position, whatever came before: ' + short(Math.min(...all)) + ' to ' + short(Math.max(...all)) + ' steps for their own sections, which also differ only by the bits of the numbers.');
+      }
       box.append(p1, p2, p3);
       if (!full && P.positions.length >= 4) {
         const xs = P.positions.map((p) => p.position), fitA = lineFit(xs, P.positions.map((p) => p.steps[ix('att')])), rest = P.positions.map((p) => p.total - p.steps[ix('att')]).sort((a, b) => a - b)[P.positions.length >> 1];
         const est = rest + fitA.k * (m.maxTokens - 1) + fitA.c, p4 = el('p');
-        p4.append('How much would the last position cost? Over the positions that were run, looking back grows by ' + short(fitA.k) + ' steps for every position, in a straight line. If that line goes on, position ' + (m.maxTokens - 1) + ' costs about ' + (est / 1e9).toFixed(1) + ' billion steps, ' + pct(est / firstP.total - 1, 0) + ' more than position ' + firstP.position + '. ', tagEv('estimated'), ' For brnfck-135m, which was run to its last position, a line through its first 26 positions gives the cost of its last one to within 2%.');
+        p4.append('How much would the last position cost? Over the positions that were run, looking back grows by ' + short(fitA.k) + ' steps for every position, in a straight line. If that line goes on, position ' + (m.maxTokens - 1) + ' costs about ' + (est / 1e9).toFixed(1) + ' billion steps, ' + pct(est / firstP.total - 1, 0) + ' more than position ' + firstP.position + '. ', tagEv('estimated'), ' For brnfck-smollm2-135m, which was run to its last position, a line through its first 26 positions gives the cost of its last one to within 2%.');
         box.append(p4);
       }
     }
@@ -726,10 +847,10 @@
       li.append(el('b', '', (c.ok ? '' : 'Not right. ') + GROUP[c.group] + ': '), mm[1].replace(/ \[scanned.*$/, '')); if (mm[3]) li.append(el('div', 'muted', mm[3].replace(/-(?= \d)/g, '−')));
       $('c-checks').append(li);
     });
-    if (C.tapeRun) { const li = el('li', 'verdict ok'); li.append(el('b', '', 'The tape: '), 'the writing part was run without any input', el('div', 'muted', fmt(C.tapeRun.loops) + ' loops with ' + fmt(C.tapeRun.loopTexts) + ' different texts, in ' + C.tapeRun.seconds + ' seconds' + (C.tapeRun.memoryBits === 64 ? ', on a 64-bit memory' : ''))); $('c-checks').append(li); }
+    if (C.tapeRun) { const li = el('li', 'verdict ok'); li.append(el('b', '', 'The tape: '), 'the writing part was run without any input', el('div', 'muted', (C.tapeRun.loops !== null ? fmt(C.tapeRun.loops) + ' loops with ' + fmt(C.tapeRun.loopTexts) + ' different texts, in ' : 'in ') + C.tapeRun.seconds + ' seconds' + (C.tapeRun.memoryBits === 64 ? ', on a 64-bit memory' : ''))); $('c-checks').append(li); }
     if (C.restore && C.restore.cells) { const li = el('li', 'verdict ok'); li.append(el('b', '', 'The tape: '), 'after an answer, putting back the cells that an answer changes gives the starting tape again', el('div', 'muted', fmt(C.restore.cells) + ' cells put back (word piece, position, stored keys and values); all ' + fmt(nS) + ' checksums equal again')); $('c-checks').append(li); }
     const tbl = $('c-questions'), head = el('tr');
-    $('c-q-cap').textContent = words(C.questions.length)[0].toUpperCase() + words(C.questions.length).slice(1) + ' questions put to the whole program.';
+    $('c-q-cap').textContent = words(C.questions.length)[0].toUpperCase() + words(C.questions.length).slice(1) + (C.questions.length === 1 ? ' question' : ' questions') + ' put to the whole program.';
     [['Question', ''], ['Letters in', 'n'], ['Word pieces out', 'n'], ['Seconds per piece', 'n'], ['Ended by', ''], ['Equal to the reference', '']].forEach(([h, c]) => head.append(el('th', c, h))); tbl.append(head);
     const END = { end: 'the "end" piece', limit: 'the limit of 256 positions', cut: 'the check, after 30 pieces' };
     C.questions.forEach((q) => {
@@ -751,7 +872,7 @@
     items.forEach(([a, b]) => { const li = el('li', 'verdict ok'); li.append(el('b', '', a), el('div', 'muted', b)); $('c-page').append(li); });
   });
 
-  // ---- 8. the three programs side by side
+  // ---- 8. the four programs side by side
   lazy($('s8'), async () => {
     const X = await get('/compare.json'), Ms = X.models, small = Ms[0];
     const famOf = (kind) => (KIND[kind] ? KIND[kind].fam : 'work');
@@ -764,7 +885,7 @@
       for (const [cls, v, title, text] of segs) { if (!(v > 0)) continue; const i = el('i', cls.cls || '', text || ''); i.style.flex = v + ' 0 0'; if (cls.bg) i.style.background = cls.bg; i.title = title; inner.append(i); }
       bar.append(inner); box.append(name, bar, val);
     };
-    const FAMS = ['out', 'ff', 'ff2', 'att', 'att2', 'mem', 'tidy', 'emb', 'text', 'work'];
+    const FAMS = ['out', 'ff', 'ff2', 'att', 'att2', 'dn', 'dn2', 'mem', 'tidy', 'emb', 'text', 'work'];
     const byFam = (obj) => { const f = {}; for (const k in obj) f[famOf(k)] = (f[famOf(k)] || 0) + obj[k]; return f; };
     let how = 'scale';
     const draw = () => {
@@ -802,13 +923,13 @@
       Ms.forEach((M) => {
         const S = M.steps;
         if (!S || !S.pos24) { box.append(who(M), el('div', 'muted small', 'not counted for this program'), el('span', '', '')); return; }
-        const f = {}; S.sections.forEach((id, i) => { const k = SEC[id].fam; f[k] = (f[k] || 0) + S.pos24.steps[i]; });
+        const f = {}; S.sections.forEach((id, i) => { const k = S.fams ? S.fams[i] : SEC[id].fam; f[k] = (f[k] || 0) + S.pos24.steps[i]; });
         const segs = STACK.map((k) => [{ bg: 'var(' + FAM[k].v + ')' }, f[k] || 0, FAM[k].name + ': ' + pct((f[k] || 0) / S.pos24.total), (f[k] || 0) / S.pos24.total > 0.07 ? FAM[k].letter + ' ' + Math.round(100 * (f[k] || 0) / S.pos24.total) + '%' : '']);
         row(box, M, segs, 1, 1, (S.pos24.total / 1e9).toFixed(2) + ' billion steps');
       });
       const parts = Ms.filter((M) => M.steps).map((M) => M.label + ': "' + M.steps.question + '", ' + (M.steps.runs > 1 ? M.steps.runs + ' runs, ' : '') + 'positions ' + M.steps.from + ' to ' + M.steps.to + (M.steps.complete ? '' : ' (stopped there)'));
-      $('y-what').textContent = 'What was counted: ' + parts.join('; ') + '.' + (Ms.some((M) => !M.steps) ? ' No steps were counted for the others.' : '');
-      // growth against brnfck-135m
+      $('y-what').textContent = 'What was counted: ' + parts.join('; ') + '.' + (Ms.some((M) => !M.steps) ? ' No steps were counted for ' + Ms.filter((M) => !M.steps).map((M) => M.label).join(' and ') + '.' : '');
+      // growth against brnfck-smollm2-135m
       const g = $('y-grow'), big = Ms.slice(1), rows = [
         ['Numbers written on the tape', (M) => M.nonZero], ['Text of the writing part', (M) => M.writer], ['Text of the engine', (M) => M.engine],
         ['Engine without its steps left and right', (M) => M.engineOther], ['Steps for a word piece (position 24)', (M) => (M.steps && M.steps.pos24 ? M.steps.pos24.total : null)],
@@ -817,9 +938,9 @@
       rows.forEach(([name, f]) => big.forEach((M) => {
         const a = f(small), b = f(M);
         if (a === null || b === null) { hbar(g, name + ' · ' + M.label, 0, 'not counted', 'var(--muted)'); return; }
-        hbar(g, name + ' · ' + M.label, Math.log2(b / a) / top, '× ' + (b / a).toFixed(1), M.id === '1.5b' ? 'var(--ink)' : 'var(--accent)');
+        hbar(g, name + ' · ' + M.label, Math.log2(b / a) / top, '× ' + (b / a).toFixed(1), { '0.5b': 'var(--accent)', '0.8b': 'var(--k-dn)', '1.5b': 'var(--ink)' }[M.id] || 'var(--accent)');
       }));
-      $('y-said').textContent = 'Each bar says how many times larger a number is than in brnfck-135m. The scale is in doublings: a bar twice as long is the square of the factor. Seconds are from the project\'s logs.';
+      $('y-said').textContent = 'Each bar says how many times larger a number is than in brnfck-smollm2-135m. The scale is in doublings: a bar twice as long is the square of the factor. Seconds are from the project\'s logs.';
     }
     // the table
     {
@@ -853,33 +974,37 @@
       line('Seconds per word piece', (M) => M.timing.perPieceMin.toFixed(2) + ' to ' + M.timing.perPieceMax.toFixed(2), 'the project\'s log');
       line('Steps per word piece (first position; dearest)', (M) => (M.steps ? billions(M.steps.first, M.steps.max) : null), 'counted by trace.js');
       line('for positions', (M) => (M.steps ? M.steps.from + ' to ' + M.steps.to + (M.steps.complete ? '' : ', stopped') : null), 'what was run');
-      line('"Weights × numbers" at position 24', (M) => (M.steps && M.steps.pos24 ? pct(SWEEPS.reduce((a, id) => a + M.steps.pos24.steps[M.steps.sections.indexOf(id)], 0) / M.steps.pos24.total, 0) + ' of the steps' : null), 'counted by trace.js');
+      line('"Weights × numbers" at position 24', (M) => (M.steps && M.steps.pos24 ? pct(sweepsOf(M.steps.sections).reduce((a, id) => a + M.steps.pos24.steps[M.steps.sections.indexOf(id)], 0) / M.steps.pos24.total, 0) + ' of the steps' : null), 'counted by trace.js');
       grp('This page');
       line('Order of the map', (M) => M.order + ' (' + fmt(M.side) + ' cells wide)', 'tiles.js');
       line('Data stored for the page', (M) => fmt(M.data.totalBytes / 1e6) + ' MB', 'counted on disk');
     }
     // the explanation
     {
-      const box = $('x-explain'), b = Ms[Ms.length - 1], mid = Ms[1], r = (f, M = b) => (f(M) / f(small)).toFixed(1), cpc = Ms.map((M) => M.writer / M.nonZero);
+      const box = $('x-explain'), b = Ms.reduce((a, M) => (M.nonZero > a.nonZero ? M : a)), big = Ms.slice(1), r = (f, M = b) => (f(M) / f(small)).toFixed(1), cpc = Ms.map((M) => M.writer / M.nonZero);
+      // "a, b and c" over the bigger programs
+      const list = (f, Ns = big) => { const t = Ns.map(f); return t.length > 1 ? t.slice(0, -1).join(', ') + ' and ' + t[t.length - 1] : t[0]; };
+      const dn = Ms.find((M) => M.family === 'qwen3.5'), full = Ms.filter((M) => M !== dn), counted = big.filter((M) => M.steps && M.steps.pos24);
+      const sameSecs = full.every((M) => M.engineSections === small.engineSections);
       box.append(
-        el('p', '', 'What grows with the model is the writing part. It holds one number for every weight, at ' + Math.min(...cpc).toFixed(1) + ' to ' + Math.max(...cpc).toFixed(1) + ' characters each, so it grows in step with the model. The ' + b.label + ' program puts ' + r((M) => M.nonZero) + ' times as many numbers on the tape as brnfck-135m, and its writing part is ' + r((M) => M.writer) + ' times as long.'),
-        el('p', '', 'The engine grows slowly: ' + r((M) => M.engine, mid) + ' times for the ' + mid.label + ' and ' + r((M) => M.engine) + ' times for the ' + b.label + '. And most of that growth is walking. The engine\'s text is mostly runs of < and >, and a run is as long as the matrix it crosses is wide. Leave those steps out and ' + fmt(small.engineOther) + ' characters remain in brnfck-135m, ' + fmt(mid.engineOther) + ' in the ' + mid.label + ' and ' + fmt(b.engineOther) + ' in the ' + b.label + '. That is the logic: the loops, the rounding, the tables. It is larger in the two bigger programs because their engine does more (a bias, a scale for every row, gains, a vocabulary three times as large) and because one of its lookup tables is larger, not because the models have more weights.'),
-        el('p', '', 'The mix of commands hardly changes. The same encoder wrote all three writing parts, and a writing part is "step left, add or take off a little" from start to end. The tape is nearly all weights in all three. What also stays the same: the 23 steps of the engine, the 256 memory slots in every layer, and the one read and one print command.'),
-        el('p', '', 'The work for a word piece grows with the weights, because every weight is used once for every piece' + (mid.steps && mid.steps.pos24 ? ': ' + r((M) => M.steps.pos24.total, mid) + ' times the steps in the ' + mid.label + (b.steps && b.steps.pos24 ? ' and ' + r((M) => M.steps.pos24.total) + ' times in the ' + b.label : '') : '') + '. In the two bigger programs a larger share goes to the table of word pieces: it has ' + fmt(b.vocab) + ' rows against ' + fmt(small.vocab) + ', the engine runs along all of it to fetch one row, and once more to score every piece. Start-up grows with the file, which has to be read and run once from its first character.'),
+        el('p', '', 'What grows with the model is the writing part. It holds one number for every weight, at ' + Math.min(...cpc).toFixed(1) + ' to ' + Math.max(...cpc).toFixed(1) + ' characters each, so it grows in step with the model. The ' + b.label + ' program puts ' + r((M) => M.nonZero) + ' times as many numbers on the tape as brnfck-smollm2-135m, and its writing part is ' + r((M) => M.writer) + ' times as long.'),
+        el('p', '', 'The engine does not grow in step with the model: ' + list((M) => r((N) => N.engine, M) + ' times as long in ' + M.label) + '. Most of that growth is walking. The engine\'s text is mostly runs of < and >, and a run is as long as the matrix it crosses is wide. Leave those steps out and ' + fmt(small.engineOther) + ' characters remain in brnfck-smollm2-135m, against ' + list((M) => fmt(M.engineOther) + ' in ' + M.label) + '. That is the logic: the loops, the rounding, the tables. It is larger in the Qwen programs because their engine does more: a scale for every row, gains, a vocabulary ' + list((M) => (M.vocab / small.vocab).toFixed(0), [...new Map(big.map((M) => [M.vocab, M])).values()]).replace(/ and /, ' or ') + ' times as large' + (dn ? ', and in ' + dn.label + ' the text of four layers of two kinds, written out one after another' : '') + '. It is not larger because the models have more weights.'),
+        el('p', '', 'The mix of commands hardly changes. The same encoder wrote all ' + words(Ms.length) + ' writing parts, and a writing part is "step left, add or take off a little" from start to end. The tape is nearly all weights in all ' + words(Ms.length) + '. What also stays the same: the one read and the one print command, and room for 256 word pieces.' + (dn && sameSecs ? ' The engines of ' + list((M) => M.label, full) + ' also have the same ' + small.engineSections + ' sections, and 256 memory slots in every layer. That of ' + dn.label + ' has ' + dn.engineSections + ' sections, and only ' + dn.attLayers + ' of its ' + dn.layers + ' layers have memory slots.' : '')),
+        el('p', '', 'The work for a word piece grows with the weights, because every weight is used once for every piece' + (counted.length ? ': ' + list((M) => r((N) => N.steps.pos24.total, M) + ' times the steps in ' + M.label, counted) : '') + '. In the bigger programs a larger share goes to the table of word pieces: it has ' + list((M) => fmt(M.vocab), [...new Map(big.map((M) => [M.vocab, M])).values()]).replace(/ and /, ' or ') + ' rows against ' + fmt(small.vocab) + ', the engine runs along all of it to fetch one row, and once more to score every piece. Start-up grows with the file, which has to be read and run once from its first character.'),
       );
     }
   });
 
   // ---- how to make the data again
   ready.then(() => {
-    const big = MODEL === '1.5b', mem = big ? '6144' : '4096', L = TR.long;
-    const lines = ['node --max-old-space-size=' + mem + ' tools/map-data/writer.js ' + MODEL, 'node tools/map-data/sections.js ' + MODEL, 'node tools/map-data/tiles.js ' + MODEL, 'node tools/map-data/depth.js ' + MODEL];
+    const big = MODEL === '1.5b' || MODEL === '0.8b', mem = big ? '6144' : '4096', L = TR.long;
+    const lines = ['node --max-old-space-size=' + mem + ' tools/map-data/writer.js ' + MODEL, 'node tools/map-data/sections.js ' + MODEL, 'node tools/map-data/tiles.js ' + MODEL, 'node tools/map-data/depth.js ' + MODEL, 'node tools/map-data/stops.js ' + MODEL];
     if (!QWEN) lines.push('node --max-old-space-size=4096 tools/map-data/trace.js small', 'node --max-old-space-size=4096 tools/map-data/trace.js small "Why is the sky blue?" sky');
     else if (L) lines.push('node --max-old-space-size=4096 tools/map-data/trace.js ' + MODEL + ' "' + L.question + '" ' + TR.names[0] + (L.maxPositions ? ' --max ' + L.maxPositions : ''));
     else lines.push('node --max-old-space-size=4096 tools/map-data/trace.js ' + MODEL + ' "What is 12 + 30?" sum --max 25');
     lines.push('node tools/map-data/checks.js ' + MODEL, 'node tools/map-data/compare.js');
     $('n-cmd').textContent = lines.join('\n');
-    $('n-cost').textContent = { small: 'For this program they take about ten minutes and 1.5 GB of memory; the long run behind the chart of steps per word piece takes another 70 minutes.', '0.5b': 'For this program they take about 40 minutes, most of it the counted run behind "Where the time goes", and 3.5 GB of memory (the tape is 2.45 GiB).', '1.5b': 'For this program writer.js takes about 20 minutes and the counted run several minutes for every position; both need the tape of 6.81 GiB in memory and refuse to start when less than 12 GB is free.' }[MODEL];
+    $('n-cost').textContent = { small: 'For this program they take about ten minutes and 1.5 GB of memory; the long run behind the chart of steps per word piece takes another 70 minutes.', '0.5b': 'For this program they take about 40 minutes, most of it the counted run behind "Where the time goes", and 3.5 GB of memory (the tape is 2.45 GiB).', '0.8b': 'For this program writer.js takes about ten minutes, tiles.js two, and the counted run of 25 positions 74 minutes, about three minutes a position; writer.js and trace.js need the tape of 3.98 GiB in memory and refuse to start when less than 5.3 GB is free.', '1.5b': 'For this program writer.js takes about 20 minutes and the counted run several minutes for every position; both need the tape of 6.81 GiB in memory and refuse to start when less than 12 GB is free.' }[MODEL];
   });
 
   // ---- a link to a question opens it
