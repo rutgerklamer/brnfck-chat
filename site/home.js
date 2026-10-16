@@ -75,11 +75,13 @@
     }
   }
   const previews = fetch('home-source.json').then(r => r.ok ? r.json() : null).catch(() => null);
-  // the window always shows brnfck-qwen2.5-1.5b, the program the site shows off, whichever program is chosen;
+  // the window shows the chosen program (brnfck-qwen2.5-1.5b when none can be chosen);
   // only when the excerpt belongs to the program this site hosts (same SHA-256)
   async function showSource(name, meta) {
     const all = await previews, sample = all && all[name];
-    if (!sample || sample.sha256 !== meta.sha256) return;
+    if (choice && model && model.name !== name) return;      // another model was chosen in the meantime
+    if (!sample || sample.sha256 !== meta.sha256) { $('programWindow').hidden = true; return; }
+    $('fieldHead').textContent = `Inside ${MODELS[name].label}`;
     paint($('sourcePreview'), sample.text);
     $('sourcePosition').textContent = `${MODELS[name].label} · characters ${fmt(sample.from + 1)}–${fmt(sample.from + sample.text.length)} · engine excerpt`;
     $('sourceMap').href = `map/?m=${encodeURIComponent(name)}#show=${sample.from + 1},${sample.from + sample.text.length}`;
@@ -219,6 +221,7 @@
     }
     if (model.name !== name) return;                         // another model was chosen in the meantime
     P = found;
+    showSource(name, P.meta);
     $('q').maxLength = P.meta.maxQuestionBytes;
     ProgramDownload.attach($('download'), P);                // the .bf itself: nothing starts without a click
     setState('idle');
@@ -481,7 +484,7 @@
   const given = new URLSearchParams(location.search).get('q');
   if (given) { $('q').value = given.replace(/\s+/g, ' ').trim().slice(0, $('q').maxLength); count(); }
   if (choice) { select(choice); $('q').focus({ preventScroll: true }); } else unfit();
-  { const big = MODELS['1.5b'];
+  if (!choice) { const big = MODELS['1.5b'];
     ProgramStart.find({ name: big.name, manifestUrl: big.manifestUrl, metaUrl: big.metaUrl, fileUrl: big.fileUrl, hostsUrl: 'program-hosts.json' })
       .then((f) => showSource(big.name, f.meta), () => {}); }
 })();
