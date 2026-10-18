@@ -84,6 +84,20 @@ it writes equals the memory of the loaded model, and it prints the same text as 
 whole-number version of the model. Every check it prints must start with `ok`, and the last line
 must read `all <n> ok`.
 
+The built programs are also in the folder `bf/` of the Hugging Face dataset
+[rutgerklamer/brnfck-chat](https://huggingface.co/datasets/rutgerklamer/brnfck-chat/tree/main/bf).
+To download one instead of building it:
+
+```
+cd site/programs
+curl -L -O https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-smollm2-135m.bf
+curl -L -O https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-smollm2-135m.meta.json
+cd ../..
+```
+
+For the others replace `brnfck-smollm2-135m` with `brnfck-qwen2.5-0.5b`, `brnfck-qwen2.5-1.5b` or
+`brnfck-qwen3.5-0.8b`.
+
 On the computer that built these programs (8 cores, 32 GB) the whole run took about 30 minutes
 for `small`, 20 for `0.5b`, 50 for `1.5b` and 25 for `0.8b`. Most of that is the verification. `--quick` verifies
 with one question, `--no-verify` skips it, and `--from 4` goes on at step 4 after a stop.

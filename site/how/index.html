@@ -343,7 +343,7 @@
         <tr><td><b>Anything else</b></td><td class="n"><b>0</b></td><td class="n" data-c="other">-</td></tr>
         <tr><td>Total</td><td class="n">1,030,902,380</td><td class="n" data-c="total">-</td></tr>
       </table></div>
-      <p>You can also take <span class="bf-file"><a href="../programs/brnfck-smollm2-135m.bf" download>the program file</a></span> (1 GB, one very long line) and run it with any brainfuck interpreter that has 32-bit cells and a tape of at least 188,012,789 cells. Or repeat the project's own checks: see <a href="#run">&ldquo;Can I run it myself?&rdquo;</a></p>
+      <p>You can also take <span class="bf-file"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-smollm2-135m.bf" download>the program file</a></span> (1 GB, one very long line) and run it with any brainfuck interpreter that has 32-bit cells and a tape of at least 188,012,789 cells. Or repeat the project's own checks: see <a href="#run">&ldquo;Can I run it myself?&rdquo;</a></p>
     </div></details>
 
     <details class="q fold" id="wrong"><summary>Why are the models wrong so often?</summary><div class="a">
@@ -357,13 +357,13 @@
       <p>Yes, with the project folder on your own computer: the code is on <a href="https://github.com/rutgerklamer/brnfck-chat">GitHub</a>, under the MIT licence. It needs Node.js 24 and Python 3.12 and nothing else. The README in that folder gives every step: what works straight away, how to build a program from the model's files, and how to check it. To open these pages, run this in the project folder and go to <code>http://localhost:8766/</code>:</p>
       <pre class="cmd" tabindex="0">python tools/serve.py</pre>
       <p>This small server can send a part of a file, which <a href="../map/">the program map</a> needs for its deepest zoom.</p>
-      <p>The programs are too large to come with the project folder: each is built from the model's files, which you download once (the README says which files and which commands; brnfck-qwen2.5-0.5b takes a few minutes to build). Once a program is built, ask it a question without a browser. The four commands are for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b:</p>
+      <p>The programs are too large to come with the project folder. Download them from <a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/tree/main/bf">the folder bf/ on Hugging Face</a> into <code>site/programs/</code>, or build each one from the model's files (the README says which files and which commands; brnfck-qwen2.5-0.5b takes a few minutes to build). Once a program is there, ask it a question without a browser. The four commands are for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b:</p>
       <pre class="cmd" tabindex="0">node compiler/smollm/pure/ask.js "What is pi?"
 node compiler/qwen/program/ask.js --model 0.5b "What is 7 times 8?"
 node compiler/qwen/program/ask.js "What is the capital of France?"
 node compiler/qwen3.5/program/ask.js "What is 7 times 8?"</pre>
       <p>brnfck-qwen2.5-1.5b runs on an interpreter with 64-bit memory and needs about 10 GiB of free memory. It takes 90 to 169 seconds to start and 7 to 12 seconds for each word piece. Asked &ldquo;What is the capital of France?&rdquo;, it printed &ldquo;The capital of France is Paris.&rdquo; It also ran in one desktop Chromium browser, in <a href="../?m=1.5b">the chat with brnfck-qwen2.5-1.5b</a>: ready in 2 min 27 s, the same answer, 9.0 seconds per word piece (measured on 11 October 2026).</p>
-      <p>The program of brnfck-smollm2-135m is one file of 1 GB: <span class="bf-file"><a href="../programs/brnfck-smollm2-135m.bf" download>brnfck-smollm2-135m.bf</a></span>.</p>
+      <p>The program of brnfck-smollm2-135m is one file of 1 GB: <span class="bf-file"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-smollm2-135m.bf" download>brnfck-smollm2-135m.bf</a></span>.</p>
       <p>To repeat the checks on the billion-character program:</p>
       <pre class="cmd" tabindex="0">node compiler/smollm/pure/verify.js</pre>
       <p><b>What it needs:</b> an interpreter with 32-bit cells that go round (after the highest number comes 0), and a fast one. In the browser brnfck-smollm2-135m needs about 1.5 GB of free memory, brnfck-qwen2.5-0.5b about 4 GB, brnfck-qwen2.5-1.5b about 8 GB and a browser with 64-bit WebAssembly memory, and brnfck-qwen3.5-0.8b about 5 GB. All four have only been tried in one desktop Chromium browser; phones will most likely not manage brnfck-smollm2-135m, brnfck-qwen2.5-0.5b or brnfck-qwen3.5-0.8b, and a phone cannot run brnfck-qwen2.5-1.5b.</p>
@@ -484,7 +484,7 @@ node compiler/qwen3.5/program/ask.js "What is 7 times 8?"</pre>
 <script src="../program-start.js?v=r6"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../ui/article.js?v=r7"></script>
-<script src="../ui/how.js?v=r13"></script>
+<script src="../ui/how.js?v=r14"></script>
 <script src="../home-figures.js?v=r25"></script>
 </body>
 </html>

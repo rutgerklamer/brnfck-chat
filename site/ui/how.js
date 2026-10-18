@@ -344,10 +344,6 @@
   (function () {
     if (!$('c-go')) return;
     var WHERE = { name: 'small', manifestUrl: '../dist/small/manifest.json', metaUrl: '../programs/brnfck-smollm2-135m.meta.json', fileUrl: '../programs/brnfck-smollm2-135m.bf' };
-    // the one big file is only on a computer that built it: do not offer a link that leads nowhere
-    fetch(WHERE.fileUrl, { method: 'HEAD' }).then(function (r) { return r.ok; }, function () { return false; }).then(function (there) {
-      if (!there) Array.prototype.forEach.call(document.querySelectorAll('.bf-file'), function (s) { s.textContent = 'the program file (programs/brnfck-smollm2-135m.bf; it is not at this address: the README of the project says how to make it)'; });
-    });
     var out = function (key) { return document.querySelector('#c-table [data-c="' + key + '"]'); };
     var ctl = null;
     $('c-go').addEventListener('click', async function () {

@@ -1,7 +1,7 @@
 {
  "about": "Where the data of each program for the pages inside/, map/ and about/ is (written by tools/map-data/). An empty value: in inside/data/<name>/ of this site. A URL ending in /: the folder that holds writer.json, engine.json, tiles.json, tiles/ and the rest, on a host that allows other sites to read it. A program whose data is nowhere gets a message instead of a map; the other programs keep working. On a hosted site the folders data/<name>/deep/ can be left out: they are only used when the program text cannot be read in parts.",
- "small": "",
- "0.5b": "",
- "0.8b": "",
- "1.5b": ""
+ "small": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/inside/small/",
+ "0.5b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/inside/0.5b/",
+ "0.8b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/inside/0.8b/",
+ "1.5b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/inside/1.5b/"
 }
