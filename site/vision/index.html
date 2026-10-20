@@ -54,17 +54,17 @@
         <div class="vis-side">
           <div class="ctl" id="look-ctl"></div>
           <p class="tell" id="look-said" aria-live="polite"></p>
-          <p class="key small"><span><i class="sw" style="background:var(--go)"></i>The square it takes in most</span><span><i class="sw sq"></i>The square that looks</span><span><i class="sw reg"></i>Taken in by every square</span></p>
+          <p class="key small"><span><i class="sw" style="background:var(--go)"></i>The square it takes in most</span><span><i class="sw sq"></i>The square that looks</span><span><i class="sw reg"></i>A notepad square: every square takes in from it</span></p>
         </div>
       </div>
-      <p class="measured">The weights are those of the program: the whole-number model it computes (<code>compiler/qwen3.5/vision/spec.js</code>) run on the picture, every square's attention over all 256 squares in every layer, averaged over the 12 heads of the layer (<code>compiler/qwen3.5/vision/record.js</code>). Ringed in blue: the squares that every square takes in, whatever is in them, 3% or more of what a square takes in on average in that layer (an even share would be 0.4%). Of the other squares the brightest is the one this square takes in most, and the rest are drawn to its scale. Arrow keys on the picture move the square that looks.</p>
+      <p class="measured">The weights are those of the program: the whole-number model it computes (<code>compiler/qwen3.5/vision/spec.js</code>) run on the picture, every square's attention over all 256 squares in every layer, averaged over the 12 heads of the layer (<code>compiler/qwen3.5/vision/record.js</code>). Ringed in blue: the notepad squares of that layer, which every square takes in, whatever is in them: 3% or more of what a square takes in, on average over all 256 (an even share would be 0.4%). The square itself is set apart too, as every square takes in much from itself: of the others the brightest is the one it takes in most, and the rest are drawn to its scale. Arrow keys on the picture move the square that looks.</p>
     </figure>
   </section>
 
   <section id="look" aria-labelledby="look-h">
     <h2 id="look-h">Every square looks at every square</h2>
-    <p>In the text model a word piece <a href="../how/#s7">looks back</a>: it takes in what it needs from the word pieces before it, never from those after it. A picture has no before and after. In each of the 12 layers every square looks at all 256 squares, itself included, and takes in a share of each, the shares adding up to one. Pick a square in the picture above, and a layer with the slider: the brighter a square, the more of it the square you picked takes in.</p>
-    <p>In layer 2 more than half of what a square takes in comes from itself and the eight squares around it, in all four photos. By layer 10 that is a tenth or less: the squares look across the whole picture, on average eight or nine squares away. And from layer 3 on, a few squares are taken in by every square, whatever is in them: in all four photos the squares in rows 2 and 3 of the right edge, in the later layers also row 11 of the left edge, and in the last layer the corners. Larger models of this kind do the same: they turn a few squares of background into a place for what concerns the whole picture. <a class="cite" href="#ref-4" aria-label="Source 4">[4]</a></p>
+    <p>In the text model a word piece <a href="../how/#s7">looks back</a>: it takes in what it needs from the word pieces before it, never from those after it. A picture has no before and after. In each of the 12 layers every square looks at all 256 squares, itself included, and takes in a share of each, the shares adding up to one. Pick a square in the picture above, and a layer with the slider: the brighter a square, the more of it the square you picked takes in. The figure opens on the eye on the left of the cat in layer 4: after itself, it takes in most from the other eye. In the last layer the other eye is what it takes in most of all.</p>
+    <p>In layer 2 more than half of what a square takes in comes from itself and the eight squares around it, in all four photos. By layer 10 that is a tenth or less: the squares look across the whole picture, on average eight or nine squares away. And from layer 3 on, the model uses a few squares as a shared notepad for the whole picture: every square takes in from them, whatever they show. In all four photos these are the squares in rows 2 and 3 of the right edge, in the later layers also row 11 of the left edge, and in the last layer the corners: background, whose own content the model can spare. By layer 10 the average square takes in 43% to 68% of everything from two or three of them. Larger models of this kind do the same; the paper that found it calls such squares registers. <a class="cite" href="#ref-4" aria-label="Source 4">[4]</a> In the figure they are ringed in blue and set apart, so that the rest shows where a square looks in the picture itself.</p>
     <p>A program that runs one step at a time cannot look both ways at once, so it does it in two rounds per layer. In the first round every square works out its key and its value and leaves them in a slot of its own, 256 slots in a row, with its question and the numbers it carries. In the second round the squares come back one by one, take their question from their slot, and walk past all 256 slots: by then every slot is full. The looking itself is the same code as in the text models, which stops at the first empty slot. Here no slot is empty.</p>
     <p class="next-q">And after the last layer?</p>
   </section>
@@ -124,6 +124,6 @@
   </section>
 </main>
 <script src="../ui/article.js?v=r7"></script>
-<script src="vision.js?v=r3"></script>
+<script src="vision.js?v=r5"></script>
 </body>
 </html>

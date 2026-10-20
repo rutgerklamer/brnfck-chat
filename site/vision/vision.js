@@ -9,7 +9,7 @@
 
   // ---- where every square looks (data/look.json, data/look-<picture>.bin: compiler/qwen3.5/vision/record.js) ----
   (function () {
-    var canvas = $('look-view'), said = $('look-said'), INDEX = null, cache = {}, pic = 'cat', layer = 2, sq = -1, ordering = null;
+    var canvas = $('look-view'), said = $('look-said'), INDEX = null, cache = {}, pic = 'cat', layer = 4, sq = -1, ordering = null;
     var img = {}, D = null;
     var lay = slider('Layer', 1, 12, layer, function (v) { return v + ' of 12'; });
     $('look-ctl').append(lay.label);
@@ -44,11 +44,11 @@
         for (var t = 0; t < upTo; t++) { var r = place(t), x = (r[1] + 0.5) * cw, y = (r[0] + 0.5) * cw; if (t) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
         ctx.stroke();
       } else if (sq >= 0) {
-        // what square sq takes in, in this layer, the registers apart: dark where it takes in nothing, to the scale of
-        // the square it takes in most besides them; the registers as they are, ringed in blue
+        // what square sq takes in from elsewhere, in this layer: dark where it takes in nothing, to the scale of the square
+        // it takes in most besides itself and the notepad squares; those two as they are, the notepad squares ringed in blue
         var row = (layer - 1) * n + sq, L = D.look, R = registers(), top = topOf(sq), max = L[row * n + top] || 1;
         for (var u = 0; u < n; u++) {
-          if (R[u]) continue;
+          if (R[u] || u === sq) continue;
           var v = Math.min(1, L[row * n + u] / max), p = place(u);
           ctx.fillStyle = 'rgba(13,14,16,' + (0.78 * (1 - Math.sqrt(v))).toFixed(3) + ')';
           ctx.fillRect(p[1] * cw, p[0] * cw, cw, cw);
@@ -60,9 +60,8 @@
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(me[1] * cw + 1.5, me[0] * cw + 1.5, cw - 3, cw - 3);
         ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.strokeRect(me[1] * cw + 0.5, me[0] * cw + 0.5, cw - 1, cw - 1);
         if (held) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(me[1] * cw - 3, me[0] * cw - 3, cw + 6, cw + 6); }   // held: a second ring
-        // the square it takes in most, in the colour of the key: inside the white ring when that is the square itself
-        var inset = top === sq ? 5 : 1.5;
-        ctx.strokeStyle = go; ctx.lineWidth = 3; ctx.strokeRect(tp[1] * cw + inset, tp[0] * cw + inset, cw - 2 * inset, cw - 2 * inset);
+        // the square it takes in most from elsewhere, in the colour of the key
+        ctx.strokeStyle = go; ctx.lineWidth = 3; ctx.strokeRect(tp[1] * cw + 1.5, tp[0] * cw + 1.5, cw - 3, cw - 3);
       }
       // the grid of squares, faint; the blocks of four a little stronger
       ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
@@ -91,11 +90,11 @@
       }
       return regs[key];
     }
-    // the square that square s takes in most in this layer besides the registers (the first of equals), and the share
-    // of a square in all that s takes in
+    // the square that square s takes in most in this layer besides itself and the notepad squares (the first of equals),
+    // and the share of a square in all that s takes in
     function topOf(s) {
       var n = D.P.rc.length, at = ((layer - 1) * n + s) * n, R = registers(), best = -1;
-      for (var u = 0; u < n; u++) if (!R[u] && (best < 0 || D.look[at + u] > D.look[at + best])) best = u;
+      for (var u = 0; u < n; u++) if (!R[u] && u !== s && (best < 0 || D.look[at + u] > D.look[at + best])) best = u;
       return best;
     }
     function shareOf(s, u) {
@@ -110,9 +109,8 @@
       var share = near(), top = topOf(sq), R = registers(), reg = 0, k = 0;
       for (var u = 0; u < R.length; u++) if (R[u]) { reg += shareOf(sq, u); k++; }
       said.replaceChildren(where(sq).replace('square', 'Square') + ', layer ' + layer + ': ', el('b', '', Math.round(100 * share) + '%'), ' of what it takes in comes from itself and the eight squares around it. ');
-      if (k) said.append(el('b', '', Math.round(100 * reg) + '%'), ' goes to the ' + (k === 1 ? 'square' : k + ' squares') + ' ringed in blue, which every square in this layer takes in. Of the rest it takes in most from ');
-      else said.append('It takes in most from ');
-      said.append((top === sq ? 'itself' : where(top)) + ', ', el('b', '', Math.round(100 * shareOf(sq, top)) + '%'), '. ',
+      if (k) said.append(el('b', '', Math.round(100 * reg) + '%'), ' goes to the ' + (k === 1 ? 'notepad square' : k + ' notepad squares') + ' ringed in blue. ');
+      said.append('From itself it takes in ', el('b', '', Math.round(100 * shareOf(sq, sq)) + '%'), '; from anywhere else most from ' + where(top) + ', ', el('b', '', Math.round(100 * shareOf(sq, top)) + '%'), '. ',
         held ? 'Held: move the slider through the layers, or press the square again to let go.' : 'Press it to hold it while you move the slider.');
     }
     function show() { draw(); tell(); }
@@ -165,7 +163,7 @@
     });
     function open() {
       said.textContent = 'Loading…';
-      load(pic).then(function (d) { D = d; if (sq < 0) sq = squareAt(7, 8); show(); }).catch(function () { said.textContent = 'The data of this figure could not be loaded.'; });
+      load(pic).then(function (d) { D = d; if (sq < 0) sq = squareAt(8, 5); show(); }).catch(function () { said.textContent = 'The data of this figure could not be loaded.'; });
     }
     var started = false, start = function () { if (!started) { started = true; open(); } };
     if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); } }, { rootMargin: '400px' }); io.observe(canvas); } else start();
