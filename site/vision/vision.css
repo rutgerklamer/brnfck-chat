@@ -13,6 +13,7 @@ main.vis .key { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin
 main.vis .key > span { display: inline-flex; align-items: center; gap: var(--s2); }
 main.vis .key .sw { display: inline-block; width: 1rem; height: 1rem; }
 main.vis .key .sw.sq { border: 3px solid #fff; outline: 1px solid var(--ink); background: transparent; }
+main.vis .key .sw.reg { border: 2px dashed var(--c-minus); background: transparent; }
 
 /* ---- what it said ---- */
 main.vis .vis-answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: var(--s4); }

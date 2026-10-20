@@ -44,14 +44,19 @@
         for (var t = 0; t < upTo; t++) { var r = place(t), x = (r[1] + 0.5) * cw, y = (r[0] + 0.5) * cw; if (t) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
         ctx.stroke();
       } else if (sq >= 0) {
-        // what square sq takes in, in this layer: dark where it takes in nothing
-        var row = (layer - 1) * n + sq, L = D.look;
+        // what square sq takes in, in this layer, the registers apart: dark where it takes in nothing, to the scale of
+        // the square it takes in most besides them; the registers as they are, ringed in blue
+        var row = (layer - 1) * n + sq, L = D.look, R = registers(), top = topOf(sq), max = L[row * n + top] || 1;
         for (var u = 0; u < n; u++) {
-          var v = L[row * n + u] / 255, p = place(u);
+          if (R[u]) continue;
+          var v = Math.min(1, L[row * n + u] / max), p = place(u);
           ctx.fillStyle = 'rgba(13,14,16,' + (0.78 * (1 - Math.sqrt(v))).toFixed(3) + ')';
           ctx.fillRect(p[1] * cw, p[0] * cw, cw, cw);
         }
-        var me = place(sq), top = topOf(sq), tp = place(top);
+        ctx.strokeStyle = colour('--c-minus'); ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
+        for (var w = 0; w < n; w++) if (R[w]) { var pw = place(w); ctx.strokeRect(pw[1] * cw + 1.5, pw[0] * cw + 1.5, cw - 3, cw - 3); }
+        ctx.setLineDash([]);
+        var me = place(sq), tp = place(top);
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(me[1] * cw + 1.5, me[0] * cw + 1.5, cw - 3, cw - 3);
         ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.strokeRect(me[1] * cw + 0.5, me[0] * cw + 0.5, cw - 1, cw - 1);
         if (held) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(me[1] * cw - 3, me[0] * cw - 3, cw + 6, cw + 6); }   // held: a second ring
@@ -69,10 +74,28 @@
       for (var u = 0; u < n; u++) { var v = D.look[row * n + u], p = place(u); all += v; if (Math.abs(p[0] - me[0]) <= 1 && Math.abs(p[1] - me[1]) <= 1) close += v; }
       return all ? close / all : 0;
     }
-    // the square that square s takes in most in this layer (the first of equals), and its share of all s takes in
+    // The registers of this layer: squares that every square takes in, whatever is in them (3% or more of what a square
+    // takes in, on average over all 256; an even share would be 0.4%). Larger vision models do the same [4].
+    var regs = {};
+    function registers() {
+      var key = pic + ' ' + layer;
+      if (!regs[key]) {
+        var n = D.P.rc.length, mean = new Float64Array(n), R = new Uint8Array(n);
+        for (var s = 0; s < n; s++) {
+          var at = ((layer - 1) * n + s) * n, all = 0;
+          for (var u = 0; u < n; u++) all += D.look[at + u];
+          if (all) for (var w = 0; w < n; w++) mean[w] += D.look[at + w] / all / n;
+        }
+        for (var k = 0; k < n; k++) R[k] = mean[k] >= 0.03 ? 1 : 0;
+        regs[key] = R;
+      }
+      return regs[key];
+    }
+    // the square that square s takes in most in this layer besides the registers (the first of equals), and the share
+    // of a square in all that s takes in
     function topOf(s) {
-      var n = D.P.rc.length, at = ((layer - 1) * n + s) * n, best = 0;
-      for (var u = 1; u < n; u++) if (D.look[at + u] > D.look[at + best]) best = u;
+      var n = D.P.rc.length, at = ((layer - 1) * n + s) * n, R = registers(), best = -1;
+      for (var u = 0; u < n; u++) if (!R[u] && (best < 0 || D.look[at + u] > D.look[at + best])) best = u;
       return best;
     }
     function shareOf(s, u) {
@@ -80,20 +103,16 @@
       for (var w = 0; w < n; w++) all += D.look[at + w];
       return all ? D.look[at + u] / all : 0;
     }
-    // how many of the 256 squares take in most from square u in this layer
-    var tops = {};
-    function topCount(u) {
-      var key = pic + ' ' + layer;
-      if (!tops[key]) { var c = new Int32Array(D.P.rc.length); for (var s = 0; s < c.length; s++) c[topOf(s)]++; tops[key] = c; }
-      return tops[key][u];
-    }
     var where = function (s) { var p = place(s); return 'square ' + (s + 1) + ' (row ' + (p[0] + 1) + ', column ' + (p[1] + 1) + ')'; };
     function tell() {
       if (!D) return;
       if (sq < 0) { said.textContent = 'Point at a square of the picture, or press it to hold it.'; return; }
-      var share = near(), top = topOf(sq), many = topCount(top);
-      said.replaceChildren(where(sq).replace('square', 'Square') + ', layer ' + layer + ': ', el('b', '', Math.round(100 * share) + '%'), ' of what it takes in comes from itself and the eight squares around it. ',
-        'It takes in most from ' + (top === sq ? 'itself' : where(top)) + ', ', el('b', '', Math.round(100 * shareOf(sq, top)) + '%'), many > 1 ? '; in this layer ' + many + ' of the 256 squares take in most from that square. ' : '. ',
+      var share = near(), top = topOf(sq), R = registers(), reg = 0, k = 0;
+      for (var u = 0; u < R.length; u++) if (R[u]) { reg += shareOf(sq, u); k++; }
+      said.replaceChildren(where(sq).replace('square', 'Square') + ', layer ' + layer + ': ', el('b', '', Math.round(100 * share) + '%'), ' of what it takes in comes from itself and the eight squares around it. ');
+      if (k) said.append(el('b', '', Math.round(100 * reg) + '%'), ' goes to the ' + (k === 1 ? 'square' : k + ' squares') + ' ringed in blue, which every square in this layer takes in. Of the rest it takes in most from ');
+      else said.append('It takes in most from ');
+      said.append((top === sq ? 'itself' : where(top)) + ', ', el('b', '', Math.round(100 * shareOf(sq, top)) + '%'), '. ',
         held ? 'Held: move the slider through the layers, or press the square again to let go.' : 'Press it to hold it while you move the slider.');
     }
     function show() { draw(); tell(); }
