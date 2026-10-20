@@ -11,6 +11,9 @@ out/
 /site/dist/
 /site/inside/data/
 
+# The data of site/vision/ is small and part of the site (compiler/qwen3.5/vision/record.js)
+!/site/vision/data/*.bin
+
 # Logs, packages and system files
 *.log
 node_modules/

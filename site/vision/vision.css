@@ -1,0 +1,33 @@
+/* "Looking at a picture" (vision/index.html). */
+
+main.vis .ctl.picks { margin: 0 0 var(--s3); gap: var(--s2); }
+main.vis .ctl.picks .seg { display: flex; flex: 1 1 auto; }
+main.vis .sp { display: inline-block; margin: 0 2px; padding: 0 3px; border: 1px solid var(--line); color: var(--muted); font: 500 .75rem/1.4 var(--mono); white-space: nowrap; vertical-align: .05em; }
+
+/* ---- the picture and where a square looks ---- */
+main.vis .vis-two { display: grid; grid-template-columns: minmax(0, 512px) minmax(0, 1fr); gap: var(--s4) var(--s5); align-items: start; }
+main.vis .vis-pic { display: block; max-width: 100%; cursor: crosshair; touch-action: manipulation; }
+main.vis .vis-pic:focus-visible { outline: var(--ring) solid var(--ink); outline-offset: 2px; }
+main.vis .vis-side .ctl { margin: 0 0 var(--s3); }
+main.vis .key { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: var(--s3) 0 0; color: var(--muted); }
+main.vis .key > span { display: inline-flex; align-items: center; gap: var(--s2); }
+main.vis .key .sw { display: inline-block; width: 1rem; height: 1rem; }
+main.vis .key .sw.sq { border: 3px solid #fff; outline: 1px solid var(--ink); background: transparent; }
+
+/* ---- what it said ---- */
+main.vis .vis-answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: var(--s4); }
+main.vis .vis-ans { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: var(--s3); align-items: start; }
+main.vis .vis-ans img { display: block; width: 128px; height: 128px; image-rendering: auto; }
+main.vis .vis-ans .q { margin: 0 0 var(--s1); color: var(--muted); font: var(--fs-small)/1.4 var(--sans); }
+main.vis .vis-ans .a { margin: 0; font: var(--fs-ui)/1.5 var(--sans); white-space: pre-line; }
+main.vis .vis-ans .small { margin: var(--s2) 0 0; }
+
+/* ---- the tape to scale ---- */
+#fig-cost .bars { grid-template-columns: fit-content(40%) minmax(3rem, 1fr) auto; }
+#fig-cost .bars .track { display: block; }
+#fig-cost .bars .bar { display: block; height: 18px; }
+#fig-cost .bars .val { font-family: var(--mono); text-align: right; min-width: 14ch; }
+
+@media (max-width: 45em) {
+  main.vis .vis-two { grid-template-columns: minmax(0, 1fr); }
+}

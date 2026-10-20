@@ -3,7 +3,8 @@
 The compiler of brnfck-qwen3.5-0.8b. Qwen3.5-0.8B is the smallest model with the layers of
 Qwen3.8-27B: three of every four layers are a Gated DeltaNet, a memory of fixed size, and the fourth is full
 attention with an output gate. This file says how the program is built and checked, what the whole-number model
-is, and how the DeltaNet layer was first tried on its own.
+is, and how the DeltaNet layer was first tried on its own. It also covers brnfck-qwen3.5-0.8b-vision, the same program
+with the model's part for pictures (`vision/`), and the model's multi-token prediction head (`reference/mtp.js`).
 
 ## The program
 
@@ -63,6 +64,143 @@ the float model: the residual stays below 8.4 at every position, the first one t
 
 The engine program with its data files (`run_real.js`) gives the spec's ids on "What is the capital of France?" (30 of 30) and
 "Hello" (11 of 11, "Hello! How can I help you today? 😊", then the end of the turn).
+
+## The program with pictures
+
+brnfck-qwen3.5-0.8b-vision: Qwen3.5-0.8B with its vision part in brainfuck, a picture and a question in, the answer
+out. `node tools/build.js 0.8b-vision` makes and checks it, and `node compiler/qwen3.5/vision/ask.js picture.png
+"question"` asks it. The steps one by one, with the checks before them:
+
+```
+python compiler/qwen3.5/vision/hf_check.py compiler/qwen3.5/vision/pictures/cat.png   # the Hugging Face code (torch, transformers 5.x, pillow), into vision/out/
+node compiler/qwen3.5/vision/check_float.js cat windmills bicycle apples     # reference/vision.js against it
+node compiler/qwen3.5/vision/check_spec.js                                   # the whole-number vision part against the float one
+node compiler/qwen3.5/vision/check_engine.js                                 # its brainfuck against the spec on small models (60 checks)
+node compiler/qwen3.5/vision/check_program.js                                # the same with a small text model behind it (3 checks)
+node --max-old-space-size=16000 compiler/qwen3.5/vision/build.js             # the program, its three streams, the spec's answers (vision/out/)
+node --max-old-space-size=16000 compiler/qwen3.5/vision/build_pure.js        # site/programs/brnfck-qwen3.5-0.8b-vision.bf
+node compiler/qwen3.5/vision/verify_pure.js                                  # its three checks (ask 0 1 2 3 4 5: every question of the reference)
+```
+
+| File | What it does |
+|---|---|
+| `reference/vision.js` | The vision part in floating point: the squares of a PNG file, the 12 layers, the merger, the prompt with a picture |
+| `vision/hf_check.py`, `check_float.js` | The Hugging Face code on a picture, and `reference/vision.js` against what it wrote |
+| `vision/spec.js` | The vision part in whole numbers: the spec the program computes, bit for bit |
+| `vision/layout.js` | Where the picture sits in the prompt, and the place of every position for the rotation of the text model |
+| `vision/gen.js` | The vision part in brainfuck, with the building blocks of `compiler/qwen/engine/` |
+| `vision/program.js` | The text program of brnfck-qwen3.5-0.8b with the vision part at the end of its tape |
+| `vision/synth.js`, `check_engine.js`, `check_program.js` | Small made-up vision models, and the brainfuck against the spec on them under `engine/bfrun.js` |
+| `vision/build.js`, `build_pure.js`, `verify_pure.js`, `ask.js` | As in `program/`, for the program with pictures |
+| `vision/record.js`, `answers.js` | The data of the page `site/vision/`: where every square looks, and the program's own answers |
+
+### The vision part
+
+| | |
+|---|---|
+| picture | 256 x 256 pixels, cut into 256 squares of 16 x 16 pixels in blocks of 2 x 2; a square is its red, green and blue pixels, 768 bytes |
+| patch embedding | 768 bytes to 768 numbers (the two frames of the kernel of the video model added), plus a learned position from a table of 48 x 48, read bilinearly |
+| 12 layers | LayerNorm, attention of 12 heads of 64 over all squares (half the pairs of a head turned by the row, half by the column), LayerNorm, 3,072 with gelu (tanh) |
+| merger | the four squares of a block side by side (3,072), LayerNorm, 3,072 with gelu (erf), 1,024: one row per block, as wide as a row of the embedding table |
+| weights | about 101 million (the text model: about 752 million) |
+
+The prompt is `<|im_start|>user\n<|vision_start|>`, 64 times `<|image_pad|>`, `<|vision_end|>`, the question and the
+rest of the chat template: 69 ids before the question. The text model reads the 64 rows in place of the row of
+`<|image_pad|>` of its embedding table, at the scale of that table. Its rotation has three parts (time, row and
+column, interleaved 11, 11 and 10 over its 32 turned pairs). Before the picture each part holds the position; in the
+picture they hold (start, start + row, start + column) in the grid of 8 x 8 blocks; after it the position minus 56
+(the 64 pieces of the picture minus the 8 of its longer side).
+
+### Whole numbers
+
+`vision/spec.js` puts the vision part in whole numbers with the building blocks of the text engines:
+
+- LayerNorm becomes the rms norm of the text engines. The residual stream is only read through a LayerNorm, so the
+  mean is taken out of everything that is added to it: the patch embedding and the positions, and the outputs of the
+  attention and the feed-forward layer (every column of their matrices minus its mean). The bias of the LayerNorm goes
+  into the bias of the matrix after it.
+- Every layer has its own widths. On the four pictures the residual reaches 4.2 at the input of layer 1 and 2,241
+  before the merger, and the sums before gelu reach 6.5 to 439, depending on the layer. The residual keeps 14 fraction
+  bits in layers 1 to 6, 11 in layers 7 to 12 and 6 before the merger; the sums before gelu 4 to 9. Every doubled sum
+  leaves room for 4 times the largest value measured.
+- Queries and keys 7 fraction bits, values 10, x / rms(x) times the gain 8 (18 bits in all: a matrix input of n bits
+  costs about 2^n characters in each sweep, so this width sets the length of the program).
+- gelu(a) = a Φ(a), Φ from a table that ends in 0 and 1.
+
+The spec against the float vision part (`check_spec.js`, the four pictures, the question "Describe this picture in one
+sentence.", the float model's answer teacher forced):
+
+| picture | vectors to the text model, relative difference (mean, largest) | same next token | greedy answer of the spec |
+|---|---:|---:|---|
+| cat | 6.99%, 38.28% | 25 of 25 | the float model's, word for word |
+| windmills | 8.40%, 39.08% | 27 of 28 | "... a grassy meadow, and a cow resting near a waterway under a bright blue sky." (float: "and a calm water body") |
+| bicycle | 10.31%, 71.08% | 17 of 18 | "A bicycle with a basket and panniers is parked on a paved path, with a person sitting on the seat ..." (float: "A bicycle with a person sitting on it ...") |
+| apples | 10.82%, 89.84% | 10 of 10 | the float model's, word for word |
+| **all** | | **79 of 81 (97.5%)**, mean KL 0.0166 nats | |
+
+No attention score left its 29 bits. The photo of the windmills has an animal lying in the meadow; the float model
+leaves it out. Nobody sits on the bicycle; both say so.
+
+### In brainfuck
+
+The vision part lies at the end of the tape, past the tokenizer: 129,929,134 cells of the 1,197,356,368. Every square
+is read and goes through the 12 layers before the question is read.
+
+- In round 0 a square is read from the input (768 bytes, one `,` in a loop), embedded, and goes through the first half
+  of layer 0: its key, value and query into a slot of its own, 256 slots in a row. In round r the squares come back one
+  by one, take their query from the slot, attend over all 256 slots (all full by then), finish layer r - 1 and do the
+  first half of layer r. A text model attends over the slots before it and stops at the first empty one; here none is.
+- After the last layer the merger runs after every fourth square (a counter in the first matrix of the merger), and
+  its row goes into a queue next to the tokenizer. The text side takes the first row from that queue at every
+  `<|image_pad|>`, and clears the queue's flags after the last one.
+- The tape is 64-bit WebAssembly memory: 4.46 GiB.
+
+`brnfck-qwen3.5-0.8b-vision.bf`, checked by `verify_pure.js`:
+
+| | |
+|---|---|
+| characters | 8,931,101,427 (8.32 GiB): writing part 8,214,809,705, rest 716,291,722 |
+| tape | 1,197,356,368 cells of 32 bits (4.46 GiB, a 64-bit WebAssembly memory); 129,929,134 of them (10.9%) the vision part |
+| data it replaces | 2,216,571,119 bytes: text weights 2,013,839,040, tokenizer 5,453,103, vision weights 197,278,976 |
+| memory to run | 6.18 GiB (peak of `verify_pure.js`) |
+| start-up | 86.5 s (the file streamed in 80.8 s, the rest compiled in 5.7 s) |
+| speed | the picture and the 85 positions of the prompt about the cat: 650 s; then 6.59 s per word piece (median); the whole answer 891 s |
+
+| check | result |
+|---|---|
+| 1 only the eight commands, the brackets match, three `,` (one reads the 196,608 bytes of the picture, two the question: its first character, then the others in a loop) and one `.`, none in the writing part, SHA-256 | ok |
+| 2 the tape after the writing part equals the tape the load part leaves after reading the 2,216,571,119 data bytes (1,142 SHA-256 sums), pointer on the same cell | ok |
+| 3 the cat, "Describe this picture in one sentence.": the printed text is the spec's, 25 word pieces, then the end of the turn | ok |
+| 3 the five other questions of the reference (`verify_pure.js ask 1 2 3 4 5`): the windmills, the bicycle and the apples with the same question, "What colour are the eyes?" about the cat, "Waar is deze foto gemaakt?" about the windmills; the printed text is the spec's each time, up to 30 word pieces | ok |
+
+The first run of the whole program left the tape after reading the picture. `flags()` counts the entries of a queue
+with `addBig`, which builds a count of 256 or more from base-256 digits and needs two cells to work in. It took the
+two cells after the counter, and the first of them is the next flag of the entry, set at that moment. The count
+became 512, and every move after it landed on the wrong cells. The small models of the tests had at most 64 squares,
+a count that needs no cells to work in. `flags()` now works in two cells of the entry's scratch, and
+`check_engine.js` also runs a model of 256 squares.
+
+## The multi-token prediction head
+
+Qwen3.5-0.8B has one more layer, `mtp.*` (about 20 million weights): from the hidden state of position i after the final norm
+and the embedding of the word piece at i + 1, one full attention layer of its own guesses the word piece at i + 2.
+`reference/mtp.js` runs it in floating point (read from vLLM, `qwen3_5_mtp.py`).
+
+Over the answers to four questions, 40 word pieces each (`node compiler/qwen3.5/reference/mtp.js`), its guess for the
+word piece after the next was right 115 of 156 times (73.7%):
+
+| question | right |
+|---|---:|
+| What is the capital of France? | 31 of 39 |
+| What is 12 + 30? | 35 of 39 |
+| Wat is de hoofdstad van Nederland? | 23 of 39 |
+| Name three primary colors. | 26 of 39 |
+
+On a GPU the guess saves time: the model checks it together with the next word piece in one pass. A brainfuck program
+reads one word piece at a time, so checking a guess costs a full pass, as much as computing the word piece itself. No
+program runs the head. The figure of the layers on "How it works" shows its guesses above the layers of
+brnfck-qwen3.5-0.8b: `tools/map-data/lens.js` runs it in floating point on the numbers the program leaves after its
+last layer.
 
 ## The model
 

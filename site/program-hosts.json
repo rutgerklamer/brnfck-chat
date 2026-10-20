@@ -3,5 +3,6 @@
  "0.5b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/programs/0.5b/",
  "small": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/programs/small/",
  "1.5b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/programs/1.5b/",
- "0.8b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/programs/0.8b/"
+ "0.8b": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/programs/0.8b/",
+ "0.8b-vision": "https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/programs/0.8b-vision/"
 }

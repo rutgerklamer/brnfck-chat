@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="compare.css?v=r7">
 </head>
 <body>
-<script src="../site.js?v=r16" data-section="insights"></script>
+<script src="../site.js?v=r17" data-section="insights"></script>
 <main class="doc article dn" id="main">
 
   <header class="plain">
@@ -50,7 +50,7 @@
       <div class="dn-legend" aria-hidden="true"><span><i class="sw" style="background:var(--d4)"></i>Table of word pieces</span><span><i class="sw" style="background:var(--d2)"></i>Looks back</span><span><i class="sw" style="background:var(--d1)"></i>DeltaNet</span><span><i class="sw" style="background:var(--d3)"></i>Feed-forward</span></div>
       <canvas class="dn-stack" tabindex="0" role="img"></canvas>
       <p class="tell" aria-live="polite"></p>
-      <p class="measured">Counted from the weight files of the two models (<code>compiler/qwen3.5/compare/shapes.js</code>), only the part that reads and writes text: Qwen3.5-0.8B also has a part for pictures and a layer that guesses a word piece ahead, which the program does not run. The thin lines in a layer divide its parts; the norms between the parts, about 2,000 weights a layer, are too thin to see. Arrow keys on the drawing move the chosen layer.</p>
+      <p class="measured">Counted from the weight files of the two models (<code>compiler/qwen3.5/compare/shapes.js</code>), only the part that reads and writes text: Qwen3.5-0.8B also has a part for pictures, which <a href="../vision/">brnfck-qwen3.5-0.8b-vision</a> runs, and a layer that guesses a word piece ahead, which no program runs. The thin lines in a layer divide its parts; the norms between the parts, about 2,000 weights a layer, are too thin to see. Arrow keys on the drawing move the chosen layer.</p>
     </figure>
 
     <p>Three things changed. The table of word pieces, used at the start to look up the word piece that comes in and at the end to score every word piece that could come next, has almost twice as many weights: 248,320 word pieces of 1,024 numbers against 151,936 of 896. It is a third of Qwen3.5-0.8B. The feed-forward parts became a little smaller. And the parts that mix in the past grew five times: 233.8 million weights against 44.1 million.</p>
@@ -259,6 +259,6 @@
   </section>
 </main>
 <script src="../ui/article.js?v=r7"></script>
-<script src="compare.js?v=r9"></script>
+<script src="compare.js?v=r10"></script>
 </body>
 </html>

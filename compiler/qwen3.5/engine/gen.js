@@ -35,6 +35,7 @@ function archOf(shape, options = {}, extra = {}) {
     chunk: extra.chunk || defaultChunk(vocab, 2 * hidden),
     maxTokens: S.cfg.maxTokens, cfg: S.cfg, R: S.R, settings: S, eout: S.eout, eo: S.eo, e2: S.e2, K3: S.K3, xUpBits: S.xUpBits, xDown: S.xDown,
     tables: S.tables, stops: (extra.stops || Spec.STOP).slice(), noMixer: !!options.noMixer, skip: options.skip || [],
+    embRoom: extra.embRoom, vision: extra.vision,
   };
 }
 // The largest divisor of the vocabulary that is not above `limit`.
@@ -57,7 +58,8 @@ class Engine {
       if (this.cur.length >= 1 << 20) { Array.prototype.push.call(this, this.cur); this.cur = ''; }
       return this.length;
     };
-    code.join = function (sep) { if (this.cur) { Array.prototype.push.call(this, this.cur); this.cur = ''; } return Array.prototype.join.call(this, sep); };
+    code.flush = function () { if (this.cur) { Array.prototype.push.call(this, this.cur); this.cur = ''; } };
+    code.join = function (sep) { this.flush(); return Array.prototype.join.call(this, sep); };
     this.p.code = code;
     this.marks = [];
     const a = arch, c = a.cfg;
@@ -92,6 +94,7 @@ class Engine {
     };
     const ectrl = 2 * V + 4, ey = ectrl + CT + 1;
     M.emb = { R: V, C: dim, dst: 1, lane: V + 2, ctrl: ectrl, y: ey, G: ey + dim };
+    if (a.embRoom) a.embRoom(M.emb);            // more room in the gap of the embedding table (../vision/program.js)
 
     let at;
     const take = (n) => { const x = at; at += n + 1; return x; };
@@ -200,6 +203,7 @@ class Engine {
     const { p, gl, M, a, pre } = this, { dim } = a, ce = (k) => this.E + M.emb.ctrl + k;
     this.S('take', () => this.emitTakePrompt());
     this.S('emb', () => {
+      if (this.beforeEmb) this.beforeEmb();
       p.copy(gl.TOKEN, ce(2), gl.T); p.copy(gl.POS, ce(1), gl.T);
       p.addBig(ce(0), dim, [ce(6), ce(7)]);
       this.sweepEmb();
@@ -211,6 +215,7 @@ class Engine {
         if (a.xDown) this.rqN(V, X, this.rq(a.xDown, a.cfg.xBits), c.ss(3, 10), [c.sc(13), c.sc(14)]);
         else p.shl(V, X, a.xUpBits, hop);
       });
+      if (this.afterEmb) this.afterEmb();
       p.move(ca(1), s0 + pre.pos);
     });
 
@@ -290,7 +295,7 @@ class Engine {
     this.emitReadPrompt();
     p.loop(gl.REM, () => { p.add(gl.REM, -1); this.token(); });
     // The program in pieces (the whole text can be longer than the longest string V8 holds); the tape mirrored: < and > swapped.
-    p.code.join('');
+    p.code.flush();
     const chunks = Array.from(p.code, (virt) => {
       if (/[^+\-<>[\].,]/.test(virt)) throw new Error('not pure brainfuck');
       return virt.replace(/[<>]/g, (ch) => (ch === '<' ? '>' : '<'));

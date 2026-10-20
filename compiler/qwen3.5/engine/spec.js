@@ -129,6 +129,9 @@ function normVec(x, at, NP, out, oat, w) {
 
 // ---- the tables (part of the program text) ----------------------------------------------------
 
+const { MROPE } = require('../reference/float');
+const angleOf = (rope, pos, f) => (rope ? rope[pos][MROPE[f]] : pos);
+
 function makeTables(cfg, shape) {
   const { dim, headSize, rotDim, freq, dk, dv, eps } = shape;
   const { invSize, invB, GB, gBits, RB, gapShift, expSize, attMax, recipSize, QKB, maxTokens, sigIn, sigRange, SGB, AB, LDB, DB,
@@ -164,9 +167,10 @@ function makeTables(cfg, shape) {
     exp: Array.from({ length: expSize }, (_, e) => Math.round(attMax * Math.exp((-e * 2 ** gapShift) / (2 ** (2 * QKB) * Math.sqrt(headSize))))),
     // 2^19 / i: i = top 10 bits of the total attention weight
     recip: Array.from({ length: recipSize }, (_, i) => (i ? Math.round(2 ** 19 / (i + 0.5)) : 0)),
-    // rotation per position: cos and sin for each of the rotDim/2 speeds
-    cos: Array.from({ length: maxTokens }, (_, pos) => Array.from(freq, (fr) => Math.round(Math.cos(pos * fr) * 2 ** RB))),
-    sin: Array.from({ length: maxTokens }, (_, pos) => Array.from(freq, (fr) => Math.round(Math.sin(pos * fr) * 2 ** RB))),
+    // rotation per position: cos and sin for each of the rotDim/2 speeds. cfg.rope, when given, holds for every position
+    // its place [time, row, column] (a conversation with a picture, ../vision/), each speed taking one of the three (float.js MROPE)
+    cos: Array.from({ length: maxTokens }, (_, pos) => Array.from(freq, (fr, f) => Math.round(Math.cos(angleOf(cfg.rope, pos, f) * fr) * 2 ** RB))),
+    sin: Array.from({ length: maxTokens }, (_, pos) => Array.from(freq, (fr, f) => Math.round(Math.sin(angleOf(cfg.rope, pos, f) * fr) * 2 ** RB))),
   };
 }
 
@@ -444,11 +448,13 @@ function build(src, options = {}) {
 
   // One position: the token's embedding through every layer; the output scores when asked for.
   // trace(name, layer, values), when given, sees every stage.
-  function step(cache, token, pos, wantLogits = true, trace = null) {
+  // input, when given: the vector of a picture's word piece at EB fraction bits (../vision/spec.js), read in place of the row of the token.
+  function step(cache, token, pos, wantLogits = true, trace = null, input = null) {
     if (pos >= maxTokens) throw new Error(`position ${pos} is beyond maxTokens`);
     const tr0 = (name, l, arr) => { if (trace) trace(name, l, Array.from(arr)); };
-    if (xDown) for (let i = 0; i < dim; i++) x[i] = rq32(emb[token * dim + i], xDown, xBits);
-    else for (let i = 0; i < dim; i++) x[i] = emb[token * dim + i] * 2 ** xUpBits;
+    const row = input || emb.subarray(token * dim, (token + 1) * dim);
+    if (xDown) for (let i = 0; i < dim; i++) x[i] = rq32(row[i], xDown, xBits);
+    else for (let i = 0; i < dim; i++) x[i] = row[i] * 2 ** xUpBits;
     tr0('emb', -1, x);
     for (let l = 0; l < layers; l++) {
       const Q = L[l], tr = (name, arr) => tr0(name, l, arr);
@@ -474,7 +480,11 @@ function build(src, options = {}) {
       tr('xout', x);
     }
     if (!wantLogits && !trace) return null;
-    normalise(x, xn, gFinal); tr0('xnf', -1, xn);
+    return head(x, tr0);
+  }
+  // The output layer on its own: the scores of a residual xs (tools/map-data/lens.js gives it the residual after every layer).
+  function head(xs, tr = () => {}) {
+    normalise(xs, xn, gFinal); tr('xnf', -1, xn);
     matvec(wcls, xn, vocab, logits);
     rqAll(logits, vocab, R.c, logits);
     return logits;
@@ -495,7 +505,7 @@ function build(src, options = {}) {
     for (let h = 0; h < nv; h++) { const f = cacheLin.D[h] / 2 ** DB / 2 ** SB; for (let i = 0; i < dk * dv; i++) outS[h * dk * dv + i] = cacheLin.S[h][i] * f; }
     return outS;
   };
-  return { step, cfg, settings: S, stats, layers: L, emb, gFinal, stateOf };
+  return { step, head, cfg, settings: S, stats, layers: L, emb, gFinal, stateOf };
 }
 
 const argmax = (a) => { let best = 0; for (let i = 1; i < a.length; i++) if (a[i] > a[best]) best = i; return best; };

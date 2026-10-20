@@ -8,6 +8,7 @@ const { switchOn } = require('../../core/switch');
 const DEFAULTS = {
   maxChars: 200,            // longest question in bytes; the rest of a longer line is read and dropped
   eol: 10,
+  lead: 10,                 // the byte the template puts before the question (null: none; the question then starts the text)
   hiBits: 7, midBits: 6, loBits: 5,   // record number = (hi, mid, lo); together slotBits bits
   slotBits: 18,             // records of the table
   mult: [251, 239],         // hash of the pair (a, b) = ((a + 1) * 251 + (b + 1) * 239) mod 2^slotBits
@@ -292,7 +293,14 @@ function emitEncode(p, L) {
       p.clear(w.RK); p.move(w.s1, w.RK);
       home();
     };
-    p.add(CH, 10).add(GO, 1);                 // the newline that the template puts before the question
+    const next = () => {                      // the next byte: go on unless it is 0 or the end-of-line byte
+      p.read(t);
+      p.loop(t, () => {
+        p.add(t, -L.eol);
+        p.loop(t, () => { p.add(t, L.eol); p.move(t, CH); p.add(GO, 1); });
+      });
+    };
+    if (L.lead === null) next(); else p.add(CH, L.lead).add(GO, 1);     // the newline that the template puts before the question
     p.addConst(LIM, L.maxChars + 1, t);
     p.loop(GO, () => {
       p.add(GO, -1);
@@ -328,12 +336,7 @@ function emitEncode(p, L) {
         });
       });
       p.clear(V0).clear(V1).clear(V2).clear(CH);
-      // Next byte: go on unless it is 0 or the end-of-line byte.
-      p.read(t);
-      p.loop(t, () => {
-        p.add(t, -L.eol);
-        p.loop(t, () => { p.add(t, L.eol); p.move(t, CH); p.add(GO, 1); });
-      });
+      next();
     });
     p.clear(LIM).clear(PEND).clear(DEP);
   }

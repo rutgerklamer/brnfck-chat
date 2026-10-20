@@ -13,10 +13,10 @@
 <link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
-<link rel="stylesheet" href="../ui/how.css?v=r9">
+<link rel="stylesheet" href="../ui/how.css?v=r10">
 </head>
 <body>
-<script src="../site.js?v=r16" data-section="insights"></script>
+<script src="../site.js?v=r17" data-section="insights"></script>
 <main class="doc article how" id="main">
 
   <header class="plain">
@@ -125,6 +125,16 @@
     </figure>
 
     <p>Only one thing counts: which score is the highest. How far ahead it is makes no difference, and the others are dropped. For the question followed here, after &ldquo;The capital of France is&rdquo;, the highest score goes to &ldquo;&#9251;Paris&rdquo;. The five scores above are made up. brnfck-smollm2-135m has 49,152 scores each time, and the program has to find the highest of them with the commands you have seen.</p>
+    <p>The program works out these scores only after its last layer. But the numbers that go from layer to layer are on the tape, and the same last step can be given the numbers of any layer. The figure below did that for a real answer to the question followed here. Each column is one word piece the program printed, each row one layer, and each cell the word piece that would have won if the program had stopped after that layer. Yellow: the word piece that was printed. The paler the colour, the smaller its share. Choose a program:</p>
+
+    <figure class="fig" id="fig-lens" aria-label="For every word piece of the answer to What is the capital of France?, the word piece each layer of the program would print">
+      <div class="ctl"><span class="seg" id="lens-prog" role="group" aria-label="Which program"><button type="button" data-m="small" aria-pressed="true">brnfck-smollm2-135m</button><button type="button" data-m="0.5b" aria-pressed="false">brnfck-qwen2.5-0.5b</button><button type="button" data-m="1.5b" aria-pressed="false">brnfck-qwen2.5-1.5b</button><button type="button" data-m="0.8b" aria-pressed="false">brnfck-qwen3.5-0.8b</button></span></div>
+      <div class="scroll" tabindex="0" role="group" aria-label="The layers and the word pieces; scrolls sideways on a narrow screen"><div class="lens" id="lens-grid" role="group"></div></div>
+      <p class="tell" id="lens-said" aria-live="polite"></p>
+      <p class="measured">Every cell comes from a real run of the program. While it answered, the numbers after each layer were copied from its tape (tools/map-data/lens.js), checked against the whole-number model they should equal (all of them were equal), and given to the program&rsquo;s own last step: the one it runs after its last layer. The share is that of the scores of all word pieces, as in the figure &ldquo;Looking back&rdquo;. For brnfck-qwen3.5-0.8b the top row comes from the model&rsquo;s multi-token prediction head, which the same tool runs in floating point on the numbers of the last layer: from them and the word piece just printed it guesses the one after it. The program itself does not have that head.</p>
+    </figure>
+
+    <p>The answer is not there from the start. In the first layers the cells show word pieces that have little to do with the question: bits of code, pieces of other languages. The printed word piece comes up in the last layers. Paris comes first, and stays first, after layer 28 of 30 in brnfck-smollm2-135m, 22 of 24 in brnfck-qwen2.5-0.5b, 23 of 28 in brnfck-qwen2.5-1.5b, and only in the last of its 24 layers in brnfck-qwen3.5-0.8b. Every layer adds a little to the same row of numbers, and only the sum of all of them points clearly at &ldquo;&#9251;Paris&rdquo;.</p>
     <p>The winner is a number, 7,042 for &ldquo;&#9251;Paris&rdquo;, and it has to become letters again. The tape below holds the six characters of that word piece as numbers. The program above it is made of two commands: <code>&gt;</code>, and a new one, <code>.</code> Press <em>Play</em> and watch the line &ldquo;Printed&rdquo;. With the upper slider you change the number in cell 1:</p>
 
     <figure class="fig col" id="fig-print" aria-label="A program that prints six cells as six characters"></figure>
@@ -288,7 +298,7 @@
           </ul>
         </div>
       </div>
-      <p>What goes into a program is letters and what comes out is letters. The word pieces, the weights and the arithmetic are all inside it. This holds for all four programs: each has only the eight commands, exactly one <code>,</code> and one <code>.</code>, and its only input is the question.</p>
+      <p>What goes into a program is letters and what comes out is letters. The word pieces, the weights and the arithmetic are all inside it. This holds for the four programs of text: each has only the eight commands, exactly one <code>,</code> and one <code>.</code>, and its only input is the question. brnfck-qwen3.5-0.8b-vision also has only the eight commands and one <code>.</code>, but three <code>,</code>: one reads a picture before the question, two read the question (its first character, then the others).</p>
       <p><b>What it does not mean:</b></p>
       <ul>
         <li><b>The models were not made in brainfuck.</b> SmolLM2-135M-Instruct was trained by Hugging Face <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud <a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, and Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all in the usual way. Brainfuck only runs them.</li>
@@ -322,6 +332,12 @@
         <li>The file holds 7,709,034,855 characters, only the eight commands, with exactly one <code>,</code> and one <code>.</code></li>
         <li>The tape after the writing part, the first 7,448,657,450 characters, is equal to the loaded model: 1,018 checksums (SHA-256) over all 1,067,424,772 cells.</li>
         <li>Asked &ldquo;What is the capital of France?&rdquo;, it prints exactly the text of the reference: 30 word pieces.</li>
+      </ul>
+      <p><b>What was checked for brnfck-qwen3.5-0.8b-vision</b> (all 21 checks passed)<b>:</b></p>
+      <ul>
+        <li>The file holds 8,931,101,427 characters, only the eight commands, with three <code>,</code> and one <code>.</code></li>
+        <li>The tape after the writing part, the first 8,214,809,705 characters, is equal to the loaded model: 1,142 checksums (SHA-256) over all 1,197,356,368 cells.</li>
+        <li>Shown four photos and asked six questions about them, it prints exactly the text of the reference each time. <a href="../vision/#checked">Looking at a picture</a> says how its part for pictures was checked.</li>
       </ul>
       <p><b>What you can check yourself.</b> The button reads the whole program of brnfck-smollm2-135m in your browser and counts every character. Over the internet the program comes as compressed pieces (about 180 MB in all, each checked against its checksum; the same pieces the <a href="../?m=small">chat page of brnfck-smollm2-135m</a> uses, and kept in your browser in the same way). On your own computer it is read as one file of 1 GB.</p>
       <div class="ctl">
@@ -357,17 +373,19 @@
       <p>Yes, with the project folder on your own computer: the code is on <a href="https://github.com/rutgerklamer/brnfck-chat">GitHub</a>, under the MIT licence. It needs Node.js 24 and Python 3.12 and nothing else. The README in that folder gives every step: what works straight away, how to build a program from the model's files, and how to check it. To open these pages, run this in the project folder and go to <code>http://localhost:8766/</code>:</p>
       <pre class="cmd" tabindex="0">python tools/serve.py</pre>
       <p>This small server can send a part of a file, which <a href="../map/">the program map</a> needs for its deepest zoom.</p>
-      <p>The programs are too large to come with the project folder. Download them from <a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/tree/main/bf">the folder bf/ on Hugging Face</a> into <code>site/programs/</code>, or build each one from the model's files (the README says which files and which commands; brnfck-qwen2.5-0.5b takes a few minutes to build). Once a program is there, ask it a question without a browser. The four commands are for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b:</p>
+      <p>The programs are too large to come with the project folder. Download them from <a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/tree/main/bf">the folder bf/ on Hugging Face</a> into <code>site/programs/</code>, or build each one from the model's files (the README says which files and which commands; brnfck-qwen2.5-0.5b takes a few minutes to build). Once a program is there, ask it a question without a browser. The five commands are for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b, brnfck-qwen3.5-0.8b and brnfck-qwen3.5-0.8b-vision, which also reads a picture (a PNG file):</p>
       <pre class="cmd" tabindex="0">node compiler/smollm/pure/ask.js "What is pi?"
 node compiler/qwen/program/ask.js --model 0.5b "What is 7 times 8?"
 node compiler/qwen/program/ask.js "What is the capital of France?"
-node compiler/qwen3.5/program/ask.js "What is 7 times 8?"</pre>
+node compiler/qwen3.5/program/ask.js "What is 7 times 8?"
+node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "Describe this picture in one sentence."</pre>
       <p>brnfck-qwen2.5-1.5b runs on an interpreter with 64-bit memory and needs about 10 GiB of free memory. It takes 90 to 169 seconds to start and 7 to 12 seconds for each word piece. Asked &ldquo;What is the capital of France?&rdquo;, it printed &ldquo;The capital of France is Paris.&rdquo; It also ran in one desktop Chromium browser, in <a href="../?m=1.5b">the chat with brnfck-qwen2.5-1.5b</a>: ready in 2 min 27 s, the same answer, 9.0 seconds per word piece (measured on 11 October 2026).</p>
       <p>The program of brnfck-smollm2-135m is one file of 1 GB: <span class="bf-file"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-smollm2-135m.bf" download>brnfck-smollm2-135m.bf</a></span>.</p>
       <p>To repeat the checks on the billion-character program:</p>
       <pre class="cmd" tabindex="0">node compiler/smollm/pure/verify.js</pre>
-      <p><b>What it needs:</b> an interpreter with 32-bit cells that go round (after the highest number comes 0), and a fast one. In the browser brnfck-smollm2-135m needs about 1.5 GB of free memory, brnfck-qwen2.5-0.5b about 4 GB, brnfck-qwen2.5-1.5b about 8 GB and a browser with 64-bit WebAssembly memory, and brnfck-qwen3.5-0.8b about 5 GB. All four have only been tried in one desktop Chromium browser; phones will most likely not manage brnfck-smollm2-135m, brnfck-qwen2.5-0.5b or brnfck-qwen3.5-0.8b, and a phone cannot run brnfck-qwen2.5-1.5b.</p>
+      <p><b>What it needs:</b> an interpreter with 32-bit cells that go round (after the highest number comes 0), and a fast one. In the browser brnfck-smollm2-135m needs about 1.5 GB of free memory, brnfck-qwen2.5-0.5b about 4 GB, brnfck-qwen2.5-1.5b about 8 GB and a browser with 64-bit WebAssembly memory, brnfck-qwen3.5-0.8b about 5 GB, and brnfck-qwen3.5-0.8b-vision about 7 GB and a browser with 64-bit WebAssembly memory. They have only been tried in one desktop Chromium browser; phones will most likely not manage brnfck-smollm2-135m, brnfck-qwen2.5-0.5b or brnfck-qwen3.5-0.8b, and a phone cannot run brnfck-qwen2.5-1.5b or brnfck-qwen3.5-0.8b-vision.</p>
       <p><b>brnfck-qwen3.5-0.8b.</b> It runs in <a href="../?m=0.8b">the chat with brnfck-qwen3.5-0.8b</a> and needs about 5 GB of memory. Your browser downloads 1.36 GB; the program is ready after 2 min 10 s to 2 min 37 s and takes about 5.6 s for each word piece. It cannot clear its memory after an answer yet, so the Chatbot loads it again for a second question. On the command line (Node.js, one desktop) it took 103 seconds to start and 5.56 seconds for each word piece of the answer (median). Its tape of 1,067,424,772 cells fits a 32-bit memory. 18 of its 24 layers are of another kind, Gated DeltaNet, explained on <a href="../compare/">Compare the models</a>. The program follows its whole-number recipe exactly. <a href="../compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes.</p>
+      <p><b>brnfck-qwen3.5-0.8b-vision.</b> It runs in <a href="../?m=0.8b-vision">the chat with brnfck-qwen3.5-0.8b-vision</a>, with one of four photos or a picture of your own, and needs about 7 GB of free memory. Your browser downloads 1.51 GB. It too is loaded again for each question. On the command line (Node.js, one desktop) it took 86.5 s to start, 650 s for the picture and the question about the cat, and 6.59 s for each word piece of the answer (median); in a browser it has not been timed. Its tape of 1,197,356,368 cells takes 4.46 GiB and needs 64-bit memory. <a href="../vision/">Looking at a picture</a> explains how it looks at a picture.</p>
     </div></details>
 
     <details class="q fold" id="prior"><summary>Has this been done before?</summary><div class="a">
@@ -394,19 +412,19 @@ node compiler/qwen3.5/program/ask.js "What is 7 times 8?"</pre>
         <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 seconds</td><td class="n">measured</td></tr>
         <tr><td>Work per word piece</td><td class="n">1.6 to 1.9 billion steps</td><td class="n">measured</td></tr>
       </table></div>
-      <div class="scroll" tabindex="0" role="group" aria-label="The four programs side by side; scrolls sideways on a narrow screen"><table id="tab-4" class="wide">
-        <caption>The four programs side by side. Counts are counted in the program files; times are measured.</caption>
-        <tr><th>What</th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th></tr>
-        <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B</td></tr>
-        <tr><td>Weights</td><td class="n">about 135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td><td class="n">about 752 million (the text part)</td></tr>
-        <tr><td>Program length, in characters</td><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td></tr>
-        <tr><td>Characters that write the tape</td><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td><td class="n">7,448,657,450</td></tr>
-        <tr><td>Tape, in cells of 32 bits</td><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014 (6.81 GiB)</td><td class="n">1,067,424,772 (3.98 GiB)</td></tr>
-        <tr><td>Start-up</td><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s on the command line; 2 min 27 s in the browser</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s on the command line</td></tr>
-        <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s on the command line; 9.0 s in the browser</td><td class="n">about 5.6 s in the browser; 5.56 s on the command line (median)</td></tr>
-        <tr><td>Same next word piece as the original model</td><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td><td class="n">95.1% (214 of 225), its whole-number version against the original</td></tr>
-        <tr><td>Checksums of the tape, all equal</td><td class="n">180</td><td class="n">628</td><td class="n">1,744</td><td class="n">1,018</td></tr>
-        <tr><td>Runs in</td><td class="n"><a href="../?m=small">the browser</a></td><td class="n"><a href="../?m=0.5b">the browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or the command line, about 10 GiB free</td><td class="n"><a href="../?m=0.8b">the browser</a>, about 5 GB of memory</td></tr>
+      <div class="scroll" tabindex="0" role="group" aria-label="The five programs side by side; scrolls sideways on a narrow screen"><table id="tab-4" class="wide">
+        <caption>The five programs side by side. Counts are counted in the program files; times are measured.</caption>
+        <tr><th>What</th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th><th class="n">brnfck-qwen3.5-0.8b-vision</th></tr>
+        <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B</td><td class="n">Qwen3.5-0.8B with its part for pictures</td></tr>
+        <tr><td>Weights</td><td class="n">about 135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td><td class="n">about 752 million (the text part)</td><td class="n">about 853 million (752 million of text, 101 million for pictures)</td></tr>
+        <tr><td>Program length, in characters</td><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td><td class="n">8,931,101,427</td></tr>
+        <tr><td>Characters that write the tape</td><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td><td class="n">7,448,657,450</td><td class="n">8,214,809,705</td></tr>
+        <tr><td>Tape, in cells of 32 bits</td><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014 (6.81 GiB)</td><td class="n">1,067,424,772 (3.98 GiB)</td><td class="n">1,197,356,368 (4.46 GiB)</td></tr>
+        <tr><td>Start-up</td><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s on the command line; 2 min 27 s in the browser</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s on the command line</td><td class="n">86.5 s on the command line, then 650 s for the picture and the question</td></tr>
+        <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s on the command line; 9.0 s in the browser</td><td class="n">about 5.6 s in the browser; 5.56 s on the command line (median)</td><td class="n">6.59 s on the command line (median)</td></tr>
+        <tr><td>Same next word piece as the original model</td><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td><td class="n">95.1% (214 of 225), its whole-number version against the original</td><td class="n">97.5% (79 of 81) on four photos, its whole-number version against the original</td></tr>
+        <tr><td>Checksums of the tape, all equal</td><td class="n">180</td><td class="n">628</td><td class="n">1,744</td><td class="n">1,018</td><td class="n">1,142</td></tr>
+        <tr><td>Runs in</td><td class="n"><a href="../?m=small">the browser</a></td><td class="n"><a href="../?m=0.5b">the browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or the command line, about 10 GiB free</td><td class="n"><a href="../?m=0.8b">the browser</a>, about 5 GB of memory</td><td class="n"><a href="../?m=0.8b-vision">a desktop browser</a>, about 7 GB of free memory, or the command line</td></tr>
       </table></div>
       <p class="measured">Times were measured on one desktop computer with the program file on its own disk. They depend on how busy the machine is.</p>
     </div></details>
@@ -484,7 +502,7 @@ node compiler/qwen3.5/program/ask.js "What is 7 times 8?"</pre>
 <script src="../program-start.js?v=r6"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../ui/article.js?v=r7"></script>
-<script src="../ui/how.js?v=r14"></script>
+<script src="../ui/how.js?v=r15"></script>
 <script src="../home-figures.js?v=r25"></script>
 </body>
 </html>

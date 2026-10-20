@@ -29,8 +29,9 @@ const PROGRAMS = {
   '0.5b': { program: 'site/programs/brnfck-qwen2.5-0.5b.bf', meta: 'site/programs/brnfck-qwen2.5-0.5b.meta.json' },
   '1.5b': { program: 'site/programs/brnfck-qwen2.5-1.5b.bf', meta: 'site/programs/brnfck-qwen2.5-1.5b.meta.json' },
   '0.8b': { program: 'site/programs/brnfck-qwen3.5-0.8b.bf', meta: 'site/programs/brnfck-qwen3.5-0.8b.meta.json' },
+  '0.8b-vision': { program: 'site/programs/brnfck-qwen3.5-0.8b-vision.bf', meta: 'site/programs/brnfck-qwen3.5-0.8b-vision.meta.json' },
 };
-const USAGE = 'usage: node tools/make-chunks.js small|0.5b|1.5b|0.8b [--chunk N]   |   verify <name>   |   join <name> [file]   |   single <name>   |   base <name> <url>';
+const USAGE = 'usage: node tools/make-chunks.js small|0.5b|1.5b|0.8b|0.8b-vision [--chunk N]   |   verify <name>   |   join <name> [file]   |   single <name>   |   base <name> <url>';
 const num = (n) => Math.round(n).toLocaleString('en-US');
 const mb = (n) => (n / 1e6).toFixed(n < 1e8 ? 1 : 0) + ' MB';
 const now = () => Number(process.hrtime.bigint()) / 1e9;

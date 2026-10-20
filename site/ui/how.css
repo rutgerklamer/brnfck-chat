@@ -67,3 +67,20 @@ main.how .twocap .sw { margin: 0; }
 #fig-hand .key > span { display: inline-flex; align-items: center; gap: 6px; }
 #fig-hand .key > span::before { content: ""; width: 12px; height: 12px; background: var(--k); }
 #fig-hand .hand-tick { font-family: var(--mono); }
+
+/* ---- the word piece every layer would print (how.js, fig-lens) ---- */
+#fig-lens .lens { display: grid; grid-template-columns: max-content repeat(var(--cols, 8), minmax(4.25rem, 1fr)); gap: 1px; width: max-content; min-width: 100%; background: var(--line); border: 1px solid var(--line); font: 500 .75rem/1 var(--mono); }
+#fig-lens .lens > * { display: block; min-width: 0; min-height: 0; height: 1.25rem; margin: 0; padding: 0 .3rem; line-height: 1.25rem; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; background: var(--panel); color: var(--ink); }
+#fig-lens .lh { color: var(--muted); }
+#fig-lens .lh.top, #fig-lens .lh.corner { height: 1.75rem; line-height: 1.75rem; background: var(--sunk); }
+#fig-lens .lh.top { color: var(--ink); font-weight: 700; }
+#fig-lens .lh.side { text-align: right; font-variant-numeric: tabular-nums; }
+#fig-lens button.lc { border: 0; border-radius: 0; box-shadow: none; cursor: pointer; font: inherit; line-height: 1.25rem; }
+#fig-lens button.lc:hover { outline: 2px solid var(--ink); outline-offset: -2px; }
+#fig-lens button.lc:focus-visible { outline: var(--ring) solid var(--ink); outline-offset: -3px; }
+#fig-lens button.lc.win { background: var(--go); color: var(--on-go); font-weight: 700; }
+#fig-lens .lc.mtp, #fig-lens .lh.mtp { height: 1.75rem; line-height: 1.75rem; border-bottom: 2px solid var(--rule); }
+#fig-lens button.lc.mtp { line-height: 1.75rem; }
+#fig-lens button.lc.mtp.hit { background: var(--goodbg); color: var(--good); font-weight: 700; }
+#fig-lens button.lc.mtp.miss { color: var(--muted); text-decoration: line-through; }
+#fig-lens .lc.empty { background: var(--sunk); }

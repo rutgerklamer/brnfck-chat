@@ -339,6 +339,88 @@
     new MutationObserver(function () { draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   };
 
+  // ---- 8c. the word piece every layer would print (a logit lens) -------------------------
+  // lens-france.json (tools/map-data/lens.js): for every printed word piece, the numbers after each layer, read off the
+  // tape of a real run and given to the program's own last step: the best three word pieces, and the share and place of
+  // the one that was printed. For brnfck-qwen3.5-0.8b also the guesses of its multi-token prediction head.
+  figs['fig-lens'] = function () {
+    var grid = $('lens-grid'), said = $('lens-said'), cache = {}, D = null, model = 'small';
+    var show = function (s) { return s === '<|im_end|>' || s === '<|endoftext|>' ? 'end' : s.replace(/^ /, '␣').replace(/\n/g, '⏎').replace(/ /g, '␣'); };
+    var pc = function (p) { return p >= 0.995 ? '100%' : p < 0.005 ? 'below 1%' : Math.round(p * 100) + '%'; };
+    var q = function (s) { return '“' + show(s) + '”'; };
+    function load(m) {
+      if (!cache[m]) cache[m] = fetch('../inside/data-hosts.json').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }).then(function (h) {
+        var base = h && typeof h[m] === 'string' && h[m] ? new URL(h[m], new URL('../inside/', location.href)).href : '../inside/data/' + m + '/';
+        return fetch(base + 'lens-france.json').then(function (r) { if (!r.ok) throw new Error('no data'); return r.json(); });
+      });
+      return cache[m];
+    }
+    // the layer from which on the printed word piece stays first
+    var settle = function (row) { var l = row.layers.length; while (l > 0 && row.layers[l - 1].rank === 0) l--; return l; };
+    function summary() {
+      var rows = D.rows.filter(function (r) { return D.pieces[r.next] !== '<|im_end|>'; }), s = rows.map(settle);
+      var mean = s.reduce(function (a, b) { return a + b + 1; }, 0) / s.length, last = 0;
+      s.forEach(function (v, i) { if (v > s[last]) last = i; });
+      said.replaceChildren('In ' + D.label + ' a printed word piece comes first, and stays first, after layer ', el('b', '', mean.toFixed(1)), ' of ' + D.layers + ' on average; ' + q(D.pieces[rows[last].next]) + (s[last] + 1 === D.layers ? ' only in the last one, ' : ' only after layer '), el('b', '', String(s[last] + 1)), '. Point at a cell, or press it, for its numbers.');
+      if (D.mtp) said.append(' The top row is the multi-token prediction head: its guess for the word piece after the next was right ', el('b', '', D.mtp.right + ' of ' + D.mtp.of), ' times here.');
+    }
+    function tellCell(row, l) {
+      var r = row.layers[l], top = r.top[0], printed = D.pieces[row.next];
+      said.replaceChildren('After layer ' + (l + 1) + ' of ' + D.layers + ', at word piece ' + (D.rows.indexOf(row) + 1) + ': ' + q(D.pieces[top[0]]) + ' would win with ', el('b', '', pc(top[1])), '. ');
+      if (top[0] === row.next) said.append('That is the word piece the program prints.' + (r.top[1] ? ' Second: ' + q(D.pieces[r.top[1][0]]) + ', ' + pc(r.top[1][1]) + '.' : ''));
+      else said.append('The printed one, ' + q(printed) + ', has ', el('b', '', pc(r.p)), ' and is in place ', el('b', '', fmt(r.rank + 1)), '.');
+    }
+    function tellGuess(g) {
+      var at = D.rows.findIndex(function (r) { return r.position === g.position; });
+      said.replaceChildren('At word piece ' + (at + 1) + ' the head guesses ' + q(D.pieces[g.guess]) + ' (' + pc(g.p) + ') for the word piece after the next. ');
+      if (g.hit === null) said.append('The run stopped before that word piece.');
+      else said.append(g.hit ? el('b', '', 'Right.') : el('b', '', 'Wrong'), g.hit ? '' : ': the program printed ' + q(D.pieces[g.actual]) + ' there.');
+    }
+    function draw() {
+      if (!D) return;
+      var rows = D.rows, L = D.layers, cells = [];
+      grid.style.setProperty('--cols', rows.length);
+      grid.replaceChildren();
+      var head = function (t, cls) { var h = el('span', 'lh ' + (cls || ''), t); grid.append(h); return h; };
+      head('Layer', 'corner');
+      rows.forEach(function (r) { head(show(D.pieces[r.next]), 'top'); });
+      var cell = function (text, cls, style, on) {
+        var b = el('button', 'lc ' + cls, text); b.type = 'button'; if (style) b.style.background = style;
+        b.addEventListener('mouseenter', on); b.addEventListener('focus', on); b.addEventListener('click', on);
+        grid.append(b); cells.push(b);
+      };
+      if (D.mtp) {
+        head('Two ahead', 'side mtp');
+        rows.forEach(function (r) {
+          var g = D.mtp.guesses.find(function (x) { return x.position === r.position; });
+          if (!g) { grid.append(el('span', 'lc empty')); return; }
+          cell(show(D.pieces[g.guess]), 'mtp ' + (g.hit === null ? '' : g.hit ? 'hit' : 'miss'), null, function () { tellGuess(g); });
+        });
+      }
+      for (var l = L - 1; l >= 0; l--) {
+        head(String(l + 1), 'side');
+        rows.forEach(function (r) {
+          var x = r.layers[l], win = x.top[0][0] === r.next, lv = l;
+          cell(show(D.pieces[x.top[0][0]]), win ? 'win' : '', win ? null : 'color-mix(in srgb, var(--go) ' + Math.round(x.p * 85) + '%, var(--panel))', function () { tellCell(r, lv); });
+        });
+      }
+      grid.setAttribute('aria-label', D.label + ', "' + D.question + '": ' + rows.length + ' printed word pieces, ' + L + ' layers each');
+      summary();
+    }
+    function showModel() {
+      said.textContent = 'Loading…';
+      load(model).then(function (J) { D = J; draw(); }).catch(function () { D = null; grid.replaceChildren(); said.textContent = 'The data of this program could not be loaded.'; });
+    }
+    $('lens-prog').addEventListener('click', function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      Array.prototype.forEach.call($('lens-prog').children, function (o) { o.setAttribute('aria-pressed', String(o === btn)); });
+      model = btn.dataset.m; showModel();
+    });
+    grid.addEventListener('mouseleave', function () { if (D) summary(); });
+    var started = false, start = function () { if (!started) { started = true; showModel(); } };
+    if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); } }, { rootMargin: '400px' }); io.observe(grid); } else start();
+  };
+
   Object.keys(figs).forEach(function (id) { if ($(id)) figs[id](); });
 
   (function () {

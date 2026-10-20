@@ -20,7 +20,7 @@ const PURE = { program: path.join(__dirname, '..', '..', '..', 'site', 'programs
 PURE.meta = PURE.program.replace(/\.bf$/, '.meta.json');
 const num = (n) => Math.round(n).toLocaleString('en-US'), gib = (n) => (n / 2 ** 30).toFixed(2) + ' GiB';
 const now = () => Number(process.hrtime.bigint()) / 1e9;
-const freeDisk = () => { const s = fs.statfsSync(path.dirname(PURE.program)); return s.bavail * s.bsize; };
+const freeDisk = (file) => { const s = fs.statfsSync(path.dirname(file)); return s.bavail * s.bsize; };
 
 // SHA-256 of every PIECE cells (as little-endian 32-bit numbers).
 function sumsOf(tape) {
@@ -33,8 +33,8 @@ function sumsOf(tape) {
 }
 
 // The load part of the text program run on the data files: the tape of the loaded model.
-function loadedTape(G) {
-  const DATA = [FILES.weights, FILES.tokenizer], S = session(G.layout.tapeSize);
+function loadedTape(G, DATA) {
+  const S = session(G.layout.tapeSize);
   const t = now(), exe = compileProgram(S, G.loadSrc), r = runWithData(S, exe, DATA, Buffer.alloc(0));
   const dataBytes = DATA.reduce((s, f) => s + fs.statSync(f).size, 0);
   if (r.dataBytes !== dataBytes || r.output.length) throw new Error('the load part did not read exactly the data files');
@@ -43,14 +43,16 @@ function loadedTape(G) {
   return { S, pointer: r.pointer, dataBytes };
 }
 
-function main() {
+// The single file of a program: generate() as build.js has it, the files its load part reads (data), the program
+// file it was written to (programFile), the file to write (PURE: program, meta) and what goes into the meta file.
+function buildPure({ generate, data, programFile, PURE, meta: extra }) {
   let t = now();
   const G = generate();
-  if (!sameAsFile(FILES.program, G.chunks)) throw new Error(`${FILES.program} is not the program gen.js generates: run build.js`);
+  if (!sameAsFile(programFile, G.chunks)) throw new Error(`${programFile} is not the program its generator writes: run its build.js`);
   console.log(`program ${num(G.length)} characters = load part ${num(G.loadSrc.length)} + rest ${num(G.restLength)}  [${(now() - t).toFixed(1)} s]; free memory ${gib(os.freemem())}`);
   const rest = Buffer.concat(G.restChunks.map((c) => Buffer.from(c, 'latin1')));
   G.src = null; G.chunks = null; G.restChunks = null;
-  const { S, pointer, dataBytes } = loadedTape(G), tape = S.tape();
+  const { S, pointer, dataBytes } = loadedTape(G, data), tape = S.tape();
 
   if (process.argv[2] === 'sums') {      // (the second process of verify_pure.js)
     fs.writeFileSync(process.argv[3], JSON.stringify({ pointer, sums: sumsOf(tape) }));
@@ -61,7 +63,7 @@ function main() {
   let nonZero = 0;
   for (let i = 0; i < tape.length; i++) if (tape[i] !== 0) nonZero++;
   if (fs.existsSync(PURE.program)) fs.unlinkSync(PURE.program);
-  const guess = nonZero * 7 + rest.length, free = freeDisk();
+  const guess = nonZero * 7 + rest.length, free = freeDisk(PURE.program);
   console.log(`${num(nonZero)} cells are not zero: the program will be at most about ${gib(guess)}; free on the disk ${gib(free)}  [${(now() - t).toFixed(0)} s]`);
   if (free - guess < KEEP_FREE) throw new Error(`not enough room on the disk (${gib(KEEP_FREE)} must stay free): not written`);
   const sums = sumsOf(tape);
@@ -85,13 +87,18 @@ function main() {
   console.log(`    ${(st.chars / dataBytes).toFixed(3)} characters per data byte (${num(dataBytes)} bytes), ${(st.chars / st.nonZero).toFixed(3)} per non-zero cell (${num(st.nonZero)})`);
 
   const meta = {
-    model: 'qwen3.5-0.8b', program: path.basename(PURE.program), programBytes: total, writerBytes: st.chars, restBytes: rest.length, sha256: hash.digest('hex'),
+    ...extra.head, program: path.basename(PURE.program), programBytes: total, writerBytes: st.chars, restBytes: rest.length, sha256: hash.digest('hex'),
     cellBits: 32, tapeSize: tape.length, memoryBits: S.bits, pointerAfterWriting: pointer, replacesDataBytes: dataBytes,
-    maxQuestionBytes: TOK.maxChars, encoder: st, pieceCells: PIECE, tapeSums: sums,
+    ...extra.tail, encoder: st, pieceCells: PIECE, tapeSums: sums,
   };
   fs.writeFileSync(PURE.meta, JSON.stringify(meta, null, 1));
-  console.log(`${PURE.meta} written; peak memory ${gib(process.resourceUsage().maxRSS * 1024)}; free on the disk now ${gib(freeDisk())}`);
+  console.log(`${PURE.meta} written; peak memory ${gib(process.resourceUsage().maxRSS * 1024)}; free on the disk now ${gib(freeDisk(PURE.program))}`);
 }
 
-module.exports = { PURE, sumsOf };
+const main = () => buildPure({
+  generate, data: [FILES.weights, FILES.tokenizer], programFile: FILES.program, PURE,
+  meta: { head: { model: 'qwen3.5-0.8b' }, tail: { maxQuestionBytes: TOK.maxChars } },
+});
+
+module.exports = { PURE, sumsOf, buildPure };
 if (require.main === module) main();

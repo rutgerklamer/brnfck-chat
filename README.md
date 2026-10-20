@@ -4,11 +4,12 @@ Type a question. A program written in brainfuck prints the answer.
 
 Brainfuck has eight commands. They move along a row of memory cells, change the numbers in them,
 and read or print characters. Here those commands run a language model. Each program is one text
-file of only `+ - < > [ ] , .`, and its only input is your question.
+file of only `+ - < > [ ] , .`, and its only input is your question. One of them also reads a
+picture before the question.
 
 How that works is on the site: https://brnfck.chat. This page says how to run it yourself.
 
-## The four programs
+## The five programs
 
 | Program | Runs the model | Characters | Memory to run | Build argument |
 |---|---|---|---|---|
@@ -16,6 +17,7 @@ How that works is on the site: https://brnfck.chat. This page says how to run it
 | brnfck-qwen2.5-0.5b | Qwen2.5-0.5B-Instruct | 4,169,659,608 | about 4 GB | `0.5b` |
 | brnfck-qwen2.5-1.5b | Qwen2.5-1.5B-Instruct | 11,430,468,880 | about 8 GB | `1.5b` |
 | brnfck-qwen3.5-0.8b | Qwen3.5-0.8B | 7,709,034,855 | about 5 GB | `0.8b` |
+| brnfck-qwen3.5-0.8b-vision | Qwen3.5-0.8B with its part for pictures | 8,931,101,419 | about 7 GB | `0.8b-vision` |
 
 ## What you need
 
@@ -24,6 +26,7 @@ How that works is on the site: https://brnfck.chat. This page says how to run it
 - For brnfck-qwen2.5-0.5b: about 16 GB of free disk space and 7 GB of free memory.
 - For brnfck-qwen2.5-1.5b: about 27 GB of free disk space and 13 GB of free memory.
 - For brnfck-qwen3.5-0.8b: about 13 GB of free disk space and 7 GB of free memory.
+- For brnfck-qwen3.5-0.8b-vision: about 15 GB of free disk space and 10 GB of free memory.
 
 ## 1. Get the code
 
@@ -44,6 +47,7 @@ The program is built from the model's own files. Make the folder and put these f
 | `compiler/downloads/qwen3.5-0.8b/` | https://huggingface.co/Qwen/Qwen3.5-0.8B |
 
 Each folder needs `config.json`, `model.safetensors`, `tokenizer.json` and `tokenizer_config.json`.
+brnfck-qwen3.5-0.8b-vision is built from the folder of Qwen3.5-0.8B as well.
 The two Qwen2.5 folders also need `generation_config.json`. For Qwen3.5-0.8B the weights file is
 called `model.safetensors-00001-of-00001.safetensors`: save it as `model.safetensors`:
 
@@ -76,8 +80,9 @@ node tools/build.js small --dry-run     # checks the files, the memory and the d
 node tools/build.js small               # builds the program and verifies it
 ```
 
-The build writes `site/programs/brnfck-smollm2-135m.bf`. For `0.5b`, `1.5b` and `0.8b` it writes
-`brnfck-qwen2.5-0.5b.bf`, `brnfck-qwen2.5-1.5b.bf` and `brnfck-qwen3.5-0.8b.bf` in the same folder.
+The build writes `site/programs/brnfck-smollm2-135m.bf`. For `0.5b`, `1.5b`, `0.8b` and `0.8b-vision` it
+writes `brnfck-qwen2.5-0.5b.bf`, `brnfck-qwen2.5-1.5b.bf`, `brnfck-qwen3.5-0.8b.bf` and
+`brnfck-qwen3.5-0.8b-vision.bf` in the same folder.
 
 The last step verifies the result three ways: the file holds only the eight commands, the memory
 it writes equals the memory of the loaded model, and it prints the same text as a plain
@@ -95,11 +100,11 @@ curl -L -O https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main
 cd ../..
 ```
 
-For the others replace `brnfck-smollm2-135m` with `brnfck-qwen2.5-0.5b`, `brnfck-qwen2.5-1.5b` or
-`brnfck-qwen3.5-0.8b`.
+For the others replace `brnfck-smollm2-135m` with `brnfck-qwen2.5-0.5b`, `brnfck-qwen2.5-1.5b`,
+`brnfck-qwen3.5-0.8b` or `brnfck-qwen3.5-0.8b-vision`.
 
 On the computer that built these programs (8 cores, 32 GB) the whole run took about 30 minutes
-for `small`, 20 for `0.5b`, 50 for `1.5b` and 25 for `0.8b`. Most of that is the verification. `--quick` verifies
+for `small`, 20 for `0.5b`, 50 for `1.5b`, 25 for `0.8b` and 40 for `0.8b-vision`. Most of that is the verification. `--quick` verifies
 with one question, `--no-verify` skips it, and `--from 4` goes on at step 4 after a stop.
 
 ## 4. Ask a question
@@ -109,9 +114,12 @@ node compiler/smollm/pure/ask.js "What is the capital of France?"
 node compiler/qwen/program/ask.js --model 0.5b "What is 7 times 8?"
 node compiler/qwen/program/ask.js --model 1.5b "What is 12 + 30?"
 node compiler/qwen3.5/program/ask.js "Waar ligt Leeuwarden?"
+node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "Describe this picture in one sentence."
 ```
 
-The lines ask brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b.
+The lines ask brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b, brnfck-qwen3.5-0.8b and
+brnfck-qwen3.5-0.8b-vision. The last one takes a PNG file; it cuts any other size than 256 by 256 pixels to its
+middle square and scales that.
 
 ## 5. Open the site
 
@@ -158,6 +166,25 @@ For `1.5b`, give writer.js `--max-old-space-size=6144`. checks.js reads the log 
 verification in step 3, so build without `--quick` and `--no-verify` first. Run compare.js last:
 it gathers the programs that have data.
 
+The figure of the layers on "How it works" runs each program on one question and reads its numbers
+after every layer. It writes `site/inside/data/<name>/lens-france.json`:
+
+```
+node --expose-gc tools/map-data/lens.js small
+node --expose-gc --max-old-space-size=8192 tools/map-data/lens.js 0.5b "What is the capital of France?" france --max 10
+node --expose-gc --max-old-space-size=12000 tools/map-data/lens.js 1.5b "What is the capital of France?" france --max 10
+node --expose-gc --max-old-space-size=8192 tools/map-data/lens.js 0.8b "What is the capital of France?" france --max 10
+```
+
+The page "Looking at a picture" (`site/vision/`) needs brnfck-qwen3.5-0.8b-vision, built in step 3.
+These commands write its data to `site/vision/data/`:
+
+```
+node compiler/qwen3.5/vision/record.js
+node compiler/qwen3.5/vision/verify_pure.js ask 0 1 2 3 4 5
+node compiler/qwen3.5/vision/answers.js
+```
+
 The page "Compare the models" (`site/compare/`) runs Qwen3.5-0.8B in the browser. Put its files in
 `site/models/qwen3.5-0.8b/`:
 
@@ -184,6 +211,7 @@ node tools/make-chunks.js small                   # writes site/dist/small/
 node tools/make-chunks.js 0.5b                    # writes site/dist/0.5b/
 node tools/make-chunks.js 1.5b --chunk 16777216   # writes site/dist/1.5b/, in pieces of 16 MiB
 node tools/make-chunks.js 0.8b --chunk 16777216   # writes site/dist/0.8b/, in pieces of 16 MiB
+node tools/make-chunks.js 0.8b-vision --chunk 16777216   # writes site/dist/0.8b-vision/
 node tools/make-chunks.js verify small            # reads them back; must print "ok"
 ```
 
@@ -212,8 +240,8 @@ The pages in `site/patterns/` are written from `site/patterns/data.js`. After a 
 
 ## Licence
 
-The code and the site are MIT licensed: see `LICENSE`. The built programs, the `calib.json` files and the
-recordings in `site/compare/data/` hold values of the models, so the models' licence, Apache 2.0, applies to them: see `NOTICE` and
+The code and the site are MIT licensed: see `LICENSE`. The built programs, the `calib.json` files, the
+recordings in `site/compare/data/` and the data in `site/vision/data/` hold values of the models, so the models' licence, Apache 2.0, applies to them: see `NOTICE` and
 `LICENSES/Apache-2.0.txt`. `tools/make-chunks.js` puts both next to every program it splits.
 
 ## Credits
@@ -221,4 +249,6 @@ recordings in `site/compare/data/` hold values of the models, so the models' lic
 - SmolLM2-135M-Instruct by Hugging Face (HuggingFaceTB), Apache 2.0.
 - Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, Apache 2.0.
 - Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, Apache 2.0.
+- The photos in `compiler/qwen3.5/vision/pictures/` and `site/vision/pictures/` are from Wikimedia Commons, released
+  into the public domain (CC0): see `NOTICE`.
 - Brainfuck was designed by Urban Müller in 1993.

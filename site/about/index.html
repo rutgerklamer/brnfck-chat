@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About the project · brnfck.chat</title>
-<meta name="description" content="Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. Ask one a question, see how it works, or learn it step by step.">
+<meta name="description" content="Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program, and one of them also with its part for pictures. Ask one a question, see how it works, or learn it step by step.">
 <meta property="og:title" content="About the project · brnfck.chat">
-<meta property="og:description" content="Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. Ask one a question, see how it works, or learn it step by step.">
+<meta property="og:description" content="Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program, and one of them also with its part for pictures. Ask one a question, see how it works, or learn it step by step.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="brnfck.chat">
 <meta name="twitter:card" content="summary">
@@ -32,17 +32,17 @@
 </style>
 </head>
 <body>
-<script src="../site.js?v=r16"></script>
+<script src="../site.js?v=r17"></script>
 <main class="doc article about numbered" id="main">
   <header class="plain">
     <p class="kicker crumbs"><a href="../how/">Program insights</a><span>About the project</span></p>
     <h1>Chat models that run as brainfuck programs</h1>
-    <p class="lead">Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program.</p>
+    <p class="lead">Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. One of them also looks at pictures, in a fifth program.</p>
   </header>
 
   <section class="abstract" aria-labelledby="abs">
     <h2 id="abs">In short</h2>
-    <p>Brainfuck is a programming language made as a joke. It has eight commands: step left, step right, add one, take one off, read a letter, print a letter, and two for repeating. This site runs four real chat models in it. Each is one program of 1 to 11.4 billion characters. The only thing a program reads is your question, and the only thing it prints is the answer. brnfck-smollm2-135m, the smallest, is fast and often wrong. brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b are slower and get simple sums and facts right. Brainfuck runs each of them faithfully, mistakes included. brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, a newer generation than Qwen2.5. Its model has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers keep a memory of fixed size, and after every three of them comes one that looks back at every earlier word piece.</p>
+    <p>Brainfuck is a programming language made as a joke. It has eight commands: step left, step right, add one, take one off, read a letter, print a letter, and two for repeating. This site runs four real chat models in it. Each is one program of 1 to 11.4 billion characters. The only thing a program reads is your question, and the only thing it prints is the answer. brnfck-smollm2-135m, the smallest, is fast and often wrong. brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b are slower and get simple sums and facts right. Brainfuck runs each of them faithfully, mistakes included. brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, a newer generation than Qwen2.5. Its model has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers keep a memory of fixed size, and after every three of them comes one that looks back at every earlier word piece. A fifth program, brnfck-qwen3.5-0.8b-vision, runs the same model with its part for pictures: it reads a picture before the question.</p>
   </section>
 
   <figure id="fig-map" class="full" aria-labelledby="cap-map">
@@ -70,11 +70,11 @@
   <section id="what">
     <h2>What this is</h2>
     <aside class="sidenote"><b>Note.</b> Times were measured on one desktop computer with the program file on its own disk. They depend on how busy the machine is <a class="cite" href="#ref-6" aria-label="Note 6">[6]</a>.</aside>
-    <p>A chat model is a very long list of numbers, called weights, and a fixed recipe of sums. Here four such models are each written out as a single program in which every character is one of the eight commands. Almost all of a program writes the model's numbers into memory. The last part does the thinking. The only thing a program reads is your question, and the only thing it prints is the answer.</p>
+    <p>A chat model is a very long list of numbers, called weights, and a fixed recipe of sums. Here four such models are each written out as a single program in which every character is one of the eight commands. Almost all of a program writes the model's numbers into memory. The last part does the thinking. The only thing a program reads is your question, and the only thing it prints is the answer. brnfck-qwen3.5-0.8b-vision reads a picture first.</p>
     <dl class="facts full">
-      <div><dt>models, each one program <span class="ev">counted</span></dt><dd>4</dd></div>
+      <div><dt>programs, of four models <span class="ev">counted</span></dt><dd>5</dd></div>
       <div><dt>different commands, and nothing else <span class="ev">counted</span></dt><dd>8</dd></div>
-      <div><dt>input command in each program: it reads your question <span class="ev">counted</span></dt><dd>1</dd></div>
+      <div><dt>input command in each program of text: it reads your question <span class="ev">counted</span></dt><dd>1</dd></div>
       <div><dt>characters in the program of brnfck-qwen2.5-1.5b <span class="ev">counted</span></dt><dd>11,430,468,880</dd></div>
     </dl>
     <p class="small muted">"Counted" means counted in the program file itself; for brnfck-smollm2-135m you can <a href="../how/#real">repeat the count in your browser</a> (on How it works, under "How do I know it is real?"). "Measured" means timed on one computer.</p>
@@ -82,23 +82,23 @@
 
   <section id="models">
     <h2>The models, compared</h2>
-    <p>The same idea at four sizes. A bigger model answers better, and you wait longer for it. brnfck-qwen3.5-0.8b runs Qwen3.5, a newer generation than Qwen2.5, with a different kind of layer.</p>
+    <p>The same idea at four sizes. A bigger model answers better, and you wait longer for it. brnfck-qwen3.5-0.8b runs Qwen3.5, a newer generation than Qwen2.5, with a different kind of layer. brnfck-qwen3.5-0.8b-vision runs the same model with its part for pictures.</p>
     <div class="scroll full" tabindex="0" role="group" aria-label="Table 1, scrolls sideways on a narrow screen"><table id="tab-models">
-      <caption>The four models as brainfuck programs. Read down a column for one model, or along a row to compare. Counts are counted in the program files; times are measured on one desktop computer.</caption>
-      <thead><tr><th></th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th></tr></thead>
+      <caption>The four models as five brainfuck programs. Read down a column for one program, or along a row to compare. Counts are counted in the program files; times are measured on one desktop computer.</caption>
+      <thead><tr><th></th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th><th class="n">brnfck-qwen3.5-0.8b-vision</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></td></tr>
-        <tr><th scope="row">Made by</th><td class="n">Hugging Face</td><td class="n">Alibaba Cloud</td><td class="n">Alibaba Cloud</td><td class="n">the Qwen team of Alibaba Cloud</td></tr>
-        <tr><th scope="row">Weights</th><td class="n">135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td><td class="n">about 752 million, in the text part</td></tr>
-        <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td></tr>
-        <tr><th scope="row">Of which write the tape</th><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td><td class="n">7,448,657,450</td></tr>
-        <tr><th scope="row">Tape, in cells of 32 bits</th><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014</td><td class="n">1,067,424,772</td></tr>
-        <tr><th scope="row">Start-up</th><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s from the command line</td></tr>
-        <tr><th scope="row">Time for one word piece</th><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s</td><td class="n">about 5.6 s in the browser; 5.56 s from the command line (median)</td></tr>
-        <tr><th scope="row">Same next word piece as the original model</th><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td><td class="n">95.1% (214 of 225), its whole-number version against the original</td></tr>
-        <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">usually right</td></tr>
-        <tr><th scope="row">Download the program</th><td class="n"><a href="#downloads">brnfck-smollm2-135m.bf</a>, 1.03 GB</td><td class="n"><a href="#downloads">brnfck-qwen2.5-0.5b.bf</a>, 4.17 GB</td><td class="n"><a href="#downloads">brnfck-qwen2.5-1.5b.bf</a>, 11.43 GB</td><td class="n"><a href="#downloads">brnfck-qwen3.5-0.8b.bf</a>, 7.71 GB</td></tr>
-        <tr><th scope="row">Where it runs</th><td class="n"><a href="../?m=small">in your browser</a></td><td class="n"><a href="../?m=0.5b">in your browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">in a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or from the <a href="../how/#run">command line</a>, about 10 GiB free</td><td class="n"><a href="../?m=0.8b">in your browser</a>, about 5 GB of memory</td></tr>
+        <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></td><td class="n">Qwen3.5-0.8B with its part for pictures <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></td></tr>
+        <tr><th scope="row">Made by</th><td class="n">Hugging Face</td><td class="n">Alibaba Cloud</td><td class="n">Alibaba Cloud</td><td class="n">the Qwen team of Alibaba Cloud</td><td class="n">the Qwen team of Alibaba Cloud</td></tr>
+        <tr><th scope="row">Weights</th><td class="n">135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td><td class="n">about 752 million, in the text part</td><td class="n">about 853 million: 752 million in the text part, 101 million in the part for pictures</td></tr>
+        <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td><td class="n">8,931,101,427</td></tr>
+        <tr><th scope="row">Of which write the tape</th><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td><td class="n">7,448,657,450</td><td class="n">8,214,809,705</td></tr>
+        <tr><th scope="row">Tape, in cells of 32 bits</th><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014</td><td class="n">1,067,424,772</td><td class="n">1,197,356,368</td></tr>
+        <tr><th scope="row">Start-up</th><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s from the command line</td><td class="n">86.5 s from the command line, then 650 s for the picture and the question</td></tr>
+        <tr><th scope="row">Time for one word piece</th><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s</td><td class="n">about 5.6 s in the browser; 5.56 s from the command line (median)</td><td class="n">6.59 s from the command line (median)</td></tr>
+        <tr><th scope="row">Same next word piece as the original model</th><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td><td class="n">95.1% (214 of 225), its whole-number version against the original</td><td class="n">97.5% (79 of 81) on four photos, its whole-number version against the original</td></tr>
+        <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">not asked: it is asked about pictures</td></tr>
+        <tr><th scope="row">Download the program</th><td class="n"><a href="#downloads">brnfck-smollm2-135m.bf</a>, 1.03 GB</td><td class="n"><a href="#downloads">brnfck-qwen2.5-0.5b.bf</a>, 4.17 GB</td><td class="n"><a href="#downloads">brnfck-qwen2.5-1.5b.bf</a>, 11.43 GB</td><td class="n"><a href="#downloads">brnfck-qwen3.5-0.8b.bf</a>, 7.71 GB</td><td class="n"><a href="#downloads">brnfck-qwen3.5-0.8b-vision.bf</a>, 8.93 GB</td></tr>
+        <tr><th scope="row">Where it runs</th><td class="n"><a href="../?m=small">in your browser</a></td><td class="n"><a href="../?m=0.5b">in your browser</a>, about 4 GB of memory</td><td class="n"><a href="../?m=1.5b">in a desktop browser</a>, about 8 GB of free memory (ran in one desktop Chromium browser), or from the <a href="../how/#run">command line</a>, about 10 GiB free</td><td class="n"><a href="../?m=0.8b">in your browser</a>, about 5 GB of memory</td><td class="n"><a href="../?m=0.8b-vision">in a desktop browser</a>, about 7 GB of free memory, or from the <a href="../how/#run">command line</a></td></tr>
       </tbody>
     </table></div>
     <div id="downloads" class="full">
@@ -107,8 +107,9 @@
       <div data-dl="0.5b"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-qwen2.5-0.5b.bf" download>brnfck-qwen2.5-0.5b.bf</a> (brnfck-qwen2.5-0.5b, 4.17 GB)</div>
       <div data-dl="1.5b"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-qwen2.5-1.5b.bf" download>brnfck-qwen2.5-1.5b.bf</a> (brnfck-qwen2.5-1.5b, 11.43 GB)</div>
       <div data-dl="0.8b"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-qwen3.5-0.8b.bf" download>brnfck-qwen3.5-0.8b.bf</a> (brnfck-qwen3.5-0.8b, 7.71 GB)</div>
+      <div><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-qwen3.5-0.8b-vision.bf" download>brnfck-qwen3.5-0.8b-vision.bf</a> (brnfck-qwen3.5-0.8b-vision, 8.93 GB)</div>
     </div>
-    <p>The four models were published under the Apache 2.0 licence <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. Each program holds only the eight commands, with exactly one input command and one output command. Brainfuck has whole numbers only, so each model was first converted to whole numbers. The row "Same next word piece as the original model" of <a href="#tab-models">Table 1</a> says how often that version agrees with the original <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</p>
+    <p>The four models were published under the Apache 2.0 licence <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. Each program holds only the eight commands, with one output command. The programs of text have exactly one input command; brnfck-qwen3.5-0.8b-vision has three: one reads the picture, two the question (its first character, then the others). Brainfuck has whole numbers only, so each model was first converted to whole numbers. The row "Same next word piece as the original model" of <a href="#tab-models">Table 1</a> says how often that version agrees with the original <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</p>
     <figure id="fig-wait" aria-labelledby="cap-wait">
       <div class="bars under">
         <span class="lab">brnfck-smollm2-135m</span><span>about 0.6 to 1.0 s</span><div aria-hidden="true"><div class="bar ink" style="width:5%"></div><div class="bar range" style="width:3.33%"></div></div>
@@ -123,8 +124,9 @@
       <ul class="tiles">
         <li><a href="../?m=small"><b>brnfck-smollm2-135m: small and fast</b><span>135 million weights. Ready in about 9 to 16 seconds. A download of 1 GB.</span></a></li>
         <li><a href="../?m=0.5b"><b>brnfck-qwen2.5-0.5b: larger and slower</b><span>494 million weights. Ready in 33 to 47 seconds. A download of 4.2 GB.</span></a></li>
-        <li><a href="../?m=0.8b"><b>brnfck-qwen3.5-0.8b: a newer generation</b><span>752 million weights, Qwen3.5 instead of Qwen2.5. Its model has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and after every three of them comes one that looks back. About 5 GB of memory. Ready in 2 min 10 s to 2 min 37 s, then about 5.6 s per word piece. A download of 7.7 GB.</span></a></li>
         <li><a href="../?m=1.5b"><b>brnfck-qwen2.5-1.5b: biggest and slowest</b><span>1.54 billion weights. In a desktop browser with about 8 GB of free memory, or from the command line. Ready in about two and a half minutes, about 9 seconds per word piece.</span></a></li>
+        <li><a href="../?m=0.8b"><b>brnfck-qwen3.5-0.8b: a newer generation</b><span>752 million weights, Qwen3.5 instead of Qwen2.5. Its model has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and after every three of them comes one that looks back. About 5 GB of memory. Ready in 2 min 10 s to 2 min 37 s, then about 5.6 s per word piece. A download of 7.7 GB.</span></a></li>
+        <li><a href="../?m=0.8b-vision"><b>brnfck-qwen3.5-0.8b-vision: with a picture</b><span>brnfck-qwen3.5-0.8b with the part of Qwen3.5-0.8B that looks at pictures, 101 million weights more. Show it a photo and ask about it. A desktop browser with about 7 GB of free memory and a download of 1.51 GB. From the command line it was ready in 86.5 s, took 11 minutes for the picture and the question, then 6.6 seconds per word piece.</span></a></li>
       </ul>
     </nav>
   </section>
@@ -135,6 +137,7 @@
       <li><a href="../?m=small"><b>Chat: brnfck-smollm2-135m</b><span>Ask the program of 135 million weights a question and watch the answer arrive, one word piece at a time. Fast, and wrong more often.</span></a></li>
       <li><a href="../?m=0.5b"><b>Chat: brnfck-qwen2.5-0.5b</b><span>A model of 494 million weights: slower, and right more often.</span></a></li>
       <li><a href="../?m=0.8b"><b>Chat: brnfck-qwen3.5-0.8b</b><span>Qwen3.5-0.8B, a model of 752 million weights with the same kind of layers as Qwen3.8-27B, a much larger model. A download of 7.7 GB.</span></a></li>
+      <li><a href="../vision/"><b>Looking at a picture</b><span>brnfck-qwen3.5-0.8b-vision reads a picture and a question. Where every square of the picture looks, layer by layer, and what the program said about four photos.</span></a></li>
       <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
       <li><a href="../map/"><b>Program map</b><span>Every character of a program on one map: zoom from the whole of it down to single commands. As one line, as rows, folded into a square, or as an outline. For brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b.</span></a></li>
       <li><a href="../inside/"><b>Inside the program</b><span>A walk through each of brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b: its parts one by one, one block of weights taken apart, the engine, where the time goes, and the four side by side. All measured.</span></a></li>
@@ -159,7 +162,7 @@
 
   <section id="built">
     <h2>How it was built</h2>
-    <p>Eleven steps, each one small enough to test before the next. Figure 4, under the list, shows what they did to the length of the program.</p>
+    <p>Twelve steps, each one small enough to test before the next. Figure 4, under the list, shows what they did to the length of the program.</p>
     <ol class="timeline">
       <li id="step-1"><b>A tiny network that answers fixed questions</b><span>A small recurrent network that answers a fixed set of questions. It showed that a brainfuck program can do the sums of a neural network at all.</span></li>
       <li id="step-2"><b>Faster building blocks</b><span>Brainfuck can only count. Dividing and rounding a number by counting took 1.2 to 1.5 million steps. By pushing bits out of a cell one at a time (the "bit peel") it takes about 100. You can try it in <a href="../learn/05-peel.html">lesson 5 of the model lessons, "peeling off bits"</a>.</span></li>
@@ -172,6 +175,7 @@
       <li id="step-9"><b>brnfck-qwen2.5-0.5b: 494 million weights</b><span>Qwen2.5-0.5B-Instruct <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> as one program of 4,169,659,608 characters. It still runs in the browser: <a href="../?m=0.5b">the chat with brnfck-qwen2.5-0.5b</a>.</span></li>
       <li id="step-10"><b>brnfck-qwen2.5-1.5b: 1.54 billion weights</b><span>Qwen2.5-1.5B-Instruct <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> as one program of 11,430,468,880 characters. Its tape of 1,827,870,014 cells takes 6.81 GiB, so it needs an interpreter with 64-bit memory. It runs from the command line, and on 11 October 2026 it ran from start to answer in one desktop Chromium browser: <a href="../?m=1.5b">the chat with brnfck-qwen2.5-1.5b</a>. Ready in 2 min 27 s, then 9.0 seconds per word piece (measured).</span></li>
       <li id="step-11"><b>brnfck-qwen3.5-0.8b: a different kind of layer</b><span>Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>, about 752 million weights, is the smallest model with the same kind of layers as Qwen3.8-27B, a much larger model. 18 of its 24 layers are Gated DeltaNet layers: a memory of fixed size, whatever the length of the conversation. The other 6 look back at every earlier word piece, one after every three DeltaNet layers. As one program it has 7,709,034,855 characters. Its tape of 1,067,424,772 cells takes 3.98 GiB and fits a 32-bit memory, unlike that of brnfck-qwen2.5-1.5b. All 11 checks pass: only the eight commands, one input and one output command, the tape equal to the model in 1,018 SHA-256 sums, and the reference answer to &ldquo;What is the capital of France?&rdquo;, 30 word pieces, to the letter. The program follows its whole-number recipe exactly, with weights of 10 bits; that recipe picks the same next word piece as the original model at 214 of 225 positions (95.1%). <a href="../compare/">Compare the models</a> explains the new kind of layer. <a href="../compare/#live">Ask it yourself</a> there runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. <a href="../?m=0.8b">The chat with brnfck-qwen3.5-0.8b</a>.</span></li>
+      <li id="step-12"><b>brnfck-qwen3.5-0.8b-vision: a picture</b><span>Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a> also has a part that was trained on pictures, about 101 million weights: 12 layers that look at a picture of 256 by 256 pixels in squares of 16 by 16, and turn every block of four squares into one word piece for the text model. brnfck-qwen3.5-0.8b-vision is brnfck-qwen3.5-0.8b with that part at the end of its tape: one program of 8,931,101,427 characters that reads the 196,608 bytes of the picture, then the question. Its tape of 1,197,356,368 cells takes 4.46 GiB, so it needs 64-bit memory, as brnfck-qwen2.5-1.5b does. All 21 checks pass: only the eight commands, the tape equal to the loaded model, and for six questions about four photos the text of the reference to the letter. <a href="../vision/">Looking at a picture</a> shows where every square looks. <a href="../?m=0.8b-vision">The chat with brnfck-qwen3.5-0.8b-vision</a>.</span></li>
     </ol>
     <figure id="fig-growth" aria-labelledby="cap-growth">
       <div class="bars under">
@@ -181,8 +185,9 @@
         <span class="lab">Step 9 · 494 million weights</span><span>4,169,659,608</span><div aria-hidden="true"><div class="bar ink" style="width:36.48%"></div></div>
         <span class="lab">Step 10 · 1.54 billion weights</span><span>11,430,468,880</span><div aria-hidden="true"><div class="bar ink" style="width:100%"></div></div>
         <span class="lab">Step 11 · 752 million weights, with Gated DeltaNet</span><span>7,709,034,855</span><div aria-hidden="true"><div class="bar ink" style="width:67.44%"></div></div>
+        <span class="lab">Step 12 · the same model, with its part for pictures</span><span>8,931,101,427</span><div aria-hidden="true"><div class="bar ink" style="width:78.13%"></div></div>
       </div>
-      <figcaption id="cap-growth">The length of the program at six of the eleven steps, in characters, drawn to scale. Look at the jump from <a href="#step-7">step 7</a> to <a href="#step-8">step 8</a>: the model is the same, but its 355,761,802 bytes of data moved into the program. The bars of steps 3 and 7 are too short to draw at this scale; each is shown as a hairline. The other steps did not produce a program whose length this page gives.</figcaption>
+      <figcaption id="cap-growth">The length of the program at seven of the twelve steps, in characters, drawn to scale. Look at the jump from <a href="#step-7">step 7</a> to <a href="#step-8">step 8</a>: the model is the same, but its 355,761,802 bytes of data moved into the program. The bars of steps 3 and 7 are too short to draw at this scale; each is shown as a hairline. The other steps did not produce a program whose length this page gives.</figcaption>
     </figure>
   </section>
 
@@ -195,9 +200,9 @@
     <h2>Limitations</h2>
     <ul>
       <li><b>The answers can be wrong.</b> brnfck-smollm2-135m is often wrong, also on simple sums. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b usually get simple sums and facts right but are still wrong on harder facts: brnfck-qwen3.5-0.8b puts Leeuwarden in the Oostzee. The original models make the same kind of mistakes. Do not rely on what any of them says. How it works says why: <a href="../how/#wrong">"Why are the models wrong so often?"</a></li>
-      <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only. The converted models of brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b pick the same next word piece as the originals in 94.8%, 96.6% and 97.2% of the tested cases, not in all <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>. For brnfck-qwen3.5-0.8b it is 95.1%.</li>
+      <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only. The converted models of brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b pick the same next word piece as the originals in 94.8%, 96.6% and 97.2% of the tested cases, not in all <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>. For brnfck-qwen3.5-0.8b it is 95.1%; for brnfck-qwen3.5-0.8b-vision, on four photos, 97.5% (79 of 81).</li>
       <li><b>The models were not made in brainfuck.</b> They were trained by Hugging Face and by Alibaba Cloud in the usual way. Brainfuck only runs them.</li>
-      <li><b>It is heavy.</b> brnfck-smollm2-135m needs a download of 1 GB and about 1.5 GB of free memory; brnfck-qwen2.5-0.5b 4.2 GB and about 4 GB of memory. brnfck-qwen2.5-1.5b needs a recent desktop browser, a program of 11.4 GB and about 8 GB of free memory; a phone cannot run it. brnfck-qwen3.5-0.8b needs 7.7 GB and about 5 GB of memory, and cannot yet clear its memory after an answer, so the Chatbot loads it again for each question. The chats have only been tried in one desktop Chromium browser.</li>
+      <li><b>It is heavy.</b> brnfck-smollm2-135m needs a download of 1 GB and about 1.5 GB of free memory; brnfck-qwen2.5-0.5b 4.2 GB and about 4 GB of memory. brnfck-qwen2.5-1.5b needs a recent desktop browser, a program of 11.4 GB and about 8 GB of free memory; a phone cannot run it. brnfck-qwen3.5-0.8b needs 7.7 GB and about 5 GB of memory, and cannot yet clear its memory after an answer, so the Chatbot loads it again for each question. brnfck-qwen3.5-0.8b-vision needs a desktop browser with 64-bit memory, a download of 1.51 GB and about 7 GB of free memory, and is loaded again for each question too. The chats have only been tried in one desktop Chromium browser, brnfck-qwen3.5-0.8b-vision only from the command line.</li>
       <li><b>It needs a fast interpreter with cells of 32 bits.</b> The result is identical to running one command at a time, but one at a time would take far too long. How it works has the details: <a href="../how/#fast">"Why is it this fast?"</a></li>
     </ul>
     <p>The full list is on How it works, under <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></p>
@@ -213,7 +218,7 @@
       <li id="ref-5"><b>Brainfuck</b>, a language designed by Urban Müller in 1993.</li>
       <li id="ref-6"><b>Measurements of this project.</b> Character counts are counted in the program files; times were measured on one desktop computer with the program file on its own disk. The full tables are on How it works, under <a href="../how/#numbers">"The numbers"</a>.</li>
       <li id="ref-7"><b>Agreement with the original models.</b> The same next word piece in 345 of 364 tested cases for brnfck-smollm2-135m (94.8%), 477 of 494 for brnfck-qwen2.5-0.5b (96.6%) and 318 of 327 for brnfck-qwen2.5-1.5b (97.2%). For brnfck-qwen3.5-0.8b, 214 of 225 answer positions (95.1%): its whole-number recipe, which the program computes bit for bit, against the model in floating point; with 8-bit weights it would be 209 of 225. See How it works, <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></li>
-      <li id="ref-8"><b>Qwen3.5-0.8B</b>, the model of brnfck-qwen3.5-0.8b. Made by the Qwen team of Alibaba Cloud and published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B">huggingface.co/Qwen/Qwen3.5-0.8B</a>. Its weights and layers are from its model files; the counts are counted in the program file, and the command-line times were measured on one desktop computer.</li>
+      <li id="ref-8"><b>Qwen3.5-0.8B</b>, the model of brnfck-qwen3.5-0.8b and brnfck-qwen3.5-0.8b-vision. Made by the Qwen team of Alibaba Cloud and published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B">huggingface.co/Qwen/Qwen3.5-0.8B</a>. Its weights and layers are from its model files; the counts are counted in the program file, and the command-line times were measured on one desktop computer.</li>
     </ol>
   </section>
 

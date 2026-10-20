@@ -172,10 +172,14 @@ function packTokenizer(opts = {}, dir = DIR) {
 
   // ---- chat template ----------------------------------------------------------
   need(tok.chatPrefix.endsWith('user\n'), 'chat template has an unexpected shape');
-  const prefix = tok.encode(tok.chatPrefix.slice(0, -1)), suffix = tok.encode(tok.chatSuffix);   // the "\n" before the question is the program's job
+  // the "\n" before the question is the program's job; o.prefix: other ids before the question (a picture,
+  // ../vision/build.js), with o.prompt(q) the text of the whole prompt and no "\n" before the question (lead null)
+  const prefix = o.prefix || tok.encode(tok.chatPrefix.slice(0, -1)), suffix = tok.encode(tok.chatSuffix);
   need(prefix.length <= maxPre && suffix.length <= maxSuf, 'template does not fit maxPre / maxSuf');
+  need(!o.prefix === (o.lead !== null), 'a prefix of its own goes with no lead byte');
   for (const q of ['', 'Hi', ' x', '\n\ny', '5', '!', ' ', 'á']) {
-    need(tok.encode(tok.chatPrompt(q)).join() === [...prefix, ...tok.encode('\n' + q), ...suffix].join(), 'the prompt is not prefix + "\\n" question + suffix');
+    if (o.prefix) need(tok.encode(o.prompt(q)).join() === [...prefix, ...tok.encode(q), ...suffix].join(), 'the prompt is not prefix + question + suffix');
+    else need(tok.encode(tok.chatPrompt(q)).join() === [...prefix, ...tok.encode('\n' + q), ...suffix].join(), 'the prompt is not prefix + "\\n" question + suffix');
   }
 
   // ---- the stream -------------------------------------------------------------------
@@ -201,7 +205,7 @@ function packTokenizer(opts = {}, dir = DIR) {
   return {
     bytes: out,
     info: {
-      vocab: lastId + 1, bpeTokens: nTok, merges: pairs.length, unmade: unmade.length, prefix, suffix, fixed: [...prefix, ...tok.encode('\n')],
+      vocab: lastId + 1, bpeTokens: nTok, merges: pairs.length, unmade: unmade.length, prefix, suffix, fixed: o.prefix ? prefix : [...prefix, ...tok.encode('\n')],
       hashLoad: (pairs.length + fakeSlots) / slots, probesPerHit: probeSum / pairs.length, worstProbes, probesPerMiss: missSum / slots,
       classTables: bt.tables, fakeSlots, stackDepth: deepest,
     },

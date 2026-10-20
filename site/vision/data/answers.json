@@ -1,0 +1,81 @@
+{
+ "made": "compiler/qwen3.5/vision/answers.js",
+ "answers": [
+  {
+   "picture": "cat",
+   "alt": "A tabby cat with blue eyes",
+   "question": "Describe this picture in one sentence.",
+   "text": "A close-up portrait of a fluffy tabby cat with striking blue eyes, set against a soft, warm-toned background.",
+   "note": "25 word pieces, then the program ended the answer."
+  },
+  {
+   "picture": "windmills",
+   "alt": "Windmills at the Zaanse Schans",
+   "question": "Describe this picture in one sentence.",
+   "text": "A serene Dutch countryside scene featuring traditional windmills, a grassy meadow, and a cow resting near a waterway under a bright blue sky …",
+   "note": "Stopped after 30 word pieces, the limit of these runs."
+  },
+  {
+   "picture": "bicycle",
+   "alt": "A bicycle on a path",
+   "question": "Describe this picture in one sentence.",
+   "text": "A bicycle with a basket and panniers is parked on a paved path, with a person sitting on the seat and a bicycle wheel visible in the background …",
+   "note": "Stopped after 30 word pieces, the limit of these runs."
+  },
+  {
+   "picture": "apples",
+   "alt": "A pile of apples",
+   "question": "Describe this picture in one sentence.",
+   "text": "A close-up of a pile of green apples.",
+   "note": "10 word pieces, then the program ended the answer."
+  },
+  {
+   "picture": "cat",
+   "alt": "A tabby cat with blue eyes",
+   "question": "What colour are the eyes?",
+   "text": "The eyes in the image are **blue**.\n\nThey are a striking, vivid blue color, which stands out against the brown and white fur of the …",
+   "note": "Stopped after 30 word pieces, the limit of these runs."
+  },
+  {
+   "picture": "windmills",
+   "alt": "Windmills at the Zaanse Schans",
+   "question": "Waar is deze foto gemaakt?",
+   "text": "Deze foto is gemaakt in Nederland.\n\nDe foto toont een landschap met traditionele Nederlandse windmolen, een groen veld en …",
+   "note": "Stopped after 30 word pieces, the limit of these runs."
+  }
+ ],
+ "tape": [
+  {
+   "name": "The text model: its weights, memory and working cells",
+   "cells": 1065410358,
+   "colour": "--c-lt"
+  },
+  {
+   "name": "The tokenizer",
+   "cells": 2016874,
+   "colour": "--c-lt"
+  },
+  {
+   "name": "The weights of the 12 layers that look at the picture",
+   "cells": 84999168,
+   "colour": "--go"
+  },
+  {
+   "name": "Their slots: 256 squares in each layer",
+   "cells": 30381048,
+   "colour": "--go"
+  },
+  {
+   "name": "The squares in, the merger out: their weights",
+   "cells": 13179648,
+   "colour": "--go"
+  },
+  {
+   "name": "Queues and working cells of the picture",
+   "cells": 1369272,
+   "colour": "--go"
+  }
+ ],
+ "costSaid": "One question about the cat took 14 min 51 s: 86 s to start up, while the program wrote its weights; 10 min 50 s for the 256 squares through 12 layers and the 85 word pieces of the prompt; then 6.6 s for every word piece of the answer.",
+ "costCap": "The bars are the 1,197,356,368 cells of the tape, to scale: 129,929,134 of them (10.9%) are for the picture. Counted from the layout of the program (compiler/qwen3.5/vision/answers.js). The times are of one run of 8,931,101,427 characters on the computer that built it (8 cores, 32 GB), in WebAssembly under Node.js (compiler/qwen3.5/vision/verify_pure.js), on 2026-10-20."
+}

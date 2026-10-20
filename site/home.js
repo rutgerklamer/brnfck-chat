@@ -19,8 +19,13 @@
     '0.8b': { name: '0.8b', label: 'brnfck-qwen3.5-0.8b', model: 'Qwen3.5-0.8B', worker: 'workers/brnfck-qwen3.5-0.8b.js?v=r2',
       manifestUrl: 'dist/0.8b/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b.bf',
       needGB: 5, download: '1.36 GB', startup: '2 min 10 s to 2 min 37 s', perPiece: 'about 5.6 s', loadsEach: true },
+    // with its part for pictures: reads a picture (pics below) before the question
+    '0.8b-vision': { name: '0.8b-vision', label: 'brnfck-qwen3.5-0.8b-vision', model: 'Qwen3.5-0.8B, with pictures', worker: 'workers/brnfck-qwen3.5-0.8b-vision.js?v=r1',
+      manifestUrl: 'dist/0.8b-vision/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b-vision.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b-vision.bf',
+      needGB: 7, download: '1.51 GB', startup: '87 s, then 11 min', perPiece: 'about 6.6 s', loadsEach: true, wide: true, picture: true },
   };
   const EXAMPLES = ['What is the capital of France?', 'What is 12 + 30?', 'Who wrote Romeo and Juliet?', 'Hello'];
+  const PICTURE_EXAMPLES = ['Describe this picture in one sentence.', 'What colour are the eyes?', 'How many windmills are there?', 'What is in this picture?'];
 
   let loadStart = 0, state = 'finding', model = null, P = null, worker = null, run = null, pending = null, last = '', nextId = 1, lastStep = '', noStore = false, env = null;
 
@@ -168,7 +173,9 @@
       ? `The model is one brainfuck program of ${fmt(P.meta.programBytes)} characters. Your browser is running it now, and it is writing the model into memory. The strip is that memory, all ${fmt(live.L.size)} cells to scale: a part lights up when the page reads numbers there, and the mark is where the program is. ${once()}`
       : `The model is one brainfuck program of ${fmt(P.meta.programBytes)} characters. Your browser is running it now, and it is writing the model into memory: each lit block is a part that is done. ${once()}`,
     engine: 'Almost ready: preparing the last part of the program, the part that does the thinking.',
-    read: () => `The program is reading your question, one word piece at a time (${model.perPiece} each). Nothing is printed until it has read all of it.`,
+    read: () => model.picture
+      ? `The program is reading the picture, square by square, and looking at it through 12 layers; then it reads the 64 word pieces the picture became and your question, one at a time (${model.perPiece} each). Nothing is printed until it has read all of it.`
+      : `The program is reading your question, one word piece at a time (${model.perPiece} each). Nothing is printed until it has read all of it.`,
     write: () => `The program is printing the answer, one word piece at a time (${model.perPiece} each). The highlighted piece is the newest.`,
     done: 'Done. The model stays loaded: ask another question and it starts reading right away.',
     again: 'Done. This program cannot clear its memory after an answer yet, so the next question loads it again.',
@@ -184,7 +191,7 @@
     const fit = `Close other tabs and programs until about ${model.needGB} GB is free and try again, or choose a smaller model below.`;
     const help = {
       meta: 'Choose another model below.',
-      support: 'brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen3.5-0.8b run in any current browser.',
+      support: 'brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen3.5-0.8b run in any current browser; brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b-vision need a current desktop browser.',
       program: 'Check the connection and try again: what was downloaded is kept.',
       compile: 'A current desktop version of Chrome, Edge or Firefox is needed.',
       memory: fit,
@@ -223,6 +230,8 @@
     P = found;
     showSource(name, P.meta);
     $('q').maxLength = P.meta.maxQuestionBytes;
+    $('pics').hidden = !model.picture;
+    [...$('chips').children].forEach((b, i) => { b.textContent = (model.picture ? PICTURE_EXAMPLES : EXAMPLES)[i]; });
     ProgramDownload.attach($('download'), P);                // the .bf itself: nothing starts without a click
     setState('idle');
     if (pending) startWorker();
@@ -240,7 +249,7 @@
   // ---- the worker: loads the program, keeps its tape, runs it per question ----
   const has64 = () => { try { return WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 5, 3, 1, 4, 1])); } catch (e) { return false; } };
   function startWorker() {
-    if (model.wide && !has64()) return fail('support', 'This browser has no 64-bit WebAssembly memory, which brnfck-qwen2.5-1.5b needs');
+    if (model.wide && !has64()) return fail('support', `This browser has no 64-bit WebAssembly memory, which ${model.label} needs`);
     setState('loading');
     $('bar').value = 0;
     lastStep = '';
@@ -313,6 +322,38 @@
     }
   }
 
+  // ---- the picture of brnfck-qwen3.5-0.8b-vision: its middle square at 256 x 256 pixels, as its 256 squares of 16 x 16,
+  // in blocks of two by two, every square its red, green and blue pixels row by row (compiler/qwen3.5/reference/vision.js squares)
+  const SIDE = 256, SQ = 16, picture = { img: null, name: 'cat' };
+  function squaresOf(img) {
+    const c = document.createElement('canvas'); c.width = c.height = SIDE;
+    const g = c.getContext('2d', { willReadFrequently: true }), w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, s = Math.min(w, h);
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(img, (w - s) / 2, (h - s) / 2, s, s, 0, 0, SIDE, SIDE);
+    const d = g.getImageData(0, 0, SIDE, SIDE).data, out = new Uint8Array(SIDE * SIDE * 3), blocks = SIDE / SQ / 2;
+    let k = 0;
+    for (let br = 0; br < blocks; br++) for (let bc = 0; bc < blocks; bc++) for (let ir = 0; ir < 2; ir++) for (let ic = 0; ic < 2; ic++) {
+      const row = br * 2 + ir, col = bc * 2 + ic;
+      for (let ch = 0; ch < 3; ch++) for (let y = 0; y < SQ; y++) for (let x = 0; x < SQ; x++) out[k++] = d[((row * SQ + y) * SIDE + col * SQ + x) * 4 + ch];
+    }
+    return { bytes: out, url: c.toDataURL('image/png') };
+  }
+  function choosePicture(value) {
+    if (value === 'own') { $('picFile').click(); return; }
+    picture.name = value;
+    picture.img = document.querySelector('#pics input[value="' + value + '"] + img');
+  }
+  $('pics').addEventListener('change', (ev) => { if (ev.target.name === 'pic') choosePicture(ev.target.value); });
+  $('picFile').addEventListener('change', () => {
+    const f = $('picFile').files[0];
+    if (!f) return;
+    const im = new Image();
+    im.onload = () => { picture.name = 'own'; picture.img = im; $('picOwnImg').src = squaresOf(im).url; $('picOwnImg').hidden = false; $('picOwnText').hidden = true; $('picOwn').checked = true; };
+    im.onerror = () => { $('picOwnText').textContent = 'That file is not a picture this browser can read'; };
+    im.src = URL.createObjectURL(f);
+  });
+  choosePicture('cat');
+
   // ---- one question ----
   function archive() {
     const a = $('answer');
@@ -338,6 +379,8 @@
     $('error').hidden = true;
     $('betterBox').hidden = true;
     $('mine').textContent = text;
+    $('minePic').hidden = !model.picture;
+    if (model.picture) { run0.pic = squaresOf(picture.img); $('minePic').src = run0.pic.url; $('minePic').alt = picture.img.alt || 'Your picture'; }
     $('answer').textContent = '...';
     $('answer').classList.add('wait', 'muted');
     $('chatWorkspace').scrollTop = $('chatWorkspace').scrollHeight;
@@ -345,8 +388,9 @@
   function meter() {
     if (!run) return;
     const t = performance.now() - run.t0;
-    status(run.pieces === 0 ? `Reading your question · ${secs(t)}` : `${run.pieces} word piece${run.pieces === 1 ? '' : 's'} · ${secs(t)}`);
+    status(run.pieces === 0 ? `${model.picture ? 'Looking at the picture, reading your question' : 'Reading your question'} · ${secs(t)}` : `${run.pieces} word piece${run.pieces === 1 ? '' : 's'} · ${secs(t)}`);
   }
+  const run0 = { pic: null };                                 // the picture of the question on the screen, in its squares
   function send(text) {
     run = { id: nextId++, t0: performance.now(), pieces: 0, firstMs: 0, lastMs: 0, decoder: new TextDecoder('utf-8'), span: null, timer: setInterval(meter, 200) };
     setState('running');
@@ -355,7 +399,8 @@
     title('Reading your question');
     step('Reading your question');
     meter();
-    worker.postMessage({ type: 'ask', id: run.id, question: text });
+    if (model.picture) worker.postMessage({ type: 'ask', id: run.id, question: text, picture: run0.pic.bytes });
+    else worker.postMessage({ type: 'ask', id: run.id, question: text });
   }
   function endRun(remark) {
     clearInterval(run.timer);
@@ -450,7 +495,7 @@
   for (const q of EXAMPLES) {
     const b = document.createElement('button');
     b.type = 'button'; b.textContent = q; b.disabled = true;
-    b.addEventListener('click', () => ask(q));
+    b.addEventListener('click', () => ask(b.textContent));
     $('chips').append(b);
   }
   for (const m of Object.values(MODELS)) {

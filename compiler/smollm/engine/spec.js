@@ -218,7 +218,11 @@ function build(m, prefix) {
       tr('xout', l, x);
     }
     if (!wantLogits && !trace) return null;
-    normalise(x, xn); tr('xnf', -1, xn);
+    return head(x, tr);
+  }
+  // The output layer on its own: the scores of a residual xs (tools/map-data/lens.js gives it the residual after every layer).
+  function head(xs, tr = () => {}) {
+    normalise(xs, xn); tr('xnf', -1, xn);
     F.matvec(wcls.w, xn, vocab, logits);
     for (let i = 0; i < vocab; i++) logits[i] = rq32(logits[i] * 2 ** wcls.d, tops.cls + NB - LB, logitBits);
     return logits;
@@ -240,7 +244,7 @@ function build(m, prefix) {
     building = false;
   }
 
-  return { step, cfg, tables, layers: L, wcls, emb, prefix: pre };
+  return { step, head, cfg, tables, layers: L, wcls, emb, prefix: pre };
 }
 
 // The real model with its fixed chat prefix.

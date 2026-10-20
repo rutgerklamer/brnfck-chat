@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: looking at a picture</title>
+<meta name="description" content="brnfck-qwen3.5-0.8b-vision: one brainfuck program that reads a picture and a question and writes what it sees. Qwen3.5-0.8B with its part for pictures, in eight commands. Where every square of the picture looks, layer by layer, from the numbers the program computes.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
+<link rel="stylesheet" href="vision.css?v=r2">
+</head>
+<body>
+<script src="../site.js?v=r17" data-section="insights"></script>
+<main class="doc article vis" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>Looking at a picture</span></p>
+    <h1>Looking at a picture</h1>
+    <p class="lead"><a href="../?m=0.8b-vision">brnfck-qwen3.5-0.8b-vision</a> is one brainfuck program that reads a picture and a question, and writes what it sees. It runs Qwen3.5-0.8B with the part of that model that was trained on pictures: 12 layers that look at the picture, then the 24 layers of text that brnfck-qwen3.5-0.8b runs. Asked to describe the cat below in one sentence, it wrote: <q id="lead-answer">A close-up portrait of a fluffy tabby cat with striking blue eyes, set against a soft, warm-toned background.</q></p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#squares">Squares of pixels</a></li>
+          <li><a href="#look">Every square looks at every square</a></li>
+          <li><a href="#merge">Four squares, one word piece</a></li>
+          <li><a href="#answers">What it said</a></li>
+          <li><a href="#checked">How it was checked</a></li>
+          <li><a href="#cost">What it costs</a></li>
+          <li><a href="#notes">Notes and sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="squares" aria-labelledby="squares-h">
+    <h2 id="squares-h">Squares of pixels</h2>
+    <p>The program reads a picture of 256 by 256 pixels as 196,608 bytes: 256 squares of 16 by 16 pixels, every square its red pixels row by row, then its green ones, then its blue ones. Every byte is a number from 0 to 255, read with the comma command, one byte at a time, as the letters of a question are. The program has three commas: this one, and two that read the question after it, one for its first letter and one for the others.</p>
+    <p>The squares come in blocks of two by two: the four squares of a block follow each other. The model was made to take them in that order, because at the end every block becomes one word piece. Press <em>Show the order</em> below to see the program read the cat:</p>
+
+    <figure class="fig" id="fig-look" aria-label="A picture of 256 by 256 pixels as the program reads it: 256 squares; for a square you pick, how much it takes in from every square, in the layer you pick">
+      <div class="ctl picks">
+        <span class="seg" id="look-pic" role="group" aria-label="Which picture"><button type="button" data-p="cat" aria-pressed="true">Cat</button><button type="button" data-p="windmills" aria-pressed="false">Windmills</button><button type="button" data-p="bicycle" aria-pressed="false">Bicycle</button><button type="button" data-p="apples" aria-pressed="false">Apples</button></span>
+        <button type="button" class="quiet" id="look-order">Show the order</button>
+      </div>
+      <div class="vis-two">
+        <canvas id="look-view" class="vis-pic" tabindex="0" role="img" aria-describedby="look-said"></canvas>
+        <div class="vis-side">
+          <div class="ctl" id="look-ctl"></div>
+          <p class="tell" id="look-said" aria-live="polite"></p>
+          <p class="key small"><span><i class="sw" style="background:var(--go)"></i>The square it takes in most</span><span><i class="sw sq"></i>The square that looks</span></p>
+        </div>
+      </div>
+      <p class="measured">The weights are those of the program: the whole-number model it computes (<code>compiler/qwen3.5/vision/spec.js</code>) run on the picture, every square's attention over all 256 squares in every layer, averaged over the 12 heads of the layer (<code>compiler/qwen3.5/vision/record.js</code>). The brightest square is the one this square takes in most; the others are drawn to the same scale. Arrow keys on the picture move the square that looks.</p>
+    </figure>
+  </section>
+
+  <section id="look" aria-labelledby="look-h">
+    <h2 id="look-h">Every square looks at every square</h2>
+    <p>In the text model a word piece <a href="../how/#s7">looks back</a>: it takes in what it needs from the word pieces before it, never from those after it. A picture has no before and after. In each of the 12 layers every square looks at all 256 squares, itself included, and takes in a share of each, the shares adding up to one. Pick a square in the picture above, and a layer with the slider: the brighter a square, the more of it the square you picked takes in.</p>
+    <p>In layer 2 more than half of what a square takes in comes from itself and the eight squares around it, in all four photos. By layer 10 that is a tenth or less: the squares look across the whole picture, on average eight or nine squares away. And a few squares are looked at by almost every square in every layer, whatever is in them: the square in the top left corner, and two squares on the right edge. Larger models of this kind do the same: they turn a few squares of background into a place for what concerns the whole picture. <a class="cite" href="#ref-4" aria-label="Source 4">[4]</a></p>
+    <p>A program that runs one step at a time cannot look both ways at once, so it does it in two rounds per layer. In the first round every square works out its key and its value and leaves them in a slot of its own, 256 slots in a row, with its question and the numbers it carries. In the second round the squares come back one by one, take their question from their slot, and walk past all 256 slots: by then every slot is full. The looking itself is the same code as in the text models, which stops at the first empty slot. Here no slot is empty.</p>
+    <p class="next-q">And after the last layer?</p>
+  </section>
+
+  <section id="merge" aria-labelledby="merge-h">
+    <h2 id="merge-h">Four squares, one word piece</h2>
+    <p>After the 12th layer every block of four squares becomes one row of 1,024 numbers: the four rows of 768 numbers side by side, through two more matrices. That gives 64 rows, as wide as the rows of the table of word pieces of the text model, and they go into a queue at the end of the tape.</p>
+    <p>The prompt has a place for them: 64 times the special word piece <span class="sp">&lt;|image_pad|&gt;</span> after <span class="sp">&lt;|vision_start|&gt;</span>, before the question. At each of those places the program takes the next row from the queue instead of the row of the table. From there on it is the text model of <a href="../?m=0.8b">brnfck-qwen3.5-0.8b</a>, the same 24 layers, with one change: its six layers that look back turn their keys by where a word piece is, and a piece of the picture is somewhere in two directions. Each one gets its row and its column in the grid of 8 by 8 blocks, as the model learned it.</p>
+  </section>
+
+  <section id="answers" aria-labelledby="answers-h">
+    <h2 id="answers-h">What it said</h2>
+    <p>Four photos, each with the question <em>Describe this picture in one sentence.</em>, and two more questions: what colour the eyes of the cat are, and, in Dutch, where the photo of the windmills was taken. These are the answers the program printed.</p>
+    <figure class="fig" id="fig-answers" aria-label="Six questions about four photos, and what the program answered">
+      <div class="vis-answers" id="ans-list"></div>
+      <p class="measured" id="ans-cap">Photos from Wikimedia Commons, each released into the public domain (CC0), cut to their middle square and scaled to 256 by 256 pixels (<a href="#ref-2">sources</a>).</p>
+    </figure>
+    <p>The model is small and its answers can be wrong. Nobody sits on the bicycle. There is an animal lying in the meadow in front of the windmills; the model called it a cow when it ran in whole numbers, and left it out when it ran in floating point. Both are the model, not the brainfuck: the program prints the answers of its whole-number recipe exactly, and that recipe differs a little from the model in floating point, as the next section shows.</p>
+  </section>
+
+  <section id="checked" aria-labelledby="checked-h">
+    <h2 id="checked-h">How it was checked</h2>
+    <ol>
+      <li><b>The model itself.</b> The vision part was first written in JavaScript in floating point, from the code that Hugging Face publishes for the model, and checked against that code on the four photos: the squares in the same order, the same 85 word pieces of the prompt, rows within 0.01% of those of the original, and word for word the same answers.</li>
+      <li><b>The whole-number recipe.</b> Brainfuck has whole numbers only, so the program computes a recipe in whole numbers (<code>compiler/qwen3.5/vision/spec.js</code>). Every LayerNorm became the norm of the text engines, after the mean was taken out of everything added to the stream, and every layer has its own widths, because the numbers grow from about 9 in the first layers to 2,240 in the last. On the four photos the whole-number model picks the same next word piece as the model in floating point 79 times out of 81 (97.5%); the text part of brnfck-qwen3.5-0.8b does so in 95.1% of its tested cases.</li>
+      <li><b>The brainfuck.</b> On small models made up for the test, the brainfuck of the vision part gave exactly the numbers of the recipe, stage by stage, and left every scratch cell empty: 60 checks, the last of them with all 256 squares. With a small text model behind it, the whole program printed the recipe's answer: 3 more. That last test of 256 squares came after the first run of the real program, which left the tape once it had read the picture: it counted to 256 with the help of a cell that was in use, and the tests before it had at most 64 squares, a count that needs no help.</li>
+      <li><b>The program itself</b> was checked as the other programs are: only the eight commands, the tape after its writing part equal to the tape of the loaded model, and every answer on this page equal, character for character, to the recipe's. <code>compiler/qwen3.5/vision/verify_pure.js</code> does all three.</li>
+    </ol>
+  </section>
+
+  <section id="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">What it costs</h2>
+    <figure class="fig" id="fig-cost" aria-label="The tape of brnfck-qwen3.5-0.8b-vision to scale, and the time of one question">
+      <div class="bars" id="cost-bars"></div>
+      <p class="tell" id="cost-said"></p>
+      <p class="measured" id="cost-cap"></p>
+    </figure>
+  </section>
+
+  <section id="fromhere" aria-labelledby="fromhere-h">
+    <h2 id="fromhere-h">Where to go next</h2>
+    <ol class="dest">
+      <li style="--c: var(--c-in)"><a href="../?m=0.8b-vision"><i aria-hidden="true">,</i><b>Ask brnfck-qwen3.5-0.8b-vision</b><small>Chatbot</small><span>The program of this page, in your browser: a desktop computer with about 7 GB of free memory, and patience.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../compare/"><i aria-hidden="true">[]</i><b>Compare the models</b><small>Article</small><span>The text part of Qwen3.5-0.8B: a memory of fixed size in three of every four layers.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../how/"><i aria-hidden="true">[]</i><b>How it works</b><small>Article</small><span>One question followed from your keyboard to the printed answer. No programming needed.</span></a></li>
+    </ol>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <ol class="refs">
+      <li id="ref-1"><b>Qwen3.5-0.8B</b>, made by the Qwen team of Alibaba Cloud, published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B">huggingface.co/Qwen/Qwen3.5-0.8B</a>. Its weight file holds the text model (752 million weights), the vision part (101 million) and a head that guesses two word pieces ahead (20 million), which this program does not run.</li>
+      <li id="ref-2"><b>The photos</b>, all from Wikimedia Commons and released into the public domain (CC0): <a href="https://commons.wikimedia.org/wiki/File:Tabby_cat_with_blue_eyes-3336579.jpg">Tabby cat with blue eyes</a> by AdinaVoicu (Pixabay), <a href="https://commons.wikimedia.org/wiki/File:The_Windmills_of_Zaanse_Schans,_Netherlands.jpg">The Windmills of Zaanse Schans, Netherlands</a> by Mustang Joe, <a href="https://commons.wikimedia.org/wiki/File:Bicycle_02.jpg">Bicycle 02</a> by Shams948, <a href="https://commons.wikimedia.org/wiki/File:Apples_fruit.jpg">Apples fruit</a> by safaritravelplus.</li>
+      <li id="ref-3"><b>The code.</b> <code>compiler/qwen3.5/reference/vision.js</code> is the vision part in floating point and <code>compiler/qwen3.5/vision/hf_check.py</code> the comparison with the Hugging Face code; <code>compiler/qwen3.5/vision/spec.js</code> is the whole-number recipe, <code>gen.js</code> its brainfuck, <code>program.js</code> the text engine with it, and <code>compiler/qwen3.5/REPORT.md</code> has the numbers.</li>
+      <li id="ref-4"><b>Vision Transformers Need Registers</b>, Timoth&eacute;e Darcet, Maxime Oquab, Julien Mairal and Piotr Bojanowski, 2023. Squares of background that the model uses for the whole picture, and what that does to its attention. The shares in the text above are worked out from the data of the figure.</li>
+    </ol>
+  </section>
+</main>
+<script src="../ui/article.js?v=r7"></script>
+<script src="vision.js?v=r2"></script>
+</body>
+</html>

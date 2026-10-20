@@ -14,10 +14,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <link rel="stylesheet" href="site.css?v=r10">
 <link rel="stylesheet" href="program-download.css?v=r6">
-<link rel="stylesheet" href="home.css?v=r19">
+<link rel="stylesheet" href="home.css?v=r20">
 </head>
 <body>
-<script src="site.js?v=r16" data-section="chat"></script>
+<script src="site.js?v=r17" data-section="chat"></script>
 <main class="doc home" id="main" data-state="finding">
 
   <div class="stage">
@@ -48,6 +48,15 @@
             <button id="stop" type="button" class="quiet" hidden>Stop</button>
           </form>
           <p class="under muted small"><span id="consent">Nothing is downloaded until you ask.</span><button id="clear" type="button" class="link" hidden>Clear conversation</button></p>
+          <fieldset class="pics" id="pics" hidden>
+            <legend class="label">The picture it looks at</legend>
+            <label><input type="radio" name="pic" value="cat" checked><img src="vision/pictures/cat.png" alt="A tabby cat with blue eyes" width="64" height="64"></label>
+            <label><input type="radio" name="pic" value="windmills"><img src="vision/pictures/windmills.png" alt="Windmills at the Zaanse Schans" width="64" height="64"></label>
+            <label><input type="radio" name="pic" value="bicycle"><img src="vision/pictures/bicycle.png" alt="A bicycle on a path" width="64" height="64"></label>
+            <label><input type="radio" name="pic" value="apples"><img src="vision/pictures/apples.png" alt="A pile of apples" width="64" height="64"></label>
+            <label class="own"><input type="radio" name="pic" value="own" id="picOwn"><img id="picOwnImg" alt="" width="64" height="64" hidden><span id="picOwnText">Your own picture</span></label>
+            <input type="file" id="picFile" accept="image/*" hidden>
+          </fieldset>
 
           <section class="screen" id="chatWorkspace" aria-label="Conversation" tabindex="-1">
             <div id="emptyOutput">
@@ -59,6 +68,7 @@
 
             <section id="thread" class="thread" hidden aria-label="Question and answer">
               <p class="exchange io"><span class="q" id="mine"></span><span class="a" id="answer"></span></p>
+              <img id="minePic" class="minePic" alt="" width="96" height="96" hidden>
               <div class="process">
                 <ol id="steps" class="stepbar" aria-label="What is happening"><li><span>1. Load the model</span></li><li><span>2. Read your question</span></li><li><span>3. Write the answer</span></li></ol>
                 <p id="explain"></p>
@@ -111,7 +121,7 @@
         <section class="rig" id="settings" aria-labelledby="rig-prog">
           <h2 class="label nonum" id="rig-prog">Which program answers</h2>
           <p class="modelLine"><b id="modelText"></b><span class="muted small" id="programSize"></span></p>
-          <fieldset class="picklist" id="models"><legend class="sr-only">Four models, each one brainfuck program</legend></fieldset>
+          <fieldset class="picklist" id="models"><legend class="sr-only">Five programs: four models of text, and one of them with its part for pictures</legend></fieldset>
           <p class="small muted">A bigger model answers better, and you wait longer for it.</p>
           <p id="storeLine" class="small muted" hidden><span id="storeText"></span> <button id="removeStored" type="button" class="link">Remove it</button></p>
           <details class="q nonum"><summary>Download this program (.bf)</summary><div class="a" id="download"></div></details>
@@ -126,7 +136,7 @@
     <p>The chatbot above is the result. The four parts below show how it is made, from one command up to the whole program.</p>
     <ol class="dest">
       <li style="--c: var(--c-plus)"><a href="brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>21 short lessons</small><span>Start from the eight commands. Each lesson has a small program you run and change.</span></a></li>
-      <li style="--c: var(--c-open)"><a href="how/"><i aria-hidden="true">[]</i><b>Program insights</b><small>3 articles</small><span>Read how a question becomes an answer, what each part of the program does, and what Qwen3.5-0.8B keeps in memory instead of looking back.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="how/"><i aria-hidden="true">[]</i><b>Program insights</b><small>4 articles</small><span>Read how a question becomes an answer, what each part of the program does, what Qwen3.5-0.8B keeps in memory instead of looking back, and how one program looks at a picture.</span></a></li>
       <li style="--c: var(--c-gt)"><a href="map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>1 map, 4 programs</small><span>See every character of a program in one picture, and zoom in to single commands.</span></a></li>
       <li style="--c: var(--c-out)"><a href="playground/"><i aria-hidden="true">.</i><b>Play</b><small>Editor and exercises</small><span>Write your own brainfuck, run it step by step, and solve checked exercises.</span></a></li>
     </ol>
@@ -198,7 +208,7 @@
 
   <section id="programs" aria-labelledby="programsHead">
     <h2 id="programsHead">Four programs, four costs</h2>
-    <p>There are four programs. brnfck-smollm2-135m loads quickest and often gets simple questions wrong. The larger ones need more memory and take longer for every piece of an answer.</p>
+    <p>There are four programs of text. brnfck-smollm2-135m loads quickest and often gets simple questions wrong. The larger ones need more memory and take longer for every piece of an answer. A fifth, brnfck-qwen3.5-0.8b-vision, is brnfck-qwen3.5-0.8b with the part of its model that looks at pictures: it reads a photo before the question. <a href="vision/">Looking at a picture</a> shows how.</p>
     <p>brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, a newer generation than Qwen2.5. It has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and the other 6 look back at every earlier word piece, one after every three DeltaNet layers. <a href="compare/">Compare the models</a> explains that kind of layer. <a href="compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. The program follows its own whole-number recipe exactly.</p>
     <figure class="frame interactive full" id="fig-race" aria-labelledby="cap-race">
       <p class="frame-head"><b>One question, four programs</b><span class="state" id="raceClock" aria-hidden="true"></span></p>
@@ -253,7 +263,7 @@
 <script src="learn/core.js?v=r6"></script>
 <script src="command-play.js?v=r6"></script>
 <script src="ui/tapeview.js?v=r9"></script>
-<script src="home.js?v=r17"></script>
+<script src="home.js?v=r18"></script>
 <script src="inside/engine-sections.js?v=r11"></script>
 <script src="home-figures.js?v=r25"></script>
 </body>

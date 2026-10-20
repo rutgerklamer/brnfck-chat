@@ -262,12 +262,17 @@ const sigmoid = (v) => 1 / (1 + Math.exp(-v));
 const silu = (v) => v / (1 + Math.exp(-v));
 const softplus = (v) => (v > 20 ? v : Math.log1p(Math.exp(v))); // as torch, threshold 20
 
-// Rotate the first rotDim numbers of every head: number f goes with number f + rotDim/2.
+// The position that turns speed f of the rotation when a token has three (time, row, column: tokens of a picture):
+// the speeds take them in turn, 1, 4, 7 .. 31 the row, 2, 5 .. 29 the column, the others the time (mrope_section 11, 11, 10,
+// interleaved). Text has the same number three times: the ordinary rotation.
+const MROPE = Uint8Array.from({ length: 32 }, (_, f) => (f % 3 === 1 && f < 33 ? 1 : f % 3 === 2 && f < 30 ? 2 : 0));
+
+// Rotate the first rotDim numbers of every head: number f goes with number f + rotDim/2. pos: a number, or [t, row, column].
 function rotate(vec, pos, m) {
   const { headSize, rotDim, freq } = m, half = rotDim / 2;
   for (let at = 0; at < vec.length; at += headSize) {
     for (let f = 0; f < half; f++) {
-      const angle = pos * freq[f], c = Math.cos(angle), s = Math.sin(angle);
+      const angle = (typeof pos === 'number' ? pos : pos[MROPE[f]]) * freq[f], c = Math.cos(angle), s = Math.sin(angle);
       const a = vec[at + f], b = vec[at + f + half];
       vec[at + f] = a * c - b * s;
       vec[at + f + half] = b * c + a * s;
@@ -330,7 +335,8 @@ function deltaNet(m, L, conv, S, xn, out, probe, l) {
   return hooks.matvec(L.wout, o, m.dim, out);
 }
 
-function attention(m, L, ck, cv, xn, pos, out, probe, l) {
+// pos: the slot of this token in the cache; rope: its place for the rotation (pos, or [t, row, column] in a picture)
+function attention(m, L, ck, cv, xn, pos, out, probe, l, rope = pos) {
   const { heads, headSize, kvDim, eps } = m, qDim = heads * headSize;
   const qg = hooks.matvec(L.wq, xn, 2 * qDim), q = new Float64Array(qDim), gate = new Float64Array(qDim);
   for (let h = 0; h < heads; h++) {
@@ -340,7 +346,7 @@ function attention(m, L, ck, cv, xn, pos, out, probe, l) {
   const k = hooks.matvec(L.wk, xn, kvDim), v = hooks.matvec(L.wv, xn, kvDim);
   for (let h = 0; h < heads; h++) rmsnorm(q, L.qNorm, eps, q, h * headSize, headSize);
   for (let h = 0; h < m.kvHeads; h++) rmsnorm(k, L.kNorm, eps, k, h * headSize, headSize);
-  rotate(q, pos, m); rotate(k, pos, m);
+  rotate(q, rope, m); rotate(k, rope, m);
   ck.set(k, pos * kvDim); cv.set(v, pos * kvDim);
   if (probe) { probe('q', l, q); probe('k', l, k); probe('v', l, v); }
 
@@ -368,10 +374,12 @@ function attention(m, L, ck, cv, xn, pos, out, probe, l) {
 }
 
 // `mixers[l]`, when given, replaces the token mixer of layer l: (xn, out, pos) -> out (the whole-number DeltaNet).
-function forward(m, cache, token, pos, wantLogits = true, probe, mixers) {
+// opts.x: the input vector in place of the token's row (a picture's word piece, reference/vision.js); opts.rope: the
+// place for the rotation when it is not pos.
+function forward(m, cache, token, pos, wantLogits = true, probe, mixers, opts = {}) {
   const { dim, layers, hidden, eps } = m;
   if (pos >= m.maxPos) throw new Error('position beyond cache size');
-  const x = Float64Array.from(m.emb.subarray(token * dim, (token + 1) * dim), (b) => LUT[b]);
+  const x = opts.x ? Float64Array.from(opts.x) : Float64Array.from(m.emb.subarray(token * dim, (token + 1) * dim), (b) => LUT[b]);
   const xn = new Float64Array(dim), out = new Float64Array(dim), a = new Float64Array(hidden), b = new Float64Array(hidden);
   if (probe) probe('emb', -1, x);
   for (let l = 0; l < layers; l++) {
@@ -380,7 +388,7 @@ function forward(m, cache, token, pos, wantLogits = true, probe, mixers) {
     if (probe) probe('xnAtt', l, xn);
     if (mixers && mixers[l]) mixers[l](xn, out, pos);
     else if (L.type === 'lin') deltaNet(m, L, cache.conv[l], cache.S[l], xn, out, probe, l);
-    else attention(m, L, cache.k[l], cache.v[l], xn, pos, out, probe, l);
+    else attention(m, L, cache.k[l], cache.v[l], xn, pos, out, probe, l, opts.rope ?? pos);
     for (let i = 0; i < dim; i++) x[i] += out[i];
     if (probe) { probe('mixOut', l, out); probe('xMid', l, x); }
 
@@ -426,7 +434,7 @@ function modelDir(argv = process.argv) {
   return path.join(__dirname, '..', '..', 'downloads', name);
 }
 
-module.exports = { hooks, matvec, LUT, toFloat, openWeights, weightsFrom, loadModel, modelFrom, loadTokenizer, tokenizerFrom, forward, deltaNet, newCache, argmax, generateIds, modelDir, softplus, sigmoid, silu };
+module.exports = { MROPE, hooks, matvec, LUT, toFloat, readSafetensors, openWeights, weightsFrom, loadModel, modelFrom, loadTokenizer, tokenizerFrom, forward, deltaNet, attention, rmsnorm, newCache, argmax, generateIds, modelDir, softplus, sigmoid, silu };
 
 if (require.main === module) {
   const DIR = modelDir(), MAX_NEW = 60;

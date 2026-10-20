@@ -251,3 +251,15 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
   #fig-keys .keypad { --key-h: 4rem; --key-fs: 1.375rem; }
 }
 @media print { .chat, #fig-keys { display: none; } .wordmark, .title h1 { color: var(--ink); } }
+
+/* ---- the picture that brnfck-qwen3.5-0.8b-vision looks at (home.js squaresOf) ---- */
+#fig-chat .pics { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s3) 0 0; padding: 0; border: 0; }
+#fig-chat .pics legend { width: 100%; margin: 0 0 var(--s2); }
+#fig-chat .pics label { position: relative; display: inline-flex; align-items: center; gap: var(--s2); padding: 3px; border: 2px solid transparent; cursor: pointer; }
+#fig-chat .pics label:has(input:checked) { border-color: var(--go); }
+#fig-chat .pics label:has(input:focus-visible) { outline: var(--ring) solid var(--ink); }
+#fig-chat .pics input { position: absolute; opacity: 0; pointer-events: none; }
+#fig-chat .pics img { display: block; width: 64px; height: 64px; object-fit: cover; }
+#fig-chat .pics .own { min-height: 64px; padding: 3px var(--s3); border: 2px dashed var(--line); font: var(--fs-small)/1.3 var(--sans); color: var(--ink-2); }
+#fig-chat .pics .own:has(input:checked) { border-style: solid; border-color: var(--go); }
+#fig-chat .minePic { display: block; width: 96px; height: 96px; margin: var(--s2) 0 0; }

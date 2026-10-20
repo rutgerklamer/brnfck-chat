@@ -15,6 +15,7 @@ const DOWNLOADS = {
   small: { repo: 'HuggingFaceTB/SmolLM2-135M-Instruct', dir: 'compiler/downloads/smollm2-135m', files: [['config.json', 861], ['model.safetensors', 269060552], ['tokenizer.json', 2104556], ['tokenizer_config.json', 3764]] },
   '0.5b': { repo: 'Qwen/Qwen2.5-0.5B-Instruct', dir: 'compiler/downloads/qwen2.5-0.5b', files: [['config.json', 659], ['generation_config.json', 242], ['model.safetensors', 988097824], ['tokenizer.json', 7031645], ['tokenizer_config.json', 7305]] },
   '0.8b': { repo: 'Qwen/Qwen3.5-0.8B', dir: 'compiler/downloads/qwen3.5-0.8b', files: [['config.json', 2907], ['model.safetensors', 1746942600], ['tokenizer.json', 12807982], ['tokenizer_config.json', 16709]] },
+  '0.8b-vision': { repo: 'Qwen/Qwen3.5-0.8B', dir: 'compiler/downloads/qwen3.5-0.8b', files: [['config.json', 2907], ['model.safetensors', 1746942600], ['tokenizer.json', 12807982], ['tokenizer_config.json', 16709]] },
   '1.5b': { repo: 'Qwen/Qwen2.5-1.5B-Instruct', dir: 'compiler/downloads/qwen2.5-1.5b', files: [['config.json', 660], ['generation_config.json', 242], ['model.safetensors', 3087467144], ['tokenizer.json', 7031645], ['tokenizer_config.json', 7305]] },
 };
 
@@ -39,6 +40,11 @@ const STEPS = {
     { run: ['compiler/qwen3.5/program/build_pure.js'], mem: 5.5, disk: 7.2, spare: 8, time: 'about 7 minutes', needs: ['compiler/qwen3.5/program/out/chat-qwen3.5-0.8b.bf', 'compiler/qwen3.5/program/out/tokenizer.bin'], makes: 'site/programs/brnfck-qwen3.5-0.8b.bf (7,709,034,855 characters) and its meta file', what: 'THE PROGRAM: the load part replaced by code that writes the tape (peak memory 5.3 GiB)' },
     { verify: true, run: ['compiler/qwen3.5/program/verify_pure.js'], quick: [['compiler/qwen3.5/program/verify_pure.js', 'scan'], ['compiler/qwen3.5/program/verify_pure.js', 'tape']], mem: 5.5, disk: 0, time: 'about 9 minutes (--quick: about 3)', needs: ['site/programs/brnfck-qwen3.5-0.8b.bf', 'compiler/qwen3.5/engine/out/ref-qwen3.5-0.8b.json'], pass: 'all 11 ok', what: 'only the 8 commands; written tape = loaded tape (1,018 checksums); a question against the reference (peak memory 4.9 GiB)' },
   ],
+  '0.8b-vision': [
+    { run: ['--max-old-space-size=16000', 'compiler/qwen3.5/vision/build.js'], mem: 9, disk: 3.0, time: 'about 15 minutes', makes: 'compiler/qwen3.5/vision/out/chat-vision-qwen3.5-0.8b.bf (785 MB), weights-text-qwen3.5-0.8b.bin (2.0 GB), weights-vision-qwen3.5-0.8b.bin (197 MB), tokenizer-vision.bin, ref-vision-qwen3.5-0.8b.json', what: 'the program with its vision part that still reads its weights as input, its three streams, and the answers of the whole-number recipe about the pictures of compiler/qwen3.5/vision/pictures/' },
+    { run: ['--max-old-space-size=16000', 'compiler/qwen3.5/vision/build_pure.js'], mem: 9, disk: 9, spare: 8, time: 'about 7 minutes', needs: ['compiler/qwen3.5/vision/out/chat-vision-qwen3.5-0.8b.bf', 'compiler/qwen3.5/vision/out/weights-vision-qwen3.5-0.8b.bin'], makes: 'site/programs/brnfck-qwen3.5-0.8b-vision.bf (8,931,101,419 characters) and its meta file', what: 'THE PROGRAM: the load part replaced by code that writes the tape (peak memory 8.4 GiB)' },
+    { verify: true, run: ['compiler/qwen3.5/vision/verify_pure.js'], quick: [['compiler/qwen3.5/vision/verify_pure.js', 'scan'], ['compiler/qwen3.5/vision/verify_pure.js', 'tape']], mem: 9, disk: 0, time: 'about 18 minutes (--quick: about 3)', needs: ['site/programs/brnfck-qwen3.5-0.8b-vision.bf', 'compiler/qwen3.5/vision/out/ref-vision-qwen3.5-0.8b.json'], pass: 'all 11 ok', what: 'only the 8 commands; written tape = loaded tape; a picture and a question against the reference' },
+  ],
   '1.5b': [
     { run: ['compiler/qwen/program/build.js', '1.5b'], mem: 1, disk: 0.2, time: 'seconds', makes: 'compiler/qwen/program/out/chat-1.5b.bf (106 MB), tokenizer.bin', what: 'the program that still reads its weights as input' },
     { run: ['compiler/qwen/program/make_ref.js', '1.5b'], mem: 4.5, disk: 2.2, time: 'about 10 minutes', makes: 'compiler/qwen/program/out/weights-1.5b.bin (2.2 GB), ref-1.5b.json', what: 'load the model as whole numbers (3.2 GB), write the weight stream and the reference answers' },
@@ -48,7 +54,7 @@ const STEPS = {
 };
 
 // What the full verification prints is kept here: tools/map-data/checks.js reads it.
-const VERIFY_LOG = { small: 'compiler/smollm/pure/out/verify.log', '0.5b': 'compiler/qwen/program/out/verify_pure-0.5b.log', '1.5b': 'compiler/qwen/program/out/verify_pure-1.5b.log', '0.8b': 'compiler/qwen3.5/program/out/verify_pure.log' };
+const VERIFY_LOG = { small: 'compiler/smollm/pure/out/verify.log', '0.5b': 'compiler/qwen/program/out/verify_pure-0.5b.log', '1.5b': 'compiler/qwen/program/out/verify_pure-1.5b.log', '0.8b': 'compiler/qwen3.5/program/out/verify_pure.log', '0.8b-vision': 'compiler/qwen3.5/vision/out/verify_pure.log' };
 // Runs a script and writes what it prints to a file as well as to the screen.
 const TEE = "const { spawn } = require('child_process'), fs = require('fs'), path = require('path'); const [log, ...args] = process.argv.slice(1); fs.mkdirSync(path.dirname(log), { recursive: true }); const out = fs.createWriteStream(log); const c = spawn(process.execPath, args, { stdio: ['inherit', 'pipe', 'inherit'] }); c.stdout.on('data', (d) => { process.stdout.write(d); out.write(d); }); c.on('close', (code) => out.end(() => process.exit(code === null ? 1 : code)));";
 
@@ -57,7 +63,7 @@ const flag = (f) => { const i = argv.indexOf(f); if (i < 0) return false; argv.s
 const opt = (f, d) => { const i = argv.indexOf(f); if (i < 0) return d; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const dry = flag('--dry-run'), noVerify = flag('--no-verify'), quick = flag('--quick'), force = flag('--force'), from = Number(opt('--from', 1));
 const model = argv[0];
-if (!STEPS[model]) { console.error('usage: node tools/build.js small|0.5b|1.5b|0.8b [--dry-run] [--no-verify] [--quick] [--from N] [--force]'); process.exit(1); }
+if (!STEPS[model]) { console.error('usage: node tools/build.js small|0.5b|1.5b|0.8b|0.8b-vision [--dry-run] [--no-verify] [--quick] [--from N] [--force]'); process.exit(1); }
 
 function freeDisk() { try { const s = fs.statfsSync(ROOT); return s.bavail * s.bsize; } catch (e) { return null; } }
 let problems = 0;
@@ -108,6 +114,7 @@ if (dry) {
   console.log(problems ? `\nDry run: ${problems} thing(s) to fix first (see !! above).` : '\nDry run: the model files are there and there is enough memory and disk for every step as things are now.');
   process.exit(problems ? 1 : 0);
 }
-const ask = model === 'small' ? 'node compiler/smollm/pure/ask.js "What is the capital of France?"' : model === '0.8b' ? 'node compiler/qwen3.5/program/ask.js "What is the capital of France?"' : `node compiler/qwen/program/ask.js --model ${model} "What is the capital of France?"`;
-const chunks = `node tools/make-chunks.js ${model}${model === '1.5b' || model === '0.8b' ? ' --chunk 16777216' : ''}`;
+const ask = model === 'small' ? 'node compiler/smollm/pure/ask.js "What is the capital of France?"' : model === '0.8b' ? 'node compiler/qwen3.5/program/ask.js "What is the capital of France?"'
+  : model === '0.8b-vision' ? 'node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "Describe this picture in one sentence."' : `node compiler/qwen/program/ask.js --model ${model} "What is the capital of France?"`;
+const chunks = `node tools/make-chunks.js ${model}${model === 'small' || model === '0.5b' ? '' : ' --chunk 16777216'}`;
 console.log(`\nBuilt${noVerify ? '' : ' and verified'}. Ask it a question:\n  ${ask}\nor start the site (python tools/serve.py) and open the chat page. For a web host: ${chunks}`);

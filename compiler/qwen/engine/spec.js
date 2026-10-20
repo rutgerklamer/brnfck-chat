@@ -293,7 +293,11 @@ function build(src, prefix, options = {}) {
       tr('xout', l, x);
     }
     if (!wantLogits && !trace) return null;
-    normalise(x, xn, gFinal); tr('xnf', -1, xn);
+    return head(x, tr);
+  }
+  // The output layer on its own: the scores of a residual xs (tools/map-data/lens.js gives it the residual after every layer).
+  function head(xs, tr = () => {}) {
+    normalise(xs, xn, gFinal); tr('xnf', -1, xn);
     matvec(wcls.w, xn, vocab, logits, wcls.d);
     rqAll(logits, vocab, R.c, logits);
     return logits;
@@ -315,7 +319,7 @@ function build(src, prefix, options = {}) {
   }
   building = false;
 
-  return { step, cfg, stats, layers: L, emb, gFinal, prefix: pre };
+  return { step, head, cfg, stats, layers: L, emb, gFinal, prefix: pre };
 }
 
 const argmax = (a) => { let best = 0; for (let i = 1; i < a.length; i++) if (a[i] > a[best]) best = i; return best; };
