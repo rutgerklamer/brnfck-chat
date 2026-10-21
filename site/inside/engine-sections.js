@@ -106,12 +106,61 @@
       return: { ...base.return, group: Z },
       print: { ...base.print, group: Z },
     };
+    if (m.vision) {
+      Object.assign(S, secVision(E));
+      S.ask = { ...S.ask, desc: S.ask.desc.replace('with the one input command', 'with two input commands of its own (one for the first byte, one in a loop for the rest)') };
+    }
     // the sections of the text: the entry of their name, grouped by the layers they run for
     const nth = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
     for (const s of E.sections) {
-      if (!s.key) continue;
+      if (!s.key || s.layerKind === 'vision') continue;
       const layers = Array.from({ length: g }, (_, i) => i * per + s.u + 1), list = layers.slice(0, -1).join(', ') + ' and ' + layers[layers.length - 1];
       S[s.id] = { ...S[s.key], group: 'The ' + nth[s.u] + ' layer of a group of ' + per + ' (' + (s.layerKind === 'lin' ? 'DeltaNet' : 'attention') + '): layers ' + list, key: s.key };
+    }
+    return S;
+  };
+  // brnfck-qwen3.5-0.8b-vision: before the question, the vision part of the model runs once over the picture. It reads the
+  // squares of the picture one by one, and then goes round its layers: a round is the second half of one layer and the
+  // first half of the next, for every square, and every round has its own text (each layer has its own widths). A
+  // section of the text (v3.att, ...) has the entry of its name (v.att, ...) with its round as its group.
+  const secVision = (E) => {
+    const m = E.model, V = m.vision, M = V.matrices, n = fmt, R = 'The picture part, in its rounds', rc = (x) => n(x.rows) + ' rows and ' + n(x.cols) + ' columns';
+    const S = {
+      vstart: { fam: 'pic2', group: R, name: 'Get the picture part ready', desc: 'Marks the entries of the queue of the ' + V.squares + ' squares as waiting, and sets the count of squares for the first round.' },
+      'v.read': { fam: 'text', group: R, name: 'Read a square of the picture', desc: 'Reads the next ' + n(V.squareBytes) + ' bytes of the picture with an input command of its own: the red, green and blue of the ' + V.patch * V.patch + ' pixels of one square of ' + V.patch + ' × ' + V.patch + '. The program reads the ' + V.squares + ' squares one at a time, always with this same comma.' },
+      'v.position': { fam: 'pic', group: R, name: 'Fetch where the square lies', desc: 'Takes the first vector from the queue of positions that is still waiting: ' + n(V.dim) + ' numbers that say where this square lies in the picture. They are the numbers of the square to start from.' },
+      'v.patch': { fam: 'pic', group: R, name: 'Weights × bytes: the square', desc: 'The weights of the squares: ' + rc(M.patch) + '. Every byte of the square crosses the gap with its column of weights and is added to ' + n(M.patch.rows) + ' totals.' },
+      'v.x0': { fam: 'tidy', group: R, name: 'Add to the numbers of the square', desc: 'Rounds the totals and adds them to the numbers of the square\'s position.' },
+      'v.xn1': { fam: 'tidy', group: R, name: 'Scale the numbers, times a gain', desc: 'Brings the ' + n(V.dim) + ' numbers of the square to a common size and multiplies each by its own gain, before the first matrix of the layer.' },
+      'v.sweep1': { fam: 'pic', group: R, name: 'Weights × numbers: question, key, value', desc: 'The first matrix of a picture layer: ' + rc(M.qkv) + '.' },
+      'v.qkv': { fam: 'tidy', group: R, name: 'Scale each row, add the bias, round', desc: 'Every total is doubled as often as the scale of its row says, gets the bias of its row, and is rounded: the question, the key and the value of the square, ' + n(V.dim) + ' numbers each.' },
+      'v.rot': { fam: 'pic', group: R, name: 'Turn by row and column', desc: 'Turns pairs of numbers of the question and the key by angles that depend on the row and the column of the square in the picture. This is how the picture part knows where a square lies.' },
+      'v.store': { fam: 'pic2', group: R, name: 'Store key and value in the slot of the square', desc: 'Walks to the slot of this square and leaves its key and value there, and parks its question and its numbers beside them for the next round.' },
+      'v.back': { fam: 'work', group: R, name: 'Walk home, put every column back', desc: 'Back to the start of the round: every column of weights that moved one gap along goes back, and the pointer walks over the slots to where it began. Then the same text runs for the next square.' },
+      'v.fetch': { fam: 'pic2', group: R, name: 'Take the next square from its slot', desc: 'Walks to the first slot whose square has not had its turn in this round, takes the question and the numbers parked there back out, and carries them to the start of the slots. A round goes over all ' + V.squares + ' squares this way.' },
+      'v.att': { fam: 'pic2', group: R, name: 'Look at every square of the picture', desc: 'Walks past all ' + V.squares + ' slots with the question of this square in hand, before it and after it: every square sees every other square. For each of the ' + V.heads + ' heads a score, its exponential from a table, and the value of the slot times that, added to running sums.' },
+      'v.mixed': { fam: 'tidy', group: R, name: 'Divide by the total', desc: 'Divides the sums of every head by the total of its weights and rounds.' },
+      'v.hop': { fam: 'work', group: R, name: 'Carry everything across the slots', desc: 'The next matrix lies on the other side of the ' + V.squares + ' slots. The numbers are carried across.' },
+      'v.sweep2': { fam: 'pic2', group: R, name: 'Weights × numbers: attention output', desc: 'The attention output matrix of a picture layer: ' + rc(M.o) + '.' },
+      'v.xatt': { fam: 'tidy', group: R, name: 'Scale each row, add the bias and the numbers', desc: 'Every total is doubled as its row says, gets its bias and the number of the square that came along, and is rounded.' },
+      'v.xn2': { fam: 'tidy', group: R, name: 'Scale the numbers again, times a gain', desc: 'The same scaling, with a gain of its own, before the feed-forward part.' },
+      'v.sweep3': { fam: 'pic', group: R, name: 'Weights × numbers: widen to ' + n(M.w13.rows), desc: 'The widening matrix of a picture layer: ' + rc(M.w13) + '.' },
+      'v.hid': { fam: 'tidy', group: R, name: 'Add the bias, bend', desc: 'Every one of the ' + n(M.w13.rows) + ' totals gets its bias and goes through a bent curve: the number times the share of a bell curve below it, from a table.' },
+      'v.sweep4': { fam: 'pic2', group: R, name: 'Weights × numbers: back to ' + n(V.dim), desc: 'The last matrix of a picture layer: ' + rc(M.w2) + '.' },
+      'v.xout': { fam: 'tidy', group: R, name: 'Scale each row, add the bias and the numbers', desc: 'As after the attention output. The layer is done for this square.' },
+      'v.mnorm': { fam: 'tidy', group: R, name: 'Scale the square for the merger', desc: 'After the last layer: the numbers of the square are scaled, times a gain, and laid in the queue of the merger, next to the squares before it.' },
+      'v.msweep1': { fam: 'pic', group: R, name: 'Merger: weights × four squares', desc: 'After every ' + V.perVector + ' squares: their ' + n(M.m1.cols) + ' numbers through the first matrix of the merger, ' + rc(M.m1) + '.' },
+      'v.mgelu': { fam: 'tidy', group: R, name: 'Merger: add the bias, bend', desc: 'Every total gets its bias and goes through the same bent curve as in the layers.' },
+      'v.msweep2': { fam: 'pic2', group: R, name: 'Merger: weights × numbers, to ' + n(V.out), desc: 'The last matrix of the merger: ' + rc(M.m2) + '. Its rows are as many as the numbers of a word piece of the text model.' },
+      'v.mout': { fam: 'pic2', group: R, name: 'Into the queue for the text', desc: 'The ' + n(V.out) + ' totals get their bias and are rounded into the next entry of the queue of ' + V.vectors + ' vectors that the text model reads.' },
+      'v.mback': { fam: 'work', group: R, name: 'Merger: put every column back', desc: 'The columns of the two matrices of the merger go back to where they started.' },
+      vend: { fam: 'work', group: R, name: 'Empty the slots, walk to the question', desc: 'Clears the slots of the last layer, counts the ' + V.vectors + ' vectors in the queue, and walks the long way back from the end of the tape to the tokenizer: the picture part is done, and the question is read next.' },
+    };
+    const roundOf = (s) => Number(s.id.slice(1, s.id.indexOf('.'))), last = Math.max(...E.sections.filter((s) => s.layerKind === 'vision').map(roundOf));
+    for (const s of E.sections) {
+      if (s.layerKind !== 'vision') continue;
+      const r = roundOf(s), group = r === 0 ? 'Round 1: read every square, then the first half of picture layer 1' : r === last ? 'Round ' + (r + 1) + ': the second half of picture layer ' + r + ', then the merger' : 'Round ' + (r + 1) + ': picture layer ' + r + ', second half, and picture layer ' + (r + 1) + ', first half';
+      S[s.id] = { ...S[s.key], group, key: s.key, round: r };
     }
     return S;
   };

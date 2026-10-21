@@ -16,12 +16,13 @@
     '0.5b': { short: 'brnfck-qwen2.5-0.5b', built: 'in about two and a half minutes' },
     '1.5b': { short: 'brnfck-qwen2.5-1.5b', built: 'in about seven minutes' },
     '0.8b': { short: 'brnfck-qwen3.5-0.8b', built: 'in about six and a half minutes' },
+    '0.8b-vision': { short: 'brnfck-qwen3.5-0.8b-vision' },
   };
   const MODEL = MODELS[document.documentElement.getAttribute('data-model')] ? document.documentElement.getAttribute('data-model') : '1.5b';     // brnfck-qwen2.5-1.5b, the largest, is the one a page shows when nothing is asked
-  const QWEN = MODEL !== 'small', Q35 = MODEL === '0.8b', ROOT = new URL('..', HERE).href;      // Q35: Qwen3.5, with DeltaNet layers
+  const VIS = MODEL === '0.8b-vision', QWEN = MODEL !== 'small', Q35 = MODEL === '0.8b' || VIS, ROOT = new URL('..', HERE).href;      // Q35: Qwen3.5, with DeltaNet layers; VIS: and its vision part
   let DATA = HERE + 'data/' + MODEL + '/';
   const dataBase = fetch(HERE + 'data-hosts.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((h) => { if (h && typeof h[MODEL] === 'string' && h[MODEL]) DATA = new URL(h[MODEL], HERE).href; });
-  const FILES = { small: ['programs/brnfck-smollm2-135m.meta.json', 'programs/brnfck-smollm2-135m.bf'], '0.5b': ['programs/brnfck-qwen2.5-0.5b.meta.json', 'programs/brnfck-qwen2.5-0.5b.bf'], '1.5b': ['programs/brnfck-qwen2.5-1.5b.meta.json', 'programs/brnfck-qwen2.5-1.5b.bf'], '0.8b': ['programs/brnfck-qwen3.5-0.8b.meta.json', 'programs/brnfck-qwen3.5-0.8b.bf'] };
+  const FILES = { small: ['programs/brnfck-smollm2-135m.meta.json', 'programs/brnfck-smollm2-135m.bf'], '0.5b': ['programs/brnfck-qwen2.5-0.5b.meta.json', 'programs/brnfck-qwen2.5-0.5b.bf'], '1.5b': ['programs/brnfck-qwen2.5-1.5b.meta.json', 'programs/brnfck-qwen2.5-1.5b.bf'], '0.8b': ['programs/brnfck-qwen3.5-0.8b.meta.json', 'programs/brnfck-qwen3.5-0.8b.bf'], '0.8b-vision': ['programs/brnfck-qwen3.5-0.8b-vision.meta.json', 'programs/brnfck-qwen3.5-0.8b-vision.bf'] };
   let programP = null;
   const program = (model = MODEL) => { const go = () => (window.ProgramStart ? window.ProgramStart.find({ name: model, manifestUrl: ROOT + 'dist/' + model + '/manifest.json', metaUrl: ROOT + FILES[model][0], fileUrl: ROOT + FILES[model][1], hostsUrl: ROOT + 'program-hosts.json' }).catch(() => null) : Promise.resolve(null)); if (model !== MODEL) return go(); return programP || (programP = go()); };
   // a word of data-only: a program, 'smol', 'qwen' (the programs of Qwen2.5 and Qwen3.5) or 'qwen2' (the programs of Qwen2.5)
@@ -34,6 +35,11 @@
   switches.forEach((a) => { if (a.dataset.m === MODEL) a.setAttribute('aria-current', 'page'); a.addEventListener('click', setSwitches); a.addEventListener('focus', setSwitches); a.addEventListener('pointerenter', setSwitches); });
   setSwitches();
   let st = 0; window.addEventListener('scroll', () => { clearTimeout(st); st = setTimeout(setSwitches, 150); }, { passive: true });
+  // the switch opens a list (ui/progpick.css); a press outside it or Escape closes the list again
+  document.querySelectorAll('.progpick details').forEach((d) => {
+    document.addEventListener('pointerdown', (e) => { if (d.open && !d.contains(e.target)) d.open = false; });
+    d.addEventListener('keydown', (e) => { if (e.key === 'Escape' && d.open) { e.stopPropagation(); d.open = false; d.querySelector('summary').focus(); } });
+  });
 
   // ---- data
   const cache = new Map();
@@ -91,10 +97,12 @@
     text: { v: '--k-text', name: 'Text in and out', letter: 'T' },
     tidy: { v: '--k-tidy', name: 'Scaling and rounding', letter: 'S' },
     work: { v: '--k-work', name: 'Walking and free cells', letter: '·' },
+    pic: { v: '--k-pic', name: 'Picture part', letter: 'P' },
+    pic2: { v: '--k-pic2', name: 'Picture part, output and memory', letter: 'P' },
   };
-  const LEGEND = [['out', 'Output table'], ['att', 'Attention'], ...(Q35 ? [['dn', 'DeltaNet']] : []), ['mem', 'Memory of earlier pieces'], ['ff', 'Feed-forward'], ['emb', 'Table of word pieces'], ['text', 'Text in and out'], ['tidy', 'Scaling and rounding'], ['work', 'Walking and free cells']];
+  const LEGEND = [['out', 'Output table'], ['att', 'Attention'], ...(Q35 ? [['dn', 'DeltaNet']] : []), ['mem', 'Memory of earlier pieces'], ['ff', 'Feed-forward'], ['emb', 'Table of word pieces'], ['text', 'Text in and out'], ...(VIS ? [['pic', 'Picture part: looks at the picture']] : []), ['tidy', 'Scaling and rounding'], ['work', 'Walking and free cells']];
   // A swatch always carries the letter of its family, so colour is never the only sign.
-  const swatch = (fam) => { const s = el('i', fam === 'att2' || fam === 'ff2' || fam === 'dn2' ? 'sw tint' : 'sw', FAM[fam].letter); s.style.background = 'var(' + FAM[fam].v + ')'; s.setAttribute('aria-hidden', 'true'); return s; };
+  const swatch = (fam) => { const s = el('i', fam === 'att2' || fam === 'ff2' || fam === 'dn2' || fam === 'pic2' ? 'sw tint' : 'sw', FAM[fam].letter); s.style.background = 'var(' + FAM[fam].v + ')'; s.setAttribute('aria-hidden', 'true'); return s; };
   const blockSpan = (t) => el('span', '', t);
   const clearRows = (tbl) => tbl.querySelectorAll('tr').forEach((r) => r.remove());
   const KIND = {
@@ -107,11 +115,26 @@
     lin: { fam: 'dn', name: 'DeltaNet weights' }, lino: { fam: 'dn2', name: 'DeltaNet output weights' }, conv: { fam: 'dn', name: 'DeltaNet: convolution weights' },
     state: { fam: 'mem', name: 'DeltaNet: tables of the heads' }, dscale: { fam: 'mem', name: 'DeltaNet: scale of a table' }, convwin: { fam: 'mem', name: 'DeltaNet: the last three word pieces' },
     dconst: { fam: 'tidy', name: 'Strips of constants: forgetting' },
+    // the vision part of brnfck-qwen3.5-0.8b-vision
+    vpos: { fam: 'pic', name: 'Picture part: where each square lies' }, vpatch: { fam: 'pic', name: 'Picture part: weights of the squares' },
+    vqkv: { fam: 'pic', name: 'Picture part: attention weights' }, vo: { fam: 'pic2', name: 'Picture part: attention output weights' },
+    vw13: { fam: 'pic', name: 'Picture part: feed-forward weights' }, vw2: { fam: 'pic2', name: 'Picture part: feed-forward weights, back' },
+    vslots: { fam: 'pic2', name: 'Picture part: a slot for every square' }, vm1: { fam: 'pic', name: 'Picture part: merger weights' },
+    vm2: { fam: 'pic2', name: 'Picture part: merger weights, out' }, vqueue: { fam: 'pic2', name: 'Picture part: the vectors for the text' },
   };
-  const layerNo = (l) => 'Layer ' + (l + 1);
+  // the layers of the picture program's vision part are numbered 100 and on in writer.json; -2 is the vision part as a whole
+  const layerNo = (l) => (l >= 100 ? 'Picture layer ' + (l - 99) : 'Layer ' + (l + 1));
+  const layerAbbr = (l) => (l >= 100 ? 'P' + (l - 99) : 'L' + (l + 1));
   let EJ = null, WJ = null;                       // engine.json and writer.json of this program (set in `ready`)
-  const MATRIX = { qkv: Q35 ? 'the first matrix (question, key, gate, value)' : 'the first matrix (question, key, value)', o: 'the attention output matrix', w13: 'the widening matrix', w2: 'the matrix that brings the numbers back', lin: 'the first matrix of the DeltaNet layer', lino: 'the DeltaNet output matrix' };
-  const GAIN = { first: 'used when the numbers are scaled at the start of layer 1', ffn: 'used when the numbers are scaled before the feed-forward part of this layer', next: 'used when the numbers are scaled after this layer', qk: 'used when every head of the questions and keys is brought to a common size', gated: 'used when the output of every head is brought to a common size' };
+  const MATRIX = {
+    qkv: Q35 ? 'the first matrix (question, key, gate, value)' : 'the first matrix (question, key, value)', o: 'the attention output matrix', w13: 'the widening matrix', w2: 'the matrix that brings the numbers back', lin: 'the first matrix of the DeltaNet layer', lino: 'the DeltaNet output matrix',
+    vqkv: 'the first matrix of this layer (question, key, value)', vo: 'the attention output matrix of this layer', vw13: 'the widening matrix of this layer', vw2: 'the matrix of this layer that brings the numbers back', vpatch: 'the weights of the squares', vm1: 'the first matrix of the merger', vm2: 'the last matrix of the merger',
+  };
+  const GAIN = {
+    first: 'used when the numbers are scaled at the start of layer 1', ffn: 'used when the numbers are scaled before the feed-forward part of this layer', next: 'used when the numbers are scaled after this layer', qk: 'used when every head of the questions and keys is brought to a common size', gated: 'used when the output of every head is brought to a common size',
+    vfirst: 'used when the numbers of a square are scaled at the start of picture layer 1', vffn: 'used when the numbers of a square are scaled before the feed-forward part of this layer', vnext: 'used when the numbers of a square are scaled after this layer (after the last layer: before the merger)',
+  };
+  const where = (r) => (r.layer === -2 ? 'Picture part' : layerNo(r.layer));
   const regionTitle = (r) => {
     const d = (rows, cols) => ' (' + fmt(rows) + ' × ' + fmt(cols) + ')', m = EJ.model;
     switch (r.kind) {
@@ -128,15 +151,25 @@
       case 'state': return layerNo(r.layer) + ': the table of head ' + (r.head + 1) + ' (' + fmt(r.cols) + ' × ' + fmt(r.rows) + ' numbers)';
       case 'dscale': return layerNo(r.layer) + ': the scale of the table of head ' + (r.head + 1);
       case 'dconst': return layerNo(r.layer) + ': strip of constants, ' + (r.what === 'dt' ? 'a shift for how fast each head forgets' : 'the forgetting rate of each head') + ' (' + fmt(r.n) + ' numbers)';
+      case 'vpos': return 'Picture part: the position of every square (' + fmt(r.squares) + ' vectors)';
+      case 'vpatch': return 'Picture part: the weights of the squares' + d(r.rows, r.cols);
+      case 'vqkv': return layerNo(r.layer) + ': attention weights' + d(r.rows, r.cols);
+      case 'vo': return layerNo(r.layer) + ': attention output weights' + d(r.rows, r.cols);
+      case 'vw13': return layerNo(r.layer) + ': feed-forward weights, widening' + d(r.rows, r.cols);
+      case 'vw2': return layerNo(r.layer) + ': feed-forward weights, back' + d(r.rows, r.cols);
+      case 'vslots': return layerNo(r.layer) + ': a slot for every square (' + fmt(r.slots) + ' slots)';
+      case 'vm1': return 'Picture part: merger, first matrix' + d(r.rows, r.cols);
+      case 'vm2': return 'Picture part: merger, last matrix' + d(r.rows, r.cols);
+      case 'vqueue': return 'Picture part: the ' + fmt(r.vectors) + ' vectors for the text model';
       case 'emb': return 'Table of word pieces' + d(r.rows, r.cols);
       case 'tokbytes': return QWEN ? 'Vocabulary: tables of bytes' : 'Vocabulary: table of letters';
       case 'tokids': return 'Vocabulary: work space for the question';
       case 'toktable': return QWEN ? 'Vocabulary: the joining rules of the word pieces' : 'Vocabulary: the text of every word piece and the joining rules';
       case 'glob': return 'Counters of the engine';
-      case 'bias': return layerNo(r.layer) + ': strip of constants, the bias (' + fmt(r.n) + ' numbers)';
-      case 'scale': return layerNo(r.layer) + ': strip of constants, a scale for every row (' + fmt(r.n) + ' numbers)';
-      case 'gain': return layerNo(r.layer) + ': strip of constants, gains (' + fmt(r.n) + ' numbers)';
-      default: return r.layer >= 0 ? layerNo(r.layer) + ': free cells' : 'Free cells';
+      case 'bias': return where(r) + ': strip of constants, the bias (' + fmt(r.n) + ' numbers)';
+      case 'scale': return where(r) + ': strip of constants, a scale for every row (' + fmt(r.n) + ' numbers)';
+      case 'gain': return where(r) + ': strip of constants, gains (' + fmt(r.n) + ' numbers)';
+      default: return r.layer >= 0 ? layerNo(r.layer) + ': free cells' : r.layer === -2 ? 'Picture part: free cells' : 'Free cells';
     }
   };
   const regionShort = (r) => {
@@ -153,9 +186,18 @@
       case 'conv': case 'convwin': case 'dscale': case 'dconst': return 'L' + (r.layer + 1) + ' ' + KIND[r.kind].name.replace(/^.*: /, '');
       case 'emb': return 'Table of word pieces';
       case 'toktable': return 'Vocabulary';
-      case 'bias': return 'L' + (r.layer + 1) + ' bias';
-      case 'scale': return 'L' + (r.layer + 1) + ' scales';
-      case 'gain': return 'L' + (r.layer + 1) + ' gains';
+      case 'bias': return (r.layer === -2 ? 'Picture' : layerAbbr(r.layer)) + ' bias';
+      case 'scale': return (r.layer === -2 ? 'Picture' : layerAbbr(r.layer)) + ' scales';
+      case 'gain': return (r.layer === -2 ? 'Picture' : layerAbbr(r.layer)) + ' gains';
+      case 'vqkv': return layerAbbr(r.layer) + ' attention';
+      case 'vo': return layerAbbr(r.layer) + ' att. out';
+      case 'vw13': return layerAbbr(r.layer) + ' feed-forward';
+      case 'vw2': return layerAbbr(r.layer) + ' ff. back';
+      case 'vslots': return layerAbbr(r.layer) + ' slots';
+      case 'vpos': return 'Positions of squares';
+      case 'vpatch': return 'Squares in';
+      case 'vm1': case 'vm2': return 'Merger';
+      case 'vqueue': return 'Vectors out';
       default: return KIND[r.kind].name;
     }
   };
@@ -178,7 +220,17 @@
       case 'state': return 'Everything this head of this layer keeps of the conversation: ' + fmt(r.cols) + ' columns of ' + fmt(r.rows) + ' numbers, each column with room beside it to work in. Empty until the program runs, and the same size after the first word piece as after the last. Instead of looking back, the layer writes every word piece into this table and reads from it.';
       case 'dscale': return 'One number for the table of head ' + (r.head + 1) + ': the scale the whole table is read at. Fading the table multiplies this number, not the ' + fmt(m.deltanet.keySize * m.deltanet.valueSize) + ' numbers of the table.';
       case 'dconst': return r.what === 'dt' ? 'One constant for every head: it is added to the input that says how fast the head forgets.' : 'One constant for every head, as a logarithm: how fast the head forgets for a given input.';
-      case 'emb': return 'One row of ' + fmt(m.dim) + ' numbers for each of the ' + fmt(m.vocab) + ' word pieces. The first thing the engine does with a word piece is fetch its row.';
+      case 'emb': return 'One row of ' + fmt(m.dim) + ' numbers for each of the ' + fmt(m.vocab) + ' word pieces. The first thing the engine does with a word piece is fetch its row.' + (VIS ? ' The row of the word piece that stands for a piece of the picture is all zeros: at that word piece a vector of the picture part rides along and is added instead.' : '');
+      case 'vpos': return 'One vector of ' + fmt(m.vision.dim) + ' numbers for each of the ' + fmt(m.vision.squares) + ' squares of ' + m.vision.patch + ' × ' + m.vision.patch + ' pixels: where the square lies in the picture, with the bias of the weights of the squares. The run of the picture part starts every square from its vector.';
+      case 'vpatch': return 'The ' + fmt(m.vision.squareBytes) + ' bytes of a square (red, green and blue of its ' + (m.vision.patch * m.vision.patch) + ' pixels) times these weights give its ' + fmt(m.vision.dim) + ' numbers.';
+      case 'vqkv': return 'These weights make three things out of the numbers of a square: a question, a key and a value.';
+      case 'vo': return 'These weights mix what attention has collected from all ' + fmt(m.vision.squares) + ' squares back into the numbers of a square.';
+      case 'vw13': return 'These weights widen the ' + fmt(m.vision.dim) + ' numbers of a square to ' + fmt(m.vision.hidden) + '.';
+      case 'vw2': return 'These weights bring the ' + fmt(m.vision.hidden) + ' numbers back to ' + fmt(m.vision.dim) + '.';
+      case 'vslots': return 'One slot for each of the ' + fmt(m.vision.squares) + ' squares, with room for its key and its value, its question and its numbers. Empty until the program runs. Here every square looks at every other square, before and after it: in one round all squares store their key and value, in the next all of them read every slot.';
+      case 'vm1': return 'The merger joins every ' + m.vision.perVector + ' neighbouring squares into one: their ' + fmt(m.vision.perVector * m.vision.dim) + ' numbers times these weights.';
+      case 'vm2': return 'The last matrix of the merger: ' + fmt(m.vision.matrices.m2.cols) + ' numbers to ' + fmt(m.vision.out) + ', the width of the text model.';
+      case 'vqueue': return 'Room for the ' + fmt(m.vision.vectors) + ' vectors of ' + fmt(m.vision.out) + ' numbers the picture part hands on. Empty until the program runs. The text model takes one of them at each of the ' + fmt(m.vision.vectors) + ' word pieces of the picture in the prompt.';
       case 'tokbytes': return QWEN
         ? 'For each possible byte: its word piece number and what kind of character it is. Characters of more than one byte have further tables of 64 entries. ' + fmt(lay.tokByteRecords) + ' records in all.'
         : 'For each of the 255 possible letter codes: its word piece number and what kind of character it is.';
@@ -187,9 +239,9 @@
         ? 'One table of ' + fmt(lay.tokRecords) + ' records of three cells, in blocks of ' + lay.tokHop + '. A record holds a joining rule (two pieces make a third) and says how to print one piece: as one byte, or as two smaller pieces. The text of a word piece is not stored; it is built from these rules.'
         : 'One table of ' + fmt(lay.tokRecords) + ' records. It holds the text of every word piece (for printing) and the rules for joining letters into pieces (for reading).';
       case 'glob': return 'The current word piece, the position, and a few counters.';
-      case 'bias': return 'One constant for every row of the first matrix of this layer (question, key, value). It is added to the total of its row before the total is rounded.';
+      case 'bias': return 'One constant for every row of ' + (r.vision ? MATRIX[r.what] || 'a matrix' : 'the first matrix of this layer (question, key, value)') + '. It is added to the total of its row before the total is rounded.';
       case 'scale': return 'For every row of ' + (MATRIX[r.what] || 'a matrix') + ': how many times the total of that row is doubled before it is rounded. Every row of weights was stored at its own scale, so that ' + m.weightBits + ' bits per weight are enough. For most rows the number is 0.';
-      case 'gain': return 'One multiplier for each of the ' + fmt(m.dim) + ' running numbers, ' + (GAIN[r.what] || 'used when the numbers are scaled') + '.';
+      case 'gain': return 'One multiplier for each of the ' + (r.vision ? fmt(m.vision.dim) + ' numbers of a square' : fmt(m.dim) + ' running numbers') + ', ' + (GAIN[r.what] || 'used when the numbers are scaled') + '.';
       default: return 'Cells with nothing stored in them. The engine uses them as work space while it runs.';
     }
   };
@@ -404,7 +456,7 @@
 
   window.Inside = {
     $, el, fmt, pct, short, minus, words, billions, lineFit, json, get, lazy, ready, cssVar, rgbOf, onTheme, onResize, fit,
-    MODEL, QWEN, Q35, MODELS, get DATA() { return DATA; }, program, F, FAM, KIND, CMD, LEGEND, CHUNK, swatch, blockSpan, clearRows, layerNo,
+    MODEL, QWEN, Q35, VIS, MODELS, get DATA() { return DATA; }, program, F, FAM, KIND, CMD, LEGEND, CHUNK, swatch, blockSpan, clearRows, layerNo,
     regionTitle, regionShort, regionSays, markLabel, tiles, canRange, hasChunk, chunk, textAt, pretty,
     get SEC() { return SEC; }, get W() { return WJ; }, get E() { return EJ; }, get TR() { return TR; },
   };

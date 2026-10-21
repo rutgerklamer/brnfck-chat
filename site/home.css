@@ -123,9 +123,15 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 /* which program answers */
 .modelLine { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); margin: 0 0 var(--s2); font-family: var(--mono); }
 #modelText { overflow-wrap: anywhere; }
-#models .n { flex-basis: 4.75rem; }
-#models .n.wrap { white-space: normal; }
+#models > label { align-items: flex-start; padding-top: var(--s2); padding-bottom: var(--s2); }
+#models input { margin-top: 1px; }
+#models b { display: block; font: inherit; font-family: var(--mono); font-weight: 600; overflow-wrap: normal; }
+#models label:has(input:checked) b { font-weight: 700; }
 #models b .nb { white-space: nowrap; }
+#models small { margin-top: 2px; line-height: 1.45; overflow-wrap: normal; }
+#models small > span { white-space: nowrap; }
+#models .pick-sep { margin: var(--s4) 0 0; padding: 0 0 var(--s1); border-bottom: 1px solid var(--ink); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; color: var(--muted); }
+#models .pick-sep + label { border-top-color: transparent; }
 #storeLine { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin: var(--s2) 0 0; }
 #removeStored { text-align: right; }
 .rig details.q > summary { font: var(--ctl); }
@@ -191,6 +197,9 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .race-q { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s3); margin: 0 0 var(--s4); font: 600 1rem var(--mono); }
 .race-q .label { margin: 0; }
 .race { display: grid; gap: var(--s4); }
+.race-pic { align-items: center; margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); }
+#programs :is(td, th).n:last-child { min-width: 11rem; white-space: normal; }
+.race-pic img { width: 3rem; height: 3rem; border: 1px solid var(--ink); image-rendering: pixelated; }
 .lane .who { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--s3); margin: 0 0 4px; font: var(--fs-ui)/1.4 var(--sans); }
 .lane .who b { font-family: var(--mono); }
 .lane .when { color: var(--muted); }

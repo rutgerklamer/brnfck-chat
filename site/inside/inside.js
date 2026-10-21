@@ -874,7 +874,7 @@
 
   // ---- 8. the four programs side by side
   lazy($('s8'), async () => {
-    const X = await get('/compare.json'), Ms = X.models, small = Ms[0];
+    const X = await get('/compare.json'), Ms = X.models.filter((M) => !M.vision), small = Ms[0];      // the four chat programs (the picture program is on the page vision/)
     const famOf = (kind) => (KIND[kind] ? KIND[kind].fam : 'work');
     // the name of a program at the left of its bar; the one this page shows is bold and has a tick
     const who = (M) => { const s = el('span', 'lab'); if (M.id === MODEL) s.append(el('b', '', M.label + ' ✓')); else s.textContent = M.label; return s; };

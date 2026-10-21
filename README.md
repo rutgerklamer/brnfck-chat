@@ -163,8 +163,18 @@ node --max-old-space-size=6144 tools/map-data/trace.js 0.8b "What is 12 + 30?" s
 ```
 
 For `1.5b`, give writer.js `--max-old-space-size=6144`. checks.js reads the log of the
-verification in step 3, so build without `--quick` and `--no-verify` first. Run compare.js last:
-it gathers the programs that have data.
+verification in step 3, so build without `--quick` and `--no-verify` first.
+
+For brnfck-qwen3.5-0.8b-vision, the Program map needs these:
+
+```
+node --max-old-space-size=6144 tools/map-data/writer.js 0.8b-vision
+node --max-old-space-size=6144 tools/map-data/sections.js 0.8b-vision
+node tools/map-data/tiles.js 0.8b-vision
+node tools/map-data/depth.js 0.8b-vision
+```
+
+Run compare.js last: it gathers the programs that have data.
 
 The figure of the layers on "How it works" runs each program on one question and reads its numbers
 after every layer. It writes `site/inside/data/<name>/lens-france.json`:

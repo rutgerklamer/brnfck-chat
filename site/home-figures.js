@@ -318,44 +318,50 @@
     choose(sel);
   });
 
-  // ---- 3. One question, four programs ----
-  // The answers are the ones the four programs print, checked at build time (compiler/*/out/ref*.json;
+  // ---- 3. Two questions, five programs ----
+  // The answers are the ones the programs print, checked at build time (compiler/*/out/ref*.json;
   // brnfck-qwen3.5-0.8b stops at its limit of 30 word pieces, its pieces as in compare/data/step.json); the times
   // are the middle of each range in the table of this page (brnfck-qwen3.5-0.8b: 2 min 10 s to 2 min 37 s, about
   // 5.6 s a piece). Reading a word piece of the question takes about as long as printing one.
+  // brnfck-qwen3.5-0.8b-vision gets the photo of the cat and its own question (85 word pieces with the 64 of the
+  // picture, vision/out/ref-vision-qwen3.5-0.8b.json). Its times are from one run in the browser: ready after 100 s,
+  // its first word piece 823 s later (read is that, less one piece), then 5.6 s a piece.
   const RACE = [
     { label: 'brnfck-smollm2-135m', startup: 12.5, piece: 0.8, question: 13, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
     { label: 'brnfck-qwen2.5-0.5b', startup: 40, piece: 2.3, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
     { label: 'brnfck-qwen2.5-1.5b', startup: 147, piece: 9, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
     { label: 'brnfck-qwen3.5-0.8b', startup: 143.5, piece: 5.6, question: 19, answer: ['The', ' capital', ' of', ' France', ' is', ' **', 'Paris', '**.', '\n\n',
       'Located', ' in', ' the', ' heart', ' of', ' the', ' country', ',', ' Paris', ' is', ' the', ' largest', ' city', ' in', ' France', ' and', ' serves', ' as', ' the', ' seat', ' of'] },
+    { label: 'brnfck-qwen3.5-0.8b-vision', box: 'racePic', startup: 100, read: 818, piece: 5.6, reading: 'looks at the photo, reads the question',
+      answer: ['A', ' close', '-up', ' portrait', ' of', ' a', ' fluffy', ' tab', 'by', ' cat', ' with', ' striking', ' blue', ' eyes', ',', ' set', ' against', ' a', ' soft', ',', ' warm', '-ton', 'ed', ' background', '.'] },
   ];
+  const reads = (r) => r.read ?? r.question * r.piece;
   const clock = (s) => (s < 60 ? Math.floor(s) + ' s' : Math.floor(s / 60) + ' min ' + String(Math.floor(s % 60)).padStart(2, '0') + ' s');
   soon($('fig-race'), () => {
-    const box = $('race'), end = Math.max(...RACE.map((r) => r.startup + (r.question + r.answer.length) * r.piece));
+    const end = Math.max(...RACE.map((r) => r.startup + reads(r) + r.answer.length * r.piece));
     const lanes = RACE.map((r) => {
-      const total = r.startup + (r.question + r.answer.length) * r.piece;
+      const total = r.startup + reads(r) + r.answer.length * r.piece;
       const lane = document.createElement('div'); lane.className = 'lane';
       lane.innerHTML = '<p class="who"><b></b><span class="when"></span></p><div class="track"><i class="on"></i><i class="tip"></i></div><p class="said"><span class="whole" aria-hidden="true"></span><span><span class="out"></span><span class="cursor"></span></span></p>';
       lane.querySelector('b').textContent = r.label;
       lane.querySelector('.whole').textContent = r.answer.join('') + '\u00a0';   // keeps the room of the whole answer and the cursor, so nothing below jumps
       // the three stretches of time, to scale: one gradient with hard edges
-      const a = 100 * r.startup / end, b = 100 * (r.startup + r.question * r.piece) / end, c = 100 * total / end;
+      const a = 100 * r.startup / end, b = 100 * (r.startup + reads(r)) / end, c = 100 * total / end;
       const track = lane.querySelector('.track');
       track.style.setProperty('--bands', `linear-gradient(to right, var(--c-plus) 0 ${a}%, var(--c-in) ${a}% ${b}%, var(--c-out) ${b}% ${c}%, transparent ${c}%)`);
-      box.append(lane);
+      $(r.box || 'race').append(lane);
       return { r, total, lane, track, out: lane.querySelector('.out'), when: lane.querySelector('.when') };
     });
-    let speed = 10, t = 0, last = 0, raf = 0, running = false;
+    let speed = 30, t = 0, last = 0, raf = 0, running = false;
     function show() {
       for (const L of lanes) {
         const { r } = L, f = Math.min(t, L.total) / end;
         L.track.style.setProperty('--f', (100 * f) + '%');
-        const printed = Math.max(0, Math.min(r.answer.length, Math.floor((t - r.startup - r.question * r.piece) / r.piece)));
+        const printed = Math.max(0, Math.min(r.answer.length, Math.floor((t - r.startup - reads(r)) / r.piece)));
         L.out.textContent = r.answer.slice(0, printed).join('');
-        const phase = t >= L.total ? 'done' : t < r.startup ? 'load' : t < r.startup + r.question * r.piece ? 'read' : 'write';
+        const phase = t >= L.total ? 'done' : t < r.startup ? 'load' : t < r.startup + reads(r) ? 'read' : 'write';
         L.lane.dataset.phase = phase;
-        L.when.textContent = phase === 'done' ? 'answered after ' + clock(L.total) : phase === 'load' ? 'writes the model into memory' : phase === 'read' ? 'reads the question' : 'prints the answer';
+        L.when.textContent = phase === 'done' ? 'answered after ' + clock(L.total) : phase === 'load' ? 'writes the model into memory' : phase === 'read' ? (r.reading || 'reads the question') : 'prints the answer';
       }
       $('raceClock').textContent = clock(t) + ' of real time';
     }

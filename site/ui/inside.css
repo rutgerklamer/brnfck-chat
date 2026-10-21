@@ -30,7 +30,7 @@ main.inside { max-width: var(--wide); padding-top: var(--s5); }
 .inside > header .lead { max-width: var(--measure); color: var(--ink-2); }
 .inside .top-nav { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s3) var(--s5); align-items: start; max-width: none; padding: var(--s3) 0; border-top: var(--edge) solid var(--ink); border-bottom: 1px solid var(--line); }
 .inside .top-nav .label { margin: 0 0 var(--s1); }
-.inside #choose .seg { display: flex; }
+.inside #choose .progpick { display: inline-block; }
 .inside .contents { list-style: none; display: flex; flex-wrap: wrap; gap: 0 var(--s4); margin: 0; padding: 0; counter-reset: c; font: var(--ctl); }
 .inside .contents li { margin: 0; counter-increment: c; }
 .inside .contents a { display: inline-flex; align-items: center; gap: .5em; min-height: var(--target); color: var(--ink); text-decoration: none; }

@@ -15,7 +15,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/inside.css?v=r9">
+<link rel="stylesheet" href="../ui/progpick.css?v=r1">
+<link rel="stylesheet" href="../ui/inside.css?v=r10">
 </head>
 <body>
 <script src="../site.js?v=r17" data-section="insights"></script>
@@ -28,7 +29,21 @@
     <div class="top-nav">
       <nav id="choose" aria-labelledby="choose-h">
         <p class="label" id="choose-h">Program shown</p>
-        <div class="seg"><a href="?m=small" data-m="small">brnfck-smollm2-135m</a><a href="?m=0.5b" data-m="0.5b">brnfck-qwen2.5-0.5b</a><a href="?m=1.5b" data-m="1.5b">brnfck-qwen2.5-1.5b</a><a href="?m=0.8b" data-m="0.8b">brnfck-qwen3.5-0.8b</a></div>
+        <div class="progpick">
+      <details>
+        <summary><span class="pp-cur"><span data-m="small"><span class="pp-pre">brnfck-</span>smollm2-135m</span><span data-m="0.5b"><span class="pp-pre">brnfck-</span>qwen2.5-0.5b</span><span data-m="1.5b"><span class="pp-pre">brnfck-</span>qwen2.5-1.5b</span><span data-m="0.8b"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b</span><span data-m="0.8b-vision"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b-vision</span></span><span class="pp-len"><span data-m="small">1.03 billion</span><span data-m="0.5b">4.17 billion</span><span data-m="1.5b">11.43 billion</span><span data-m="0.8b">7.71 billion</span><span data-m="0.8b-vision">8.93 billion</span></span><span class="pp-caret" aria-hidden="true"></span></summary>
+        <div class="pp-menu">
+          <p class="pp-head"><span>Characters, to scale</span><span class="pp-key" aria-hidden="true"><i></i>writing part<i class="p"></i>picture part<i class="e"></i>engine</span></p>
+          <ul>
+            <li><a href="?m=small" data-m="small"><span class="pp-name">brnfck-smollm2-135m</span><span class="pp-n">1.03 billion</span><span class="pp-bar" style="--w:9.02%;--e:97.43%"><i></i></span></a></li>
+            <li><a href="?m=0.5b" data-m="0.5b"><span class="pp-name">brnfck-qwen2.5-0.5b</span><span class="pp-n">4.17 billion</span><span class="pp-bar" style="--w:36.48%;--e:98.35%"><i></i></span></a></li>
+            <li><a href="?m=1.5b" data-m="1.5b"><span class="pp-name">brnfck-qwen2.5-1.5b</span><span class="pp-n">11.43 billion</span><span class="pp-bar" style="--w:100%;--e:99.16%"><i></i></span></a></li>
+            <li><a href="?m=0.8b" data-m="0.8b"><span class="pp-name">brnfck-qwen3.5-0.8b</span><span class="pp-n">7.71 billion</span><span class="pp-bar" style="--w:67.44%;--e:96.62%"><i></i></span></a></li>
+            <li><a href="../vision/"><span class="pp-name">brnfck-qwen3.5-0.8b-vision</span><span class="pp-n">8.93 billion</span><span class="pp-bar" style="--w:78.13%;--e:91.98%;--p:83.38%;--q:96.94%"><i></i></span><span class="pp-away">Shown on its own page: Looking at a picture &rarr;</span></a></li>
+          </ul>
+        </div>
+      </details>
+        </div>
       </nav>
       <nav id="contents" aria-labelledby="contents-h">
         <p class="label" id="contents-h">Contents</p>
@@ -486,8 +501,8 @@
 <script src="../program-download.js?v=r6"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../command-play.js?v=r6"></script>
-<script src="engine-sections.js?v=r11"></script>
-<script src="core.js?v=r15"></script>
-<script src="inside.js?v=r13"></script>
+<script src="engine-sections.js?v=r12"></script>
+<script src="core.js?v=r16"></script>
+<script src="inside.js?v=r14"></script>
 </body>
 </html>

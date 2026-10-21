@@ -9,11 +9,12 @@
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
 <link rel="stylesheet" href="../site.css?v=r10">
 <link rel="stylesheet" href="../ui/tools.css?v=r6">
-<link rel="stylesheet" href="../inside/inside.css?v=r8">
+<link rel="stylesheet" href="../inside/inside.css?v=r9">
 <link rel="stylesheet" href="../program-download.css?v=r6">
-<link rel="stylesheet" href="map.css?v=r12">
+<link rel="stylesheet" href="../ui/progpick.css?v=r1">
+<link rel="stylesheet" href="map.css?v=r13">
 <script>
-(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b' && m !== '0.8b') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' ? 'qwen3.5' : 'qwen'); })();
+(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b' && m !== '0.8b' && m !== '0.8b-vision') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' || m === '0.8b-vision' ? 'qwen3.5' : 'qwen'); })();
 window.InsideOptions = { light: true };
 </script>
 </head>
@@ -23,21 +24,29 @@ window.InsideOptions = { light: true };
   <div class="mbar" id="m-bar">
     <button type="button" class="quiet" id="m-panel-toggle" aria-expanded="true" aria-controls="m-panel"><span class="ico" aria-hidden="true">&#9776;</span><span id="m-panel-toggle-t">Hide panel</span></button>
     <h1 class="label" id="m-h1">Program map</h1>
-    <span class="label mprog" aria-hidden="true">Program</span>
-    <nav class="seg" id="modelbar" aria-label="Which program the map shows">
-      <a href="?m=small" data-m="small"><span class="mpre">brnfck-</span><span class="mfam">smollm2-</span>135m <span class="mbil">1.03 billion</span></a>
-      <a href="?m=0.5b" data-m="0.5b"><span class="mpre">brnfck-</span><span class="mfam">qwen2.5-</span>0.5b <span class="mbil">4.17 billion</span></a>
-      <a href="?m=1.5b" data-m="1.5b"><span class="mpre">brnfck-</span><span class="mfam">qwen2.5-</span>1.5b <span class="mbil">11.43 billion</span></a>
-      <a href="?m=0.8b" data-m="0.8b"><span class="mpre">brnfck-</span><span class="mfam">qwen3.5-</span>0.8b <span class="mbil">7.71 billion</span></a>
+    <nav class="progpick" id="modelbar" aria-label="Which program the map shows">
+      <details>
+        <summary><span class="pp-cur"><span data-m="small"><span class="pp-pre">brnfck-</span>smollm2-135m</span><span data-m="0.5b"><span class="pp-pre">brnfck-</span>qwen2.5-0.5b</span><span data-m="1.5b"><span class="pp-pre">brnfck-</span>qwen2.5-1.5b</span><span data-m="0.8b"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b</span><span data-m="0.8b-vision"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b-vision</span></span><span class="pp-len"><span data-m="small">1.03 billion</span><span data-m="0.5b">4.17 billion</span><span data-m="1.5b">11.43 billion</span><span data-m="0.8b">7.71 billion</span><span data-m="0.8b-vision">8.93 billion</span></span><span class="pp-caret" aria-hidden="true"></span></summary>
+        <div class="pp-menu">
+          <p class="pp-head"><span>Characters, to scale</span><span class="pp-key" aria-hidden="true"><i></i>writing part<i class="p"></i>picture part<i class="e"></i>engine</span></p>
+          <ul>
+            <li><a href="?m=small" data-m="small"><span class="pp-name">brnfck-smollm2-135m</span><span class="pp-n">1.03 billion</span><span class="pp-bar" style="--w:9.02%;--e:97.43%"><i></i></span></a></li>
+            <li><a href="?m=0.5b" data-m="0.5b"><span class="pp-name">brnfck-qwen2.5-0.5b</span><span class="pp-n">4.17 billion</span><span class="pp-bar" style="--w:36.48%;--e:98.35%"><i></i></span></a></li>
+            <li><a href="?m=1.5b" data-m="1.5b"><span class="pp-name">brnfck-qwen2.5-1.5b</span><span class="pp-n">11.43 billion</span><span class="pp-bar" style="--w:100%;--e:99.16%"><i></i></span></a></li>
+            <li><a href="?m=0.8b" data-m="0.8b"><span class="pp-name">brnfck-qwen3.5-0.8b</span><span class="pp-n">7.71 billion</span><span class="pp-bar" style="--w:67.44%;--e:96.62%"><i></i></span></a></li>
+            <li><a href="?m=0.8b-vision" data-m="0.8b-vision"><span class="pp-name">brnfck-qwen3.5-0.8b-vision</span><span class="pp-n">8.93 billion</span><span class="pp-bar" style="--w:78.13%;--e:91.98%;--p:83.38%;--q:96.94%"><i></i></span></a></li>
+          </ul>
+        </div>
+      </details>
     </nav>
     <span class="seg mlay" id="m-layout" role="group" aria-label="Layout of the map">
       <button type="button" data-layout="fold" aria-pressed="true">Folded</button><button type="button" data-layout="line" aria-pressed="false">One line</button><button type="button" data-layout="rows" aria-pressed="false">Rows</button><button type="button" data-layout="tree" aria-pressed="false">Outline</button>
     </span>
     <label class="mmore"><span class="sr-only">More layouts of the map</span>
-      <select id="m-more"><option value="">More layouts</option><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Four programs</option></select>
+      <select id="m-more"><option value="">More layouts</option><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Five programs</option></select>
     </label>
     <label class="mlaysel"><span class="sr-only">Layout of the map</span>
-      <select id="m-layout-sel"><optgroup label="Basic layouts"><option value="fold" selected>Folded</option><option value="line">One line</option><option value="rows">Rows</option><option value="tree">Outline</option></optgroup><optgroup label="More layouts"><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Four programs</option></optgroup></select>
+      <select id="m-layout-sel"><optgroup label="Basic layouts"><option value="fold" selected>Folded</option><option value="line">One line</option><option value="rows">Rows</option><option value="tree">Outline</option></optgroup><optgroup label="More layouts"><option value="lanes">Lanes</option><option value="density">Mix of commands</option><option value="skyline">Skyline</option><option value="parts">Part by part</option><option value="tape">What it writes</option><option value="time">Text and time</option><option value="three">Five programs</option></optgroup></select>
     </label>
   </div>
 
@@ -137,6 +146,7 @@ window.InsideOptions = { light: true };
           <li><a href="?m=0.5b" data-m="0.5b"><b>brnfck-qwen2.5-0.5b</b><span>4.17 billion characters</span></a></li>
           <li><a href="?m=1.5b" data-m="1.5b"><b>brnfck-qwen2.5-1.5b</b><span>11.43 billion characters</span></a></li>
           <li><a href="?m=0.8b" data-m="0.8b"><b>brnfck-qwen3.5-0.8b</b><span>7.71 billion characters</span></a></li>
+          <li><a href="?m=0.8b-vision" data-m="0.8b-vision"><b>brnfck-qwen3.5-0.8b-vision</b><span>8.93 billion characters</span></a></li>
         </ul>
 
         <h3 class="label" id="h-move">Move without dragging</h3>
@@ -210,9 +220,9 @@ window.InsideOptions = { light: true };
 <script src="../program-source.js?v=r6"></script>
 <script src="../program-start.js?v=r6"></script>
 <script src="../program-download.js?v=r6"></script>
-<script src="../inside/engine-sections.js?v=r11"></script>
-<script src="../inside/core.js?v=r15"></script>
-<script src="../inside/map.js?v=r14"></script>
-<script src="app.js?v=r12"></script>
+<script src="../inside/engine-sections.js?v=r12"></script>
+<script src="../inside/core.js?v=r16"></script>
+<script src="../inside/map.js?v=r15"></script>
+<script src="app.js?v=r13"></script>
 </body>
 </html>

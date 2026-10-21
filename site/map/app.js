@@ -160,7 +160,7 @@
     if (b.dataset.pan) { const [x, y] = b.dataset.pan.split(',').map(Number); M.panBy(x * 0.25, y * 0.25); } else if (b.dataset.zoom) M.zoomBy(Number(b.dataset.zoom)); else M.home();
   }));
   document.querySelectorAll('#m-progs a').forEach((a) => { if (a.dataset.m === I.MODEL) a.setAttribute('aria-current', 'page'); });
-  const ins = $('m-inside'); if (ins) ins.href = '../inside/?m=' + I.MODEL;
+  const ins = $('m-inside'); if (ins) { if (I.VIS) { ins.href = '../vision/'; ins.textContent = 'Looking at a picture'; } else ins.href = '../inside/?m=' + I.MODEL; }
 
   // ---- the program text at a chosen spot
   let readerFrom = null, chosen = null;
@@ -232,6 +232,14 @@
     const ss = E.sections.filter((s) => s.u !== undefined);
     return { from: ss[0].from, to: ss[ss.length - 1].to, text: 'The text for four layers: three DeltaNet layers and one attention layer, each written out. A loop runs the four ' + n.groups + ' times, each time on the next four layers’ weights.' };
   };
+  // brnfck-qwen3.5-0.8b-vision: the stretches of its picture part
+  const picOf = (E) => {
+    const V = E.model.vision; if (!V) return null;
+    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), last = V.layers;
+    const round = (r) => M.names.find((x) => x.text === 'Round ' + (r + 1) + ' of the picture part'), layer = (l) => M.names.find((x) => x.text === 'Picture layer ' + l);
+    const mid = Math.ceil(V.layers / 2);
+    return { V, W: P('picture'), E: P('looking'), round, layer, mid, sec, last, merger: { from: sec('v' + last + '.mnorm').from, to: sec('v' + last + '.mback').to }, see: sec('v' + mid + '.att'), walk: sec('vend'), patch: sec('v0.patch') };
+  };
   function makePlaces(C) {
     const W = I.W, E = I.E, total = M.total, spans = M.spans, n = E.model;
     const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), Q35 = !!n.unit, LT = layerText(E);
@@ -264,27 +272,43 @@
       { id: 'back', title: 'Looking back at earlier words', layout: 'fold', mode: 'purpose', from: sec('att').from, to: sec('att').to, text: 'The engine walks past every word piece it has seen so far and takes something from each. This is how the model remembers the conversation.' + (Q35 ? ' In this model only ' + (n.layers - n.types.filter((t) => t === 'lin').length) + ' of the ' + n.layers + ' layers do it.' : '') },
       { id: 'choose', title: 'Choosing the next word piece', layout: 'fold', mode: 'purpose', from: sec('cls').from, to: sec('cls').to, text: 'A score for each of the ' + fmt(n.vocab) + ' rows of the table; the highest wins and is printed.' },
     ]);
+    const pic = picOf(E);
+    if (pic) {
+      const V = pic.V, wl = pic.layer(pic.mid), rd = pic.round(pic.mid);
+      g('The picture part', [
+        { id: 'picture', title: 'The numbers of the picture part', layout: 'fold', mode: 'purpose', from: pic.W.from, to: pic.W.to, text: 'The vision part of the model, written at the far end of memory, after the vocabulary: ' + short(pic.W.to - pic.W.from) + ' characters, ' + pct((pic.W.to - pic.W.from) / total) + ' of the program. Where each of the ' + V.squares + ' squares lies, the weights of the squares, ' + V.layers + ' layers of its own and the merger.' },
+        wl ? { id: 'piclayer', title: 'One layer of the picture part', layout: 'fold', mode: 'purpose', from: wl.from, to: wl.to, text: 'Picture layer ' + pic.mid + ' of ' + V.layers + ': four matrices of weights, strips of constants, and a slot for each of the ' + V.squares + ' squares, empty until the program runs.' } : null,
+        { id: 'looking', title: 'Looking at the picture', layout: 'fold', mode: 'purpose', from: pic.E.from, to: pic.E.to, text: 'The first ' + pct((pic.E.to - pic.E.from) / E.chars) + ' of the engine runs once, before the question. It reads the ' + V.squares + ' squares of the picture and takes all of them through ' + V.layers + ' layers, in ' + (V.layers + 1) + ' rounds. Unlike the layers of the text, every round is written out: each layer has its own widths.' },
+        rd ? { id: 'picround', title: 'One round over all the squares', layout: 'line', mode: 'purpose', from: rd.from, to: rd.to, text: 'Round ' + (pic.mid + 1) + ': the second half of picture layer ' + pic.mid + ' and the first half of picture layer ' + (pic.mid + 1) + '. This text runs ' + V.squares + ' times, once for every square.' } : null,
+        { id: 'picsee', title: 'Every square looks at every square', layout: 'fold', mode: 'purpose', from: pic.see.from, to: pic.see.to, text: 'In the text a word piece only looks back. Here a square looks at all ' + V.squares + ' squares, before and after it: in one round every square stores its key and value, in the next every square reads all the slots.' },
+        { id: 'merger', title: 'Four squares, one word piece', layout: 'fold', mode: 'purpose', from: pic.merger.from, to: pic.merger.to, text: 'After the last layer every ' + V.perVector + ' neighbouring squares are joined into one vector of ' + fmt(V.out) + ' numbers: ' + V.vectors + ' vectors for ' + V.squares + ' squares. The text model reads them at the ' + V.vectors + ' word pieces of the picture in the prompt.' },
+        { id: 'picwalk', title: 'The longest walk', layout: 'line', mode: 'purpose', from: pic.walk.from, to: pic.walk.to, text: 'When the picture part is done, the pointer walks from the far end of memory back to the vocabulary to read the question: one run of ' + fmt(pic.walk.longestMove) + ' steps to the left' + (W.counts.longestRunLeft === pic.walk.longestMove ? ', the longest in the program.' : '.') },
+      ]);
+    }
     g('Where it reads and prints', [
-      { id: 'comma', title: 'The one place it reads', layout: 'fold', mode: 'purpose', at: E.comma, z: 5, text: 'A single comma, in the green ring: the only command in ' + fmt(total) + ' characters that takes anything in. It is used once for every letter of your question.' },
+      pic ? { id: 'comma', title: 'The place it reads the picture', layout: 'fold', mode: 'purpose', at: E.commaAll[0], z: 5, text: 'A comma, in the green ring, that takes in the picture: it is run ' + fmt(pic.V.squares * pic.V.squareBytes) + ' times, once for every byte of the ' + pic.V.squares + ' squares.' } : null,
+      pic ? { id: 'comma2', title: 'The places it reads the question', layout: 'fold', mode: 'purpose', at: E.commaAll[1], z: 5, text: 'Two more commas read your question: one its first letter, the other the rest, in a loop. These three are the only commands in ' + fmt(total) + ' characters that take anything in.' }
+        : { id: 'comma', title: 'The one place it reads', layout: 'fold', mode: 'purpose', at: E.comma, z: 5, text: 'A single comma, in the green ring: the only command in ' + fmt(total) + ' characters that takes anything in. It is used once for every letter of your question.' },
       { id: 'dot', title: 'The one place it prints', layout: 'fold', mode: 'purpose', at: E.dot, z: 5, text: 'A single full stop, in the ring: the only command that prints. Every letter of every answer goes out through it.' },
     ]);
     const midLayer = spans.filter((s) => s.part === 0 && s.layer === Math.min(12, n.layers - 1) && s.kind !== 'cls');
     g('Other layouts and colours', [
-      { id: 'lanes', title: 'Where each command lives', layout: 'lanes', mode: 'purpose', home: true, text: 'Seven lanes along the line, one for each command. The writing part is all adding, taking off and stepping left. The single read and the single print are lone ticks near the right end.' },
+      { id: 'lanes', title: 'Where each command lives', layout: 'lanes', mode: 'purpose', home: true, text: 'Seven lanes along the line, one for each command. The writing part is all adding, taking off and stepping left. ' + (pic ? 'The three reads and the single print are lone ticks in the engine.' : 'The single read and the single print are lone ticks near the right end.') },
       { id: 'parts', title: 'The layers, one under the other', layout: 'parts', mode: 'purpose', home: true, text: 'Every part of the program on a row of its own, all at the same scale. The ' + n.layers + ' layers show ' + (Q35 ? 'two patterns, three DeltaNet layers and then an attention layer, again and again' : 'the same pattern, one after the other') + '; the output table and the table of word pieces run far off to the right.' },
       { id: 'memory', title: 'From text to memory', layout: 'tape', mode: 'purpose', home: true, text: 'Above, the text; below, the ' + fmt(W.program.tape) + ' cells of memory it fills. A band joins each part of the text to its cells. The engine, at the right end, has no band: it writes nothing here.' },
       { id: 'mix', title: 'What the text is made of', layout: 'density', mode: 'purpose', home: true, text: 'A bar chart along the line: in every stretch, the share of each command, stacked. Nearly all of it is +, \u2212 and <; the brackets are a thin edge at the top.' },
       { id: 'skyline', title: 'Where the loops pile up', layout: 'skyline', mode: 'purpose', from: W.program.writer - E.chars, to: total, text: 'Height is how many loops lie inside one another. The writing part never goes deeper than ' + W.counts.maxDepthWriter + '; the engine, at the right, goes up to ' + W.counts.maxDepthEngine + '.' },
-      { id: 'time', title: 'A little text, most of the time', layout: 'time', mode: 'purpose', home: true, text: 'Above, the text of the engine; below, the steps of one word piece as measured in a run. A band joins each section to its share of the steps.' },
-      { id: 'three', title: 'The four programs at one scale', layout: 'three', mode: 'purpose', home: true, text: 'This program above; below it the four programs as bars at one scale, each cut into the output table, the layers, the table of word pieces, the vocabulary and the engine.' },
+      pic ? null : { id: 'time', title: 'A little text, most of the time', layout: 'time', mode: 'purpose', home: true, text: 'Above, the text of the engine; below, the steps of one word piece as measured in a run. A band joins each section to its share of the steps.' },
+      { id: 'three', title: 'The five programs at one scale', layout: 'three', mode: 'purpose', home: true, text: 'This program above; below it the five programs as bars at one scale, each cut into the output table, the layers, the table of word pieces, the vocabulary, the picture part of brnfck-qwen3.5-0.8b-vision and the engine.' },
       midLayer.length ? { id: 'memlayer', title: 'One layer, and the memory it fills', layout: 'tape', mode: 'purpose', from: midLayer[0].from, to: midLayer[midLayer.length - 1].to, text: 'The text of one layer above its cells. Where a band is wide above and narrow below, a cell costs much text; darker cells are left empty.' } : null,
       { id: 'bycommand', title: 'The square, coloured by command', layout: 'fold', mode: 'command', home: true, text: 'The folded program with a colour for each command instead of each part. The engine stands out: it is where the loops and the steps to the right are.' },
     ]);
-    if (C && C.models && C.models.length > 1) {
-      const cm = Object.fromEntries(C.models.map((m) => [m.id, m])), ids = C.models.map((m) => m.id), me = cm[I.MODEL];
+    const CM = C && C.models ? C.models.filter((m) => !m.vision) : [];
+    if (CM.length > 1) {
+      const cm = Object.fromEntries(CM.map((m) => [m.id, m])), ids = CM.map((m) => m.id), me = cm[I.MODEL];
       const and = (t) => (t.length > 1 ? t.slice(0, -1).join(', ') + ' and ' + t[t.length - 1] : t[0] || ''), count = I.words(ids.length);
       const memory = (m) => ['slots', 'state', 'dscale', 'convwin'].reduce((a, k) => a + (m.tapeKinds[k] || 0), 0);
-      const longest = C.models.reduce((a, m) => (m.engine > a.engine ? m : a));
+      const longest = CM.reduce((a, m) => (m.engine > a.engine ? m : a));
       const each = (fn) => ids.map((id) => cm[id].label + ': ' + fn(cm[id])).join('; ');
       const layers = spans.filter((s) => s.part === 0 && s.layer >= 0 && s.kind !== 'cls'), lay = P('layer');
       const hasStrips = (m) => !!(m.textKinds.bias || m.textKinds.scale || m.textKinds.gain);
@@ -346,7 +370,7 @@
     const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), place = (id) => flat.find((p) => p.id === id), Q35 = !!n.unit, LT = layerText(E);
     const sample = W.samples.find((s) => s.id === 'w13') || W.samples[0];
     const wparts = M.names.filter((x) => x.tier === 1 && x.to <= W.program.writer).sort((a, b) => a.from - b.from), firstLayer = wparts.find((x) => /^Layer /.test(x.text));
-    const stop = (title, text, view) => Object.assign({ title, text }, view);
+    const stop = (title, text, view) => Object.assign({ title, text }, view), pic = picOf(E);
     tours = [
       { id: 'grand', title: 'The whole program in nine stops', text: 'From the one line to the one comma: what the program is made of.', stops: [
         stop('One line', 'This is the whole program as it is: one line of ' + fmt(total) + ' characters, from left to right. A colour is one part of the model; its letter stands above it.', { layout: 'line', mode: 'purpose', home: true }),
@@ -357,7 +381,8 @@
         stop('The weights', 'The big fields are the weights of the model, written layer after layer. This is ' + lc(P('layer').name.replace('Weights of ', '')) + '.', { layout: 'fold', from: P('layer').from, to: P('layer').to }),
         stop('The vocabulary', 'The vocabulary: the table that says which letters make which word piece.', { layout: 'fold', from: P('vocab').from, to: P('vocab').to }),
         stop('The engine', 'The engine: the last ' + pct(E.chars / total) + ' of the text. Everything before it only stores numbers. This part does the sums.', { layout: 'fold', from: W.program.writer, to: total }),
-        stop('The one comma', 'And here, in the ring, is the one place where the program reads: a single comma, used once for every letter of your question.', { layout: 'fold', at: E.comma, z: 5 }),
+        E.model.vision ? stop('The first comma', 'And here, in the ring, is where the program first reads: a comma that takes in the picture, byte by byte. Two more commas, further on, read your question.', { layout: 'fold', at: E.commaAll[0], z: 5 })
+          : stop('The one comma', 'And here, in the ring, is the one place where the program reads: a single comma, used once for every letter of your question.', { layout: 'fold', at: E.comma, z: 5 }),
       ] },
       { id: 'writing', title: 'How ' + short(W.tape.nonZero) + ' numbers get written', text: 'The first ' + pct(W.program.writer / total) + ' of the program does nothing but put numbers into memory. How?', stops: [
         stop('Almost all of it writes', 'The first ' + pct(W.program.writer / total) + ' of the line does one thing: it puts a number into each of ' + fmt(W.tape.nonZero) + ' cells of memory. It reads nothing and prints nothing.', { layout: 'line', mode: 'purpose', from: 0, to: W.program.writer }),
@@ -371,12 +396,13 @@
       ].filter(Boolean) },
       { id: 'question', title: 'Follow one question through the engine', text: 'The engine from left to right is the way your question takes: in through the comma, out through the full stop.', stops: [
         stop('The engine', 'The last ' + pct(E.chars / total) + ' of the line is the engine. Read it from left to right and you follow a question through the model.', { layout: 'line', mode: 'purpose', from: W.program.writer, to: total }),
-        stop('It reads', 'First the question comes in, letter by letter, through this one comma.', { layout: 'line', at: E.comma, z: 5 }),
+        pic ? stop('First the picture', 'Before the question, the picture part has run: ' + pct((pic.E.to - pic.E.from) / E.chars) + ' of the engine, once. It left ' + pic.V.vectors + ' vectors for the text model.', { layout: 'line', from: pic.E.from, to: pic.E.to }) : null,
+        stop('It reads', pic ? 'Then the question comes in, letter by letter, through these two commas.' : 'First the question comes in, letter by letter, through this one comma.', { layout: 'line', at: pic ? E.commaAll[1] : E.comma, z: 5 }),
         stop('Letters become word pieces', 'This stretch reads the question and cuts it into word pieces, by looking pairs up in the vocabulary table.', { layout: 'line', from: sec('ask').from, to: sec('ask').to }),
         stop('A row of numbers', 'For every word piece the engine fetches one row of ' + fmt(n.dim) + ' numbers from the table of word pieces.', { layout: 'line', from: sec('emb').from, to: sec('emb').to }),
         stop(Q35 ? 'Four layers' : 'One layer', LT.text, { layout: 'line', from: LT.from, to: LT.to }),
         Q35 ? stop('Writing into a table', 'A DeltaNet layer does not look back. For each of its ' + n.deltanet.valueHeads + ' heads this text fades a table of ' + fmt(n.deltanet.keySize * n.deltanet.valueSize) + ' numbers, writes the new word piece into it and reads from it.', { layout: 'line', from: sec('dn.decay').from, to: sec('dn.next').to }) : null,
-        stop('Text and time', 'Text is not time. Below the engine lie the steps of one word piece, as measured: a band joins each section to its share.', { layout: 'time', home: true }),
+        pic ? null : stop('Text and time', 'Text is not time. Below the engine lie the steps of one word piece, as measured: a band joins each section to its share.', { layout: 'time', home: true }),
         stop('The largest matrix', SEC.sweep3.desc, { layout: 'line', from: sec('sweep3').from, to: sec('sweep3').to }),
         stop('Looking back', 'The engine walks past every word piece it has seen so far and takes something from each. This is how the model remembers the conversation.' + (Q35 ? ' Here only one layer in four does it.' : ''), { layout: 'line', from: sec('att').from, to: sec('att').to }),
         stop('Choosing', 'A score for each of the ' + fmt(n.vocab) + ' word pieces; the highest wins.', { layout: 'line', from: sec('cls').from, to: sec('cls').to }),
@@ -384,6 +410,20 @@
         stop('It prints', 'The chosen word piece goes out through this one full stop. Then the engine goes round again for the next piece.', { layout: 'line', at: E.dot, z: 5 }),
       ].filter(Boolean) },
     ];
+    if (pic) {
+      const V = pic.V, wl = pic.layer(pic.mid);
+      tours.splice(1, 0, { id: 'picture', title: 'How the program looks at a picture', text: 'The vision part of the model: its numbers, then the text that runs once over the ' + V.squares + ' squares, before the question.', stops: [
+        stop('The picture part', 'At the far end of the writing part lie the numbers of the vision part of the model: ' + short(pic.W.to - pic.W.from) + ' characters.', { layout: 'line', mode: 'purpose', from: pic.W.from, to: pic.W.to }),
+        wl ? stop('Its own layers', 'Picture layer ' + pic.mid + ' of ' + V.layers + ': four matrices of weights, and a slot for every square.', { layout: 'fold', from: wl.from, to: wl.to }) : null,
+        stop('Looking at the picture', 'In the engine, before anything about the question: the text of the picture part, in ' + (V.layers + 1) + ' rounds, each written out.', { layout: 'line', from: pic.E.from, to: pic.E.to }),
+        stop('A square comes in', 'Its ' + fmt(V.squareBytes) + ' bytes come in through this comma, one by one: red, green and blue of ' + V.patch * V.patch + ' pixels.', { layout: 'line', at: E.commaAll[0], z: 5 }),
+        stop('Its numbers', 'The bytes times the weights of the squares: ' + fmt(V.dim) + ' numbers for the square, added to where it lies in the picture.', { layout: 'line', from: pic.patch.from, to: pic.patch.to }),
+        stop('Every square looks at every square', 'With its question in hand a square walks past all ' + V.squares + ' slots, before and after it.', { layout: 'line', from: pic.see.from, to: pic.see.to }),
+        stop('Four squares, one word piece', 'After the last layer every ' + V.perVector + ' squares become one vector of ' + fmt(V.out) + ' numbers, the width of the text model.', { layout: 'line', from: pic.merger.from, to: pic.merger.to }),
+        stop('The long walk back', 'Done: ' + fmt(pic.walk.longestMove) + ' steps to the left in one run, from the far end of memory to the vocabulary.', { layout: 'line', from: pic.walk.from, to: pic.walk.to }),
+        stop('Then the question', 'Now the question is read, and the text model goes through the prompt. At each of its ' + V.vectors + ' word pieces of the picture it takes one of the vectors instead of a row of the table.', { layout: 'line', from: sec('ask').from, to: sec('ask').to }),
+      ].filter(Boolean) });
+    }
     const cmp = flat.filter((p) => p.cmp);
     if (cmp.length) tours.push({ id: 'compare', title: 'Spot the difference between the four programs', text: 'What changes between brnfck-smollm2-135m, the two Qwen2.5 programs and brnfck-qwen3.5-0.8b, and what stays the same. Shown on ' + I.MODELS[I.MODEL].short + ', with the numbers of all four.', stops: cmp.map((p) => Object.assign({}, p, { place: p })) });
   }

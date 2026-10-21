@@ -32,16 +32,24 @@ const marks = G.marks.filter((m) => (m.kind === 'tok' || (m.kind === 'idiom' && 
 const shapes = {};
 for (const m of G.marks) if (m.kind === 'idiom' && m.from >= L) { const s = shapes[m.name] || (shapes[m.name] = { count: 0, chars: 0 }); s.count++; s.chars += m.to - m.from; }
 
-const text = rest.toString('latin1'), hot = {};
+const hot = {};
 for (const s of secs) {
   if (!/^(ud.)?sweep|^cls$/.test(s.id)) continue;
-  const re = /\[[<>]*\[[-+<>]+\][<>]*\[[-+<>]+\][<>]*\]/g;
-  re.lastIndex = s.from;
-  const m = re.exec(text);
-  if (m && m.index < s.to) hot[s.id] = { from: base + m.index, len: m[0].length };
+  const m = /\[[<>]*\[[-+<>]+\][<>]*\[[-+<>]+\][<>]*\]/.exec(rest.toString('latin1', s.from, s.to));
+  if (m) hot[s.id] = { from: base + s.from + m.index, len: m[0].length };
 }
 
 const E = G.engine, a = E.a, tok = G.layout.tok;
+// the vision part of the picture program (compiler/qwen3.5/vision/gen.js): its sizes and where it lies on the tape
+function visionOf(vp, layout) {
+  const V = vp.V, x = vp.x, mat = (m) => ({ rows: m.R, cols: m.C, bits: m.nb || null });
+  return {
+    dim: V.dim, hidden: V.hidden, heads: V.heads, headSize: V.headSize, layers: vp.depth, out: vp.out, patch: V.P, merge: V.merge,
+    squares: vp.N, perVector: vp.G, vectors: vp.N / vp.G, squareBytes: vp.inN, slotSize: x.SS, layerStride: x.stride, imageToken: V.imageToken,
+    matrices: { qkv: mat(x.M.qkv), o: mat(x.M.o), w13: mat(x.M.w13), w2: mat(x.M.w2), patch: mat(vp.Mp), m1: mat(vp.Mm1), m2: mat(vp.Mm2) },
+    from: layout.visionReal[0], to: layout.visionReal[1] + 1,
+  };
+}
 const hopSec = secs.find((s) => s.id === 'hop' || s.id === 'u3.hop');
 // Qwen3.5: the attention layer of the group holds the slots, a DeltaNet layer its own state
 const AL = Q35 ? E.Lt.att : E.Lo, SS = Q35 ? AL.SS : E.SS, SO = Q35 ? AL.so : E.so, KV = Q35 ? a.kvHeads * a.headSize : E.kv;
@@ -50,6 +58,7 @@ const out = {
   from: base, chars: rest.length, oldProgramChars: G.src ? G.src.length : G.length, oldLoadChars: L,
   comma: base + rest.indexOf(','), dot: base + rest.indexOf('.'),
   commas: rest.filter((c) => c === 44).length, dots: rest.filter((c) => c === 46).length,
+  commaAll: (() => { const all = []; for (let i = rest.indexOf(44); i >= 0; i = rest.indexOf(44, i + 1)) all.push(base + i); return all; })(),
   sections: secs.map((s) => ({ id: s.id, ...(s.key ? { key: s.key, u: s.u, layerKind: s.layerKind } : {}), from: base + s.from, to: base + s.to, counts: s.counts, depthAtStart: s.depthAtStart, maxDepth: s.maxDepth, loops: s.loops, longestMove: s.longestMove })),
   depthChars: Array.from(depthChars.subarray(0, depthChars.findLastIndex((v) => v > 0) + 1)),
   marks, shapes, hot,
@@ -62,6 +71,7 @@ const out = {
       types: a.types, unit: a.unit, groups: a.groups, qDim: a.qDim, rotDim: a.rotDim,
       deltanet: { keyHeads: a.nk, valueHeads: a.nv, keySize: a.dk, valueSize: a.dv, kernel: a.kernel, keyDim: a.keyDim, valueDim: a.valueDim, convDim: a.convDim, stateNumbers: a.nv * a.dk * a.dv, columnCells: E.Lt.lin.CS, column: E.Lt.lin.co, headCells: E.Lt.lin.RS, stateBits: a.cfg.sBits },
     } : {}),
+    ...(E.vp ? { vision: visionOf(E.vp, G.layout) } : {}),
   },
   matrices: Object.fromEntries(Object.entries(Q35 ? { lin: E.Lt.lin.Min, lino: E.Lt.lin.Mo, qkv: E.Lt.att.Min, o: E.Lt.att.Mo, ...E.M } : E.M).map(([k, m]) => [k, { rows: m.R, cols: m.C, bits: m.nb || null }])),
   hop: { cells: QWEN ? AL.HL : null, longest: hopSec ? hopSec.longestMove : null },

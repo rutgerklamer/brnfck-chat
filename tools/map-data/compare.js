@@ -1,5 +1,5 @@
 'use strict';
-// The main numbers of the four programs side by side, from what the other scripts wrote: compare.json.
+// The main numbers of the five programs side by side, from what the other scripts wrote: compare.json.
 const fs = require('fs');
 const path = require('path');
 const { DEFS, IDS, DATA, ROOT, num } = require('./models');
@@ -22,14 +22,17 @@ function folder(dir) {
 const models = [];
 for (const id of IDS) {
   const dir = path.join(DATA, id), read = (name) => JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
-  const need = ['writer.json', 'engine.json', 'tiles.json', 'checks.json'].filter((f) => !fs.existsSync(path.join(dir, f)));
+  // (the picture program has no checks.json: its checks are those of compiler/qwen3.5/vision/verify_pure.js)
+  const need = ['writer.json', 'engine.json', 'tiles.json', ...(DEFS[id].vision ? [] : ['checks.json'])].filter((f) => !fs.existsSync(path.join(dir, f)));
   if (need.length) { console.log(`${id}: left out, missing ${need.join(', ')}`); continue; }
-  const W = read('writer.json'), E = read('engine.json'), T = read('tiles.json'), C = read('checks.json');
+  const W = read('writer.json'), E = read('engine.json'), T = read('tiles.json'), C = DEFS[id].vision ? null : read('checks.json');
   const all = W.counts.writer.map((v, i) => v + W.counts.engine[i]), eng = W.counts.engine;
-  // cells of the tape and characters of the text, by kind of region
+  // cells of the tape and characters of the text, by kind of region; everything of the vision part of the picture program
+  // (from where it starts on the tape) counts as 'picture'
+  const V = E.model.vision, kindOf = (r) => (V && r.from >= V.from ? 'picture' : r.kind);
   const tapeKinds = {}, textKinds = {};
-  for (const r of W.regions) tapeKinds[r.kind] = (tapeKinds[r.kind] || 0) + r.to - r.from;
-  for (const [ri, from, to] of W.stretches) { const k = W.regions[ri].kind; textKinds[k] = (textKinds[k] || 0) + to - from; }
+  for (const r of W.regions) tapeKinds[kindOf(r)] = (tapeKinds[kindOf(r)] || 0) + r.to - r.from;
+  for (const [ri, from, to] of W.stretches) { const k = kindOf(W.regions[ri]); textKinds[k] = (textKinds[k] || 0) + to - from; }
   textKinds.work = (textKinds.work || 0) + W.finalMove.chars;
   const cells = (kinds) => W.regions.filter((r) => kinds.includes(r.kind)).reduce((a, r) => a + r.rows * r.cols, 0);
   let steps = null;
@@ -48,12 +51,12 @@ for (const id of IDS) {
   const disk = folder(dir), tilesDisk = folder(path.join(dir, 'tiles')), deepDisk = folder(path.join(dir, 'deep'));
   const a = E.model;
   models.push({
-    id, label: DEFS[id].label, name: W.modelName || a.name, family: E.family, file: W.file, layers: a.layers, attLayers: a.types ? a.types.filter((t) => t === 'att').length : a.layers, dim: a.dim, hidden: a.hidden, heads: a.heads, kvHeads: a.kvHeads, vocab: a.vocab, weightBits: a.weightBits,
+    id, ...(V ? { vision: true, pictureEngine: E.sections.filter((s) => s.layerKind === 'vision' || s.id === 'vstart' || s.id === 'vend').reduce((a, s) => a + s.to - s.from, 0) } : {}), label: DEFS[id].label, name: W.modelName || a.name, family: E.family, file: W.file, layers: a.layers, attLayers: a.types ? a.types.filter((t) => t === 'att').length : a.layers, dim: a.dim, hidden: a.hidden, heads: a.heads, kvHeads: a.kvHeads, vocab: a.vocab, weightBits: a.weightBits,
     chars: W.program.chars, writer: W.program.writer, engine: W.program.engine, counts: { order: W.counts.order, all, engine: eng },
     engineLoops: eng[4], engineMoves: eng[2] + eng[3], engineOther: W.program.engine - eng[2] - eng[3], engineSections: E.sections.length, engineDepth: W.counts.maxDepthEngine,
     tape: W.program.tape, memoryBits: W.program.memoryBits || 32, nonZero: W.tape.nonZero, entropy: W.tape.entropyBitsPerCell, floor: W.tape.floorCharsAt3Bits, plainCounting: W.tape.plainCounting,
     blocks: W.encoder.blocks, matrixWeights: cells(W.weights.kinds), tableCells: cells(['emb']), tapeKinds, textKinds,
-    timing: { ...C.timing, writeSeconds: C.tapeRun ? C.tapeRun.seconds : null, log: C.from[0] },
+    timing: C ? { ...C.timing, writeSeconds: C.tapeRun ? C.tapeRun.seconds : null, log: C.from[0] } : null,
     steps, order: T.order, side: T.side,
     data: { totalBytes: disk.bytes, files: disk.files, tiles: tilesDisk.files, tileBytes: tilesDisk.bytes, deepPieces: deepDisk.files, deepBytes: deepDisk.bytes },
   });

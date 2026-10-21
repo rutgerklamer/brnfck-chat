@@ -14,7 +14,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <link rel="stylesheet" href="site.css?v=r10">
 <link rel="stylesheet" href="program-download.css?v=r6">
-<link rel="stylesheet" href="home.css?v=r20">
+<link rel="stylesheet" href="home.css?v=r21">
 </head>
 <body>
 <script src="site.js?v=r17" data-section="chat"></script>
@@ -207,33 +207,36 @@
   </section>
 
   <section id="programs" aria-labelledby="programsHead">
-    <h2 id="programsHead">Four programs, four costs</h2>
+    <h2 id="programsHead">Five programs, five costs</h2>
     <p>There are four programs of text. brnfck-smollm2-135m loads quickest and often gets simple questions wrong. The larger ones need more memory and take longer for every piece of an answer. A fifth, brnfck-qwen3.5-0.8b-vision, is brnfck-qwen3.5-0.8b with the part of its model that looks at pictures: it reads a photo before the question. <a href="vision/">Looking at a picture</a> shows how.</p>
     <p>brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, a newer generation than Qwen2.5. It has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and the other 6 look back at every earlier word piece, one after every three DeltaNet layers. <a href="compare/">Compare the models</a> explains that kind of layer. <a href="compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. The program follows its own whole-number recipe exactly.</p>
     <figure class="frame interactive full" id="fig-race" aria-labelledby="cap-race">
-      <p class="frame-head"><b>One question, four programs</b><span class="state" id="raceClock" aria-hidden="true"></span></p>
+      <p class="frame-head"><b>Two questions, five programs</b><span class="state" id="raceClock" aria-hidden="true"></span></p>
       <div class="frame-body">
         <p class="race-q"><span class="label">Question</span>What is the capital of France?</p>
         <div class="race" id="race"></div>
-        <p class="key small"><span style="--k: var(--c-plus)">+ writes the model into memory</span><span style="--k: var(--c-in)">, reads the question</span><span style="--k: var(--c-out)">. prints the answer</span></p>
-        <p class="race-ctl"><button type="button" id="racePlay" class="quiet">Pause</button><span class="seg" id="raceSpeed" role="group" aria-label="Speed"><button type="button" data-x="1" aria-pressed="false">Real speed</button><button type="button" data-x="10" aria-pressed="true">10 times</button><button type="button" data-x="30" aria-pressed="false">30 times</button></span></p>
+        <p class="race-q race-pic"><img src="vision/pictures/cat.png" width="256" height="256" alt="The photo it is shown: a tabby cat with blue eyes"><span class="label">Photo and question</span>Describe this picture in one sentence.</p>
+        <div class="race" id="racePic"></div>
+        <p class="key small"><span style="--k: var(--c-plus)">+ writes the model into memory</span><span style="--k: var(--c-in)">, reads the question, and the photo before it</span><span style="--k: var(--c-out)">. prints the answer</span></p>
+        <p class="race-ctl"><button type="button" id="racePlay" class="quiet">Pause</button><span class="seg" id="raceSpeed" role="group" aria-label="Speed"><button type="button" data-x="1" aria-pressed="false">Real speed</button><button type="button" data-x="10" aria-pressed="false">10 times</button><button type="button" data-x="30" aria-pressed="true">30 times</button><button type="button" data-x="100" aria-pressed="false">100 times</button></span></p>
       </div>
-      <figcaption id="cap-race">All four answer Paris; brnfck-qwen3.5-0.8b then writes on until its limit of 30 word pieces. The times are the middle of each range in the table below, from one desktop computer; download time comes on top. Reading a word piece of the question takes about as long as printing one: the program does nearly the same work for both.</figcaption>
+      <figcaption id="cap-race">All four programs of text answer Paris; brnfck-qwen3.5-0.8b then writes on until its limit of 30 word pieces. Reading a word piece of the question takes about as long as printing one: the program does nearly the same work for both. brnfck-qwen3.5-0.8b-vision reads the photo first, 196,608 bytes, and looks at its 256 squares through 12 layers; the photo becomes 64 word pieces, and with the question that makes 85 to read before its first word of the answer, the long green stretch. It prints the same sentence, to the letter, as the original model's reference. The times are the middle of each range in the table below, for brnfck-qwen3.5-0.8b-vision those of one run, all from one desktop computer; download time comes on top. All five bars are on one scale.</figcaption>
     </figure>
-    <div class="scroll full" tabindex="0" role="group" aria-label="The four programs; scrolls sideways on a narrow screen"><table>
-      <thead><tr><th></th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th></tr></thead>
+    <div class="scroll full" tabindex="0" role="group" aria-label="The five programs; scrolls sideways on a narrow screen"><table>
+      <thead><tr><th></th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th><th class="n">brnfck-qwen3.5-0.8b-vision</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B</td></tr>
-        <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td></tr>
-        <tr><th scope="row">Download, compressed</th><td class="n">180 MB</td><td class="n">749 MB</td><td class="n">about 2.1 GB (estimated)</td><td class="n">1.36 GB</td></tr>
-        <tr><th scope="row">Memory in the tab</th><td class="n">about 1.5 GB</td><td class="n">about 4 GB</td><td class="n">about 8 GB</td><td class="n">about 5 GB</td></tr>
-        <tr><th scope="row">Start-up</th><td class="n">9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">2 min 27 s</td><td class="n">2 min 10 s to 2 min 37 s</td></tr>
-        <tr><th scope="row">One piece of an answer</th><td class="n">0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">about 9 s</td><td class="n">about 5.6 s</td></tr>
-        <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">usually right</td></tr>
+        <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B</td><td class="n">Qwen3.5-0.8B, with its part for pictures</td></tr>
+        <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td><td class="n">8,931,101,427</td></tr>
+        <tr><th scope="row">Download, compressed</th><td class="n">180 MB</td><td class="n">749 MB</td><td class="n">about 2.1 GB (estimated)</td><td class="n">1.36 GB</td><td class="n">1.51 GB</td></tr>
+        <tr><th scope="row">Memory in the tab</th><td class="n">about 1.5 GB</td><td class="n">about 4 GB</td><td class="n">about 8 GB</td><td class="n">about 5 GB</td><td class="n">about 7 GB</td></tr>
+        <tr><th scope="row">Start-up</th><td class="n">9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">2 min 27 s</td><td class="n">2 min 10 s to 2 min 37 s</td><td class="n">1 min 40 s, then 13 min 43 s for the photo and the question (one run)</td></tr>
+        <tr><th scope="row">One piece of an answer</th><td class="n">0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">about 9 s</td><td class="n">about 5.6 s</td><td class="n">5.6 s (median of one run)</td></tr>
+        <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">reads a picture first</td></tr>
       </tbody>
     </table></div>
     <p class="small muted">Measured on one desktop computer in Chromium 152 on Windows, with the program on its own disk. Download time comes on top, and another computer will differ. <a href="how/#numbers">Every measurement</a></p>
     <p class="small muted">brnfck-qwen3.5-0.8b has a tape of 1,067,424,772 cells and passed all 11 checks: only the eight commands, one <code>,</code> and one <code>.</code>, the tape equal to the model, and the reference answer to &ldquo;What is the capital of France?&rdquo; to the letter. From the command line on the same computer it starts in 103 s and takes 5.56 s per word piece of the answer. <a href="?m=0.8b">Ask brnfck-qwen3.5-0.8b</a></p>
+    <p class="small muted">brnfck-qwen3.5-0.8b-vision has a tape of 1,197,356,368 cells and passed all 21 checks. In the browser, shown the photo of the cat and asked &ldquo;Describe this picture in one sentence.&rdquo;, it was ready after 1 min 40 s, printed its first word piece 13 min 43 s later and the next 24 at 5.6 s each: 17 min 44 s from start to the end of the answer. From the command line it starts in 86.5 s and takes 6.59 s per word piece. <a href="?m=0.8b-vision">Show brnfck-qwen3.5-0.8b-vision a photo</a></p>
   </section>
 
   <section id="limits" aria-labelledby="limitsHead">
@@ -242,7 +245,7 @@
       <li><b>Answers can be wrong.</b> These are small models, and running one in brainfuck does not make it smarter.</li>
       <li><b>Each question starts fresh.</b> A question is at most 200 characters. The program does not remember earlier ones; the list on the page is only a record of this visit. brnfck-qwen3.5-0.8b cannot yet clear its memory after an answer, so the Chatbot loads it again for each question.</li>
       <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was converted to whole-number arithmetic. brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b then pick the same next piece of text as the original model in 94.8%, 96.6% and 97.2% of the tested cases. For brnfck-qwen3.5-0.8b it is 95.1%: its whole-number version, which the program follows exactly, against the original at 225 positions of its answers. That measures agreement with the original, not whether an answer is true.</li>
-      <li><b>It is heavy.</b> The first question downloads the program, and the tab needs the memory in the table. No phone can run any of the four.</li>
+      <li><b>It is heavy.</b> The first question downloads the program, and the tab needs the memory in the table. No phone can run any of the five.</li>
     </ul>
   </section>
 
@@ -263,8 +266,8 @@
 <script src="learn/core.js?v=r6"></script>
 <script src="command-play.js?v=r6"></script>
 <script src="ui/tapeview.js?v=r9"></script>
-<script src="home.js?v=r18"></script>
+<script src="home.js?v=r19"></script>
 <script src="inside/engine-sections.js?v=r11"></script>
-<script src="home-figures.js?v=r25"></script>
+<script src="home-figures.js?v=r26"></script>
 </body>
 </html>

@@ -56,7 +56,7 @@
   const lower = (arr, v) => { let lo = 0, hi = arr.length - 1; if (v < arr[0]) return -1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (arr[mid] <= v) lo = mid; else hi = mid - 1; } return lo; };
 
   // ---- what is where
-  let W = null, E = null, TI = null, spans = null, spanFrom = null, names = null, total = 0, places = null, tree = null;
+  let W = null, E = null, TI = null, spans = null, spanFrom = null, names = null, total = 0, places = null, tree = null, picW = null;      // picW: the picture part of the writing part (brnfck-qwen3.5-0.8b-vision)
   const ready = Promise.all([I.ready, I.tiles(HERO)]).then(([all, t]) => {
     W = all.W; E = all.E; TI = t; total = W.program.chars;
     ORDER = t.order; SIDE = t.side; TOP = t.top || ORDER - 3;
@@ -79,21 +79,41 @@
     const groupsW = [group((s) => s.kind === 'cls', 'Output table', 'Output')];
     for (let l = e.model.layers - 1; l >= 0; l--) groupsW.push(group((s) => s.part === 0 && s.layer === l && s.kind !== 'cls', 'Layer ' + (l + 1), 'L' + (l + 1)));
     groupsW.push(group((s) => s.kind === 'emb', 'Table of word pieces', 'Word pieces'), group((s) => s.kind === 'toktable' || s.kind === 'tokbytes', 'Vocabulary'));
-    const ids = e.sections.map((s) => s.id), range = (a, b, text, short) => add(1, e.sections[ids.indexOf(a)].from, e.sections[ids.indexOf(b)].to, text, short);
+    // the picture part: its regions are those of layer -2 (the part as a whole) and of layers 100 and on (its layers)
+    const V = e.model.vision, isPic = (s) => s.part === 0 && (s.layer === -2 || s.layer >= 100);
+    picW = V ? group(isPic, 'Picture part', 'Picture') : null;
+    if (picW) {
+      groupsW.push(picW);
+      for (let l = 0; l < V.layers; l++) { const g = spans.filter((q) => q.part === 0 && q.layer === 100 + l); if (g.length) add(2, g[0].from, g[g.length - 1].to, 'Picture layer ' + (l + 1), 'P' + (l + 1)); }
+    }
+    const ids = e.sections.map((s) => s.id), range = (a, b, text, short, tier = 1) => add(tier, e.sections[ids.indexOf(a)].from, e.sections[ids.indexOf(b)].to, text, short);
+    // the text of the picture part: once, before the question, in rounds over all squares
+    const rounds = V ? Array.from({ length: V.layers + 1 }, (_, r) => { const ss = e.sections.filter((q) => q.id.startsWith('v' + r + '.')); return add(2, ss[0].from, ss[ss.length - 1].to, 'Round ' + (r + 1) + ' of the picture part', 'Round ' + (r + 1)); }) : [];
+    const picE = V ? range('vstart', 'vend', 'Looking at the picture (once, before the question)', 'Looking at the picture') : null;
     // the text of the layers: one layer, or (brnfck-qwen3.5-0.8b) the four layers of a group, each written once
     const layerGroups = () => {
       if (!e.model.unit) return [range('xn1', 'xout', 'One layer (this text runs ' + e.model.layers + ' times)', 'One layer')];
       const per = e.model.unit.length;
       return e.model.unit.map((kind, u) => { const ss = e.sections.filter((s) => s.u === u), list = Array.from({ length: e.model.groups }, (_, i) => i * per + u + 1); return add(1, ss[0].from, ss[ss.length - 1].to, 'Layers ' + list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1] + ' (' + (kind === 'lin' ? 'DeltaNet' : 'attention') + ')', kind === 'lin' ? 'DeltaNet' : 'Attention'); });
     };
-    const groupsE = [range('ask', 'queue', 'Reading the question', 'Question'), range('take', 'emb', 'Start of a word piece', 'Word piece'), ...layerGroups(), range('xnf', 'print', 'Choosing and printing', 'Choosing')];
+    const groupsE = [...(picE ? [picE] : []), range('ask', 'queue', 'Reading the question', 'Question'), range('take', 'emb', 'Start of a word piece', 'Word piece'), ...layerGroups(), range('xnf', 'print', 'Choosing and printing', 'Choosing')];
     for (const s of spans) if (s.to - s.from > 2000 && !names.some((n) => n.tier === 1 && n.from === s.from && n.to === s.to)) add(2, s.from, s.to, s.title.replace(/ \(.*\)$/, ''), s.short);
     for (const m of e.marks) if (m.to - m.from >= 4096) add(3, m.from, m.to, I.markLabel(m));
     names.sort((a, b) => a.from - b.from);
     const kids = (g) => spans.filter((s) => s.from >= g.from && s.to <= g.to).map((s) => ({ text: s.title, from: s.from, to: s.to, fam: s.fam, span: s }));
+    // the picture part in the outline: its layers and its rounds one level deeper
+    const picKids = (g) => {
+      const out = [];
+      for (const k of kids(g)) {
+        const l = k.span.part === 0 && k.span.layer >= 100 ? k.span.layer : -1, last = out[out.length - 1];
+        if (l >= 0 && last && last.layer === l) { last.kids.push(k); last.to = k.to; } else if (l >= 0) out.push({ text: 'Picture layer ' + (l - 99), layer: l, from: k.from, to: k.to, kids: [k] }); else out.push(k);
+      }
+      return out;
+    };
+    const engineKids = (g) => (g !== picE ? kids(g) : [kids({ from: g.from, to: rounds[0].from })[0], ...rounds.map((r) => ({ text: r.text, from: r.from, to: r.to, kids: kids(r) })), ...kids({ from: rounds[rounds.length - 1].to, to: g.to })]);
     tree = { text: 'The program', says: 'One line of text, every character one of eight commands.', from: 0, to: total, open: true, kids: [
-      { text: 'The part that writes the model\'s numbers', says: 'It reads nothing and prints nothing. It only puts the model\'s numbers into memory, one block after another.', from: writer.from, to: writer.to, kids: groupsW.filter(Boolean).map((g) => ({ text: g.text, from: g.from, to: g.to, kids: kids(g) })).concat(spans.filter((s) => s.kind === 'walk').map((s) => ({ text: s.title, from: s.from, to: s.to, fam: s.fam, span: s }))) },
-      { text: 'The engine', says: 'It reads your question, does the model\'s sums with the numbers, and prints the answer.', from: engine.from, to: engine.to, kids: groupsE.map((g) => ({ text: g.text, from: g.from, to: g.to, kids: kids(g) })) },
+      { text: 'The part that writes the model\'s numbers', says: 'It reads nothing and prints nothing. It only puts the model\'s numbers into memory, one block after another.', from: writer.from, to: writer.to, kids: groupsW.filter(Boolean).map((g) => ({ text: g.text, from: g.from, to: g.to, kids: g === picW ? picKids(g) : kids(g) })).concat(spans.filter((s) => s.kind === 'walk').map((s) => ({ text: s.title, from: s.from, to: s.to, fam: s.fam, span: s }))) },
+      { text: 'The engine', says: 'It reads your question, does the model\'s sums with the numbers, and prints the answer.', from: engine.from, to: engine.to, kids: groupsE.map((g) => ({ text: g.text, from: g.from, to: g.to, kids: engineKids(g) })) },
     ] };
     const LAY = Math.min(12, e.model.layers - 1), inLayer = spans.filter((s) => s.part === 0 && s.layer === LAY && s.kind !== 'cls');
     const sample = w.samples.find((s) => s.id === 'w13') || w.samples[0], strip = spans.find((s) => s.part === 0 && s.layer === LAY && s.kind === 'bias') || spans.find((s) => s.part === 0 && s.layer === LAY && s.kind === 'gain' && s.region.what === 'ffn');
@@ -107,8 +127,10 @@
       ...(strip ? [{ name: 'Strips of constants', from: strip.from, to: strip.to }] : []),
       ...(I.QWEN && emb ? [{ name: 'The table of word pieces', from: emb.from, to: emb.to }] : []),
       { name: 'The vocabulary table', from: tok.from, to: tok.to, id: 'vocab' },
+      ...(picW ? [{ name: 'The picture part', from: picW.from, to: picW.to, id: 'picture' }, { name: 'Looking at the picture', from: picE.from, to: picE.to, id: 'looking' }] : []),
       { name: 'Where the two parts meet', at: w.program.writer, z: 3 },
-      { name: 'The one input command', at: e.comma, z: 5, secret: true, id: 'comma' },
+      ...(V ? [{ name: 'The input command of the picture', at: e.commaAll[0], z: 5, secret: true, id: 'comma' }, { name: 'The input commands of the question', at: e.commaAll[1], z: 5, id: 'comma2' }]
+        : [{ name: 'The one input command', at: e.comma, z: 5, secret: true, id: 'comma' }]),
       { name: 'The one print command', at: e.dot, z: 5 },
     ];
   });
@@ -314,7 +336,9 @@
   let partRows = null, partFrom = null, partRow = 0;
   const partRowsOf = () => {
     if (partRows) return partRows;
-    const key = (q) => (q.part ? 'The engine' : q.kind === 'cls' ? 'Output table' : q.kind === 'walk' ? 'Walk to the engine' : q.layer >= 0 ? 'Layer ' + (q.layer + 1) : q.kind === 'emb' ? 'Table of word pieces' : 'Vocabulary');
+    // (the picture part: the merger and its queue of vectors come before its layers in the text, the squares' weights and positions after them)
+    const picL = picW ? spans.find((q) => q.part === 0 && q.layer >= 100) : null;
+    const key = (q) => (q.part ? 'The engine' : q.kind === 'cls' ? 'Output table' : q.kind === 'walk' ? 'Walk to the engine' : q.layer >= 100 ? 'Picture layer ' + (q.layer - 99) : picW && q.from >= picW.from && q.from < picW.to ? (q.from < picL.from ? 'Picture: merger' : 'Picture: squares in') : q.layer >= 0 ? 'Layer ' + (q.layer + 1) : q.kind === 'emb' ? 'Table of word pieces' : 'Vocabulary');
     partRows = [];
     for (const q of spans) { const k = key(q), last = partRows[partRows.length - 1]; if (last && (last.name === k || (!q.part && k === 'Vocabulary' && q.to - q.from < total / 5000))) last.to = q.to; else partRows.push({ name: k, from: q.from, to: q.to }); }
     if (partRows.length > 1 && partRows[0].to - partRows[0].from < total / 5000) { partRows[1].from = partRows[0].from; partRows.shift(); }      // a few free cells before the first part
@@ -330,7 +354,7 @@
   }
   const partX = (x) => { const g = partsGeo(); return g.gut + (x - view.cx) * 2 ** view.z + g.w / 2; };
   LAYOUTS.parts = {
-    name: 'Part by part', says: 'One row for each part of the program: the output table, every layer, the table of word pieces, the vocabulary, the engine. All rows start at the left and have the same scale. Best to compare the layers with one another.',
+    name: 'Part by part', says: 'One row for each part of the program: the output table, every layer, the table of word pieces, the vocabulary, ' + (I.VIS ? 'the picture part and its layers, ' : '') + 'the engine. All rows start at the left and have the same scale. Best to compare the layers with one another.',
     zMin: () => Math.log2(partsGeo().w * 0.9 / partRowsOf().longest) - 0.4, zHome: () => Math.log2(partsGeo().w * 0.92 / partRowsOf().layer),
     home: () => { const g = partsGeo(); partRow = Math.min(partRowsOf().length - 1, Math.floor(g.visible / 2)); return { cx: (g.w / 2 - 6 * dpr) / 2 ** LAYOUTS.parts.zHome(), cy: 0 }; },
     clamp() { const g = partsGeo(), rows = partRowsOf(); view.cx = Math.max(0, Math.min(rows.longest, view.cx)); view.cy = Math.max(0, Math.min(rows.length - g.visible, view.cy)); },
@@ -344,7 +368,7 @@
   LAYOUTS.skyline = Object.assign({}, LAYOUTS.line, { name: 'Skyline', says: 'The one line with a height: how many loops lie inside one another there. Flat where the program only writes numbers, towers in the engine. Best to see where the program is complicated.' });
   LAYOUTS.time = Object.assign({}, LAYOUTS.line, { name: 'Text and time', says: 'Above, the text of the engine; below, the steps one word piece took, measured in a run. A band joins each section of the text to its share of the time. Best to see that a short piece of text can take most of the time.',
     zHome: () => Math.log2(Wd * 0.9 / E.chars), home: () => ({ cx: E.from + E.chars / 2, cy: 0 }) });
-  LAYOUTS.three = Object.assign({}, LAYOUTS.line, { name: 'Four programs', says: 'Above, this program; below, all four programs as bars at one scale, cut into the same five parts. Best to compare how long they are and what they are made of.' });
+  LAYOUTS.three = Object.assign({}, LAYOUTS.line, { name: 'Five programs', says: 'Above, this program; below, all five programs as bars at one scale, cut into the same parts. Best to compare how long they are and what they are made of.' });
   const LINES = { line: 1, lanes: 1, tape: 1, density: 1, skyline: 1, time: 1, three: 1 }, SECOND = { tape: 1, time: 1, three: 1 };      // SECOND: the lower ribbon is something else than the same line closer
   const isLine = () => LINES[layout] === 1;
   let depthData = null, depthWait = null, cmpData = null, cmpWait = null;
@@ -691,10 +715,10 @@
     const C = needCmp(), u = g.u, y = g.mtop, h = g.mh + g.rulerH, said = (t) => { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f3f1ea'; ctx.font = '600 ' + Math.round(12.5 * u) + 'px ' + UI; ctx.fillText(t, 6 * dpr, y - g.headH / 2); };
     if (!C || !C.models) { said(C === null ? 'Reading the programs\u2026' : 'The comparison of the programs is not on this host.'); return; }
     said('The ' + (I.words(C.models.length)) + ' programs at one scale. The frame is what the ribbon above shows.');
-    const big = Math.max(...C.models.map((m) => m.chars)), left = 6 * dpr, width = Math.min(Wd, ctlLeft()) - 14 * dpr, rowH = Math.floor(h / C.models.length), barH = Math.max(12 * dpr, rowH - Math.round(20 * u) - 4 * dpr), lw = Math.max(1, Math.round(dpr));
+    const big = Math.max(...C.models.map((m) => m.chars)), left = 6 * dpr, width = Math.min(Wd, ctlLeft()) - 14 * dpr, rowH = Math.floor(h / C.models.length), barH = Math.max(5 * dpr, rowH - Math.round(20 * u) - 4 * dpr), lw = Math.max(1, Math.round(dpr));
     C.models.forEach((m, r) => {
-      const k = m.textKinds, inLayers = Object.keys(k).filter((x) => !['cls', 'emb', 'tokbytes', 'tokids', 'toktable', 'work', 'glob'].includes(x)).reduce((a, x) => a + k[x], 0);
-      const parts = [['Output table', k.cls, 'out'], [m.layers + ' layers', inLayers, 'ff'], ['Word pieces', k.emb, 'emb'], ['Vocabulary', (k.tokbytes || 0) + (k.toktable || 0) + (k.work || 0) + (k.glob || 0), 'text'], ['Engine', m.engine, 'work']];
+      const k = m.textKinds, inLayers = Object.keys(k).filter((x) => !['cls', 'emb', 'tokbytes', 'tokids', 'toktable', 'work', 'glob', 'picture'].includes(x)).reduce((a, x) => a + k[x], 0);
+      const parts = [['Output table', k.cls, 'out'], [m.layers + ' layers', inLayers, 'ff'], ['Word pieces', k.emb, 'emb'], ['Vocabulary', (k.tokbytes || 0) + (k.toktable || 0) + (k.work || 0) + (k.glob || 0), 'text'], ...(k.picture ? [['Picture part', k.picture, 'pic']] : []), ['Engine', m.engine, 'work']];
       const yy = y + r * rowH, me = m.id === I.MODEL; let x = left;
       ctx.font = (me ? '800 ' : '600 ') + Math.round(12.5 * u) + 'px ' + UI; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = '#f3f1ea';
       ctx.fillText((me ? '\u25A0 ' : '') + m.label + ': ' + I.short(m.chars) + ' characters' + (me ? ' (this one)' : ''), left, yy);

@@ -8,7 +8,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { modelOf, IDS } = require('./models');
+const { modelOf, IDS, DEFS } = require('./models');
 
 const BINS = 512, AROUND = 160;
 const COMMANDS = '+-<>[].,';
@@ -26,7 +26,8 @@ function pack(n) {
   for (let b = 0; b < BINS; b++) { let t = 0; for (let k = 0; k < 8; k++) t += n[b * 8 + k]; for (let k = 0; k < 8; k++) out[b * 8 + k] = t ? Math.round(255 * n[b * 8 + k] / t) : 0; }
   return out.toString('base64');
 }
-for (const id of process.argv[2] ? [process.argv[2]] : IDS) {
+// (the four programs that read through one comma: brnfck-qwen3.5-0.8b-vision has three, one for the picture)
+for (const id of process.argv[2] ? [process.argv[2]] : IDS.filter((x) => !DEFS[x].vision)) {
   const M = modelOf(id), total = M.meta.programBytes, writer = M.meta.writerBytes;
   const E = JSON.parse(fs.readFileSync(path.join(M.dir, 'engine.json'), 'utf8'));
   const W = JSON.parse(fs.readFileSync(path.join(M.dir, 'writer.json'), 'utf8'));

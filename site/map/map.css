@@ -18,9 +18,8 @@ main.mapapp.nopanel { grid-template-columns: 0 minmax(0, 1fr); }
 main.mapapp p { max-width: none; text-wrap: wrap; }
 
 /* ---- the bar: one row of controls ---- */
-.mbar { grid-area: bar; display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--s3); padding: 5px max(12px, env(safe-area-inset-right, 0px)) 5px max(12px, env(safe-area-inset-left, 0px)); border-bottom: var(--edge) solid var(--ink); background: var(--bg); }
+.mbar { grid-area: bar; position: relative; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--s3); padding: 5px max(12px, env(safe-area-inset-right, 0px)) 5px max(12px, env(safe-area-inset-left, 0px)); border-bottom: var(--edge) solid var(--ink); background: var(--bg); }
 .mbar h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* the menu of the site already says where you are */
-.mbar .mprog { margin: 0; }
 .mbar button, .mbar .seg > * { gap: var(--s2); padding-left: var(--s3); padding-right: var(--s3); }      /* tighter than elsewhere, so that the bar stays one row */
 .mbar .seg { flex-wrap: nowrap; flex: 0 0 auto; }
 .mbar .seg > * { flex: 0 0 auto; white-space: nowrap; }
@@ -28,7 +27,7 @@ main.mapapp p { max-width: none; text-wrap: wrap; }
 .mbar .mlaysel { display: none; }
 .mbar select { min-width: 7.5rem; }
 .mbar .mmore select { min-width: 0; }
-@media (max-width: 92em) { .mbar .mbil, .mbar .mprog { display: none; } }
+@media (max-width: 80em) { .mbar .pp-len { display: none; } }
 @media (max-width: 72em) { .mbar #m-panel-toggle-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } .mbar #m-panel-toggle { padding-left: 0; padding-right: 0; } }
 @media (max-width: 62em) { .mbar .mlay, .mbar .mmore { display: none; } .mbar .mlaysel { display: block; } }
 
@@ -185,13 +184,10 @@ main.mapapp p { max-width: none; text-wrap: wrap; }
   .mbar { gap: 4px var(--s2); flex-wrap: nowrap; }
   .mbar h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .mbar #m-panel-toggle { display: none; }
-  .mbar #modelbar { margin-right: auto; }
-  .mbar .mpre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* four programs: the family over the size is enough here */
-  .mbar #modelbar > a { flex-direction: column; justify-content: center; gap: 0; line-height: 1.1; }
-  .mbar .mfam { font-size: 0.72em; color: var(--muted); }
-  .mbar #modelbar > a[aria-current] .mfam { color: inherit; }
-  .mbar #modelbar > a { padding-left: var(--s2); padding-right: var(--s2); }
-  .mbar .mlaysel { flex: 1 1 auto; min-width: 0; }
+  .mbar #modelbar { flex: 1 1 auto; }
+  .mbar #modelbar summary { justify-content: space-between; }
+  .mbar .pp-cur .pp-pre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* the family and the size are enough on the button; the list has the names in full */
+  .mbar .mlaysel { flex: 0 1 8.5rem; min-width: 0; }
   .mbar .mlaysel select { width: 100%; min-width: 0; }
   .mstage { padding-bottom: var(--peek); }
   /* the status bar: where you are on the whole width, under it the scale and the button */
@@ -232,7 +228,6 @@ main.mapapp p { max-width: none; text-wrap: wrap; }
   body.mappage { height: auto; overflow: auto; }
   main.mapapp { flex: 0 0 auto; height: 36rem; }
 }
-@media (max-width: 24em) { .mbar #modelbar > a { padding-left: 6px; padding-right: 6px; } }
 @media (max-width: 22em) { .mbar { flex-wrap: wrap; } }
 @media (max-width: 40em) and (max-height: 45em), (max-width: 56.25em) and (orientation: portrait) and (max-height: 45em) { main.mapapp { --peek: 11rem; } .mstatus { height: 6.4rem; } #m-where { -webkit-line-clamp: 1; line-clamp: 1; } }      /* a low phone: one line of "where", the rest is in the panel */
 @media print { body.mappage { height: auto; overflow: visible; } .mpanel, .mbar, .mapctl, #m-mini { display: none !important; } }

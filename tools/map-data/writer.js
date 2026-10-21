@@ -40,6 +40,7 @@ const tape = run.tape;
 lap(`writing part run: tape of ${num(tape.length)} cells, pointer on ${run.pointer}`);
 
 const G = build(MODEL.id);
+G.restChunks = null;                    // (the engine text is not needed here)
 const regions = tapeRegions(G.engine, G.layout);
 const OFFW = G.engine.OFFW, OFFE = QWEN ? G.engine.OFFE : 2 ** 20 + 1;
 lap('engine generated again, ' + regions.length + ' tape regions');

@@ -22,7 +22,7 @@
     // with its part for pictures: reads a picture (pics below) before the question
     '0.8b-vision': { name: '0.8b-vision', label: 'brnfck-qwen3.5-0.8b-vision', model: 'Qwen3.5-0.8B, with pictures', worker: 'workers/brnfck-qwen3.5-0.8b-vision.js?v=r1',
       manifestUrl: 'dist/0.8b-vision/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b-vision.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b-vision.bf',
-      needGB: 7, download: '1.51 GB', startup: '87 s, then 11 min', perPiece: 'about 6.6 s', loadsEach: true, wide: true, picture: true },
+      needGB: 7, download: '1.51 GB', startup: '1 min 40 s, then 14 min', perPiece: 'about 5.6 s', loadsEach: true, wide: true, picture: true },
   };
   const EXAMPLES = ['What is the capital of France?', 'What is 12 + 30?', 'Who wrote Romeo and Juliet?', 'Hello'];
   const PICTURE_EXAMPLES = ['Describe this picture in one sentence.', 'What colour are the eyes?', 'How many windmills are there?', 'What is in this picture?'];
@@ -500,20 +500,18 @@
   }
   for (const m of Object.values(MODELS)) {
     const label = document.createElement('label'), r = document.createElement('input'), name = document.createElement('span'), b = document.createElement('b'), s = document.createElement('small');
-    const cell = (what, text) => { const c = document.createElement('span'), w = document.createElement('small'); c.className = 'n'; w.textContent = what; c.append(text, ' ', w); return c; };
     r.type = 'radio'; r.name = 'model'; r.value = m.name;
-    // on a narrow screen the name breaks after brnfck-, never inside the model's own name
+    // the name on a line of its own, breaking after brnfck- only if it must; under it the model, the download and the start-up
     { const rest = document.createElement('span'); rest.className = 'nb'; rest.textContent = m.label.replace(/^brnfck-/, ''); b.append('brnfck-', document.createElement('wbr'), rest); }
-    s.textContent = m.model;
-    name.append(b, ' ', s);
+    // each part stays whole; a line breaks only after a dot
+    [m.model, m.download, 'start-up ' + m.startup].forEach((part, i) => { const p = document.createElement('span'); p.textContent = part; s.append(i ? '\u00a0\u00b7 ' : '', p); });
+    name.append(b, s);
+    if (m.picture) { const sep = document.createElement('p'); sep.className = 'pick-sep'; sep.textContent = 'With a photo'; $('models').append(sep); }
     r.addEventListener('change', () => {
       try { localStorage.setItem('brnfck.model', m.name); } catch (e) { }
       select(m.name);
     });
-    // a long start-up ('2 min 10 s to 2 min 37 s') may break in two before 'to', nowhere else
-    const long = m.startup.length > 12, startup = cell('start-up', long ? m.startup.replace(/ (?!to )/g, '\u00a0') : m.startup);
-    if (long) startup.classList.add('wrap');
-    label.append(r, name, cell('download', m.download), startup);
+    label.append(r, name);
     $('models').append(label);
   }
 

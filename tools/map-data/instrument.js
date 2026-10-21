@@ -16,12 +16,14 @@ function family(model) {
       make: () => buildSplit(realArch(), TOK, { check: false }),
     };
   }
-  if (model === '0.8b') {
-    // Qwen3.5: the engine notes its own named steps (layout().marks); its text is kept in pieces that count their characters
-    const { ChatProgram } = require(path.join(ROOT, 'compiler', 'qwen3.5', 'program', 'gen'));
+  if (model === '0.8b' || model === '0.8b-vision') {
+    // Qwen3.5: the engine notes its own named steps (layout().marks); its text is kept in pieces that count their characters.
+    // The vision part of the picture program notes its steps in the same list, with the kind 'vision'.
+    const { ChatProgram } = require(path.join(ROOT, 'compiler', 'qwen3.5', 'program', 'gen')), vision = model === '0.8b-vision';
     return {
       Engine: require(path.join(ROOT, 'compiler', 'qwen3.5', 'engine', 'gen')).Engine, T: require(path.join(ROOT, 'compiler', 'qwen3.5', 'tokenizer', 'gen')),
-      ChatProgram, Top: ChatProgram, make: () => require(path.join(ROOT, 'compiler', 'qwen3.5', 'program', 'build')).generate(), ownStages: true,
+      ChatProgram, Top: vision ? require(path.join(ROOT, 'compiler', 'qwen3.5', 'vision', 'program')).VisionChatProgram : ChatProgram,
+      make: () => require(path.join(ROOT, 'compiler', 'qwen3.5', vision ? 'vision' : 'program', 'build')).generate(), ownStages: true,
     };
   }
   const C = require(path.join(ROOT, 'compiler', 'qwen', 'program', 'common')), { ChatProgram } = require(path.join(ROOT, 'compiler', 'qwen', 'program', 'gen'));
@@ -113,8 +115,10 @@ function build(model = 'small') {
   if (ownStages) {
     // the named steps the engine noted itself, with the kind of layer and its place in the group of layers
     for (const m of S.layout.marks) out.push({ kind: 'stage', name: m.name, from: m.start, to: m.end, depth: 0, info: m.name, layerKind: m.kind, u: m.u });
-    S.restSrc = S.restChunks.join('');
-    S.restChunks = null; S.chunks = null;
+    // (the rest of the picture program is longer than a string can be: it is kept in its pieces)
+    S.restLength = S.restChunks.reduce((n, c) => n + c.length, 0);
+    if (S.restLength < 2 ** 28) { S.restSrc = S.restChunks.join(''); S.restChunks = null; }
+    S.chunks = null;
   }
   if ((counted ? main.chars : prefix(main)[main.length]) !== (counted ? S.length : S.src.length)) throw new Error('offsets do not add up');
   return { ...S, marks: out, engine: prog };
@@ -129,16 +133,32 @@ const DN_OWN = new Set(['sweep1', 'round', 'conv', 'qk', 'load', 'decay', 'vq', 
 const keyOf = (m) => (m.layerKind === 'lin' && DN_OWN.has(m.name) ? 'dn.' + m.name : m.name);
 
 function sections(G) {
-  const L = G.loadSrc.length, total = G.restSrc.length;
+  const L = G.loadSrc.length, total = G.restSrc ? G.restSrc.length : G.restLength;
   const stages = G.marks.filter((m) => m.kind === 'stage' && !nested(m)).sort((a, b) => a.from - b.from);
   const enc = G.marks.find((m) => m.kind === 'tok' && m.name === 'emitEncode');
-  const list = [{ id: 'ask', from: 0 }, { id: 'queue', from: enc.to - L }];
-  for (const s of stages) {
-    if (s.u === undefined || s.u === null) list.push({ id: s.info, from: null, start: s.from - L, end: s.to - L });
-    // a step of the group of layers of Qwen3.5: its text is written once for each place in the group
-    else list.push({ id: 'u' + s.u + '.' + s.name, key: keyOf(s), u: s.u, layerKind: s.layerKind, from: null, start: s.from - L, end: s.to - L });
+  // A section starts where the step before it ended (the code between two steps goes with the second), at the start of
+  // its own step when the section before it has no step, or at a fixed place.
+  const list = [];
+  // The picture program: its vision part runs first, before the question is read. A round of it is the second half of
+  // one layer and the first half of the next, written out for every round; a round starts at the step 'fetch'.
+  const vis = stages.filter((s) => s.layerKind === 'vision');
+  if (vis.length) {
+    list.push({ id: 'vstart', from: 0 });
+    let round = 0;
+    for (const s of vis) {
+      if (s.name === 'fetch') round++;
+      list.push({ id: 'v' + round + '.' + s.name, key: 'v.' + s.name, round, layerKind: 'vision', start: s.from - L, end: s.to - L });
+    }
+    list.push({ id: 'vend' });
   }
-  for (let i = 2; i < list.length; i++) list[i].from = i === 2 ? list[i].start : list[i - 1].end;
+  list.push({ id: 'ask', from: vis.length ? enc.from - L : 0 }, { id: 'queue', from: enc.to - L });
+  for (const s of stages) {
+    if (s.layerKind === 'vision') continue;
+    if (s.u === undefined || s.u === null) list.push({ id: s.info, start: s.from - L, end: s.to - L });
+    // a step of the group of layers of Qwen3.5: its text is written once for each place in the group
+    else list.push({ id: 'u' + s.u + '.' + s.name, key: keyOf(s), u: s.u, layerKind: s.layerKind, start: s.from - L, end: s.to - L });
+  }
+  list.forEach((s, i) => { if (s.from === undefined) s.from = i && list[i - 1].end !== undefined ? list[i - 1].end : s.start; });
   list.forEach((s, i) => { s.to = i + 1 < list.length ? list[i + 1].from : total; delete s.start; delete s.end; });
   for (const s of list) if (!(s.to > s.from)) throw new Error('empty section ' + s.id);
   return list;

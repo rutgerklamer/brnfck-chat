@@ -12,6 +12,8 @@
   --k-work: var(--d6);
   --k-mem: color-mix(in srgb, var(--d1) 45%, var(--d3));
   --k-tidy: color-mix(in srgb, var(--d4) 45%, var(--d6));
+  --k-pic: color-mix(in srgb, var(--d2) 30%, #c8283a);           /* the vision part of brnfck-qwen3.5-0.8b-vision: red, the one hue the others leave free */
+  --k-pic2: color-mix(in srgb, var(--k-pic) 62%, var(--ink));
   /* the eight commands on the map: its own dark sheet, the same in both themes */
   --c-plus: #e69f00; --c-minus: #3d9bd6; --c-lt: #3f4654; --c-gt: #8f98a8; --c-open: #cc79a7; --c-close: #9c4c7c; --c-in: #00b384; --c-out: #e8601c;
   --map-bg: #0f1114; --map-ink: #f3f1ea;
