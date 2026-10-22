@@ -23,7 +23,11 @@ args = a.parse_args()
 tok = AutoTokenizer.from_pretrained(args.model)
 dev = 'cpu' if args.cpu else 'cuda'
 model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.float32 if args.cpu else torch.bfloat16)
-if args.checkpoint:
+if args.checkpoint and args.checkpoint.endswith('.safetensors'):   # a snapshot of train.py: the weights alone, the output layer tied
+    from safetensors.torch import load_file
+    model.load_state_dict({k: v.float() for k, v in load_file(args.checkpoint).items()}, strict=False)
+    model.tie_weights()
+elif args.checkpoint:
     model.load_state_dict(torch.load(args.checkpoint, map_location='cpu', weights_only=True)['model'])
 model = model.to(dev).eval()
 END = [tok.convert_tokens_to_ids('<|im_end|>'), tok.convert_tokens_to_ids('<|endoftext|>')]

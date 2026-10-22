@@ -142,12 +142,14 @@
       };
       anim = requestAnimationFrame(frame);
     }
-    near($('labCode'), () => fetch('coder/data/coder.json?v=r2').then((r) => { if (!r.ok) throw new Error('no data'); return r.json(); }).then((d) => {
+    near($('labCode'), () => fetch('coder/data/coder.json?v=r3').then((r) => { if (!r.ok) throw new Error('no data'); return r.json(); }).then((d) => {
       const q = d.challenges.find((c) => c.id === d.run.challenge);
       code = d.run.answer;
       $('lcTask').textContent = `“${q ? q.question : d.run.challenge}”`;
+      const ex = q && /(\S+) (?:gives|becomes) /.exec(q.question);         // the input of the task's own example: "38 gives 8"
+      if (ex) $('lcIn').value = ex[1];
       paint($('lcCode'), code);
-      $('lcFacts').textContent = `758 MB · start-up 35 to 70 s · ${d.run.perPiece.toFixed(2)} s per word piece · this answer: ${d.run.pieces} word pieces in ${Math.round(d.run.total)} s`;
+      $('lcFacts').textContent = `758 MB · start-up 35 to 70 s · about 2.2 s per word piece · this answer: ${d.run.pieces} word pieces`;
       run();
     }).catch(() => { $('lcOut').textContent = 'The data of this experiment could not be loaded.'; }));
     $('lcGo').addEventListener('click', run);

@@ -22,7 +22,7 @@ const base = read('answers-base.json');
 const VERSIONS = [
   { key: 'base', name: 'As downloaded', note: 'Qwen2.5-Coder-0.5B-Instruct before it was taught, in floating point', challenges: byId(base, 'challenge'), blind: byId(base, 'blind') },
   { key: 'v1', name: 'Taught, first round', note: '60,000 examples in 35 families, through the whole-number spec', challenges: byId(read('answers-spec.json')), blind: byId(read('answers-blind-spec-v1.json')) },
-  { key: 'v2', name: 'Taught, second round', note: '100,000 examples in 47 families, through the whole-number spec', challenges: byId(read('answers-spec-v2.json')), blind: byId(read('answers-blind-spec-v2.json')) },
+  { key: 'v3', name: 'Taught, final round', note: '2,350 real programs, then 160,000 examples in 49 families, through the whole-number spec', challenges: byId(read('answers-spec-v3.json')), blind: byId(read('answers-blind-spec-v3.json')) },
 ].filter((v) => Object.keys(v.challenges).length);
 
 const questions = read('challenges.json');
@@ -35,7 +35,7 @@ const V1_FAMILIES = ['text', 'repeat', 'range', 'lines', 'cat', 'echoTimes', 'sh
   'isEmpty', 'isChar', 'same', 'parity', 'replace', 'remove'];
 const families = Object.keys(F).map((k) => { let ex = null; for (let i = 0; !ex && i < 50; i++) ex = F[k](); return { key: k, added: !V1_FAMILIES.includes(k), question: ex.q, code: ex.code }; });
 
-// the training of the second round: test loss and exact answers every 500 steps
+// the training of the final round (its second stage): test loss and exact answers every 500 steps
 const curve = [];
 if (fs.existsSync(path.join(OUT, 'train.log'))) {
   let step = 0;
@@ -56,7 +56,7 @@ const data = {
   challenges, blind, families, curve,
   training: [
     { key: 'v1', examples: 60000, families: 35, steps: 3750, minutes: 52, exact: 88.4 },
-    { key: 'v2', examples: 100000, families: 47, steps: 6250, minutes: null, exact: curve.length ? curve[curve.length - 1][2] : null },
+    { key: 'v3', examples: 160000, families: 49, stack: 2350, steps: 5000, minutes: 245, exact: curve.length ? curve[curve.length - 1][2] : null },
   ],
 };
 fs.mkdirSync(path.join(SITE, 'coder', 'data'), { recursive: true });

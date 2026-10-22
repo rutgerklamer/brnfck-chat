@@ -31,6 +31,7 @@ a.add_argument('--resume', action='store_true')
 a.add_argument('--src', default=os.path.join(DOWNLOADS, 'qwen2.5-coder-0.5b'))
 a.add_argument('--dst', default=os.path.join(DOWNLOADS, 'qwen2.5-coder-0.5b-brainfuck'))
 a.add_argument('--plain')
+a.add_argument('--snap', type=int, default=1000)  # every so many steps the weights alone, as out/snap-<step>.safetensors (0: none)
 args = a.parse_args()
 SRC, DST = args.src, args.dst
 random.seed(args.seed)
@@ -143,6 +144,10 @@ while step < steps:
             loss, exact = evaluate()
             print(f'  test loss {loss:.4f}, whole answer exactly right (one pass, greedy per token) {100 * exact:.1f}%', flush=True)
             if step < steps: save_checkpoint()
+        if args.snap and step % args.snap == 0 and step < steps:
+            # the weights alone, to pick the best moment afterwards on tasks that are not the test (check.js)
+            save_file({k: v.detach().to(torch.bfloat16).contiguous().cpu() for k, v in model.state_dict().items() if k != 'lm_head.weight'},
+                      os.path.join(DATA, f'snap-{step}.safetensors'), metadata={'format': 'pt'})
         if os.path.exists(STOP):
             save_checkpoint(); os.remove(STOP)
             print(f'stopped at step {step}; continue with --resume', flush=True)

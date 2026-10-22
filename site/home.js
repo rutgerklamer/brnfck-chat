@@ -32,8 +32,8 @@
   const PICTURE_EXAMPLES = ['Describe this picture in one sentence.', 'What colour are the eyes?', 'How many windmills are there?', 'What is in this picture?'];
   // four of the challenges of challenges/ that brnfck-qwen2.5-coder-0.5b solves, in their own words, with an input to run its answer on
   const CODE_EXAMPLES = ['Print ABC. There is no input.', 'Read two characters and print them in the opposite order.', 'Print the input without its spaces: a b c becomes abc.',
-    'Print how many times the small letter a occurs in the input, as one digit. It occurs at most 9 times: banana gives 3.'];
-  const CODE_INPUT = { [CODE_EXAMPLES[1]]: 'ab', [CODE_EXAMPLES[2]]: 'a b c', [CODE_EXAMPLES[3]]: 'banana' };
+    'Read two digits and print the larger of the two: 38 gives 8. If they are equal, print that digit once.'];
+  const CODE_INPUT = { [CODE_EXAMPLES[1]]: 'ab', [CODE_EXAMPLES[2]]: 'a b c', [CODE_EXAMPLES[3]]: '38' };
   const examples = () => (model.picture ? PICTURE_EXAMPLES : model.code ? CODE_EXAMPLES : EXAMPLES);
 
   let loadStart = 0, state = 'finding', model = null, P = null, worker = null, run = null, pending = null, last = '', nextId = 1, lastStep = '', noStore = false, env = null;

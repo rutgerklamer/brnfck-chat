@@ -1,11 +1,12 @@
 {
-  "version": "v1",
-  "challenge": "count-a",
-  "questionBytes": 118,
-  "startup": 33.6,
-  "firstPiece": 122.4,
-  "pieces": 20,
-  "perPiece": 2.19,
-  "total": 166.2,
-  "answer": ",[------------------------------------------------------------------------------------------------->+<[>-<[-]]>[->+<]<,]>>++++++++++++++++++++++++++++++++++++++++++++++++."
+  "version": "v3",
+  "challenge": "larger",
+  "questionBytes": 103,
+  "startup": 45,
+  "firstPiece": 162.1,
+  "pieces": 51,
+  "perPiece": 3.15,
+  "total": 327,
+  "answer": ",------------------------------------------------>,------------------------------------------------<[->>>>+>+<<<<<]>>>>>[-<<<<<+>>>>>]<<<<<[->[->+>+<<]>>[-<<+>>]<[[-]<->]<<]>[->>>+<<<]>>>++++++++++++++++++++++++++++++++++++++++++++++++.",
+  "note": "while a long brainfuck training run took part of the same computer, so slower than on a quiet one: the first round, with the same engine, started in 33.6 s and took 2.19 s per word piece"
 }

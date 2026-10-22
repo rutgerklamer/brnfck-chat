@@ -103,7 +103,7 @@
       tb.append(tr);
     });
     var ok = res.cases.filter(function (c) { return c.pass; }).length;
-    var who = { base: 'the downloaded model', v1: 'the first round', v2: 'the second round' }[state.ver];
+    var who = { base: 'the downloaded model', v1: 'the first round', v3: 'the final round' }[state.ver];
     $('ask-said').textContent = (res.pass ? 'Right: ' : 'Wrong: ') + 'the program that ' + who + ' wrote passes ' + ok + ' of ' + res.cases.length + ' test case' + (res.cases.length === 1 ? '' : 's') +
       (res.banned ? ', but it uses a command the task forbids' : '') + '.';
     own();
@@ -160,7 +160,7 @@
     var ans = el('pre', 'bf'); paint(ans, r.answer); box.append(el('p', 'label', 'What it wrote: ' + r.pieces + ' word pieces, ' + r.answer.length + ' characters'), ans);
     $('time-said').textContent = 'Of ' + r.total.toFixed(0) + ' seconds, ' + Math.round(100 * read / r.total) + '% go to reading the ' + r.questionBytes + ' bytes of the question and ' + Math.round(100 * write / r.total) +
       '% to writing. The program it writes has ' + r.answer.length + ' characters; the program that writes it has ' + num(D.program.chars) + '.';
-    $('time-src').textContent = 'Measured on the command line (compiler/qwen/program/ask.js), Node.js 24 on 8 cores, one run, the question of the challenge Count the a; a tick is a word piece printed.';
+    $('time-src').textContent = 'Measured on the command line (compiler/qwen/program/ask.js), Node.js 24 on 8 cores, one run, the question of the challenge ' + C.byId[r.challenge].title + ', ' + r.note + '. A tick is a word piece printed.';
   }
 
   // ---- the training
@@ -184,7 +184,7 @@
   function drawCurve() {
     var pts = D.curve.filter(function (p) { return p[0] > 0; }), box = $('curve'), tr = D.training;
     box.textContent = '';
-    if (!pts.length) { box.append(el('p', 'tell', 'The second round is still training.')); return; }
+    if (!pts.length) { box.append(el('p', 'tell', 'The final round is still training.')); return; }
     var W = 640, H = 220, L = 44, R = 12, T = 12, B = 34, maxS = tr[1].steps, x = function (s) { return L + (W - L - R) * s / maxS; }, y = function (v) { return T + (H - T - B) * (1 - v / 100); };
     var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Test examples written exactly right, by step"><g class="grid">';
     [0, 25, 50, 75, 100].forEach(function (v) { svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + '%</text>'; });
@@ -195,7 +195,7 @@
     svg += '<text class="end" x="' + (x(last[0]) - 6) + '" y="' + (y(last[2]) - 10) + '" text-anchor="end">' + last[2] + '%</text>';
     svg += '<text class="ax" x="' + (W - R) + '" y="' + (H - 1) + '" text-anchor="end">steps of 32 examples</text></svg>';
     box.innerHTML = svg;
-    $('curve-src').textContent = 'The second round: the share of ' + num(272) + ' test examples, never trained on, whose whole program the model writes token for token, every 500 steps (compiler/coder/train.py). The first round ended at ' + tr[0].exact + '% after ' + num(tr[0].steps) + ' steps on ' + num(tr[0].examples) + ' examples of ' + tr[0].families + ' kinds. Exactly the same program is a strict measure: another program that also works counts as wrong here.';
+    $('curve-src').textContent = 'The final round, after its first stage on real brainfuck: the share of ' + num(497) + ' test examples, never trained on, whose whole program the model writes token for token, every 500 steps (compiler/coder/train.py). The first round ended at ' + tr[0].exact + '% after ' + num(tr[0].steps) + ' steps on ' + num(tr[0].examples) + ' examples of ' + tr[0].families + ' kinds. Exactly the same program is a strict measure: another program that also works counts as wrong here.';
   }
 
   // ---- where it goes wrong
@@ -225,8 +225,8 @@
   }
 
   // ---- Ask it yourself: the program itself, in a worker, as on the chatbot (home.js)
-  // challenges whose answer passes the challenge's test cases (the same four as the chatbot)
-  var EXAMPLES = ['abc', 'swap-two', 'no-spaces', 'count-a'];
+  // challenges whose answer passes the challenge's test cases (checked again for every round)
+  var EXAMPLES = ['abc', 'swap-two', 'no-spaces', 'larger'];
   var L = { P: null, worker: null, ready: false, id: 0, run: null, t0: 0 };
   var size = function (n) { return self.ProgramStart ? ProgramStart.size(n) : num(n / 1e6) + ' MB'; };
   function liveSay(t) { $('live-said').textContent = t; }
@@ -328,7 +328,7 @@
     });
   }
 
-  fetch('data/coder.json?v=r1').then(function (r) { return r.json(); }).then(function (d) {
+  fetch('data/coder.json?v=r3').then(function (r) { return r.json(); }).then(function (d) {
     D = d;
     state.ver = D.versions[D.versions.length - 1].key;
     scoreAll(); fillNumbers();

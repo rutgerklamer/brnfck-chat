@@ -116,7 +116,7 @@
     <figure class="fig" id="fig-score" aria-label="Which tasks each version solves">
       <div class="cdr-board" id="board"></div>
       <p class="key small"><span><i class="sq on"></i>passes every test case</span><span><i class="sq"></i>does not</span><span>Press a square to see the task above.</span></p>
-      <p class="measured">Counted in your browser: every program is run on every test case when the page opens. The challenges stay in the groups of the challenges page. The second round was taught the skills of the challenges, with other numbers and in other words, so for it the challenges are no longer a blind test; the 60 blind tasks are.</p>
+      <p class="measured">Counted in your browser: every program is run on every test case when the page opens. The challenges stay in the groups of the challenges page. The final round was taught the skills of the challenges, with other numbers and in other words, so for it the challenges are no longer a blind test; the 60 blind tasks are.</p>
     </figure>
   </section>
 
@@ -133,11 +133,12 @@
   <section id="taught" aria-labelledby="taught-h">
     <h2 id="taught-h">How it was taught</h2>
     <p>Qwen2.5-Coder-0.5B-Instruct, as it can be downloaded, writes Python well and brainfuck not at all: asked for a capital A, it starts with a loop and then repeats <code>&gt;+++++++</code> until the conversation is full. It solves none of the 51 challenges. So it was taught, on a graphics card, before it was turned into brainfuck.</p>
-    <p>The examples were made by small programs, one per kind of task, each with its own words and random numbers: print this text, repeat this character, read two digits and add them, replace every space. Every example program was run on random inputs by the same checker as the challenges before it was kept, so the model never saw a wrong one. Below one example of every kind; the kinds marked <b>new</b> were added in the second round.</p>
+    <p>The examples were made by small programs, one per kind of task, each with its own words and random numbers: print this text, repeat this character, read two digits and add them, replace every space. Every example program was run on random inputs by the same checker as the challenges before it was kept, so the model never saw a wrong one. Below one example of every kind; the kinds marked <b>new</b> were added after the first round.</p>
     <figure class="fig" id="fig-fam" aria-label="One training example of every kind of task">
       <div class="cdr-fams" id="fams"></div>
     </figure>
-    <figure class="fig" id="fig-curve" aria-label="The second round of training: how often the model writes a test example exactly right">
+    <p>It was taught in rounds. The first had 60,000 examples of 35 kinds. The second had 14 kinds more, and showed something to watch for: the longer it trained, the better it got at the words of the examples and the worse at tasks put in other words, so it was stopped halfway. The final round first read 2,350 brainfuck programs as people wrote them, from The Stack, so that it knows the language beyond the examples; then 160,000 examples of 49 kinds, among them tasks made of parts (every character dropped, shifted, repeated or followed by something; the whole input forwards, backwards, in capitals, with a text or its length) and the same tasks put in many more ways. Of its snapshots, the one kept is the best on 30 more tasks written by hand, which are not the blind tasks and were never used to teach either.</p>
+    <figure class="fig" id="fig-curve" aria-label="The final round of training: how often the model writes a test example exactly right">
       <div class="cdr-curve" id="curve"></div>
       <p class="measured" id="curve-src">&nbsp;</p>
     </figure>
@@ -160,7 +161,7 @@
       <li>the memory its first part writes equals the memory of the loaded model, in 628 SHA-256 sums over <span data-v="tape">657 million</span> cells;</li>
       <li>for four challenges, the text it prints equals, byte for byte, the program the whole-number version of the model writes, and every scratch cell is zero at the end.</li>
     </ul>
-    <p>That is why the answers on this page are those of the brainfuck program. Asked <em>Count the a</em> on the command line, it read the 118 bytes of the question, printed the program shown above under <a href="#answer">One answer, to scale</a>, and that program passes all seven test cases of the challenge.</p>
+    <p>That is why the answers on this page are those of the brainfuck program. Asked <em>The larger one</em> on the command line, it read the 103 bytes of the question, printed the program shown above under <a href="#answer">One answer, to scale</a>, character for character the one of the whole-number version, and that program passes all eight test cases of the challenge.</p>
   </section>
 
   <section id="notes" aria-labelledby="notes-h">
@@ -177,6 +178,6 @@
 <script src="../program-start.js?v=r6"></script>
 <script src="../challenges/data.js?v=r6"></script>
 <script src="../challenges/engine.js?v=r6"></script>
-<script src="coder.js?v=r5"></script>
+<script src="coder.js?v=r7"></script>
 </body>
 </html>

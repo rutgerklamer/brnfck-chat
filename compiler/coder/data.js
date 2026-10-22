@@ -2,7 +2,7 @@
 
 // Training examples for brnfck-qwen2.5-coder-0.5b: a task in words and a brainfuck program that does it.
 // Every program is run by the checker of site/challenges/ on random inputs before it is kept.
-// The tasks of blind.js are the test: a question that is one of them is never used.
+// The tasks of blind.js are the test and those of check.js pick a snapshot: a question that is one of them is never used.
 //   node compiler/coder/data.js [count] [seed]   ->  compiler/coder/out/train.jsonl, test.jsonl
 
 const fs = require('fs');
@@ -489,7 +489,7 @@ function reword(q) {
 const WEIGHT = { perChar: 4, phases: 4 };
 
 // ---- making and checking examples
-const BLIND = new Set(require('./blind').BLIND.map((t) => t.question.toLowerCase()));
+const BLIND = new Set([...require('./blind').BLIND, ...require('./check').CHECK].map((t) => t.question.toLowerCase()));
 function check(ex) {
   for (const input of ex.inputs) {
     const r = BF.run(ex.code, { input, bits: 8, eof: 0 });
