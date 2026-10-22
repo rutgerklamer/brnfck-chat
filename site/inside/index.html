@@ -13,17 +13,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
-<link rel="stylesheet" href="../ui/progpick.css?v=r1">
+<link rel="stylesheet" href="../ui/progpick.css?v=r4">
 <link rel="stylesheet" href="../ui/inside.css?v=r10">
 </head>
 <body>
-<script src="../site.js?v=r17" data-section="insights"></script>
+<script src="../site.js?v=r23" data-section="insights"></script>
 <main class="doc inside" id="main">
 
   <header class="plain">
-    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>Inside the program</span></p>
+    <p class="kicker crumbs"><a href="../how/">Insights</a><span>Inside the program</span></p>
     <h1>Inside the program</h1>
     <p class="lead">This program is <span data-f="chars">billions of</span> characters long, and every one of them is one of the eight commands of brainfuck. Together they run <span data-f="modelName">a chat model</span>. Nearly all of those characters do one small thing: they put a number into memory. A short stretch at the end uses those numbers to turn your question into an answer.</p>
     <div class="top-nav">
@@ -433,12 +433,12 @@
     <ol class="dest">
       <li style="--c: var(--c-gt)"><a href="../map/" class="tomap"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>This program</small><span>See every character of it in one picture, and zoom in to the block or the section you read about here.</span></a></li>
       <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the bit peel yourself.</span></a></li>
-      <li style="--c: var(--c-open)"><a href="../how/"><i aria-hidden="true">[]</i><b>How it works</b><small>Article</small><span>Follow one question from your keyboard to the first printed word piece.</span></a></li>
+      <li style="--c: var(--c-minus)"><a href="../how/"><i aria-hidden="true">-</i><b>How it works</b><small>Article</small><span>Follow one question from your keyboard to the first printed word piece.</span></a></li>
       <li style="--c: var(--c-in)" data-only="small"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-smollm2-135m</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
       <li style="--c: var(--c-in)" data-only="0.5b"><a href="../?m=0.5b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen2.5-0.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
       <li style="--c: var(--c-in)" data-only="1.5b"><a href="../?m=1.5b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen2.5-1.5b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
       <li style="--c: var(--c-in)" data-only="0.8b"><a href="../?m=0.8b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen3.5-0.8b</b><small>Chatbot</small><span>Run this program on a question of your own.</span></a></li>
-      <li style="--c: var(--c-minus)"><a href="../compare/"><i aria-hidden="true">-</i><b>Compare the models</b><small>Article</small><span>What Qwen3.5-0.8B keeps instead of looking back, next to the models that look back in every layer.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../compare/"><i aria-hidden="true">[]</i><b>Compare the models</b><small>Article</small><span>What Qwen3.5-0.8B keeps instead of looking back, next to the models that look back in every layer.</span></a></li>
     </ol>
   </section>
 
@@ -464,7 +464,7 @@
     </ol>
 
     <details class="q fold" id="data"><summary>How the numbers behind the figures were made</summary><div class="a">
-      <p>Eight scripts in <code>tools/map-data/</code> read the real programs and the project's logs and write the data the figures load, one folder for each program. None of them changes a program. <span id="n-cost"></span></p>
+      <p>The scripts in <code>tools/map-data/</code> read the real programs and the project's logs and write the data the figures load, one folder for each program. None of them changes a program. The eight below make the data of this page; beside them are their helpers (<code>models.js</code>, <code>interp.js</code>, <code>instrument.js</code>, <code>regions.js</code>), <code>lens.js</code> for what every layer would say on How it works, and <code>train.js</code> for the four programs that train a network. <span id="n-cost"></span></p>
       <div class="scroll"><table>
         <caption>Each script takes the program as its first word: <code>small</code>, <code>0.5b</code>, <code>1.5b</code> or <code>0.8b</code>.</caption>
         <tr><th>Script</th><th>What it does</th><th>Used for</th></tr>
@@ -497,12 +497,12 @@
   </section>
 </main>
 <script src="../program-source.js?v=r6"></script>
-<script src="../program-start.js?v=r6"></script>
+<script src="../program-start.js?v=r7"></script>
 <script src="../program-download.js?v=r6"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../command-play.js?v=r6"></script>
 <script src="engine-sections.js?v=r12"></script>
-<script src="core.js?v=r16"></script>
+<script src="core.js?v=r19"></script>
 <script src="inside.js?v=r14"></script>
 </body>
 </html>

@@ -23,9 +23,18 @@
     '0.8b-vision': { name: '0.8b-vision', label: 'brnfck-qwen3.5-0.8b-vision', model: 'Qwen3.5-0.8B, with pictures', worker: 'workers/brnfck-qwen3.5-0.8b-vision.js?v=r1',
       manifestUrl: 'dist/0.8b-vision/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b-vision.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b-vision.bf',
       needGB: 7, download: '1.51 GB', startup: '1 min 40 s, then 14 min', perPiece: 'about 5.6 s', loadsEach: true, wide: true, picture: true },
+    // answers with a brainfuck program of its own (coder/data/coder.json: its measured run); the answer can be run under it
+    'coder-0.5b': { name: 'coder-0.5b', label: 'brnfck-qwen2.5-coder-0.5b', model: 'Qwen2.5-Coder-0.5B-Instruct, taught brainfuck', worker: 'workers/brnfck-qwen2.5-coder-0.5b.js?v=r1',
+      manifestUrl: 'dist/coder-0.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-coder-0.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-coder-0.5b.bf',
+      needGB: 4, download: '758 MB', startup: '35 to 70 s', perPiece: 'about 2.2 s', code: true, noMap: true },      // (no Program map data yet)
   };
   const EXAMPLES = ['What is the capital of France?', 'What is 12 + 30?', 'Who wrote Romeo and Juliet?', 'Hello'];
   const PICTURE_EXAMPLES = ['Describe this picture in one sentence.', 'What colour are the eyes?', 'How many windmills are there?', 'What is in this picture?'];
+  // four of the challenges of challenges/ that brnfck-qwen2.5-coder-0.5b solves, in their own words, with an input to run its answer on
+  const CODE_EXAMPLES = ['Print ABC. There is no input.', 'Read two characters and print them in the opposite order.', 'Print the input without its spaces: a b c becomes abc.',
+    'Print how many times the small letter a occurs in the input, as one digit. It occurs at most 9 times: banana gives 3.'];
+  const CODE_INPUT = { [CODE_EXAMPLES[1]]: 'ab', [CODE_EXAMPLES[2]]: 'a b c', [CODE_EXAMPLES[3]]: 'banana' };
+  const examples = () => (model.picture ? PICTURE_EXAMPLES : model.code ? CODE_EXAMPLES : EXAMPLES);
 
   let loadStart = 0, state = 'finding', model = null, P = null, worker = null, run = null, pending = null, last = '', nextId = 1, lastStep = '', noStore = false, env = null;
 
@@ -144,6 +153,7 @@
   });
   function watch(w) {
     Object.assign(live, { L: null, fill: null, pointer: null, mem: null });
+    if (model.noMap) return;
     TapeView.layout(model.name).then((L) => {
       if (w !== worker) return;
       live.L = L;
@@ -231,7 +241,9 @@
     showSource(name, P.meta);
     $('q').maxLength = P.meta.maxQuestionBytes;
     $('pics').hidden = !model.picture;
-    [...$('chips').children].forEach((b, i) => { b.textContent = (model.picture ? PICTURE_EXAMPLES : EXAMPLES)[i]; });
+    [...$('chips').children].forEach((b, i) => { b.textContent = examples()[i]; });
+    $('q').placeholder = model.code ? 'Describe a program, as in the examples…' : 'Type a short question…';
+    $('codeRun').hidden = true;
     ProgramDownload.attach($('download'), P);                // the .bf itself: nothing starts without a click
     setState('idle');
     if (pending) startWorker();
@@ -312,6 +324,7 @@
       run.pieces = m.piece;
       run.lastMs = t;
       run.span.textContent += run.decoder.decode(m.bytes, { stream: true });        // a character may arrive in two halves
+      if (model.code) { run.code = (run.code || '') + run.span.textContent; run.span.textContent = ''; paintCode($('answer'), run.code); run.span = null; }
     } else if (m.type === 'done' && run && m.id === run.id) {
       endRun(m.pieces === 0 ? 'The model gave an empty answer.' : '');
       if (live.mem) { live.newest = -1; sayMemory(live.limit); drawLive(); }
@@ -378,6 +391,8 @@
     $('emptyOutput').hidden = true;
     $('error').hidden = true;
     $('betterBox').hidden = true;
+    $('codeRun').hidden = true;
+    $('answer').classList.remove('code');
     $('mine').textContent = text;
     $('minePic').hidden = !model.picture;
     if (model.picture) { run0.pic = squaresOf(picture.img); $('minePic').src = run0.pic.url; $('minePic').alt = picture.img.alt || 'Your picture'; }
@@ -408,7 +423,9 @@
     if (run.pieces === 0) a.textContent = '';
     a.classList.remove('wait', 'muted');
     if (run.span) run.span.className = '';
-    a.append(run.decoder.decode());
+    const tail = run.decoder.decode();
+    if (model.code) run.code = (run.code || '') + tail; else a.append(tail);
+    if (model.code && run.code) { paintCode(a, run.code); showRun(run.code, last); }
     setStep(3);
     if (remark) { const s = document.createElement('span'); s.className = 'cut muted small'; s.textContent = (a.textContent ? '  ' : '') + remark; a.append(s); }
     // speed: the pieces after the first one, over the time since the first one
@@ -426,6 +443,43 @@
     }
     run = null;
   }
+  // ---- brnfck-qwen2.5-coder-0.5b: its answer is a program, coloured by command, and can be run here
+  // (challenges/engine.js: the interpreter of the challenges, with their settings: 8-bit cells, 0 at the end of the input)
+  function paintCode(box, code) { box.classList.add('code'); paint(box, code); }
+  // what a run printed, with spaces, line breaks and other unprintable characters made visible
+  function shown(text) {
+    const out = document.createElement('span');
+    if (!text) { out.className = 'muted'; out.textContent = 'nothing'; return out; }
+    for (const ch of text) {
+      const c = ch.charCodeAt(0);
+      if (c === 10) { const i = document.createElement('i'); i.textContent = '\u21b5'; out.append(i, document.createElement('br')); }
+      else if (c < 32 || c > 126) { const i = document.createElement('i'); i.textContent = '\\' + c; out.append(i); }
+      else out.append(ch);
+    }
+    return out;
+  }
+  let code = '';
+  function showRun(src, task) {
+    code = src;
+    $('codeIn').value = CODE_INPUT[task] !== undefined ? CODE_INPUT[task] : '';
+    $('codeOut').textContent = '';
+    $('codeRun').hidden = false;
+    playLink();
+  }
+  function playLink() { $('codePlay').href = 'playground/?code=' + encodeURIComponent(code) + '&input=' + encodeURIComponent($('codeIn').value) + '&bits=8&eof=zero'; }
+  function runCode() {
+    const r = BFEngine.run(code, { input: $('codeIn').value, bits: 8, eof: 0 }), o = $('codeOut');
+    const why = { brackets: 'It does not run: its brackets do not match.', limit: 'Stopped after 5,000,000 steps: it may never end.', left: 'Stopped: the pointer went left of the first cell.', right: 'Stopped: the pointer ran off the tape.', flood: 'Stopped: it printed more than 20,000 characters.' };
+    o.textContent = '';
+    if (why[r.status]) { o.textContent = why[r.status]; return; }
+    o.append('It printed ', shown(r.out), ' in ' + fmt(r.steps) + ' steps.');
+  }
+  $('codeGo').addEventListener('click', runCode);
+  $('codeIn').addEventListener('input', playLink);
+  $('codeIn').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); runCode(); } });
+  // the start page's Lab (home-lab.js) hands a task to this program
+  window.BrnfckChat = { askCoder: (task) => { pending = null; select('coder-0.5b').then(() => { $('q').value = task || ''; count(); $('q').focus({ preventScroll: true }); }); } };
+
   function ask(text) {
     text = text.replace(/\s+/g, ' ').trim();
     if (!text || (state !== 'idle' && state !== 'loading' && state !== 'ready')) return;
@@ -498,21 +552,34 @@
     b.addEventListener('click', () => ask(b.textContent));
     $('chips').append(b);
   }
-  for (const m of Object.values(MODELS)) {
-    const label = document.createElement('label'), r = document.createElement('input'), name = document.createElement('span'), b = document.createElement('b'), s = document.createElement('small');
-    r.type = 'radio'; r.name = 'model'; r.value = m.name;
-    // the name on a line of its own, breaking after brnfck- only if it must; under it the model, the download and the start-up
-    { const rest = document.createElement('span'); rest.className = 'nb'; rest.textContent = m.label.replace(/^brnfck-/, ''); b.append('brnfck-', document.createElement('wbr'), rest); }
-    // each part stays whole; a line breaks only after a dot
-    [m.model, m.download, 'start-up ' + m.startup].forEach((part, i) => { const p = document.createElement('span'); p.textContent = part; s.append(i ? '\u00a0\u00b7 ' : '', p); });
-    name.append(b, s);
-    if (m.picture) { const sep = document.createElement('p'); sep.className = 'pick-sep'; sep.textContent = 'With a photo'; $('models').append(sep); }
-    r.addEventListener('change', () => {
-      try { localStorage.setItem('brnfck.model', m.name); } catch (e) { }
-      select(m.name);
-    });
-    label.append(r, name);
-    $('models').append(label);
+  // the picker: one group per kind of program, smallest download first; a row is the name and its download, drawn to scale,
+  // and the checked row adds the model, the start-up and the time per word piece
+  const GROUPS = { text: 'Reads text', picture: 'With a photo', code: 'Writes brainfuck' };
+  const groupOf = (m) => (m.picture ? 'picture' : m.code ? 'code' : 'text');
+  const bytesOf = (m) => { const x = /([\d.]+)\s*(MB|GB)/.exec(m.download); return x ? x[1] * (x[2] === 'GB' ? 1e9 : 1e6) : 0; };
+  const most = Math.max(...Object.values(MODELS).map(bytesOf));
+  const groups = Object.keys(GROUPS).map((g) => [g, Object.values(MODELS).filter((m) => groupOf(m) === g).sort((x, y) => bytesOf(x) - bytesOf(y))]).filter(([, ms]) => ms.length);
+  $('models').querySelector('legend').textContent = `${Object.keys(MODELS).length} programs. ${groups.map(([g, ms]) => `${GROUPS[g]}: ${ms.length}.`).join(' ')}`;
+  for (const [g, ms] of groups) {
+    const sep = document.createElement('p'), n = document.createElement('span');
+    sep.className = 'pick-sep'; n.textContent = ms.length; sep.append(GROUPS[g], n); $('models').append(sep);
+    for (const m of ms) {
+      const label = document.createElement('label'), r = document.createElement('input'), name = document.createElement('span'), b = document.createElement('b'), s = document.createElement('small');
+      r.type = 'radio'; r.name = 'model'; r.value = m.name;
+      // the name on a line of its own, breaking after brnfck- only if it must
+      { const pre = document.createElement('span'), rest = document.createElement('span'); pre.className = 'pre'; pre.textContent = 'brnfck-'; rest.className = 'nb'; rest.textContent = m.label.replace(/^brnfck-/, ''); b.append(pre, document.createElement('wbr'), rest); }
+      // each part stays whole; a line breaks only after a dot
+      [m.model, 'start-up ' + m.startup, m.perPiece + ' per word piece'].forEach((part, i) => { const p = document.createElement('span'); p.textContent = part; s.append(i ? '\u00a0\u00b7 ' : '', p); });
+      name.className = 'name'; name.append(b, s);
+      const z = document.createElement('span'), bar = document.createElement('i');
+      z.className = 'size'; z.title = `Download: ${m.download}`; bar.style.setProperty('--w', `${(100 * bytesOf(m) / most).toFixed(1)}%`); z.append(m.download.replace(/^about /, ''), bar);
+      r.addEventListener('change', () => {
+        try { localStorage.setItem('brnfck.model', m.name); } catch (e) { }
+        select(m.name);
+      });
+      label.append(r, name, z);
+      $('models').append(label);
+    }
   }
 
   // ---- start ----

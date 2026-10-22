@@ -329,6 +329,7 @@ const STOP = [151645, 151643];
 const MODEL_SETTINGS = {
   '0.5b': {},
   '1.5b': { EB: 11, embBits: 11, XB: 10, xBits: 20, nBits: 15, invB: 11, qBits: 13, kBits: 14, gBits: 14, uBits: 15, hBits: 17 },
+  'coder-0.5b': {},
 };
 function generateIds(net, promptIds, maxNew) {
   const cache = net.step.newCache(), out = [];
@@ -343,7 +344,9 @@ function generateIds(net, promptIds, maxNew) {
   return out;
 }
 
-const modelDir = (name) => path.join(__dirname, '..', '..', 'downloads', 'qwen2.5-' + name);
+// coder-0.5b is Qwen2.5-Coder-0.5B-Instruct after compiler/coder/train.py taught it brainfuck
+const DIRS = { 'coder-0.5b': 'qwen2.5-coder-0.5b-brainfuck' };
+const modelDir = (name) => path.join(__dirname, '..', '..', 'downloads', DIRS[name] || 'qwen2.5-' + name);
 const optionsFor = (name) => ({ ...MODEL_SETTINGS[name] });
 
 // The sizes of a real model from its config.json alone (no weights are read).

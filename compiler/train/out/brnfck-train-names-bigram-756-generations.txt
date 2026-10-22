@@ -1,0 +1,11 @@
+brnfck-train-names-bigram-756 in 3 generations: each one trains on a part of the 28,864 characters and prints the next
+gen0  compiler\train\out\brnfck-train-names-bigram-756-gen0.bf: 3,604,201 characters, made by the generator: writing part 2,224,774 (with the body as data: 121,398 tokens), then the start weights and the body (1,273,926 characters)
+ok    gen0 trains on characters 0 to 9,600: step 1 loss 3.293 .. step 300 loss 2.360, every line equal to the reference (0.6 s)
+ok    it prints gen1, compiler\train\out\brnfck-train-names-bigram-756-gen1.bf: 3,656,034 characters, equal to the reference's (the loss lines inside [ ], then its weights, velocities, step 300 and context written in, then the same body)
+ok    gen1 trains on characters 9,600 to 19,232: step 301 loss 2.162 .. step 601 loss 2.432, every line equal to the reference (0.5 s)
+ok    it prints gen2, compiler\train\out\brnfck-train-names-bigram-756-gen2.bf: 3,655,118 characters, equal to the reference's (the loss lines inside [ ], then its weights, velocities, step 601 and context written in, then the same body)
+ok    gen2 trains on characters 19,232 to 28,864: step 602 loss 2.451 .. step 902 loss 2.347, every line equal to the reference (0.5 s)
+ok    it prints gen3, compiler\train\out\brnfck-train-names-bigram-756-gen3.bf: 3,658,738 characters, equal to the reference's (the loss lines inside [ ], then its weights, velocities, step 902 and context written in, then the same body)
+ok    gen3 fed nothing prints the child: 347,284 characters, equal to the child of one run over the whole text (0.4 s)
+ok    the child prints the reference's 30 names: a esh ailifilmummy ky kody le mann lan ..
+all ok: brnfck-train-names-bigram-756 in 3 generations

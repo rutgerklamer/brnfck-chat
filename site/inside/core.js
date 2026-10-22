@@ -17,16 +17,24 @@
     '1.5b': { short: 'brnfck-qwen2.5-1.5b', built: 'in about seven minutes' },
     '0.8b': { short: 'brnfck-qwen3.5-0.8b', built: 'in about six and a half minutes' },
     '0.8b-vision': { short: 'brnfck-qwen3.5-0.8b-vision' },
+    // the programs that train a network themselves (compiler/train); only the map shows them
+    'train-attn': { short: 'brnfck-train-names-attn-10k', train: true },
+    'train-mlp': { short: 'brnfck-train-names-mlp-7k', train: true },
+    'train-bigram': { short: 'brnfck-train-names-bigram-756', train: true },
+    'train-shakespeare': { short: 'brnfck-train-shakespeare-attn-55k', train: true },
   };
   const MODEL = MODELS[document.documentElement.getAttribute('data-model')] ? document.documentElement.getAttribute('data-model') : '1.5b';     // brnfck-qwen2.5-1.5b, the largest, is the one a page shows when nothing is asked
-  const VIS = MODEL === '0.8b-vision', QWEN = MODEL !== 'small', Q35 = MODEL === '0.8b' || VIS, ROOT = new URL('..', HERE).href;      // Q35: Qwen3.5, with DeltaNet layers; VIS: and its vision part
+  const TRAIN = !!MODELS[MODEL].train, VIS = MODEL === '0.8b-vision', QWEN = MODEL !== 'small' && !TRAIN, Q35 = MODEL === '0.8b' || VIS, ROOT = new URL('..', HERE).href;      // Q35: Qwen3.5, with DeltaNet layers; VIS: and its vision part; TRAIN: a program that trains a network
   let DATA = HERE + 'data/' + MODEL + '/';
   const dataBase = fetch(HERE + 'data-hosts.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((h) => { if (h && typeof h[MODEL] === 'string' && h[MODEL]) DATA = new URL(h[MODEL], HERE).href; });
-  const FILES = { small: ['programs/brnfck-smollm2-135m.meta.json', 'programs/brnfck-smollm2-135m.bf'], '0.5b': ['programs/brnfck-qwen2.5-0.5b.meta.json', 'programs/brnfck-qwen2.5-0.5b.bf'], '1.5b': ['programs/brnfck-qwen2.5-1.5b.meta.json', 'programs/brnfck-qwen2.5-1.5b.bf'], '0.8b': ['programs/brnfck-qwen3.5-0.8b.meta.json', 'programs/brnfck-qwen3.5-0.8b.bf'], '0.8b-vision': ['programs/brnfck-qwen3.5-0.8b-vision.meta.json', 'programs/brnfck-qwen3.5-0.8b-vision.bf'] };
+  const FILES = { small: ['programs/brnfck-smollm2-135m.meta.json', 'programs/brnfck-smollm2-135m.bf'], '0.5b': ['programs/brnfck-qwen2.5-0.5b.meta.json', 'programs/brnfck-qwen2.5-0.5b.bf'], '1.5b': ['programs/brnfck-qwen2.5-1.5b.meta.json', 'programs/brnfck-qwen2.5-1.5b.bf'], '0.8b': ['programs/brnfck-qwen3.5-0.8b.meta.json', 'programs/brnfck-qwen3.5-0.8b.bf'], '0.8b-vision': ['programs/brnfck-qwen3.5-0.8b-vision.meta.json', 'programs/brnfck-qwen3.5-0.8b-vision.bf'],
+    'train-attn': ['programs/brnfck-train-names-attn-10k.meta.json', 'programs/brnfck-train-names-attn-10k.bf'], 'train-mlp': ['programs/brnfck-train-names-mlp-7k.meta.json', 'programs/brnfck-train-names-mlp-7k.bf'], 'train-bigram': ['programs/brnfck-train-names-bigram-756.meta.json', 'programs/brnfck-train-names-bigram-756.bf'],
+    'train-shakespeare': ['programs/brnfck-train-shakespeare-attn-55k.meta.json', 'programs/brnfck-train-shakespeare-attn-55k.bf'] };
   let programP = null;
-  const program = (model = MODEL) => { const go = () => (window.ProgramStart ? window.ProgramStart.find({ name: model, manifestUrl: ROOT + 'dist/' + model + '/manifest.json', metaUrl: ROOT + FILES[model][0], fileUrl: ROOT + FILES[model][1], hostsUrl: ROOT + 'program-hosts.json' }).catch(() => null) : Promise.resolve(null)); if (model !== MODEL) return go(); return programP || (programP = go()); };
-  // a word of data-only: a program, 'smol', 'qwen' (the programs of Qwen2.5 and Qwen3.5) or 'qwen2' (the programs of Qwen2.5)
-  const mine = (only) => only.split(/\s+/).some((t) => t === MODEL || (t === 'qwen' && QWEN) || (t === 'qwen2' && QWEN && !Q35) || (t === 'smol' && !QWEN));
+  const program = (model = MODEL) => { const go = () => (window.ProgramStart ? window.ProgramStart.find({ name: model, manifestUrl: MODELS[model].train ? null : ROOT + 'dist/' + model + '/manifest.json', metaUrl: ROOT + FILES[model][0], fileUrl: ROOT + FILES[model][1], hostsUrl: ROOT + 'program-hosts.json' }).catch(() => null) : Promise.resolve(null)); if (model !== MODEL) return go(); return programP || (programP = go()); };
+  // a word of data-only: a program, 'smol', 'qwen' (the programs of Qwen2.5 and Qwen3.5), 'qwen2' (the programs of Qwen2.5),
+  // 'chat' (the five that run a chat model) or 'train' (the three that train a network)
+  const mine = (only) => only.split(/\s+/).some((t) => t === MODEL || (t === 'qwen' && QWEN) || (t === 'qwen2' && QWEN && !Q35) || (t === 'smol' && !QWEN && !TRAIN) || (t === 'chat' && !TRAIN) || (t === 'train' && TRAIN));
   document.querySelectorAll('[data-only]').forEach((n) => { if (!mine(n.getAttribute('data-only'))) n.remove(); });
   const switches = [...document.querySelectorAll('#modelbar a[data-m], #choose a[data-m]')];
   const heads = () => [...document.querySelectorAll('main h2[id]')];
@@ -99,8 +107,18 @@
     work: { v: '--k-work', name: 'Walking and free cells', letter: '·' },
     pic: { v: '--k-pic', name: 'Picture part', letter: 'P' },
     pic2: { v: '--k-pic2', name: 'Picture part, output and memory', letter: 'P' },
+    // the parts of a program that trains a network (the colours of train/)
+    tset: { v: '--c-lt', name: 'Sets up: markers, seed, start weights', letter: 'S' },
+    tread: { v: '--c-in', name: MODEL === 'train-shakespeare' ? 'Reads a character' : 'Reads a letter', letter: 'R' },
+    tfwd: { v: '--d1', name: 'Forward through the network', letter: 'F' },
+    tatt: { v: '--d4', name: 'Softmax of the attention', letter: 'A' },
+    thead: { v: '--d5', name: 'Softmax, loss and its gradient', letter: 'L' },
+    tbwd: { v: '--d2', name: 'Backward through the network', letter: 'B' },
+    tmom: { v: '--d3', name: 'Moves every weight', letter: 'M' },
+    tout: { v: '--c-out', name: 'Prints the step and the loss', letter: 'P' },
+    tkid: { v: '--rule', name: 'Prints the child program', letter: 'C' },
   };
-  const LEGEND = [['out', 'Output table'], ['att', 'Attention'], ...(Q35 ? [['dn', 'DeltaNet']] : []), ['mem', 'Memory of earlier pieces'], ['ff', 'Feed-forward'], ['emb', 'Table of word pieces'], ['text', 'Text in and out'], ...(VIS ? [['pic', 'Picture part: looks at the picture']] : []), ['tidy', 'Scaling and rounding'], ['work', 'Walking and free cells']];
+  const LEGEND = TRAIN ? ['tset', 'tread', 'tfwd', 'tatt', 'thead', 'tbwd', 'tmom', 'tout', 'tkid'].map((k) => [k, FAM[k].name]) : [['out', 'Output table'], ['att', 'Attention'], ...(Q35 ? [['dn', 'DeltaNet']] : []), ['mem', 'Memory of earlier pieces'], ['ff', 'Feed-forward'], ['emb', 'Table of word pieces'], ['text', 'Text in and out'], ...(VIS ? [['pic', 'Picture part: looks at the picture']] : []), ['tidy', 'Scaling and rounding'], ['work', 'Walking and free cells']];
   // A swatch always carries the letter of its family, so colour is never the only sign.
   const swatch = (fam) => { const s = el('i', fam === 'att2' || fam === 'ff2' || fam === 'dn2' || fam === 'pic2' ? 'sw tint' : 'sw', FAM[fam].letter); s.style.background = 'var(' + FAM[fam].v + ')'; s.setAttribute('aria-hidden', 'true'); return s; };
   const blockSpan = (t) => el('span', '', t);
@@ -275,6 +293,13 @@
   const billions = (a, b) => { const f = (v) => (v / 1e9).toFixed(v < 1e10 ? 1 : 0); return f(a) === f(b) ? f(a) + ' billion' : f(a) + ' to ' + f(b) + ' billion'; };
   const ready = dataBase.then(() => Promise.all([json('writer'), json('engine'), json('tiles'), LIGHT ? null : json('checks'), LIGHT ? [] : json('traces').catch(() => [])]).then(async ([W, E, TI, C, names]) => {
     WJ = W; EJ = E;
+    if (E.family === 'train') {          // a program that trains a network: its parts, and no model to name
+      SEC = {};
+      const P = W.program;
+      Object.assign(F, { modelName: W.modelName, chars: fmt(P.chars), charsShort: short(P.chars), writer: fmt(P.writer), engine: fmt(P.engine), writerPct: pct(P.writer / P.chars), enginePct: pct(P.engine / P.chars), tape: fmt(P.tape), patches: fmt(TI.deep.pieces) });
+      document.querySelectorAll('[data-f]').forEach((n) => { const v = F[n.getAttribute('data-f')]; if (v !== undefined) n.textContent = v; });
+      return { W, E, TI, C: null };
+    }
     W.fixedSlots = Q35 ? 0 : 24;          // the opening lines that are in memory before a question; brnfck-qwen3.5-0.8b has none
     SEC = window.EngineSections.of(E);
     TR.names = names;
@@ -456,7 +481,7 @@
 
   window.Inside = {
     $, el, fmt, pct, short, minus, words, billions, lineFit, json, get, lazy, ready, cssVar, rgbOf, onTheme, onResize, fit,
-    MODEL, QWEN, Q35, VIS, MODELS, get DATA() { return DATA; }, program, F, FAM, KIND, CMD, LEGEND, CHUNK, swatch, blockSpan, clearRows, layerNo,
+    MODEL, QWEN, Q35, VIS, TRAIN, MODELS, get DATA() { return DATA; }, program, F, FAM, KIND, CMD, LEGEND, CHUNK, swatch, blockSpan, clearRows, layerNo,
     regionTitle, regionShort, regionSays, markLabel, tiles, canRange, hasChunk, chunk, textAt, pretty,
     get SEC() { return SEC; }, get W() { return WJ; }, get E() { return EJ; }, get TR() { return TR; },
   };

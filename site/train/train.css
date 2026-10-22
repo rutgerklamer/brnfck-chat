@@ -1,0 +1,108 @@
+/* "Trained in brainfuck" (train/index.html). */
+
+main.trn .ctl.picks { margin: 0 0 var(--s3); gap: var(--s2) var(--s3); }
+main.trn .ctl.picks .seg { display: flex; flex: 1 1 auto; }
+main.trn .ctl.picks .seg > button { flex: 1 1 auto; }
+main.trn .ctl.picks > button { flex: 0 0 auto; min-width: 8rem; }
+main.trn .label { margin: 0 0 var(--s1); font: var(--lab); letter-spacing: var(--ls-lab); }
+main.trn .sw { display: inline-block; width: .9rem; height: .9rem; margin-right: var(--s2); vertical-align: -.1em; }
+
+/* ---- the numbers of a run ---- */
+main.trn .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 0 0 var(--s4); border-top: var(--edge) solid var(--ink); border-bottom: 1px solid var(--line); }
+main.trn .stats > div { padding: var(--s2) var(--s3) var(--s2) 0; min-width: 0; }
+main.trn .stats dt { color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+main.trn .stats dd { margin: 0; font: 700 1.125rem/1.4 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+main.trn .stats dd.ok { color: var(--good); }
+main.trn .stats dd.no { color: var(--c-out); }
+
+/* ---- the loss and the tape, side by side ---- */
+main.trn .trn-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s4) var(--s5); align-items: start; }
+main.trn .trn-panel canvas { display: block; width: 100%; height: auto; background: var(--panel); border: 1px solid var(--line); }
+main.trn .trn-panel .ctl { margin-top: var(--s2); }
+main.trn .trn-panel label.snap { display: flex; align-items: center; gap: var(--s3); flex: 1 1 100%; }
+main.trn .trn-panel label.snap input { flex: 1 1 auto; }
+main.trn .key { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: var(--s2) 0 0; color: var(--muted); }
+main.trn .key > span { display: inline-flex; align-items: center; }
+main.trn .trn-names { margin: var(--s3) 0 0; padding: var(--s3) var(--s4); border: var(--edge) solid var(--ink); background: var(--panel); }
+main.trn .trn-names .names { margin: 0; font: 600 1.0625rem/1.7 var(--mono); }
+
+/* ---- the three networks ---- */
+main.trn .trn-nets { margin: var(--s4) 0; max-width: var(--measure); }
+main.trn .trn-nets > div { padding: var(--s2) 0; border-bottom: 1px solid var(--line); }
+main.trn .trn-nets dt { font: 700 var(--fs-ui)/1.5 var(--mono); }
+main.trn .trn-nets dd { margin: var(--s1) 0 0; }
+
+/* ---- the program to scale ---- */
+main.trn #map-view { display: block; width: 100%; height: auto; cursor: zoom-in; background: var(--panel); border: 1px solid var(--line); }
+main.trn #map-view.deep { cursor: default; }
+main.trn .trn-parts { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: 0 var(--s5); margin: var(--s3) 0 0; padding: 0; max-width: none; font: var(--fs-small)/1.4 var(--sans); }
+main.trn .trn-parts > li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--s2); min-height: 2rem; margin: 0; padding: var(--s1) 0; border-bottom: 1px solid var(--line); }
+main.trn .trn-parts > li > button { all: unset; cursor: pointer; display: contents; }
+main.trn .trn-parts > li .n { font: var(--ctl); font-weight: 500; font-variant-numeric: tabular-nums; color: var(--muted); text-align: right; }
+main.trn .trn-parts > li.on { box-shadow: inset 4px 0 0 var(--ink); padding-left: var(--s2); }
+
+/* ---- where the attention looks ---- */
+main.trn label.word { display: flex; align-items: center; gap: var(--s3); flex: 0 1 20rem; }
+main.trn label.word > span { font: var(--ctl); white-space: nowrap; }
+main.trn label.word input { flex: 1 1 auto; min-width: 0; min-height: var(--target); padding: 0 var(--s3); border: var(--edge) solid var(--ink); background: var(--panel); color: var(--ink); font: 600 1.125rem/1 var(--mono); }
+main.trn .att-row { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--s2); max-width: 40rem; margin: var(--s4) 0 0; }
+main.trn .att-cell { display: grid; grid-template-rows: 7rem auto auto; gap: var(--s1); text-align: center; }
+main.trn .att-cell .bar { position: relative; border-bottom: var(--edge) solid var(--ink); }
+main.trn .att-cell .bar > i { position: absolute; left: 15%; right: 15%; bottom: 0; background: var(--d2); }
+main.trn .att-cell b { font: 700 1.5rem/1.2 var(--mono); }
+main.trn .att-cell b.pad { color: var(--muted); font-weight: 400; }
+main.trn .att-cell b.last { box-shadow: inset 0 -4px 0 var(--go); }
+main.trn .att-cell span { color: var(--muted); font: var(--ctl); font-weight: 500; font-variant-numeric: tabular-nums; }
+main.trn .att-next-h { margin-top: var(--s4); }
+main.trn .att-next { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--s1) var(--s4); max-width: 40rem; }
+main.trn .att-next > div { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) 3.5rem; align-items: center; gap: var(--s2); font: var(--ctl); }
+main.trn .att-next .m { height: .75rem; background: var(--sunk); }
+main.trn .att-next .m > i { display: block; height: 100%; background: var(--ink); }
+main.trn .att-next span:last-child { text-align: right; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ---- names ---- */
+main.trn .trn-kids { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); max-width: none; margin: var(--s4) 0 0; }
+main.trn .trn-kids > div { padding: var(--s3) var(--s4); border: var(--edge) solid var(--ink); border-top: 8px solid var(--c); background: var(--panel); }
+main.trn .trn-kids h3 { margin: 0 0 var(--s2); font: 700 var(--fs-ui)/1.4 var(--mono); letter-spacing: 0; }
+main.trn .trn-kids ol { list-style: none; columns: 2 9rem; margin: 0; padding: 0; font: 500 .9375rem/1.6 var(--mono); }
+main.trn .trn-kids li { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+main.trn .trn-kids li.known { color: var(--muted); }
+main.trn .trn-kids li.known::after { content: " \2713"; }
+main.trn .trn-kids p { margin: var(--s2) 0 0; color: var(--muted); font-size: var(--fs-small); }
+
+/* ---- Shakespeare ---- */
+main.trn #sh-loss { display: block; width: 100%; height: auto; cursor: pointer; background: var(--panel); border: 1px solid var(--line); }
+main.trn .sw.dot { border-radius: 50%; }
+main.trn .sw.dash { height: 2px; vertical-align: .25em; background: repeating-linear-gradient(90deg, var(--rule) 0 5px, transparent 5px 9px); }
+main.trn label.snap.sh-pass { display: flex; align-items: center; gap: var(--s3); flex: 1 1 18rem; }
+main.trn label.snap.sh-pass input { flex: 1 1 auto; }
+main.trn label.snap.sh-pass output { min-width: 5.5rem; font: var(--ctl); font-weight: 600; font-variant-numeric: tabular-nums; }
+main.trn label.word.sh-seed { flex: 0 1 12rem; }
+main.trn label.word.sh-line { flex: 1 1 100%; align-items: flex-start; }
+main.trn label.word.sh-line > span { padding-top: var(--s2); }
+main.trn label.word textarea { flex: 1 1 auto; min-width: 0; padding: var(--s2) var(--s3); border: var(--edge) solid var(--ink); background: var(--panel); color: var(--ink); font: 600 1.0625rem/1.45 var(--mono); resize: vertical; }
+main.trn .sh-script { margin: var(--s3) 0 0; padding: var(--s3) var(--s4); max-height: 32rem; overflow: auto; border: var(--edge) solid var(--ink); background: var(--panel); font: 500 .9375rem/1.55 var(--mono); overflow-wrap: anywhere; }
+main.trn .sh-script.live { min-height: 14rem; }
+main.trn .sh-script.live:empty::before { content: "What the child writes appears here, as it writes it."; color: var(--muted); }
+main.trn .sh-script .ln { min-height: 1.55em; white-space: pre-wrap; }
+main.trn .sh-script .ln.gap { min-height: .9em; }
+main.trn .sh-script .who { color: var(--d2); font-weight: 700; letter-spacing: .02em; }
+main.trn .sh-script .cursor { display: inline-block; width: .55em; height: 1.1em; vertical-align: -.15em; background: var(--go); animation: sh-blink 1s steps(1) infinite; }
+@keyframes sh-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { main.trn .sh-script .cursor { animation: none; } }
+main.trn .sh-att-row { grid-template-columns: repeat(16, minmax(0, 1fr)); gap: var(--s1); max-width: none; }
+main.trn .sh-att-row .att-cell b { font-size: 1.125rem; }
+
+@media (max-width: 56em) {
+  main.trn .trn-two { grid-template-columns: minmax(0, 1fr); }
+  main.trn .trn-kids { grid-template-columns: minmax(0, 1fr); }
+  main.trn .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 36em) {
+  main.trn .att-cell b { font-size: 1.125rem; }
+  main.trn .att-cell { grid-template-rows: 5rem auto auto; }
+  main.trn .sh-att-row { gap: 1px; }
+  main.trn .sh-att-row .att-cell b { font-size: .875rem; }
+  main.trn .sh-att-row .att-cell span { font-size: .625rem; }
+  main.trn .sh-script { padding: var(--s2) var(--s3); font-size: .875rem; }
+}

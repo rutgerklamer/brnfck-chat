@@ -95,9 +95,14 @@ main[tabindex="-1"]:focus { outline: none; }
 /* the row of a part: its name in its colour, then its pages */
 .top .sub { border-top: 1px solid var(--line); }
 .top .sub .in { min-height: var(--target); overflow-x: auto; scrollbar-width: none; }
-.top .sub .lab { flex: 0 0 auto; padding: .2em .5em; background: var(--sec); color: var(--on-data); font: var(--lab); font-size: .75rem; letter-spacing: var(--ls-lab); text-transform: uppercase; }
+.top .sub .lab { flex: 0 0 auto; padding: .2em .5em; background: var(--sec); color: var(--on-data); font: var(--lab); font-size: .75rem; letter-spacing: var(--ls-lab); text-transform: uppercase; text-decoration: none; }
+.top .sub .lab:hover { box-shadow: 0 0 0 2px var(--ink); }
 .top .sub nav a { min-height: var(--target); color: var(--muted); font-weight: 500; }
 .top .sub nav a[aria-current] { background: none; color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+.top :is(.sub nav, nav .pages) a > i { color: var(--muted); font-weight: 400; }   /* the number of a course */
+.top nav.main .pages { display: none; }                      /* a section's pages: in the open menu */
+.top nav.main .quiet a { color: var(--muted); font-weight: 500; }
+.top nav.main .quiet a[aria-current] { color: var(--bg); }
 /* the page strip (site.js): the parts of a long page to scale, filled as far as you have read */
 .pagebar { border-top: 1px solid var(--line); }
 .pagebar .in { min-height: 0; gap: var(--s3); padding-top: 1px; padding-bottom: 1px; }
@@ -111,8 +116,9 @@ main[tabindex="-1"]:focus { outline: none; }
 .pagebar a[aria-current]::after { content: ""; position: absolute; inset: 2px 0; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
 .top.open .pagebar { display: none; }
 
-/* a phone: the entries are behind Menu, and there each one says what you do there */
-@media (max-width: 61.99em) {
+/* a phone or a narrow window: the entries are behind Menu, and there each one says what you do there and
+   lists its pages. The bar needs about 51em, so it stays open from 53em */
+@media (max-width: 52.99em) {
   .top .menu { display: inline-flex; }
   .top nav.main { display: none; }
   .top.open nav.main { display: block; position: absolute; left: 0; right: 0; top: 100%; max-height: calc(100vh - 3.5rem); max-height: calc(100dvh - 3.5rem); overflow-y: auto; border-bottom: var(--edge) solid var(--ink); background: var(--bg); box-shadow: 0 12px 0 var(--shade); }
@@ -122,6 +128,16 @@ main[tabindex="-1"]:focus { outline: none; }
   .top.open nav.main a > i { grid-row: span 2; display: grid; place-items: center; height: 2.75rem; border: var(--edge) solid var(--ink); background: var(--c); color: var(--on-data); font-size: 1.125rem; }
   .top.open nav.main a > span { display: block; grid-column: 2; color: var(--muted); font: 400 .875rem/1.4 var(--sans); }
   .top.open nav.main a[aria-current] > span { color: inherit; }
+  .top.open nav.main a > b { grid-column: 2; }
+  .top.open nav.main .quiet a > b { color: var(--ink); }
+  .top.open nav.main .quiet a[aria-current] > b { color: inherit; }
+  /* under each section its pages, in the column of its name */
+  .top.open nav.main .pages { display: block; padding-bottom: var(--s2); }
+  .top.open nav.main .pages li + li { border-top: 0; }
+  .top.open nav.main .pages a { display: flex; gap: .5em; min-height: 2.5rem; padding: 0 var(--gutter) 0 calc(var(--gutter) + 2.75rem + var(--s3)); border-left: 8px solid var(--c); color: var(--muted); font: var(--ctl); font-weight: 500; }
+  .top.open nav.main .pages a > i { display: inline; height: auto; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 400; }
+  .top.open nav.main .pages a:hover { background: var(--hot); }
+  .top.open nav.main .pages a[aria-current] { background: none; color: var(--ink); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .3em; }
   .top.open .sub { display: none; }
 }
 @media (max-width: 26em) { .top .theme b { display: none; } }

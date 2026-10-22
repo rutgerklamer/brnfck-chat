@@ -1,0 +1,517 @@
+{
+ "programs": [
+  {
+   "id": "brnfck-qwen2.5-1.5b",
+   "group": "chat",
+   "does": "runs Qwen2.5-1.5B",
+   "model": "Qwen2.5-1.5B",
+   "weights": 1543714304,
+   "about": false,
+   "pages": [
+    [
+     "Program map",
+     "map/?m=1.5b"
+    ],
+    [
+     "Inside the program",
+     "inside/?m=1.5b"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "c3395721b582f101f92e3f451f9b9ee9b42bcaef8ea0409e5e8975fb93d1c251",
+     "date": "2026-10-16",
+     "chars": 11430468880,
+     "writer": 11334697744,
+     "tape": 1827870014
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-qwen3.5-0.8b-vision",
+   "group": "chat",
+   "does": "runs Qwen3.5-0.8B, with pictures",
+   "model": "Qwen3.5-0.8B",
+   "weights": 853000000,
+   "about": true,
+   "pages": [
+    [
+     "Program map",
+     "map/?m=0.8b-vision"
+    ],
+    [
+     "Looking at a picture",
+     "vision/"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "5b1e172b84fd89e8c6664002acf0a68ebf333a8cd1aceeabd6ac98adc5972cd1",
+     "date": "2026-10-20",
+     "chars": 8931101427,
+     "writer": 8214809705,
+     "tape": 1197356368
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-qwen3.5-0.8b",
+   "group": "chat",
+   "does": "runs Qwen3.5-0.8B",
+   "model": "Qwen3.5-0.8B",
+   "weights": 752393024,
+   "about": false,
+   "pages": [
+    [
+     "Program map",
+     "map/?m=0.8b"
+    ],
+    [
+     "Inside the program",
+     "inside/?m=0.8b"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "c0d123fdf84762dd4c9031da1e558bab597605d532ed0dbd75a10725a4091171",
+     "date": "2026-10-16",
+     "chars": 7709034855,
+     "writer": 7448657450,
+     "tape": 1067424772
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-qwen2.5-0.5b",
+   "group": "chat",
+   "does": "runs Qwen2.5-0.5B",
+   "model": "Qwen2.5-0.5B",
+   "weights": 494032768,
+   "about": false,
+   "pages": [
+    [
+     "Program map",
+     "map/?m=0.5b"
+    ],
+    [
+     "Inside the program",
+     "inside/?m=0.5b"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "1e236de26c65d869854f7156b7bc3daf6f5d490f015220f59afcc418e4836f33",
+     "date": "2026-10-16",
+     "chars": 4169659608,
+     "writer": 4100831733,
+     "tape": 657597114
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-qwen2.5-coder-0.5b",
+   "group": "chat",
+   "does": "runs Qwen2.5-Coder-0.5B, answers with brainfuck",
+   "model": "Qwen2.5-Coder-0.5B",
+   "weights": 494032768,
+   "about": false,
+   "pages": [
+    [
+     "Brainfuck that writes brainfuck",
+     "coder/"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "a2da019170db6e71e1437e70ded124d238bd32f867fe561e0aebbefb9204a5a3",
+     "date": "2026-10-22",
+     "chars": 4221469653,
+     "writer": 4152641778,
+     "tape": 657597114
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-smollm2-135m",
+   "group": "chat",
+   "does": "runs SmolLM2-135M",
+   "model": "SmolLM2-135M",
+   "weights": 134515008,
+   "about": false,
+   "pages": [
+    [
+     "Program map",
+     "map/?m=small"
+    ],
+    [
+     "Inside the program",
+     "inside/?m=small"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "2825616d2e86d449cdf94ab2d116271758e816abab0f8bfa9873cdfa4479bff5",
+     "date": "2026-10-16",
+     "chars": 1030902380,
+     "writer": 1004387443,
+     "tape": 188012789
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-train-shakespeare-attn-55k",
+   "group": "train",
+   "does": "trains the same network, larger, on Shakespeare",
+   "weights": 54513,
+   "child": "brnfck-shakespeare-attn-55k",
+   "pages": [
+    [
+     "Program map",
+     "map/?m=train-shakespeare"
+    ],
+    [
+     "Trained in brainfuck",
+     "train/#shakespeare"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "c516bdccebaa59ba3bc174fe9237f7f33c21151352efb31b76fe832ee872c92a",
+     "date": "2026-10-22",
+     "chars": 28992248,
+     "writer": 1590636,
+     "tape": 727231
+    },
+    {
+     "n": 2,
+     "key": "ff2bcd68e11026b0ece1fe09b1929be76389b8d66af8b73095bebb436580b572",
+     "date": "2026-10-22",
+     "chars": 28992978,
+     "writer": 1590636,
+     "tape": 727231
+    }
+   ],
+   "current": 2
+  },
+  {
+   "id": "brnfck-train-names-attn-10k",
+   "group": "train",
+   "does": "trains a network with attention",
+   "weights": 10251,
+   "child": "brnfck-names-attn-10k",
+   "pages": [
+    [
+     "Program map",
+     "map/?m=train-attn"
+    ],
+    [
+     "Trained in brainfuck",
+     "train/"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "4e6619a53314ffba84aeced830262c313553d982b97cd9640ecb05ee6b60f92e",
+     "date": "2026-10-22",
+     "chars": 9022625,
+     "writer": 313770,
+     "tape": 140867
+    },
+    {
+     "n": 2,
+     "key": "155dac3db3afc6f53428d9d0ca02d37e07d69826994d9552494ad55622fa2386",
+     "date": "2026-10-22",
+     "chars": 9023355,
+     "writer": 313770,
+     "tape": 140867
+    }
+   ],
+   "current": 2
+  },
+  {
+   "id": "brnfck-train-names-mlp-7k",
+   "group": "train",
+   "does": "trains a network of 64 units",
+   "weights": 7003,
+   "child": "brnfck-names-mlp-7k",
+   "pages": [
+    [
+     "Program map",
+     "map/?m=train-mlp"
+    ],
+    [
+     "Trained in brainfuck",
+     "train/"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "14a68e622c74d7a0f34f069bf29022d0ccdccdaadfd6097ac1c5f59c118f40ae",
+     "date": "2026-10-22",
+     "chars": 2955820,
+     "writer": 211230,
+     "tape": 95572
+    },
+    {
+     "n": 2,
+     "key": "6bf375031a9ad0d9a501ef217caf4970c8ca922995b8efc399b1947f0e0df802",
+     "date": "2026-10-22",
+     "chars": 2956550,
+     "writer": 211230,
+     "tape": 95572
+    }
+   ],
+   "current": 2
+  },
+  {
+   "id": "brnfck-train-names-bigram-756",
+   "group": "train",
+   "does": "trains a table of letter pairs",
+   "weights": 756,
+   "child": "brnfck-names-bigram-756",
+   "pages": [
+    [
+     "Program map",
+     "map/?m=train-bigram"
+    ],
+    [
+     "Trained in brainfuck",
+     "train/"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "cdc82147eca89d52fd15b0674109058ab467b02cc9af7765fd45fff555cbfdfb",
+     "date": "2026-10-22",
+     "chars": 1245292,
+     "writer": 28637,
+     "tape": 11774
+    },
+    {
+     "n": 2,
+     "key": "3c1f246ab4e406fad478cd127242fd04e5d742c726ac7c810c6414e85fe262b2",
+     "date": "2026-10-22",
+     "chars": 1246022,
+     "writer": 28637,
+     "tape": 11774
+    }
+   ],
+   "current": 2
+  },
+  {
+   "id": "brnfck-shakespeare-attn-55k",
+   "group": "child",
+   "does": "writes lines like Shakespeare’s",
+   "weights": 54513,
+   "trainedBy": "brnfck-train-shakespeare-attn-55k",
+   "pages": [
+    [
+     "Trained in brainfuck",
+     "train/#shakespeare"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "pass-1",
+     "pass": 1,
+     "date": "2026-10-22 17:07",
+     "chars": 11872919,
+     "tape": 727231,
+     "steps": 31370,
+     "loss": 2.057,
+     "held": 2.147,
+     "equal": true
+    },
+    {
+     "n": 2,
+     "key": "pass-2",
+     "pass": 2,
+     "date": "2026-10-22 18:03",
+     "chars": 11911447,
+     "tape": 727231,
+     "steps": 62740,
+     "loss": 2,
+     "held": 2.131,
+     "equal": true
+    },
+    {
+     "n": 3,
+     "key": "pass-3",
+     "pass": 3,
+     "date": "2026-10-22 18:51",
+     "chars": 11924150,
+     "tape": 727231,
+     "steps": 94110,
+     "loss": 1.991,
+     "held": 2.123,
+     "equal": true
+    }
+   ],
+   "current": 3
+  },
+  {
+   "id": "brnfck-names-attn-10k",
+   "group": "child",
+   "does": "makes up names, with attention",
+   "weights": 10251,
+   "trainedBy": "brnfck-train-names-attn-10k",
+   "pages": [
+    [
+     "Trained in brainfuck",
+     "train/#names"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "b331eb380f74417747a20bd1f9e3de55e3248b13780a5cf521c7b39d16128c07",
+     "date": "2026-10-21",
+     "chars": 3510735,
+     "tape": 140867,
+     "loss": 1.913,
+     "steps": 6018
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-names-mlp-7k",
+   "group": "child",
+   "does": "makes up names from three letters back",
+   "weights": 7003,
+   "trainedBy": "brnfck-train-names-mlp-7k",
+   "pages": [
+    [
+     "Trained in brainfuck",
+     "train/#names"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "e2efcb3d6fbffa88703af66d8dca7fab49f64f3c751aae503c6d69d9b3ddf239",
+     "date": "2026-10-21",
+     "chars": 1373979,
+     "tape": 95572,
+     "loss": 2.004,
+     "steps": 6018
+    }
+   ],
+   "current": 1
+  },
+  {
+   "id": "brnfck-names-bigram-756",
+   "group": "child",
+   "does": "makes up names from the letter before",
+   "weights": 756,
+   "trainedBy": "brnfck-train-names-bigram-756",
+   "pages": [
+    [
+     "Trained in brainfuck",
+     "train/#names"
+    ],
+    [
+     "Compare the models",
+     "compare/#eight"
+    ]
+   ],
+   "versions": [
+    {
+     "n": 1,
+     "key": "7fbeb10a84e13a6a8be8c351c1d12f78dd9702783b03d3ed769aac9b22440a03",
+     "date": "2026-10-21",
+     "chars": 347284,
+     "tape": 11774,
+     "loss": 2.44,
+     "steps": 902
+    }
+   ],
+   "current": 1
+  }
+ ],
+ "made": "tools/registry.js",
+ "updated": "2026-10-22",
+ "groups": [
+  {
+   "id": "chat",
+   "title": "Runs a chat model, trained on graphics cards elsewhere"
+  },
+  {
+   "id": "train",
+   "title": "Trains a network itself, from random numbers"
+  },
+  {
+   "id": "child",
+   "title": "Writes with what its training learned"
+  }
+ ]
+}

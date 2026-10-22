@@ -1,0 +1,11 @@
+brnfck-train-names-attn-10k in 3 generations: each one trains on a part of the 192,576 characters and prints the next
+gen0  compiler\train\out\brnfck-train-names-attn-10k-gen0.bf: 23,342,399 characters, made by the generator: writing part 14,120,526 (with the body as data: 653,565 tokens), then the start weights and the body (8,774,532 characters)
+ok    gen0 trains on characters 0 to 64,192: step 1 loss 3.311 .. step 2006 loss 2.010, every line equal to the reference (30.5 s)
+ok    it prints gen1, compiler\train\out\brnfck-train-names-attn-10k-gen1.bf: 24,868,134 characters, equal to the reference's (the loss lines inside [ ], then its weights, velocities, step 2006 and context written in, then the same body)
+ok    gen1 trains on characters 64,192 to 128,384: step 2007 loss 2.113 .. step 4012 loss 1.731, every line equal to the reference (27.2 s)
+ok    it prints gen2, compiler\train\out\brnfck-train-names-attn-10k-gen2.bf: 24,877,085 characters, equal to the reference's (the loss lines inside [ ], then its weights, velocities, step 4012 and context written in, then the same body)
+ok    gen2 trains on characters 128,384 to 192,576: step 4013 loss 2.187 .. step 6018 loss 2.003, every line equal to the reference (28.2 s)
+ok    it prints gen3, compiler\train\out\brnfck-train-names-attn-10k-gen3.bf: 24,895,834 characters, equal to the reference's (the loss lines inside [ ], then its weights, velocities, step 6018 and context written in, then the same body)
+ok    gen3 fed nothing prints the child: 3,510,735 characters, equal to the child of one run over the whole text (2.7 s)
+ok    the child prints the reference's 30 names: addosa javie rylit lyani zalia brkcian ramievin jaycetur ..
+all ok: brnfck-train-names-attn-10k in 3 generations

@@ -94,6 +94,7 @@ fs.rmSync(deepDir, { recursive: true, force: true }); fs.mkdirSync(deepDir, { re
 const want = new Set([0]);
 const engineFirst = Math.floor(META.writerBytes / CHUNK), last = Math.floor((total - 1) / CHUNK);
 for (let c = engineFirst; c <= last; c++) want.add(c);
+if (META.deepAll) for (let c = 0; c < engineFirst; c++) want.add(c);      // a small program (compiler/train): all of its text
 for (const [, from] of W.stretches) want.add(Math.floor(from / CHUNK));
 for (const s of W.samples) for (let c = Math.floor(s.off / CHUNK); c <= Math.floor((s.off + s.len - 1) / CHUNK); c++) want.add(c);
 {

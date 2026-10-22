@@ -16,14 +16,19 @@ the Apache License 2.0 (LICENSES/Apache-2.0.txt), applies to them:
   brnfck-qwen3.5-0.8b-vision.bf
                           Qwen3.5-0.8B with its part for pictures, by the Qwen team of Alibaba Cloud
                           https://huggingface.co/Qwen/Qwen3.5-0.8B
+  brnfck-qwen2.5-coder-0.5b.bf
+                          Qwen2.5-Coder-0.5B-Instruct, Copyright 2024 Alibaba Cloud
+                          https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct
 
 Changes made to the model: the weights are rounded to whole numbers of a few bits and written as
 brainfuck commands that put them in the program's memory, next to a brainfuck program that runs the
-model. The answers can differ slightly from those of the original model.
+model. The answers can differ slightly from those of the original model. Qwen2.5-Coder-0.5B-Instruct
+was first trained further, on brainfuck programs made for this project (compiler/coder/), so that it
+answers with a brainfuck program.
 
 The same licence applies to compiler/smollm/engine/data/calib.json,
-compiler/qwen/engine/data/*/calib.json, compiler/qwen3.5/data/seq256.json, site/compare/data/ and
-site/vision/data/: values measured inside these models, or text they wrote.
+compiler/qwen/engine/data/*/calib.json, compiler/qwen3.5/data/seq256.json, site/compare/data/,
+site/vision/data/ and site/coder/data/: values measured inside these models, or text they wrote.
 
 The photos in compiler/qwen3.5/vision/pictures/ and site/vision/pictures/ are from Wikimedia Commons,
 each released into the public domain (CC0 1.0), cut to their middle square and scaled to 256 x 256:

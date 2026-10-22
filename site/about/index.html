@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
-<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../program-download.css?v=r6">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../inside/inside.css?v=r8">
@@ -32,10 +32,10 @@
 </style>
 </head>
 <body>
-<script src="../site.js?v=r17"></script>
+<script src="../site.js?v=r23"></script>
 <main class="doc article about numbered" id="main">
   <header class="plain">
-    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>About the project</span></p>
+    <p class="kicker crumbs"><a href="../about/">About</a><span>About the project</span></p>
     <h1>Chat models that run as brainfuck programs</h1>
     <p class="lead">Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. One of them also looks at pictures, in a fifth program.</p>
   </header>
@@ -65,7 +65,7 @@
     <a class="btn quiet" href="../?m=small">Ask the small, faster model</a>
     <a class="btn quiet" href="../how/">Read how it works first</a>
   </p>
-  <p class="small muted">brnfck-qwen2.5-0.5b starts a download of 4.2 GB and needs about 4 GB of free memory. brnfck-smollm2-135m downloads 1 GB and needs about 1.5 GB of memory. Both need a desktop computer. Not the moment? <a href="../how/">How it works</a> needs nothing.</p>
+  <p class="small muted">brnfck-qwen2.5-0.5b starts a download of 749 MB and needs about 4 GB of free memory. brnfck-smollm2-135m downloads 180 MB and needs about 1.5 GB of memory. Both need a desktop computer. Not the moment? <a href="../how/">How it works</a> needs nothing.</p>
 
   <section id="what">
     <h2>What this is</h2>
@@ -93,7 +93,7 @@
         <tr><th scope="row">Program, in characters</th><td class="n">1,030,902,380</td><td class="n">4,169,659,608</td><td class="n">11,430,468,880</td><td class="n">7,709,034,855</td><td class="n">8,931,101,427</td></tr>
         <tr><th scope="row">Of which write the tape</th><td class="n">1,004,387,443</td><td class="n">4,100,831,733</td><td class="n">11,334,697,744</td><td class="n">7,448,657,450</td><td class="n">8,214,809,705</td></tr>
         <tr><th scope="row">Tape, in cells of 32 bits</th><td class="n">188,012,789</td><td class="n">657,597,114</td><td class="n">1,827,870,014</td><td class="n">1,067,424,772</td><td class="n">1,197,356,368</td></tr>
-        <tr><th scope="row">Start-up</th><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">90 to 169 s</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s from the command line</td><td class="n">1 min 40 s in the browser, then 13 min 43 s for the picture and the question; 86.5 s from the command line, then 650 s</td></tr>
+        <tr><th scope="row">Start-up</th><td class="n">about 9 to 16 s</td><td class="n">33 to 47 s</td><td class="n">2 min 27 s</td><td class="n">2 min 10 s to 2 min 37 s in the browser; 103 s from the command line</td><td class="n">1 min 40 s in the browser, then 13 min 43 s for the picture and the question; 86.5 s from the command line, then 650 s</td></tr>
         <tr><th scope="row">Time for one word piece</th><td class="n">about 0.6 to 1.0 s</td><td class="n">about 2.3 s</td><td class="n">7 to 12 s</td><td class="n">about 5.6 s in the browser; 5.56 s from the command line (median)</td><td class="n">6.59 s from the command line (median)</td></tr>
         <tr><th scope="row">Same next word piece as the original model</th><td class="n">94.8% (345 of 364)</td><td class="n">96.6% (477 of 494)</td><td class="n">97.2% (318 of 327)</td><td class="n">95.1% (214 of 225), its whole-number version against the original</td><td class="n">97.5% (79 of 81) on four photos, its whole-number version against the original</td></tr>
         <tr><th scope="row">Simple sums and facts</th><td class="n">often wrong</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">usually right</td><td class="n">not asked: it is asked about pictures</td></tr>
@@ -122,8 +122,8 @@
     </figure>
     <nav class="full" aria-label="Choose a model">
       <ul class="tiles">
-        <li><a href="../?m=small"><b>brnfck-smollm2-135m: small and fast</b><span>135 million weights. Ready in about 9 to 16 seconds. A download of 1 GB.</span></a></li>
-        <li><a href="../?m=0.5b"><b>brnfck-qwen2.5-0.5b: larger and slower</b><span>494 million weights. Ready in 33 to 47 seconds. A download of 4.2 GB.</span></a></li>
+        <li><a href="../?m=small"><b>brnfck-smollm2-135m: small and fast</b><span>135 million weights. Ready in about 9 to 16 seconds. A download of 180 MB.</span></a></li>
+        <li><a href="../?m=0.5b"><b>brnfck-qwen2.5-0.5b: larger and slower</b><span>494 million weights. Ready in 33 to 47 seconds. A download of 749 MB.</span></a></li>
         <li><a href="../?m=1.5b"><b>brnfck-qwen2.5-1.5b: biggest and slowest</b><span>1.54 billion weights. In a desktop browser with about 8 GB of free memory, or from the command line. Ready in about two and a half minutes, about 9 seconds per word piece.</span></a></li>
         <li><a href="../?m=0.8b"><b>brnfck-qwen3.5-0.8b: a newer generation</b><span>752 million weights, Qwen3.5 instead of Qwen2.5. Its model has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and after every three of them comes one that looks back. About 5 GB of memory. Ready in 2 min 10 s to 2 min 37 s, then about 5.6 s per word piece. A download of 7.7 GB.</span></a></li>
         <li><a href="../?m=0.8b-vision"><b>brnfck-qwen3.5-0.8b-vision: with a picture</b><span>brnfck-qwen3.5-0.8b with the part of Qwen3.5-0.8B that looks at pictures, 101 million weights more. Show it a photo and ask about it. A desktop browser with about 7 GB of free memory and a download of 1.51 GB. In the browser it was ready in 1 min 40 s, took 14 minutes for the picture and the question, then 5.6 seconds per word piece.</span></a></li>
@@ -136,7 +136,7 @@
     <ul class="linklist">
       <li><a href="../?m=small"><b>Chat: brnfck-smollm2-135m</b><span>Ask the program of 135 million weights a question and watch the answer arrive, one word piece at a time. Fast, and wrong more often.</span></a></li>
       <li><a href="../?m=0.5b"><b>Chat: brnfck-qwen2.5-0.5b</b><span>A model of 494 million weights: slower, and right more often.</span></a></li>
-      <li><a href="../?m=0.8b"><b>Chat: brnfck-qwen3.5-0.8b</b><span>Qwen3.5-0.8B, a model of 752 million weights with the same kind of layers as Qwen3.8-27B, a much larger model. A download of 7.7 GB.</span></a></li>
+      <li><a href="../?m=0.8b"><b>Chat: brnfck-qwen3.5-0.8b</b><span>Qwen3.5-0.8B, a model of 752 million weights with the same kind of layers as Qwen3.8-27B, a much larger model. A download of 1.36 GB.</span></a></li>
       <li><a href="../vision/"><b>Looking at a picture</b><span>brnfck-qwen3.5-0.8b-vision reads a picture and a question. Where every square of the picture looks, layer by layer, and what the program said about four photos.</span></a></li>
       <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
       <li><a href="../map/"><b>Program map</b><span>Every character of a program on one map: zoom from the whole of it down to single commands. As one line, as rows, folded into a square, or as an outline. For brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b.</span></a></li>
@@ -144,7 +144,7 @@
       <li><a href="../brainfuck/"><b>Start here</b><span>Where learning starts. The language the models are written in: eight commands, a machine to try them on, and where to go for a playground, patterns, challenges and a reference.</span></a></li>
       <li><a href="../challenges/basics/"><b>Brainfuck basics</b><span>The language in ten short lessons, for complete beginners.</span></a></li>
       <li><a href="../learn/"><b>Build toward a chatbot</b><span>Eleven lessons with puzzles, for when you want to try every trick of the model yourself.</span></a></li>
-      <li><a href="../how/#questions"><b>Questions and caveats</b><span>Section 10 of How it works. What "pure" means and does not mean, how it was checked, the numbers, the credits.</span></a></li>
+      <li><a href="../how/#questions"><b>Questions and caveats</b><span>The last part of How it works. What "pure" means and does not mean, how it was checked, the numbers, the credits.</span></a></li>
     </ul>
   </section>
 
@@ -194,15 +194,16 @@
   <section id="earlier">
     <h2>Has this been done before?</h2>
     <p>An earlier public project (lobotoml) ran a neural network of 7 neurons in brainfuck, for the XOR function <a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. We looked for an earlier language model or chat model in brainfuck and found none. Our search was limited, so we do not claim to be the first.</p>
+    <p>The chat programs run models that were trained elsewhere. The three programs on <a href="../train/">Trained in brainfuck</a> train one themselves: they start from random weights, learn from a list of names step by step, and print a second program that makes up new names.</p>
   </section>
 
   <section id="limits">
     <h2>Limitations</h2>
     <ul>
-      <li><b>The answers can be wrong.</b> brnfck-smollm2-135m is often wrong, also on simple sums. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b usually get simple sums and facts right but are still wrong on harder facts: brnfck-qwen3.5-0.8b puts Leeuwarden in the Oostzee. The original models make the same kind of mistakes. Do not rely on what any of them says. How it works says why: <a href="../how/#wrong">"Why are the models wrong so often?"</a></li>
+      <li><b>The answers can be wrong.</b> brnfck-smollm2-135m is often wrong, also on simple sums. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b usually get simple sums and facts right but are still wrong on harder facts: brnfck-qwen3.5-0.8b puts Leeuwarden on the Baltic Sea. The original models make the same kind of mistakes. Do not rely on what any of them says. How it works says why: <a href="../how/#wrong">"Why are the models wrong so often?"</a></li>
       <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only. The converted models of brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b pick the same next word piece as the originals in 94.8%, 96.6% and 97.2% of the tested cases, not in all <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>. For brnfck-qwen3.5-0.8b it is 95.1%; for brnfck-qwen3.5-0.8b-vision, on four photos, 97.5% (79 of 81).</li>
       <li><b>The models were not made in brainfuck.</b> They were trained by Hugging Face and by Alibaba Cloud in the usual way. Brainfuck only runs them.</li>
-      <li><b>It is heavy.</b> brnfck-smollm2-135m needs a download of 1 GB and about 1.5 GB of free memory; brnfck-qwen2.5-0.5b 4.2 GB and about 4 GB of memory. brnfck-qwen2.5-1.5b needs a recent desktop browser, a program of 11.4 GB and about 8 GB of free memory; a phone cannot run it. brnfck-qwen3.5-0.8b needs 7.7 GB and about 5 GB of memory, and cannot yet clear its memory after an answer, so the Chatbot loads it again for each question. brnfck-qwen3.5-0.8b-vision needs a desktop browser with 64-bit memory, a download of 1.51 GB and about 7 GB of free memory, and is loaded again for each question too. The chats have only been tried in one desktop Chromium browser.</li>
+      <li><b>It is heavy.</b> brnfck-smollm2-135m needs a download of 180 MB and about 1.5 GB of free memory; brnfck-qwen2.5-0.5b 749 MB and about 4 GB of memory. brnfck-qwen2.5-1.5b needs a recent desktop browser, a download of about 2.1 GB and about 8 GB of free memory; a phone cannot run it. brnfck-qwen3.5-0.8b needs 1.36 GB and about 5 GB of memory, and cannot yet clear its memory after an answer, so the Chatbot loads it again for each question. brnfck-qwen3.5-0.8b-vision needs a desktop browser with 64-bit memory, a download of 1.51 GB and about 7 GB of free memory, and is loaded again for each question too. The chats have only been tried in one desktop Chromium browser.</li>
       <li><b>It needs a fast interpreter with cells of 32 bits.</b> The result is identical to running one command at a time, but one at a time would take far too long. How it works has the details: <a href="../how/#fast">"Why is it this fast?"</a></li>
     </ul>
     <p>The full list is on How it works, under <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></p>
@@ -225,7 +226,7 @@
   <section id="fromhere" aria-labelledby="fromhere-h">
     <h2 class="nonum" id="fromhere-h">From here</h2>
     <ul class="tiles" aria-label="Where to go from here">
-      <li><a href="../"><b>Ask the model</b><span>brnfck-qwen2.5-0.5b, in your browser. A download of 4.2 GB.</span></a></li>
+      <li><a href="../"><b>Ask the model</b><span>brnfck-qwen2.5-0.5b, in your browser. A download of 749 MB.</span></a></li>
       <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
       <li><a href="../inside/"><b>Inside the program</b><span>The parts of the program, one by one, measured.</span></a></li>
       <li><a href="../map/"><b>Program map</b><span>Every character of the program as one picture, to zoom into.</span></a></li>
@@ -235,11 +236,11 @@
 </main>
 <script>window.InsideOptions = { light: true };</script>
 <script src="../program-source.js?v=r6"></script>
-<script src="../program-start.js?v=r6"></script>
+<script src="../program-start.js?v=r7"></script>
 <script src="../program-download.js?v=r6"></script>
 <script src="../inside/engine-sections.js?v=r11"></script>
-<script src="../inside/core.js?v=r15"></script>
-<script src="../inside/map.js?v=r14"></script>
+<script src="../inside/core.js?v=r19"></script>
+<script src="../inside/map.js?v=r18"></script>
 <script>
 document.querySelectorAll('#downloads [data-dl]').forEach(function (box) { if (window.Inside && window.ProgramDownload) window.Inside.program(box.getAttribute('data-dl')).then(function (P) { if (P) window.ProgramDownload.attach(box, P); }); });
 </script>

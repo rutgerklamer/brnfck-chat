@@ -10,12 +10,12 @@ const { buildChat } = require('./gen');
 
 const OUT = path.join(__dirname, 'out');
 const PROGRAMS = path.join(__dirname, '..', '..', '..', 'site', 'programs');
-const MODELS = ['0.5b', '1.5b'];
+const MODELS = ['0.5b', '1.5b', 'coder-0.5b'];
 
 const TOK = { maxChars: 200 };
 
 function files(model) {
-  if (!MODELS.includes(model)) throw new Error(`unknown model ${model}: use 0.5b or 1.5b`);
+  if (!MODELS.includes(model)) throw new Error(`unknown model ${model}: use 0.5b, 1.5b or coder-0.5b`);
   const engineWeights = path.join(__dirname, '..', 'engine', 'out', `weights-${model}.bin`);
   return {
     program: path.join(OUT, `chat-${model}.bf`), meta: path.join(OUT, `chat-${model}.meta.json`),

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brnfck.chat: brainfuck that writes brainfuck</title>
+<meta name="description" content="brnfck-qwen2.5-coder-0.5b is a brainfuck program of 4.2 billion characters that answers a task in words with a brainfuck program of its own. See what it wrote for the 51 challenges of this site and 60 blind tasks, run every answer on its test cases, and see how it was taught.">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../site.css?v=r12">
+<link rel="stylesheet" href="../ui/system.css?v=r6">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
+<link rel="stylesheet" href="coder.css?v=r5">
+</head>
+<body>
+<script src="../site.js?v=r23" data-section="lab"></script>
+<main class="doc article cdr" id="main">
+
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../train/">Lab</a><span>Brainfuck that writes brainfuck</span></p>
+    <h1>Brainfuck that writes brainfuck</h1>
+    <p class="lead">Ask for a program in words, and a brainfuck program writes it. brnfck-qwen2.5-coder-0.5b is one file of <span data-v="chars">4.2 billion</span> brainfuck characters, like the chat programs on this site. Its model was taught to answer every task with a brainfuck program of its own. On this page you see what it wrote for the 51 challenges of this site and for 60 tasks it never saw, and your browser runs each of those programs on its test cases.</p>
+    <div class="top-nav">
+      <nav id="contents" aria-labelledby="contents-h">
+        <p class="label" id="contents-h">Contents</p>
+        <ol class="contents">
+          <li><a href="#live">Ask it yourself</a></li>
+          <li><a href="#ask">What it wrote</a></li>
+          <li><a href="#score">The scoreboard</a></li>
+          <li><a href="#answer">One answer, to scale</a></li>
+          <li><a href="#taught">How it was taught</a></li>
+          <li><a href="#wrong">Where it goes wrong</a></li>
+          <li><a href="#checked">How it was checked</a></li>
+          <li><a href="#notes">Notes and sources</a></li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <section id="live" aria-labelledby="live-h">
+    <h2 id="live-h">Ask it yourself</h2>
+    <p>Describe a small program in words. Your browser runs brnfck-qwen2.5-coder-0.5b itself, the whole brainfuck file, in the same runtime as the chatbot: first it writes its own weights into memory, then it reads your task one word piece at a time, then it prints a brainfuck program. When it is done, you can run that program here.</p>
+    <figure class="fig" id="fig-live" aria-label="Ask brnfck-qwen2.5-coder-0.5b for a program and run what it writes">
+      <dl class="cdr-facts" id="live-facts">
+        <div><dt>Program</dt><dd id="lf-chars">&nbsp;</dd></div>
+        <div><dt>Download</dt><dd id="lf-down">&nbsp;</dd></div>
+        <div><dt>Ready after</dt><dd>about 35 to 50 s</dd></div>
+        <div><dt>Per word piece</dt><dd>about 2.2 s</dd></div>
+      </dl>
+      <div class="ctl picks">
+        <label class="task"><span>Task</span><input type="text" id="live-q" maxlength="200" autocomplete="off" spellcheck="false"></label>
+        <button type="button" class="primary" id="live-go">Load and ask</button>
+      </div>
+      <div class="ctl picks chips" id="live-chips" role="group" aria-label="Example tasks"></div>
+      <div class="cdr-prog" id="live-prog" hidden>
+        <progress id="live-bar" max="1" value="0"></progress>
+        <p class="tell" id="live-stage" aria-live="polite">&nbsp;</p>
+      </div>
+      <div class="cdr-a" id="live-ans" hidden>
+        <p class="label"><span>The program it wrote</span><span class="n" id="live-len"></span></p>
+        <pre class="bf" id="live-code" aria-live="off"></pre>
+      </div>
+      <div class="ctl picks own" id="live-run" hidden>
+        <label class="word"><span>Its input</span><input type="text" id="live-in" autocomplete="off" spellcheck="false" placeholder="type something"></label>
+        <output class="out" id="live-out" aria-live="polite"></output>
+        <a class="quiet button" id="live-pg" href="../playground/">Open in the Playground</a>
+      </div>
+      <p class="tell" id="live-said" aria-live="polite">&nbsp;</p>
+      <p class="measured">The program is downloaded in pieces and kept by your browser, so a second visit starts without the download. It needs about 4 GB of free memory, so it runs on a desktop or laptop computer, not on a phone. Its question can be at most 200 bytes, as on the chatbot; tasks like those of the <a href="../challenges/">challenges</a> work best. The program it writes runs with cells of 8 bits, and a comma at the end of the input reads 0.</p>
+    </figure>
+  </section>
+
+  <section id="ask" aria-labelledby="ask-h">
+    <h2 id="ask-h">What it wrote</h2>
+    <p>Pick a task. The question is what the program read, through its one comma command, as the page of the challenge words it. Below it is the program it printed through its one dot command, character for character, and below that the test cases of the task: your browser runs the printed program on each of them, in the checker of the <a href="../challenges/">challenges</a>.</p>
+
+    <figure class="fig" id="fig-ask" aria-label="A task, the brainfuck program the program wrote for it, and that program run on the test cases">
+      <div class="ctl picks">
+        <span class="seg" id="ask-set" role="group" aria-label="Which tasks"><button type="button" data-k="challenges" aria-pressed="true">The 51 challenges</button><button type="button" data-k="blind" aria-pressed="false">60 blind tasks</button></span>
+        <span class="seg" id="ask-ver" role="group" aria-label="Which version"></span>
+      </div>
+      <div class="ctl picks">
+        <button type="button" class="quiet step" id="ask-prev" aria-label="Previous task">&larr;</button>
+        <label class="pick"><span>Task</span><select id="ask-task"></select></label>
+        <button type="button" class="quiet step" id="ask-next" aria-label="Next task">&rarr;</button>
+      </div>
+      <div class="cdr-q">
+        <p class="label">The question</p>
+        <p class="q" id="ask-q">&nbsp;</p>
+      </div>
+      <div class="cdr-a">
+        <p class="label"><span>The program it wrote</span><span class="n" id="ask-len"></span></p>
+        <pre class="bf" id="ask-code">&nbsp;</pre>
+      </div>
+      <div class="scroll">
+        <table class="cdr-cases" id="ask-cases">
+          <thead><tr><th scope="col">Input</th><th scope="col">Should print</th><th scope="col">Printed</th><th scope="col" class="r">Steps</th><th scope="col"><span class="vh">Right</span></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="ctl picks own">
+        <label class="word"><span>Your input</span><input type="text" id="ask-in" autocomplete="off" spellcheck="false" placeholder="type something"></label>
+        <output class="out" id="ask-out" aria-live="polite"></output>
+      </div>
+      <p class="tell" id="ask-said" aria-live="polite">&nbsp;</p>
+      <p class="measured">The answers of the taught versions are what their brainfuck program prints: the plain whole-number version of the model that the program equals to the byte (<code>compiler/coder/spec_ask.js</code>). The downloaded model is not a brainfuck program; its answers are from the model itself, in floating point (<code>compiler/coder/ask.py</code>). The test cases of the challenges are those of the <a href="../challenges/">challenges</a> page; the blind tasks have their own (<code>compiler/coder/blind.js</code>). A step is one command carried out.</p>
+    </figure>
+  </section>
+
+  <section id="score" aria-labelledby="score-h">
+    <h2 id="score-h">The scoreboard</h2>
+    <p>Every square is a task, every row a version of the model. A square is filled when the program written for it passes all the test cases of the task. The blind tasks were written by hand for this page, in other words than the training examples, and none of them was ever used to teach the model; a dozen of them ask for two things at once, which no training example does.</p>
+    <figure class="fig" id="fig-score" aria-label="Which tasks each version solves">
+      <div class="cdr-board" id="board"></div>
+      <p class="key small"><span><i class="sq on"></i>passes every test case</span><span><i class="sq"></i>does not</span><span>Press a square to see the task above.</span></p>
+      <p class="measured">Counted in your browser: every program is run on every test case when the page opens. The challenges stay in the groups of the challenges page. The second round was taught the skills of the challenges, with other numbers and in other words, so for it the challenges are no longer a blind test; the 60 blind tasks are.</p>
+    </figure>
+  </section>
+
+  <section id="answer" aria-labelledby="answer-h">
+    <h2 id="answer-h">One answer, to scale</h2>
+    <p>The program has one comma and one dot. Before it reads anything, it writes its own weights: the first <span data-v="writer">4.15 billion</span> characters are only <code>+</code>, <code>-</code>, <code>&lt;</code> and <code>&gt;</code>. Then it reads the question, one byte at a time, and runs every word piece of it through all 24 layers of the model. Only then does it write, one word piece at a time. A run of sixteen plus signs is a single word piece, which is why a brainfuck answer comes out quicker than its length suggests.</p>
+    <figure class="fig" id="fig-answer" aria-label="The time of one answer, by part">
+      <div class="cdr-time" id="time"></div>
+      <p class="tell" id="time-said">&nbsp;</p>
+      <p class="measured" id="time-src">&nbsp;</p>
+    </figure>
+  </section>
+
+  <section id="taught" aria-labelledby="taught-h">
+    <h2 id="taught-h">How it was taught</h2>
+    <p>Qwen2.5-Coder-0.5B-Instruct, as it can be downloaded, writes Python well and brainfuck not at all: asked for a capital A, it starts with a loop and then repeats <code>&gt;+++++++</code> until the conversation is full. It solves none of the 51 challenges. So it was taught, on a graphics card, before it was turned into brainfuck.</p>
+    <p>The examples were made by small programs, one per kind of task, each with its own words and random numbers: print this text, repeat this character, read two digits and add them, replace every space. Every example program was run on random inputs by the same checker as the challenges before it was kept, so the model never saw a wrong one. Below one example of every kind; the kinds marked <b>new</b> were added in the second round.</p>
+    <figure class="fig" id="fig-fam" aria-label="One training example of every kind of task">
+      <div class="cdr-fams" id="fams"></div>
+    </figure>
+    <figure class="fig" id="fig-curve" aria-label="The second round of training: how often the model writes a test example exactly right">
+      <div class="cdr-curve" id="curve"></div>
+      <p class="measured" id="curve-src">&nbsp;</p>
+    </figure>
+    <p>The taught model has the same shape as the downloaded one, so the compiler of the other Qwen2.5 programs turned it into brainfuck unchanged: the engine of brnfck-qwen2.5-coder-0.5b is the engine of brnfck-qwen2.5-0.5b, character for character, and only the part that writes the weights differs.</p>
+  </section>
+
+  <section id="wrong" aria-labelledby="wrong-h">
+    <h2 id="wrong-h">Where it goes wrong</h2>
+    <p>Most wrong answers are almost right. The program counts characters by word pieces of up to sixteen plus signs, and a long run that is off by a few gives a neighbouring letter; a task with an extra condition gets the program of the task without it. Below the failures of the version chosen in <a href="#ask">What it wrote</a>, each with the first test case it gets wrong.</p>
+    <figure class="fig" id="fig-wrong" aria-label="Wrong answers, with the first test case each gets wrong">
+      <div class="cdr-wrong" id="wrongs"></div>
+    </figure>
+  </section>
+
+  <section id="checked" aria-labelledby="checked-h">
+    <h2 id="checked-h">How it was checked</h2>
+    <p><code>node tools/build.js coder-0.5b</code> teaches the model, builds the program and verifies it the way the other programs are verified (<code>compiler/qwen/program/verify_pure.js</code>):</p>
+    <ul>
+      <li>the file holds only the eight commands, its brackets match, and it has one comma and one dot;</li>
+      <li>the memory its first part writes equals the memory of the loaded model, in 628 SHA-256 sums over <span data-v="tape">657 million</span> cells;</li>
+      <li>for four challenges, the text it prints equals, byte for byte, the program the whole-number version of the model writes, and every scratch cell is zero at the end.</li>
+    </ul>
+    <p>That is why the answers on this page are those of the brainfuck program. Asked <em>Count the a</em> on the command line, it read the 118 bytes of the question, printed the program shown above under <a href="#answer">One answer, to scale</a>, and that program passes all seven test cases of the challenge.</p>
+  </section>
+
+  <section id="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes and sources</h2>
+    <ul>
+      <li>The model: <a href="https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct">Qwen2.5-Coder-0.5B-Instruct</a> (Qwen team, Alibaba Cloud), taught with <code>compiler/coder/train.py</code> (PyTorch, every weight but the embedding, two passes).</li>
+      <li>The examples: <code>compiler/coder/data.js</code>. The blind tasks: <code>compiler/coder/blind.js</code>. The scoring: <code>compiler/coder/challenges.js</code>, <code>ask.py</code> and <code>spec_ask.js</code>. This page's data: <code>compiler/coder/record.js</code>.</li>
+      <li>The divide and the decimal printing of the examples use the divmod loop <code>[-&gt;-[&gt;+&gt;&gt;]&gt;[+[-&lt;+&gt;]&gt;+&gt;&gt;]&lt;&lt;&lt;&lt;&lt;]</code>, which is widely shared among brainfuck programmers.</li>
+      <li>How to build it yourself: <a href="../about/">About the project</a> and the README of the code.</li>
+    </ul>
+  </section>
+</main>
+<script src="../program-source.js?v=r6"></script>
+<script src="../program-start.js?v=r6"></script>
+<script src="../challenges/data.js?v=r6"></script>
+<script src="../challenges/engine.js?v=r6"></script>
+<script src="coder.js?v=r5"></script>
+</body>
+</html>

@@ -18,7 +18,8 @@
   let liveT = 0;
   const announce = (t) => { clearTimeout(liveT); live.textContent = ''; liveT = setTimeout(() => { live.textContent = t; }, 120); };
   const LNAME = { tree: 'Outline' }; for (const k in M.LAYOUTS) LNAME[k] = M.LAYOUTS[k].name;
-  const BASIC = ['fold', 'line', 'rows', 'tree'], MORE = ['lanes', 'density', 'skyline', 'parts', 'tape', 'time', 'three'];      // the order of the layouts, everywhere
+  const BASIC = ['fold', 'line', 'rows', 'tree'], MORE = ['lanes', 'density', 'skyline', 'parts', 'tape', 'time', 'three'].filter((k) => !I.TRAIN || !['tape', 'time', 'three'].includes(k));      // the order of the layouts, everywhere; a training program writes no model and runs no question
+  if (I.TRAIN) ['tape', 'time', 'three'].forEach((k) => document.querySelectorAll('#m-more option[value="' + k + '"], #m-layout-sel option[value="' + k + '"]').forEach((o) => o.remove()));
   const SAYS = (k) => (k === 'tree' ? M.SAYS_TREE : M.LAYOUTS[k].says).replace('Best to start with, and to see how long', 'Best to see how long');
   const whereText = () => {
     const v = M.view; if (v.tree) return 'Outline of the program.';
@@ -160,7 +161,7 @@
     if (b.dataset.pan) { const [x, y] = b.dataset.pan.split(',').map(Number); M.panBy(x * 0.25, y * 0.25); } else if (b.dataset.zoom) M.zoomBy(Number(b.dataset.zoom)); else M.home();
   }));
   document.querySelectorAll('#m-progs a').forEach((a) => { if (a.dataset.m === I.MODEL) a.setAttribute('aria-current', 'page'); });
-  const ins = $('m-inside'); if (ins) { if (I.VIS) { ins.href = '../vision/'; ins.textContent = 'Looking at a picture'; } else ins.href = '../inside/?m=' + I.MODEL; }
+  const ins = $('m-inside'); if (ins) { if (I.TRAIN) { ins.href = '../train/' + (I.MODEL === 'train-shakespeare' ? '#shakespeare' : ''); ins.textContent = 'Trained in brainfuck'; } else if (I.VIS) { ins.href = '../vision/'; ins.textContent = 'Looking at a picture'; } else ins.href = '../inside/?m=' + I.MODEL; }
 
   // ---- the program text at a chosen spot
   let readerFrom = null, chosen = null;
@@ -326,6 +327,57 @@
     }
     groups = G; flat = [];
     G.forEach((gr) => gr.list.forEach((p) => { p.group = gr.name; flat.push(p); }));
+  }
+  // A program that trains a network (compiler/train): places and tours from its parts
+  function makeTrainPlaces() {
+    const W = I.W, E = I.E, total = M.total, tr = W.train, sp = (id) => M.spans.find((s) => s.id === id), P = W.program;
+    const range = (id, layout, title, text, mode = 'purpose') => { const s = sp(id); return s ? { id, title, layout, mode, from: s.from, to: s.to, text: text || s.says } : null; };
+    const attn = tr.kind === 'attn', first = sp('read').from, kid = sp('child-weights').from;
+    const u = tr.unit || 'letter', bard = tr.text === 'shakespeare', what = bard ? 'the text of Shakespeare' : 'the names';
+    const G = [], g = (name, list) => G.push({ name, list: list.filter(Boolean) });
+    g('Start here', [
+      { id: 'folded', title: 'The whole program, folded', layout: 'fold', mode: 'purpose', home: true, text: 'All ' + fmt(total) + ' characters at once. The program is one line; here it is folded into a square, so that neighbours in the line stay neighbours. A colour is one part of the training.' },
+      { id: 'line', title: 'The same program, as one line', layout: 'line', mode: 'purpose', home: true, text: 'The program as it is: one line of ' + fmt(total) + ' characters, from the first to the last. Best to see how long each part is.' },
+      { id: 'commands', title: 'Zoom until you can read it', layout: 'line', mode: 'purpose', at: first + 40, z: 4, text: 'Close up, the line is commands, one after another. These are the first of the training loop.' },
+    ]);
+    g('Setting up', [
+      range('start', 'fold', 'The writing part', 'The first ' + pct(P.writer / total) + ' of the text: a marker in every slot, the slots that draw a random start value, and the seed. A chat program writes its model here; this one only gets ready.'),
+      range('init', 'fold', 'The random start weights'),
+    ]);
+    g('One ' + u + ' of the training', [
+      { id: 'comma', title: 'The place it reads a ' + u, layout: 'fold', mode: 'purpose', at: E.commaAll.length > 1 ? E.commaAll[1] : E.comma, z: 5, text: 'A comma, in the green ring: it reads 31 of every 32 ' + u + 's of ' + what + '. Two more commas read the first ' + u + ' of each step.' },
+      range('read', 'fold', 'Reading a ' + u),
+      attn ? range('key-forward', 'fold', 'Queries, keys and scores') : null,
+      attn ? range('attention', 'fold', 'Softmax of the attention') : null,
+      range('forward', 'fold', 'Forward through the network'),
+      range('head', 'fold', 'Softmax, loss and its gradient'),
+      range('backward', 'fold', 'Backpropagation'),
+      attn ? range('attention-backward', 'fold', 'Back through the attention') : null,
+      attn ? range('key-backward', 'fold', 'Back into the queries and keys') : null,
+    ]);
+    g('After 32 ' + u + 's', [
+      range('momentum', 'fold', 'Every weight moves'),
+      range('print-step', 'fold', 'Printing the loss'),
+      { id: 'dot', title: 'A full stop that prints the loss', layout: 'fold', mode: 'purpose', at: E.dot, z: 5, text: 'One of the full stops, in the ring: it prints the line of every step, such as “step 12 loss 2.345”.' },
+    ]);
+    g('At the end: the child', [
+      { id: 'child', title: 'The child program', layout: 'fold', mode: 'purpose', from: kid, to: total, text: 'The last ' + pct((total - kid) / total) + ' of the text runs once, after the last step: it prints a second brainfuck program: the trained weights, each as a run of + or −, and an engine of ' + fmt(tr.engine) + ' characters that ' + (bard ? 'writes lines like Shakespeare’s' : 'makes up names') + '.' },
+      range('child-weights', 'line', 'Its weights, one walk'),
+      range('engine', 'fold', 'Its engine, printed character by character'),
+    ]);
+    g('Other layouts and colours', [
+      { id: 'lanes', title: 'Where each command lives', layout: 'lanes', mode: 'purpose', home: true, text: 'Seven lanes along the line, one for each command. Nearly all of this program is code: the brackets are everywhere, where a chat program has long runs of adding and stepping left.' },
+      { id: 'parts', title: 'The parts, one under the other', layout: 'parts', mode: 'purpose', home: true, text: 'Every part of the program on a row of its own, all at the same scale.' },
+      { id: 'mix', title: 'What the text is made of', layout: 'density', mode: 'purpose', home: true, text: 'A bar chart along the line: in every stretch, the share of each command, stacked.' },
+      { id: 'skyline', title: 'Where the loops pile up', layout: 'skyline', mode: 'purpose', home: true, text: 'Height is how many loops lie inside one another. The tallest towers, ' + W.counts.maxDepthEngine + ' deep, are the tables of 1 divided by a sum and of the logarithm: a counting chain inside a switch.' },
+      { id: 'bycommand', title: 'The square, coloured by command', layout: 'fold', mode: 'command', home: true, text: 'The folded program with a colour for each command instead of each part.' },
+    ]);
+    groups = G; flat = [];
+    G.forEach((gr) => gr.list.forEach((p) => { p.group = gr.name; flat.push(p); }));
+  }
+  function makeTrainTours() {
+    const ids = ['line', 'start', 'init', 'comma', 'read', 'key-forward', 'attention', 'forward', 'head', 'backward', 'attention-backward', 'key-backward', 'momentum', 'print-step', 'child', 'engine'];
+    tours = [{ id: 'grand', title: 'One training program, part by part', text: 'From the seed to the child: the order in which the program learns.', stops: ids.map((id) => flat.find((p) => p.id === id)).filter(Boolean).map((p) => Object.assign({}, p)) }];
   }
   function drawPlaces() {
     const box = $('m-places'); box.textContent = '';
@@ -504,7 +556,7 @@
   const fromHash = (jump) => { const m = /^#preset=([a-z0-9-]+)$/.exec(location.hash), p = m && byId(m[1]); if (p) applyPlace(p, { jump, stay: true }); return !!p; };
   M.started.then(async () => {
     let C = null; try { C = await I.get('/compare.json'); } catch (e) { }
-    makePlaces(C); drawPlaces(); makeTours(); drawTours();
+    if (I.TRAIN) { makeTrainPlaces(); drawPlaces(); makeTrainTours(); drawTours(); } else { makePlaces(C); drawPlaces(); makeTours(); drawTours(); }
     if (!fromHash(true)) { if (!location.hash) { current = flat[0]; lastPlace = flat[0]; markCurrent(); } else lastPlace = null; }
     setNow();
     window.addEventListener('hashchange', () => { if (!fromHash(false) && current) { current = null; markCurrent(); } });      // an address that is not a place: no place is "here"

@@ -19,7 +19,8 @@ function main() {
   const tty = process.stderr.isTTY, dec = new TextDecoder('utf-8');
   const S = session(meta.tapeSize);
   console.error(`Q: ${question}`);
-  console.error(`[Qwen2.5-${model.toUpperCase()}-Instruct as ${num(meta.programBytes)} characters of brainfuck; tape ${gib(meta.tapeSize * 4)}, ${S.bits}-bit memory]`);
+  const name = model === 'coder-0.5b' ? 'Qwen2.5-Coder-0.5B-Instruct, taught brainfuck,' : `Qwen2.5-${model.toUpperCase()}-Instruct`;
+  console.error(`[${name} as ${num(meta.programBytes)} characters of brainfuck; tape ${gib(meta.tapeSize * 4)}, ${S.bits}-bit memory]`);
   const onOutput = (bytes) => { const s = dec.decode(bytes, { stream: true }); if (s) fs.writeSync(1, s); };
   let r, startup;
   if (useData) {

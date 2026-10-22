@@ -13,7 +13,8 @@
 .progpick details[open] > summary .pp-len { color: inherit; }
 /* the program shown, by the attribute that the head of the page sets */
 :root[data-model="small"] .progpick summary [data-m="small"], :root[data-model="0.5b"] .progpick summary [data-m="0.5b"], :root[data-model="1.5b"] .progpick summary [data-m="1.5b"],
-:root[data-model="0.8b"] .progpick summary [data-m="0.8b"], :root[data-model="0.8b-vision"] .progpick summary [data-m="0.8b-vision"] { display: inline; }
+:root[data-model="0.8b"] .progpick summary [data-m="0.8b"], :root[data-model="0.8b-vision"] .progpick summary [data-m="0.8b-vision"],
+:root[data-model="train-attn"] .progpick summary [data-m="train-attn"], :root[data-model="train-mlp"] .progpick summary [data-m="train-mlp"], :root[data-model="train-bigram"] .progpick summary [data-m="train-bigram"] { display: inline; }
 .progpick .pp-caret { flex: 0 0 auto; width: 0; height: 0; border: 5px solid transparent; border-top: 6px solid currentColor; border-bottom: 0; transition: transform var(--ease); }
 .progpick details[open] .pp-caret { transform: rotate(180deg); }
 
@@ -46,3 +47,6 @@
 }
 @media (prefers-reduced-motion: reduce) { .progpick .pp-caret { transition: none; } }
 @media print { .progpick details { display: none; } }
+/* the programs that train a network themselves: a second list under the first, at the same scale; their map is on train/ */
+.progpick .pp-group { margin: 0 var(--s3) var(--s1); color: var(--ink); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+.progpick .pp-sub { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }

@@ -12,13 +12,14 @@
   }
 
   async function find(o) {
-    const P = { name: o.name, mode: 'file', meta: null, manifest: null, manifestUrl: abs(o.manifestUrl), fileUrl: abs(o.fileUrl), store: true, stored: { chunks: 0, bytes: 0 } };
+    const P = { name: o.name, mode: 'file', meta: null, manifest: null, manifestUrl: o.manifestUrl ? abs(o.manifestUrl) : null, fileUrl: abs(o.fileUrl), store: true, stored: { chunks: 0, bytes: 0 } };
     // program-hosts.json may name another host for the chunks of this program
     try {
       const hosts = await json(abs(o.hostsUrl || '../program-hosts.json')), where = hosts && hosts[o.name];
       if (typeof where === 'string' && where) P.manifestUrl = new URL('manifest.json', new URL(where.endsWith('/') ? where : where + '/', location.href)).href;
     } catch (e) { }
-    P.manifest = await PS.manifest(P.manifestUrl);
+    // no manifestUrl: the program has no chunks, only its file (the training programs)
+    P.manifest = P.manifestUrl ? await PS.manifest(P.manifestUrl) : null;
     if (P.manifest) {
       P.mode = 'chunks';
       try { P.meta = await json(new URL(P.manifest.meta || 'meta.json', P.manifestUrl).href); }

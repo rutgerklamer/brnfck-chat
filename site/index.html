@@ -12,12 +12,12 @@
 <meta name="twitter:card" content="summary">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="site.css?v=r10">
+<link rel="stylesheet" href="site.css?v=r12">
 <link rel="stylesheet" href="program-download.css?v=r6">
-<link rel="stylesheet" href="home.css?v=r21">
+<link rel="stylesheet" href="home.css?v=r28">
 </head>
 <body>
-<script src="site.js?v=r17" data-section="chat"></script>
+<script src="site.js?v=r23" data-section="chat"></script>
 <main class="doc home" id="main" data-state="finding">
 
   <div class="stage">
@@ -69,6 +69,12 @@
             <section id="thread" class="thread" hidden aria-label="Question and answer">
               <p class="exchange io"><span class="q" id="mine"></span><span class="a" id="answer"></span></p>
               <img id="minePic" class="minePic" alt="" width="96" height="96" hidden>
+              <div id="codeRun" class="coderun" hidden>
+                <p class="label">Run the program it wrote</p>
+                <div class="row"><label class="stacked">Input <input id="codeIn" autocomplete="off" spellcheck="false"></label><button id="codeGo" type="button">Run</button><a id="codePlay" class="btn quiet" href="playground/">Open in the Playground</a></div>
+                <p id="codeOut" class="coderesult" role="status"></p>
+                <p class="small muted">8-bit cells, and a comma at the end of the input reads 0: the settings of the Challenges, which it was taught with.</p>
+              </div>
               <div class="process">
                 <ol id="steps" class="stepbar" aria-label="What is happening"><li><span>1. Load the model</span></li><li><span>2. Read your question</span></li><li><span>3. Write the answer</span></li></ol>
                 <p id="explain"></p>
@@ -121,7 +127,7 @@
         <section class="rig" id="settings" aria-labelledby="rig-prog">
           <h2 class="label nonum" id="rig-prog">Which program answers</h2>
           <p class="modelLine"><b id="modelText"></b><span class="muted small" id="programSize"></span></p>
-          <fieldset class="picklist" id="models"><legend class="sr-only">Five programs: four models of text, and one of them with its part for pictures</legend></fieldset>
+          <fieldset class="picklist" id="models"><legend class="sr-only">Six programs: four that read text, brnfck-qwen3.5-0.8b-vision, which also reads a picture, and brnfck-qwen2.5-coder-0.5b, which answers with a brainfuck program</legend></fieldset>
           <p class="small muted">A bigger model answers better, and you wait longer for it.</p>
           <p id="storeLine" class="small muted" hidden><span id="storeText"></span> <button id="removeStored" type="button" class="link">Remove it</button></p>
           <details class="q nonum"><summary>Download this program (.bf)</summary><div class="a" id="download"></div></details>
@@ -132,13 +138,55 @@
   <p id="live" class="sr-only" role="status"></p>
 
   <section id="where" aria-labelledby="whereHead">
-    <h2 id="whereHead">What is on this site</h2>
-    <p>The chatbot above is the result. The four parts below show how it is made, from one command up to the whole program.</p>
-    <ol class="dest">
-      <li style="--c: var(--c-plus)"><a href="brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>21 short lessons</small><span>Start from the eight commands. Each lesson has a small program you run and change.</span></a></li>
-      <li style="--c: var(--c-open)"><a href="how/"><i aria-hidden="true">[]</i><b>Program insights</b><small>4 articles</small><span>Read how a question becomes an answer, what each part of the program does, what Qwen3.5-0.8B keeps in memory instead of looking back, and how one program looks at a picture.</span></a></li>
-      <li style="--c: var(--c-gt)"><a href="map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>1 map, 4 programs</small><span>See every character of a program in one picture, and zoom in to single commands.</span></a></li>
-      <li style="--c: var(--c-out)"><a href="playground/"><i aria-hidden="true">.</i><b>Play</b><small>Editor and exercises</small><span>Write your own brainfuck, run it step by step, and solve checked exercises.</span></a></li>
+    <h2 id="whereHead">Try the Lab here</h2>
+    <p>Three programs that do more than chat. Each one works right here.</p>
+    <ul class="labrow">
+      <li class="lab-train" id="labTrain">
+        <h4><span class="nb">brnfck-train-names-mlp-7k</span></h4>
+        <p class="facts small muted" id="ltFacts">A training program, built in this browser</p>
+        <p class="small">Starts from random numbers, reads 1,402 names and learns to guess the next letter, all in brainfuck. Then it prints a second program that makes up new names.</p>
+        <canvas id="ltLoss" role="img" aria-label="The loss of every step: the recorded run in grey, this run in colour"></canvas>
+        <p class="ltkey small muted"><span><i class="k-rec"></i>the recorded run of brnfck-train-names-mlp-7k</span> <span><i class="k-live"></i>your run</span> <span>· the loss of every step</span></p>
+        <p class="stat small" id="ltStat" role="status">Press Train: brnfck-train-names-mlp-7k trains in this browser, and the loss of every step appears.</p>
+        <p class="names" id="ltNames" hidden aria-label="Names made up by the child program of brnfck-train-names-mlp-7k"></p>
+        <p class="row"><button type="button" id="ltGo">Train</button><a class="btn quiet go" href="train/">More on Trained in brainfuck</a></p>
+      </li>
+      <li class="lab-code" id="labCode">
+        <h4><span class="nb">brnfck-qwen2.5-coder-0.5b</span></h4>
+        <p class="facts small muted" id="lcFacts">758 MB &middot; start-up 35 to 70 s &middot; about 2.2 s per word piece</p>
+        <p class="small">Asked in words, it answers with a brainfuck program. This answer comes from a run of the program itself:</p>
+        <p class="task small" id="lcTask"></p>
+        <pre class="listing src lc-code" id="lcCode"></pre>
+        <div class="tape joined lc-tape" id="lcTape" aria-hidden="true"></div>
+        <div class="row"><label class="stacked">Input <input id="lcIn" value="banana" autocomplete="off" spellcheck="false"></label><button type="button" id="lcGo">Run it</button></div>
+        <p class="coderesult small" id="lcOut" role="status"></p>
+        <p class="row"><button type="button" class="quiet" id="lcAsk">Give it a task of your own</button></p>
+      </li>
+      <li class="lab-pic" id="labPic">
+        <h4><span class="nb">brnfck-qwen3.5-0.8b-vision</span></h4>
+        <p class="facts small muted">1.51 GB &middot; ready after 1 min 40 s &middot; its first word piece about 14 min later</p>
+        <p class="small">It reads a photo as 256 squares, and every square takes in something from every other. Point at a square to see where it looks.</p>
+        <canvas id="lpCat" tabindex="0" role="img" aria-label="A photo of a cat in 256 squares; the darker a square, the less the chosen square takes in from it" aria-describedby="lpSaid"></canvas>
+        <label class="stacked small" for="lpLayer"><span>Layer <span id="lpLayerN">4</span> of 12</span><input type="range" id="lpLayer" min="1" max="12" value="4"></label>
+        <p class="small" id="lpSaid" role="status"></p>
+        <p class="row"><a class="btn quiet go" href="vision/#look-h">More on Looking at a picture</a></p>
+      </li>
+    </ul>
+    <h3 class="label" id="showHead">See it work: six figures from the real programs</h3>
+    <ul class="show" aria-labelledby="showHead">
+      <li class="s-map"><a href="map/?m=0.8b-vision"><span class="pic"><img src="show/map.webp?v=r1" width="556" height="771" alt="The program map of brnfck-qwen3.5-0.8b-vision: a tall square of coloured fields, the output table, 24 layers, the picture part in red, the table of word pieces, and the engine to the right" loading="lazy"></span><b>Every character on one map</b><span>brnfck-qwen3.5-0.8b-vision: 8,931,101,427 characters in one square, the picture part in red.</span></a></li>
+      <li class="s-pic"><a href="vision/#look-h"><span class="pic"><img src="show/picture.webp?v=r1" width="512" height="512" alt="A photo of a tabby cat cut into 256 squares; a white frame on its left eye, a yellow frame on its right eye" loading="lazy"></span><b>Where the program looks</b><span>The square on the left eye of the cat, in layer 4 of 12, takes in most from the other eye.</span></a></li>
+      <li class="s-layers"><a href="how/#fig-lens"><span class="pic"><img src="show/layers.webp?v=r1" width="1257" height="618" alt="A grid of word pieces: for each word piece of the answer The capital of France is Paris., the word piece each of the 28 layers of brnfck-qwen2.5-1.5b would print; Paris from layer 23 up" loading="lazy"></span><b>What every layer would say</b><span>brnfck-qwen2.5-1.5b on &ldquo;What is the capital of France?&rdquo;: Paris wins from layer 23 of 28.</span></a></li>
+      <li class="s-scale"><a href="compare/#eight-h"><span class="pic"><img src="show/scale.webp?v=r2" width="1040" height="790" alt="Bars on a scale of factors of ten: six chat programs from 134,515,008 to 1,543,714,304 weights, four programs that train a network and the four programs they wrote, from 756 to 54,513 weights" loading="lazy"></span><b>Every program at one scale</b><span>From 756 weights to 1,543,714,304, on a scale of factors of ten.</span></a></li>
+      <li class="s-sh"><a href="train/#shakespeare-h"><span class="pic"><img src="show/shakespeare.webp?v=r1" width="1040" height="328" alt="KING RICHARD III: Now is the winter of our disconte, and under it bars for how much the child of brnfck-train-shakespeare-attn-55k takes in from each of the last 16 characters; its first guess for the next character is r, 53%" loading="lazy"></span><b>Shakespeare, trained in brainfuck</b><span>The child of brnfck-train-shakespeare-attn-55k on &ldquo;our disconte&rdquo;: where it looks, and r as its guess.</span></a></li>
+      <li class="s-code"><a href="coder/#ask-h"><span class="pic"><img src="show/coder.webp?v=r1" width="968" height="189" alt="The task Print E if the number of characters in the input is even, and O if it is odd, and the brainfuck program of 202 characters that brnfck-qwen2.5-coder-0.5b wrote for it, coloured by command" loading="lazy"></span><b>Brainfuck that writes brainfuck</b><span>brnfck-qwen2.5-coder-0.5b asked for even or odd: 202 characters that pass every test.</span></a></li>
+    </ul>
+    <h3 class="label" id="partsHead">Everything on the site</h3>
+    <ol class="dest" aria-labelledby="partsHead">
+      <li style="--c: var(--c-plus)"><a href="brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>2 courses, 21 lessons</small><span>Start from the eight commands. Each lesson has a small program you run and change. Then the patterns that come back again and again.</span></a></li>
+      <li style="--c: var(--c-minus)"><a href="how/"><i aria-hidden="true">-</i><b>Insights</b><small>3 articles, 1 map</small><span>Read how a question becomes an answer and what each part of the program does, see every character of a program on the map, and compare the models.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="train/"><i aria-hidden="true">[]</i><b>Lab</b><small>2 articles</small><span>Watch three programs train a network themselves, and one program look at a picture.</span></a></li>
+      <li style="--c: var(--c-out)"><a href="playground/"><i aria-hidden="true">.</i><b>Play</b><small>Editor and exercises</small><span>Write your own brainfuck, run it step by step, and solve 51 checked exercises.</span></a></li>
     </ol>
   </section>
 
@@ -208,7 +256,7 @@
 
   <section id="programs" aria-labelledby="programsHead">
     <h2 id="programsHead">Five programs, five costs</h2>
-    <p>There are four programs of text. brnfck-smollm2-135m loads quickest and often gets simple questions wrong. The larger ones need more memory and take longer for every piece of an answer. A fifth, brnfck-qwen3.5-0.8b-vision, is brnfck-qwen3.5-0.8b with the part of its model that looks at pictures: it reads a photo before the question. <a href="vision/">Looking at a picture</a> shows how.</p>
+    <p>There are four programs of text. brnfck-smollm2-135m loads quickest and often gets simple questions wrong. The larger ones need more memory and take longer for every piece of an answer. A fifth, brnfck-qwen3.5-0.8b-vision, is brnfck-qwen3.5-0.8b with the part of its model that looks at pictures: it reads a photo before the question. <a href="vision/">Looking at a picture</a> shows how. A sixth, brnfck-qwen2.5-coder-0.5b, answers with a brainfuck program of its own, which runs under its answer: <a href="coder/">Brainfuck that writes brainfuck</a>.</p>
     <p>brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, a newer generation than Qwen2.5. It has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and the other 6 look back at every earlier word piece, one after every three DeltaNet layers. <a href="compare/">Compare the models</a> explains that kind of layer. <a href="compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. The program follows its own whole-number recipe exactly.</p>
     <figure class="frame interactive full" id="fig-race" aria-labelledby="cap-race">
       <p class="frame-head"><b>Two questions, five programs</b><span class="state" id="raceClock" aria-hidden="true"></span></p>
@@ -261,12 +309,14 @@
   </section>
 </main>
 <script src="program-source.js?v=r6"></script>
-<script src="program-start.js?v=r6"></script>
+<script src="program-start.js?v=r7"></script>
 <script src="program-download.js?v=r6"></script>
 <script src="learn/core.js?v=r6"></script>
 <script src="command-play.js?v=r6"></script>
 <script src="ui/tapeview.js?v=r9"></script>
-<script src="home.js?v=r19"></script>
+<script src="challenges/engine.js?v=r6"></script>
+<script src="home.js?v=r21"></script>
+<script src="home-lab.js?v=r3"></script>
 <script src="inside/engine-sections.js?v=r11"></script>
 <script src="home-figures.js?v=r26"></script>
 </body>

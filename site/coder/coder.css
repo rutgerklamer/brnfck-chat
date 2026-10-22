@@ -1,0 +1,141 @@
+/* "Brainfuck that writes brainfuck" (coder/index.html). */
+
+main.cdr .ctl.picks { margin: 0 0 var(--s3); gap: var(--s2) var(--s3); }
+main.cdr .ctl.picks .seg { display: flex; flex: 1 1 auto; }
+main.cdr .ctl.picks .seg > button { flex: 1 1 auto; }
+main.cdr .label { display: flex; justify-content: space-between; gap: var(--s3); margin: 0 0 var(--s1); font: var(--lab); letter-spacing: var(--ls-lab); }
+main.cdr .label .n { color: var(--muted); font-weight: 500; letter-spacing: 0; }
+main.cdr .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---- ask it yourself ---- */
+main.cdr .cdr-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 var(--s4); border-top: var(--edge) solid var(--ink); border-bottom: 1px solid var(--line); }
+main.cdr .cdr-facts > div { padding: var(--s2) var(--s3) var(--s2) 0; min-width: 0; }
+main.cdr .cdr-facts dt { color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+main.cdr .cdr-facts dd { margin: 0; font: 700 1rem/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+main.cdr label.task { display: flex; align-items: center; gap: var(--s3); flex: 1 1 22rem; }
+main.cdr label.task > span { font: var(--ctl); }
+main.cdr label.task input { flex: 1 1 auto; min-width: 0; min-height: var(--target); padding: 0 var(--s3); border: var(--edge) solid var(--ink); background: var(--panel); color: var(--ink); font: 500 1.0625rem/1 var(--sans); }
+main.cdr .ctl.picks > button.primary { flex: 0 0 auto; min-width: 9rem; }
+main.cdr .chips { flex-wrap: wrap; }
+main.cdr .chip { min-height: 2.25rem; padding: 0 var(--s3); border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: 500 var(--fs-small)/1.2 var(--sans); cursor: pointer; }
+main.cdr .chip:hover { border-color: var(--ink); }
+main.cdr .cdr-prog { margin: var(--s3) 0; }
+main.cdr .cdr-prog progress { display: block; width: 100%; height: .75rem; accent-color: var(--c-in); }
+main.cdr .cdr-prog .tell { margin-top: var(--s2); }
+main.cdr #live-ans { margin-top: var(--s4); }
+main.cdr a.button { display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--s3); border: var(--edge) solid var(--ink); color: var(--ink); font: var(--ctl); text-decoration: none; }
+
+/* ---- the task picker ---- */
+main.cdr label.pick { display: flex; align-items: center; gap: var(--s3); flex: 1 1 16rem; min-width: 0; }
+main.cdr label.pick > span { font: var(--ctl); }
+main.cdr label.pick select { flex: 1 1 auto; min-width: 0; min-height: var(--target); padding: 0 var(--s3); border: var(--edge) solid var(--ink); background: var(--panel); color: var(--ink); font: 600 1rem/1 var(--mono); }
+main.cdr button.step { flex: 0 0 var(--target); min-width: var(--target); font-size: 1.125rem; }
+
+/* ---- the question and the program ---- */
+main.cdr .cdr-q { margin: var(--s4) 0 var(--s3); }
+main.cdr .cdr-q .q { margin: 0; padding: var(--s3) var(--s4); border-left: 6px solid var(--c-in); background: var(--panel); font: 500 1.0625rem/1.5 var(--sans); }
+main.cdr .cdr-a { margin: 0 0 var(--s4); }
+main.cdr pre.bf { margin: 0; padding: var(--s3) var(--s4); border: var(--edge) solid var(--ink); background: var(--panel); font: 600 .9375rem/1.55 var(--mono); white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; }
+main.cdr .cdr-a pre.bf { border-left: 6px solid var(--c-out); font-size: 1.0625rem; }
+main.cdr pre.bf .p { color: var(--t-plus); }
+main.cdr pre.bf .m { color: var(--t-minus); }
+main.cdr pre.bf .v { color: var(--t-mv); }
+main.cdr pre.bf .b { color: var(--t-br); }
+main.cdr pre.bf .i { color: var(--t-in); background: var(--goodbg); }
+main.cdr pre.bf .o { color: var(--t-out); background: var(--sunk); }
+main.cdr pre.bf .x { color: var(--muted); font-weight: 400; font-style: italic; }
+
+/* ---- the test cases ---- */
+main.cdr .cdr-cases { width: 100%; border-collapse: collapse; font: 500 .9375rem/1.4 var(--mono); }
+main.cdr .cdr-cases th { padding: var(--s1) var(--s3) var(--s1) 0; border-bottom: var(--edge) solid var(--ink); color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-align: left; text-transform: uppercase; }
+main.cdr .cdr-cases td { padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+main.cdr .cdr-cases .r { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+main.cdr .cdr-cases td.mk { width: 2rem; text-align: center; font-weight: 700; }
+main.cdr .cdr-cases tr.ok .mk { color: var(--good); }
+main.cdr .cdr-cases tr.no .mk { color: var(--c-out); }
+main.cdr .cdr-cases tr.no td:nth-child(3) { color: var(--t-out); }
+main.cdr .txt i { font-style: normal; color: var(--muted); }
+main.cdr .none { color: var(--muted); font-style: italic; font-family: var(--sans); }
+main.cdr .own { margin-top: var(--s4); }
+main.cdr label.word { display: flex; align-items: center; gap: var(--s3); flex: 1 1 18rem; }
+main.cdr label.word > span { font: var(--ctl); white-space: nowrap; }
+main.cdr label.word input { flex: 1 1 auto; min-width: 0; min-height: var(--target); padding: 0 var(--s3); border: var(--edge) solid var(--ink); background: var(--panel); color: var(--ink); font: 600 1.0625rem/1 var(--mono); }
+main.cdr .own .out { flex: 1 1 12rem; min-height: var(--target); display: flex; align-items: center; padding: 0 var(--s3); background: var(--sunk); font: 600 1.0625rem/1.3 var(--mono); overflow-wrap: anywhere; }
+
+/* ---- the scoreboard ---- */
+main.cdr .cdr-board { display: grid; gap: var(--s3); }
+main.cdr .cdr-board .row { display: grid; grid-template-columns: 11rem minmax(0, 1fr) 8.5rem; gap: var(--s4); align-items: start; padding: 0 0 var(--s3); border-bottom: 1px solid var(--line); }
+main.cdr .cdr-board .who b { display: block; font: 700 var(--fs-ui)/1.3 var(--mono); }
+main.cdr .cdr-board .who small { display: block; color: var(--muted); font-size: .75rem; line-height: 1.35; }
+main.cdr .cdr-board .cols { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); }
+main.cdr .cdr-board .grp { display: flex; flex-direction: column; gap: 2px; }
+main.cdr .cdr-board .grp > small { color: var(--muted); font: 600 .6875rem/1.2 var(--mono); white-space: nowrap; }
+main.cdr .cdr-board .grp.blind { flex-basis: 100%; }
+main.cdr .cdr-board .grp.blind > small { color: var(--ink); }
+main.cdr .cdr-board .sqs { display: flex; flex-wrap: wrap; gap: 3px; }
+main.cdr .cdr-board .grp.blind .sqs { max-width: calc(30 * 1rem + 29 * 3px); }
+main.cdr .cdr-board .cnt { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--s2); align-items: baseline; white-space: nowrap; }
+main.cdr .cdr-board .cnt b { font: 700 1rem/1.4 var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+main.cdr .cdr-board .cnt small { color: var(--muted); font-size: .75rem; }
+main.cdr .sq { all: unset; box-sizing: border-box; display: inline-block; width: 1rem; height: 1rem; border: 1px solid var(--rule); background: var(--panel); cursor: pointer; }
+main.cdr .sq.on { background: var(--good); border-color: var(--good); }
+main.cdr button.sq:focus-visible { outline: var(--ring) solid var(--ink); outline-offset: 1px; }
+main.cdr .sq.here { box-shadow: 0 0 0 2px var(--go); }
+main.cdr .key { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: var(--s3) 0 0; color: var(--muted); }
+main.cdr .key > span { display: inline-flex; align-items: center; gap: var(--s2); }
+main.cdr .key i.sq { cursor: default; }
+
+/* ---- one answer, to scale ---- */
+main.cdr .cdr-time .bar { position: relative; display: flex; height: 3rem; border: var(--edge) solid var(--ink); }
+main.cdr .cdr-time .bar > span { flex-basis: 0; }
+main.cdr .cdr-time .bar > .startup, main.cdr .cdr-time .legend .startup .sw { background: var(--c-plus); }
+main.cdr .cdr-time .bar > .read, main.cdr .cdr-time .legend .read .sw { background: var(--c-in); }
+main.cdr .cdr-time .bar > .write, main.cdr .cdr-time .legend .write .sw { background: var(--c-out); }
+main.cdr .cdr-time .ticks { position: absolute; inset: 0; pointer-events: none; }
+main.cdr .cdr-time .ticks i { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--panel); opacity: .85; }
+main.cdr .cdr-time .legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); margin: var(--s3) 0 var(--s4); }
+main.cdr .cdr-time .legend > span { display: inline-flex; align-items: baseline; gap: var(--s2); }
+main.cdr .cdr-time .legend .sw { display: inline-block; width: .9rem; height: .9rem; align-self: center; }
+main.cdr .cdr-time .legend b { font: 600 var(--fs-ui)/1.3 var(--sans); }
+main.cdr .cdr-time .legend small { color: var(--muted); font: 500 var(--fs-ui)/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---- the kinds of examples ---- */
+main.cdr .cdr-fams { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--s3); }
+main.cdr .fam { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border: 1px solid var(--line); background: var(--panel); min-width: 0; }
+main.cdr .fam.added { border: var(--edge) solid var(--ink); }
+main.cdr .fam .h { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); margin: 0; font: 700 var(--fs-ui)/1.3 var(--mono); }
+main.cdr .fam .new { padding: 0 var(--s1); background: var(--go); color: var(--on-go); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+main.cdr .fam .q { margin: 0; color: var(--ink-2); font-size: var(--fs-small); line-height: 1.45; }
+main.cdr .fam pre.bf { padding: var(--s2); border-width: 1px; font-size: .75rem; line-height: 1.45; max-height: 7.5rem; overflow: hidden; }
+
+/* ---- the curve ---- */
+main.cdr .cdr-curve svg { display: block; width: 100%; height: auto; max-width: 44rem; }
+main.cdr .cdr-curve .grid line { stroke: var(--line); stroke-width: 1; }
+main.cdr .cdr-curve text { fill: var(--muted); font: 500 12px var(--mono); }
+main.cdr .cdr-curve .line { fill: none; stroke: var(--d1); stroke-width: 2.5; }
+main.cdr .cdr-curve .dot { fill: var(--d1); }
+main.cdr .cdr-curve .end { fill: var(--ink); font-weight: 700; font-size: 14px; }
+
+/* ---- where it goes wrong ---- */
+main.cdr .cdr-wrong { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: var(--s3); }
+main.cdr .cdr-wrong > .label { grid-column: 1 / -1; }
+main.cdr .cdr-wrong .w { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border: 1px solid var(--line); background: var(--panel); cursor: pointer; min-width: 0; }
+main.cdr .cdr-wrong .w:hover { border-color: var(--ink); }
+main.cdr .cdr-wrong .w:focus-visible { outline: var(--ring) solid var(--ink); outline-offset: 2px; }
+main.cdr .cdr-wrong .w > b { font: 700 var(--fs-ui)/1.3 var(--mono); }
+main.cdr .cdr-wrong .w .q { color: var(--muted); font-size: var(--fs-small); line-height: 1.4; }
+main.cdr .cdr-wrong dl { display: grid; gap: 2px; margin: 0; font: 500 .875rem/1.4 var(--mono); }
+main.cdr .cdr-wrong dl > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--s2); }
+main.cdr .cdr-wrong dt { color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; align-self: center; }
+main.cdr .cdr-wrong dd { margin: 0; overflow-wrap: anywhere; }
+main.cdr .cdr-wrong dl > div:last-child dd { color: var(--t-out); }
+
+@media (max-width: 56em) {
+  main.cdr .cdr-board .row { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+  main.cdr .cdr-board .cnt { grid-template-columns: auto auto auto auto; justify-content: start; }
+}
+@media (max-width: 36em) {
+  main.cdr .cdr-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  main.cdr .cdr-wrong dl > div { grid-template-columns: 6rem minmax(0, 1fr); }
+  main.cdr .cdr-time .bar { height: 2.25rem; }
+}

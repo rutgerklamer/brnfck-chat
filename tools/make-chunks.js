@@ -30,8 +30,9 @@ const PROGRAMS = {
   '1.5b': { program: 'site/programs/brnfck-qwen2.5-1.5b.bf', meta: 'site/programs/brnfck-qwen2.5-1.5b.meta.json' },
   '0.8b': { program: 'site/programs/brnfck-qwen3.5-0.8b.bf', meta: 'site/programs/brnfck-qwen3.5-0.8b.meta.json' },
   '0.8b-vision': { program: 'site/programs/brnfck-qwen3.5-0.8b-vision.bf', meta: 'site/programs/brnfck-qwen3.5-0.8b-vision.meta.json' },
+  'coder-0.5b': { program: 'site/programs/brnfck-qwen2.5-coder-0.5b.bf', meta: 'site/programs/brnfck-qwen2.5-coder-0.5b.meta.json' },
 };
-const USAGE = 'usage: node tools/make-chunks.js small|0.5b|1.5b|0.8b|0.8b-vision [--chunk N]   |   verify <name>   |   join <name> [file]   |   single <name>   |   base <name> <url>';
+const USAGE = 'usage: node tools/make-chunks.js small|0.5b|1.5b|0.8b|0.8b-vision|coder-0.5b [--chunk N]   |   verify <name>   |   join <name> [file]   |   single <name>   |   base <name> <url>';
 const num = (n) => Math.round(n).toLocaleString('en-US');
 const mb = (n) => (n / 1e6).toFixed(n < 1e8 ? 1 : 0) + ' MB';
 const now = () => Number(process.hrtime.bigint()) / 1e9;
@@ -74,7 +75,7 @@ function single(name) {
 
 async function make(name, chunk) {
   const P = PROGRAMS[name];
-  if (!P) die(`unknown program "${name}": use small, 0.5b, 1.5b or 0.8b`);
+  if (!P) die(`unknown program "${name}": use small, 0.5b, 1.5b, 0.8b, 0.8b-vision or coder-0.5b`);
   const file = path.resolve(ROOT, P.program), metaFile = path.resolve(ROOT, P.meta);
   if (!fs.existsSync(file)) die(`${file} is missing: build it first with  node tools/build.js ${name}`);
   if (!fs.existsSync(metaFile)) die(`${metaFile} is missing: it is written by the same build as the program`);

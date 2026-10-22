@@ -41,7 +41,7 @@ function page({ title, desc, body, cls }) {
 <link rel="stylesheet" href="../ui/patterns.css?v=${VERSION.ui}">
 </head>
 <body>
-<script src="../site.js?v=${VERSION.siteJs}" data-section="play"></script>
+<script src="../site.js?v=${VERSION.siteJs}" data-section="learn"></script>
 <main class="doc article patterns ${cls}" id="main">
 ${body}
 </main>
@@ -300,7 +300,7 @@ function indexPage() {
   }).join('\n\n  ');
   const nv = data.PATTERNS.reduce((a, p) => a + p.variants.length, 0);
   const body = `  <header class="plain">
-    <p class="kicker crumbs"><a href="../playground/">Play</a><span>Code patterns</span></p>
+    <p class="kicker crumbs"><a href="../brainfuck/">Learn</a><span>Code patterns</span></p>
     <h1>Code patterns</h1>
     <p class="lead">Short pieces of brainfuck that each do one job: move a number, copy it, decide, calculate, print. Run each one, step through it, change its values, copy it.</p>
     ${contents([['example', 'One pattern at work'], ['find', 'Find a pattern'], ['next', 'Where to go next']])}

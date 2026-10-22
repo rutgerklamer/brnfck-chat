@@ -9,8 +9,16 @@ const { packToFile } = require('../engine/pack');
 const { loadTokenizer } = require('../tokenizer/ref');
 const { OUT, files, generate, num, gib, now } = require('./common');
 
-const MAX_NEW = 30;
-const QUESTIONS = [
+// brnfck-qwen2.5-coder-0.5b answers with a brainfuck program: challenges of site/challenges/ that the spec solves
+const CODER = [
+  'Print the input backwards: hello becomes olleh. The input can be empty and never holds the character with number 0.',
+  'Print ABC. There is no input.',
+  'Read two characters and print them in the opposite order.',
+  'Print Y if the input holds at least one character, and N if it is empty.',
+  'Print the input followed by the input backwards: abc becomes abccba. The input can be empty and never holds the character with number 0.',
+  'The input is made of small letters a to z only. Print it in capitals: hello becomes HELLO. The input can be empty.',
+];
+const QUESTIONS = process.argv[2] === 'coder-0.5b' ? CODER : [
   'What is 12 + 30?',
   'What is 7 times 8?',
   'What is the capital of France?',
@@ -21,6 +29,8 @@ const QUESTIONS = [
   'Hello',
   'Waar ligt Leeuwarden?',
 ];
+// the whole program for the coder (its answers are short), the first 30 ids for the chat models
+const MAX_NEW = process.argv[2] === 'coder-0.5b' ? 80 : 30;
 
 function main() {
   const model = process.argv[2] || '0.5b', FILES = files(model);

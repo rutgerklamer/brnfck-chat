@@ -10,17 +10,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="compare.css?v=r7">
+<link rel="stylesheet" href="scale.css?v=r3">
 </head>
 <body>
-<script src="../site.js?v=r17" data-section="insights"></script>
+<script src="../site.js?v=r23" data-section="insights"></script>
 <main class="doc article dn" id="main">
 
   <header class="plain">
-    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>Compare the models</span></p>
+    <p class="kicker crumbs"><a href="../how/">Insights</a><span>Compare the models</span></p>
     <h1>Compare the models</h1>
     <p class="lead">brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b run models that look back at every earlier word piece, in every layer. <a href="../?m=0.8b">brnfck-qwen3.5-0.8b</a> runs Qwen3.5-0.8B, which does that in only one layer of every four, like the much larger Qwen3.8-27B. The other layers keep a memory of a fixed size, which fades a little with every word piece and is written over. This page puts the models side by side and shows that memory at work, recorded from Qwen3.5-0.8B.</p>
     <div class="top-nav">
@@ -36,6 +37,8 @@
           <li><a href="#whole">Fading in whole numbers</a></li>
           <li><a href="#attn">The layers that still look back</a></li>
           <li><a href="#live">Ask it yourself</a></li>
+          <li><a href="#eight">Every program at one scale</a></li>
+          <li><a href="#grew">How they grew</a></li>
           <li><a href="#notes">Notes and sources</a></li>
         </ol>
       </nav>
@@ -235,13 +238,39 @@
     <p>The answers differ a little between the three ways of counting. With whole numbers and 8-bit weights, 97 of every 100 word pieces are the same as in floating point; with 10-bit weights the first answers match word for word up to the last word or two. That is the error the whole-number layers bring. The program goes further, with every layer in whole numbers and 10-bit weights: its recipe picks the same next word piece as the model in floating point at 95.1% of the positions tested (214 of 225).</p>
   </section>
 
+  <section id="eight" aria-labelledby="eight-h">
+    <h2 id="eight-h">Every program at one scale</h2>
+    <p>This page compared the models that the chat programs run. The site has <span data-reg="count">fourteen</span> brainfuck programs in all: <span data-reg="chat">six</span> that run a chat model, trained on graphics cards elsewhere; <span data-reg="train">four</span> that <a href="../train/">train a network themselves</a>, from random numbers, on a list of names or on Shakespeare; and their <span data-reg="child">four</span> children, the programs those trainings print, which write with what they learned. Below, all of them side by side, on a scale where every line is a factor of ten. A child is shown in its best version.</p>
+
+    <figure class="fig" id="fig-eight" aria-label="Every program of the site by weights, characters and memory, on a scale of factors of ten">
+      <div class="ctl top"><span class="seg" role="group" aria-label="What to show"><button type="button" data-k="weights" aria-pressed="true">Weights</button><button type="button" data-k="chars" aria-pressed="false">Characters</button><button type="button" data-k="tape" aria-pressed="false">Memory</button></span></div>
+      <div class="sc-rows"></div>
+      <p class="tell" aria-live="polite"></p>
+      <p class="measured">From the registry of the site (<code>site/registry.json</code>, made by <code>tools/registry.js</code>): weights, characters and cells of the chat programs counted from the weight files and the built programs (<code>compiler/qwen3.5/compare/shapes.js</code>; the part for pictures of brnfck-qwen3.5-0.8b-vision is about 101 million weights, and brnfck-qwen2.5-coder-0.5b has the shape of Qwen2.5-0.5B); of the training programs from their generator (<code>compiler/train/gen.js</code>); of the children from what the trainings printed.</p>
+    </figure>
+
+    <p>The largest chat model has two million times as many weights as the smallest training program, and the program that runs it is nine thousand times as long. Most of a chat program writes its weights onto the tape; a training program is nearly all engine, because its weights start as random numbers it draws itself. What it does with them, the chat programs never do: for every letter it reads, it goes back through its own network and changes every weight a little.</p>
+  </section>
+
+  <section id="grew" aria-labelledby="grew-h">
+    <h2 id="grew-h">How they grew</h2>
+    <p>No program is ever taken off this list. When a program changes, it gets a new version beside the old ones: a chat program rebuilt with other code, a training program whose generator changed, and a child for every pass of a long training run, each a little better than the one before. All <span data-reg="versions">16</span> versions so far, when they came and how large they are:</p>
+    <figure class="fig" id="fig-grew" aria-label="Every version of every program by the day it came and its length">
+      <canvas role="img" aria-label="Every version of every program: when it came, and its length in characters"></canvas>
+      <p class="key small gr-key"><span class="chat"><i class="sw"></i>runs a chat model</span><span class="train"><i class="sw"></i>trains a network</span><span class="child"><i class="sw"></i>writes with what it learned</span></p>
+      <p class="tell" aria-live="polite">Point at a dot: a version of a program.</p>
+      <ol class="gr-days" reversed></ol>
+      <p class="measured">From <code>site/registry.json</code>. The day of a first version is when the program first came up in the history of the code; the passes of a long run carry the time their child was printed. Characters on a scale of factors of ten. A loss is in nats per character: for the children of the names the last 500 steps of training, for the passes of Shakespeare the text kept apart, which they never read.</p>
+    </figure>
+  </section>
+
   <section id="fromhere" aria-labelledby="fromhere-h">
     <h2 id="fromhere-h">Where to go next</h2>
     <p>The Chatbot runs the brainfuck program itself. How it works follows one question through a program, Inside the program takes one apart, and the map shows one whole.</p>
     <ol class="dest">
       <li style="--c: var(--c-in)"><a href="../?m=0.8b"><i aria-hidden="true">,</i><b>Ask brnfck-qwen3.5-0.8b</b><small>Chatbot</small><span>The program of this page, in your browser: about 5 GB of memory, ready in 2 min 10 s to 2 min 37 s.</span></a></li>
-      <li style="--c: var(--c-open)"><a href="../how/"><i aria-hidden="true">[]</i><b>How it works</b><small>Article</small><span>One question followed from your keyboard to the printed answer. No programming needed.</span></a></li>
-      <li style="--c: var(--c-open)"><a href="../inside/"><i aria-hidden="true">[]</i><b>Inside the program</b><small>Article</small><span>Take the writing part and the engine apart, with figures drawn from the program itself.</span></a></li>
+      <li style="--c: var(--c-minus)"><a href="../how/"><i aria-hidden="true">-</i><b>How it works</b><small>Article</small><span>One question followed from your keyboard to the printed answer. No programming needed.</span></a></li>
+      <li style="--c: var(--c-minus)"><a href="../inside/"><i aria-hidden="true">-</i><b>Inside the program</b><small>Article</small><span>Take the writing part and the engine apart, with figures drawn from the program itself.</span></a></li>
       <li style="--c: var(--c-gt)"><a href="../map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>The whole program</small><span>See every character of a program in one picture, and zoom in until you can read the commands.</span></a></li>
       <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the search for the highest score.</span></a></li>
     </ol>
@@ -260,5 +289,6 @@
 </main>
 <script src="../ui/article.js?v=r7"></script>
 <script src="compare.js?v=r10"></script>
+<script src="scale.js?v=r2"></script>
 </body>
 </html>

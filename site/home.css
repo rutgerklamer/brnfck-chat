@@ -123,14 +123,25 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 /* which program answers */
 .modelLine { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); margin: 0 0 var(--s2); font-family: var(--mono); }
 #modelText { overflow-wrap: anywhere; }
-#models > label { align-items: flex-start; padding-top: var(--s2); padding-bottom: var(--s2); }
+/* the picker: a group per kind of program, one line per program with its download drawn to scale; the checked one adds its facts */
+#models > label { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0 var(--s3); min-height: 2.5rem; padding-top: 3px; padding-bottom: 3px; }
+#models > label:has(input:checked) { align-items: start; padding-top: var(--s2); padding-bottom: var(--s2); }
 #models input { margin-top: 1px; }
-#models b { display: block; font: inherit; font-family: var(--mono); font-weight: 600; overflow-wrap: normal; }
+#models .name { min-width: 0; }
+#models b { display: block; font: 600 .8125rem/1.35 var(--mono); letter-spacing: -.01em; overflow-wrap: normal; }
+#models b .pre { color: var(--muted); font-weight: 400; }
 #models label:has(input:checked) b { font-weight: 700; }
 #models b .nb { white-space: nowrap; }
-#models small { margin-top: 2px; line-height: 1.45; overflow-wrap: normal; }
+#models small { display: block; margin-top: 2px; font-size: .8125rem; line-height: 1.45; color: var(--ink-2); overflow-wrap: normal; }
+#models label:not(:has(input:checked)) small { display: none; }
 #models small > span { white-space: nowrap; }
-#models .pick-sep { margin: var(--s4) 0 0; padding: 0 0 var(--s1); border-bottom: 1px solid var(--ink); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; color: var(--muted); }
+#models .size { display: grid; justify-items: end; gap: 4px; padding-top: 1px; font: .75rem/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+#models .size i { display: block; width: 3rem; height: 4px; background: var(--line); }
+#models .size i::before { content: ""; display: block; width: var(--w); height: 100%; background: var(--ink-2); }
+#models label:has(input:checked) .size { color: var(--ink); }
+#models label:has(input:checked) .size i::before { background: var(--ink); }
+#models .pick-sep { display: flex; justify-content: space-between; margin: var(--s3) 0 0; padding: 0 0 var(--s1); border-bottom: 1px solid var(--ink); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; color: var(--muted); }
+#models .pick-sep:first-of-type { margin-top: 0; }
 #models .pick-sep + label { border-top-color: transparent; }
 #storeLine { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin: var(--s2) 0 0; }
 #removeStored { text-align: right; }
@@ -148,7 +159,7 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .tool > .label { margin: 0; white-space: nowrap; }
 .cells-tool { flex: 1 1 auto; }
 .command-tools > :not(.cells-tool) { margin-bottom: calc(.6875rem * 1.2 + var(--s1)); }
-#commandInput { width: 3.25rem; min-height: 3.25rem; padding: 0; text-align: center; font: 700 1.125rem var(--mono); }
+#commandInput { flex: 0 0 auto; width: 3.25rem; height: 3.25rem; min-height: 3.25rem; padding: 0; text-align: center; font: 700 1.125rem var(--mono); }
 #commandOutput { display: grid; place-items: center; min-width: 3.25rem; max-width: 5rem; min-height: 3.25rem; overflow: hidden; white-space: nowrap; font: 700 1.125rem var(--mono); }
 #commandReset { flex: 0 0 3.25rem; min-height: 3.25rem; padding: 0; }
 #playText { font-family: var(--mono); }
@@ -272,3 +283,62 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 #fig-chat .pics .own { min-height: 64px; padding: 3px var(--s3); border: 2px dashed var(--line); font: var(--fs-small)/1.3 var(--sans); color: var(--ink-2); }
 #fig-chat .pics .own:has(input:checked) { border-style: solid; border-color: var(--go); }
 #fig-chat .minePic { display: block; width: 96px; height: 96px; margin: var(--s2) 0 0; }
+
+/* the five parts of the site: one row on a wide screen */
+#where .dest { grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); }
+/* See it work: six figures from the pages, taken by tools/shots.js, as quiet small tiles under the Lab */
+#showHead { margin-top: 0; }
+#where .show { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3); margin: var(--s3) 0 var(--s6); padding: 0; max-width: none; }
+#where .show li { display: flex; margin: 0; min-width: 0; }
+#where .show a { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; padding: 0 0 var(--s3); border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none; transition: border-color var(--ease), transform var(--ease); }
+#where .show a:hover { border-color: var(--ink); transform: translateY(-2px); }
+#where .show a:focus-visible { outline-offset: 2px; }
+#where .show .pic { display: block; height: 7.5rem; margin-bottom: var(--s2); border-bottom: 1px solid var(--line); background: #f5f3ec; overflow: hidden; }
+#where .show img { display: block; width: 100%; height: 100%; object-fit: cover; }
+#where .s-map .pic { background: #0f1114; }
+#where .s-map img { object-fit: contain; }
+#where .s-pic img { object-position: 50% 45%; }
+#where .s-layers img { object-position: 0 0; }
+#where .s-scale img, #where .s-sh img, #where .s-code img { object-position: 0 0; }
+#where .show b { padding: 0 var(--s3); font: 700 .875rem/1.3 var(--mono); letter-spacing: -.02em; }
+#where .show b::after { content: "\00a0\2192"; }
+#where .show a > span:last-child { padding: 0 var(--s3); color: var(--muted); font: .8125rem/1.45 var(--sans); }
+@media (max-width: 56em) { #where .show { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 30em) { #where .show .pic { height: 6.5rem; } #where .show a > span:last-child { display: none; } }
+@media (prefers-reduced-motion: reduce) { #where .show a { transition: none; } }
+
+/* brnfck-qwen2.5-coder-0.5b in the Chatbot: its answer is a program, in the colours of the commands; under it, a run */
+#answer.code { display: block; font: 700 1.25rem/1.5 var(--mono); letter-spacing: .04em; overflow-wrap: anywhere; white-space: pre-wrap; }
+#answer.code .p { color: var(--t-plus); } #answer.code .m { color: var(--t-minus); } #answer.code .v { color: var(--t-mv); }
+#answer.code .b { color: var(--t-br); } #answer.code .i { color: var(--t-in); } #answer.code .o { color: var(--t-out); }
+.coderun { margin: var(--s3) 0; padding: var(--s3); border: var(--edge) solid var(--ink); background: var(--panel); }
+.coderun .label { margin: 0 0 var(--s2); }
+.coderun .row, #where .labrow .row { display: flex; flex-wrap: wrap; align-items: end; gap: var(--s2); margin: 0; }
+.coderun input, #where .labrow input[type="text"], #lcIn { min-width: 0; width: 12rem; max-width: 100%; font: var(--ctl); }
+.coderesult { min-height: 1.5em; margin: var(--s2) 0; font: var(--fs-ui)/1.5 var(--mono); overflow-wrap: anywhere; }
+.coderesult b { padding: 0 .2em; background: var(--sunk); }
+.coderesult i { color: var(--muted); font-style: normal; }
+
+/* Try the Lab here: three programs, each working in place */
+#where .labrow { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: var(--s4); margin: var(--s4) 0 var(--s6); padding: 0; max-width: none; }
+#where .labrow > li { display: flex; flex-direction: column; gap: var(--s2); min-width: 0; margin: 0; padding: var(--s4); border: var(--edge) solid var(--ink); border-top: 8px solid var(--c-open); background: var(--panel); }
+#where .labrow h4 { margin: 0; font: 700 1rem/1.25 var(--mono); letter-spacing: -.02em; overflow-wrap: anywhere; }
+#where .labrow p { margin: 0; }
+#where .labrow .facts { font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+#where .labrow canvas { display: block; max-width: 100%; border: 1px solid var(--line); }
+#where .labrow .ltkey span { white-space: nowrap; }
+#where .labrow .ltkey span:first-child { white-space: normal; }
+#where .labrow .ltkey i { display: inline-block; width: .7em; height: .7em; margin: 0 .35em 0 0; vertical-align: -.05em; }
+#where .labrow .ltkey .k-rec { background: var(--muted); opacity: .6; } #where .labrow .ltkey .k-live { background: var(--c-in); }
+#where .labrow .stat { min-height: 3em; font: var(--fs-ui)/1.45 var(--mono); font-variant-numeric: tabular-nums; }
+#where .labrow .names { padding: var(--s2) var(--s3); background: var(--sunk); font: 600 .9375rem/1.6 var(--mono); word-spacing: .4em; }
+#where .labrow .task { font-style: italic; color: var(--ink-2); }
+#where .labrow .lc-code { max-height: 9em; margin: 0; padding: var(--s2) var(--s3); overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8125rem; }
+/* the run of that program, played: the command being run, and the cells under the program */
+#where .labrow .lc-code .now { outline: 2px solid var(--ink); outline-offset: -1px; background: var(--hot); color: var(--ink); }
+#where .labrow .lc-tape { --cell-w: 3rem; --cell-h: 2.25rem; margin: 0; }
+#where .labrow .lc-tape:empty { display: none; }
+#where .labrow .row:last-child { margin-top: auto; padding-top: var(--s2); }
+#where .lab-pic canvas { cursor: crosshair; touch-action: none; }
+#where .lab-pic canvas:focus-visible { outline-offset: 2px; }
+#where .lab-pic input[type="range"] { width: 100%; }

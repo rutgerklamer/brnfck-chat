@@ -7,27 +7,28 @@
 <meta name="description" content="Every character of a chat model written as a brainfuck program, on one map you can zoom: from the whole program of 1 to 11 billion characters down to single commands. Folded into a square, as one line, as rows, or as an outline.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
-<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../ui/tools.css?v=r6">
 <link rel="stylesheet" href="../inside/inside.css?v=r9">
 <link rel="stylesheet" href="../program-download.css?v=r6">
-<link rel="stylesheet" href="../ui/progpick.css?v=r1">
+<link rel="stylesheet" href="../ui/progpick.css?v=r4">
 <link rel="stylesheet" href="map.css?v=r13">
 <script>
-(function () { var m = new URLSearchParams(location.search).get('m'); if (m !== 'small' && m !== '0.5b' && m !== '0.8b' && m !== '0.8b-vision') m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' || m === '0.8b-vision' ? 'qwen3.5' : 'qwen'); })();
+(function () { var m = new URLSearchParams(location.search).get('m'); if (['small', '0.5b', '0.8b', '0.8b-vision', 'train-attn', 'train-mlp', 'train-bigram', 'train-shakespeare'].indexOf(m) < 0) m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' || m === '0.8b-vision' ? 'qwen3.5' : m.indexOf('train-') === 0 ? 'train' : 'qwen'); })();
 window.InsideOptions = { light: true };
 </script>
 </head>
 <body class="mappage">
-<script src="../site.js?v=r17" data-page="map" data-wide></script>
+<script src="../site.js?v=r23" data-page="map" data-wide></script>
 <main class="doc mapapp tool" id="main">
   <div class="mbar" id="m-bar">
     <button type="button" class="quiet" id="m-panel-toggle" aria-expanded="true" aria-controls="m-panel"><span class="ico" aria-hidden="true">&#9776;</span><span id="m-panel-toggle-t">Hide panel</span></button>
     <h1 class="label" id="m-h1">Program map</h1>
     <nav class="progpick" id="modelbar" aria-label="Which program the map shows">
       <details>
-        <summary><span class="pp-cur"><span data-m="small"><span class="pp-pre">brnfck-</span>smollm2-135m</span><span data-m="0.5b"><span class="pp-pre">brnfck-</span>qwen2.5-0.5b</span><span data-m="1.5b"><span class="pp-pre">brnfck-</span>qwen2.5-1.5b</span><span data-m="0.8b"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b</span><span data-m="0.8b-vision"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b-vision</span></span><span class="pp-len"><span data-m="small">1.03 billion</span><span data-m="0.5b">4.17 billion</span><span data-m="1.5b">11.43 billion</span><span data-m="0.8b">7.71 billion</span><span data-m="0.8b-vision">8.93 billion</span></span><span class="pp-caret" aria-hidden="true"></span></summary>
+        <summary><span class="pp-cur"><span data-m="small"><span class="pp-pre">brnfck-</span>smollm2-135m</span><span data-m="0.5b"><span class="pp-pre">brnfck-</span>qwen2.5-0.5b</span><span data-m="1.5b"><span class="pp-pre">brnfck-</span>qwen2.5-1.5b</span><span data-m="0.8b"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b</span><span data-m="0.8b-vision"><span class="pp-pre">brnfck-</span>qwen3.5-0.8b-vision</span><span data-m="train-attn"><span class="pp-pre">brnfck-</span>train-names-attn-10k</span><span data-m="train-mlp"><span class="pp-pre">brnfck-</span>train-names-mlp-7k</span><span data-m="train-bigram"><span class="pp-pre">brnfck-</span>train-names-bigram-756</span><span data-m="train-shakespeare"><span class="pp-pre">brnfck-</span>train-shakespeare-attn-55k</span></span><span class="pp-len"><span data-m="small">1.03 billion</span><span data-m="0.5b">4.17 billion</span><span data-m="1.5b">11.43 billion</span><span data-m="0.8b">7.71 billion</span><span data-m="0.8b-vision">8.93 billion</span><span data-m="train-attn">9.11 million</span><span data-m="train-mlp">2.96 million</span><span data-m="train-bigram">1.25 million</span><span data-m="train-shakespeare">28.99 million</span></span><span class="pp-caret" aria-hidden="true"></span></summary>
         <div class="pp-menu">
+          <p class="pp-group">Run a chat model, trained elsewhere</p>
           <p class="pp-head"><span>Characters, to scale</span><span class="pp-key" aria-hidden="true"><i></i>writing part<i class="p"></i>picture part<i class="e"></i>engine</span></p>
           <ul>
             <li><a href="?m=small" data-m="small"><span class="pp-name">brnfck-smollm2-135m</span><span class="pp-n">1.03 billion</span><span class="pp-bar" style="--w:9.02%;--e:97.43%"><i></i></span></a></li>
@@ -35,6 +36,14 @@ window.InsideOptions = { light: true };
             <li><a href="?m=1.5b" data-m="1.5b"><span class="pp-name">brnfck-qwen2.5-1.5b</span><span class="pp-n">11.43 billion</span><span class="pp-bar" style="--w:100%;--e:99.16%"><i></i></span></a></li>
             <li><a href="?m=0.8b" data-m="0.8b"><span class="pp-name">brnfck-qwen3.5-0.8b</span><span class="pp-n">7.71 billion</span><span class="pp-bar" style="--w:67.44%;--e:96.62%"><i></i></span></a></li>
             <li><a href="?m=0.8b-vision" data-m="0.8b-vision"><span class="pp-name">brnfck-qwen3.5-0.8b-vision</span><span class="pp-n">8.93 billion</span><span class="pp-bar" style="--w:78.13%;--e:91.98%;--p:83.38%;--q:96.94%"><i></i></span></a></li>
+          </ul>
+          <p class="pp-group pp-sub">Train a network themselves, from simple to advanced</p>
+          <p class="pp-head"><span>Same scale as above: each is a sliver, the largest about 390 times shorter than the longest chat program</span></p>
+          <ul>
+            <li><a href="?m=train-bigram" data-m="train-bigram"><span class="pp-name">brnfck-train-names-bigram-756</span><span class="pp-n">1.25 million</span><span class="pp-bar" style="--w:0.011%;--e:2.295%"><i></i></span><span class="pp-away">1 · the next letter from the last one</span></a></li>
+            <li><a href="?m=train-mlp" data-m="train-mlp"><span class="pp-name">brnfck-train-names-mlp-7k</span><span class="pp-n">2.96 million</span><span class="pp-bar" style="--w:0.026%;--e:7.14%"><i></i></span><span class="pp-away">2 · from the last three, with 64 hidden units</span></a></li>
+            <li><a href="?m=train-attn" data-m="train-attn"><span class="pp-name">brnfck-train-names-attn-10k</span><span class="pp-n">9.11 million</span><span class="pp-bar" style="--w:0.08%;--e:3.446%"><i></i></span><span class="pp-away">3 · the same, plus attention over the last eight</span></a></li>
+            <li><a href="?m=train-shakespeare" data-m="train-shakespeare"><span class="pp-name">brnfck-train-shakespeare-attn-55k</span><span class="pp-n">28.99 million</span><span class="pp-bar" style="--w:0.254%;--e:5.486%"><i></i></span><span class="pp-away">4 · the same, larger, on Shakespeare: attention over the last 16</span></a></li>
           </ul>
         </div>
       </details>
@@ -147,6 +156,10 @@ window.InsideOptions = { light: true };
           <li><a href="?m=1.5b" data-m="1.5b"><b>brnfck-qwen2.5-1.5b</b><span>11.43 billion characters</span></a></li>
           <li><a href="?m=0.8b" data-m="0.8b"><b>brnfck-qwen3.5-0.8b</b><span>7.71 billion characters</span></a></li>
           <li><a href="?m=0.8b-vision" data-m="0.8b-vision"><b>brnfck-qwen3.5-0.8b-vision</b><span>8.93 billion characters</span></a></li>
+          <li><a href="?m=train-bigram" data-m="train-bigram"><b>brnfck-train-names-bigram-756</b><span>Trains a network itself, step 1: the next letter from the last one. 1.25 million characters</span></a></li>
+          <li><a href="?m=train-mlp" data-m="train-mlp"><b>brnfck-train-names-mlp-7k</b><span>Trains a network itself, step 2: from the last three, with 64 hidden units. 2.96 million characters</span></a></li>
+          <li><a href="?m=train-attn" data-m="train-attn"><b>brnfck-train-names-attn-10k</b><span>Trains a network itself, step 3: the same, plus attention over the last eight. 9.11 million characters</span></a></li>
+          <li><a href="?m=train-shakespeare" data-m="train-shakespeare"><b>brnfck-train-shakespeare-attn-55k</b><span>Trains a network itself, step 4: the same, larger, on Shakespeare, with attention over the last 16. 28.99 million characters</span></a></li>
         </ul>
 
         <h3 class="label" id="h-move">Move without dragging</h3>
@@ -178,7 +191,8 @@ window.InsideOptions = { light: true };
         <p class="muted small">With a mouse: drag to move, scroll to zoom, click to choose a spot, double-click to zoom in. With fingers: one finger moves, two fingers zoom, a double tap zooms in. Everything can also be done with the buttons above.</p>
 
         <h3 class="label">About this map</h3>
-        <p class="muted small">The brainfuck program of <span data-f="modelName"></span>: <span data-f="chars"></span> characters, every one of them on this map. The first <span data-f="writerPct"></span> writes the model's numbers into memory; the last <span data-f="enginePct"></span>, the engine, does the model's sums. Far out the picture comes from stored counts of the commands; from 16 commands per pixel on, the page reads the program file itself. <span class="ev">measured</span></p>
+        <p class="muted small" data-only="train">The brainfuck program of <span data-f="modelName"></span>: <span data-f="chars"></span> characters, every one of them on this map. It trains a neural network from random numbers on a list of names, and at the end prints a second program, the child, that makes up new names. The first <span data-f="writerPct"></span> only gets ready: markers and the seed. Far out the picture comes from stored counts of the commands; from 16 commands per pixel on, the page reads the program itself. <span class="ev">measured</span></p>
+        <p class="muted small" data-only="chat">The brainfuck program of <span data-f="modelName"></span>: <span data-f="chars"></span> characters, every one of them on this map. The first <span data-f="writerPct"></span> writes the model's numbers into memory; the last <span data-f="enginePct"></span>, the engine, does the model's sums. Far out the picture comes from stored counts of the commands; from 16 commands per pixel on, the page reads the program file itself. <span class="ev">measured</span></p>
         <p class="muted small"><a href="../inside/" id="m-inside">Inside the program</a> walks through what the parts do. <a href="../how/#questions">Questions and caveats</a> and <a href="../how/#credits">credits</a> are on the other pages. The four models (SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all Apache 2.0) are only run by brainfuck; their answers can be wrong. The DeltaNet layers of Qwen3.5-0.8B are explained on <a href="../compare/">Compare the models</a>.</p>
       </div>
     </div>
@@ -218,11 +232,11 @@ window.InsideOptions = { light: true };
   <p class="sr-only" id="m-live" role="status"></p>
 </main>
 <script src="../program-source.js?v=r6"></script>
-<script src="../program-start.js?v=r6"></script>
+<script src="../program-start.js?v=r7"></script>
 <script src="../program-download.js?v=r6"></script>
 <script src="../inside/engine-sections.js?v=r12"></script>
-<script src="../inside/core.js?v=r16"></script>
-<script src="../inside/map.js?v=r15"></script>
-<script src="app.js?v=r13"></script>
+<script src="../inside/core.js?v=r19"></script>
+<script src="../inside/map.js?v=r18"></script>
+<script src="app.js?v=r15"></script>
 </body>
 </html>

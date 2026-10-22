@@ -57,9 +57,53 @@
 
   // ---- what is where
   let W = null, E = null, TI = null, spans = null, spanFrom = null, names = null, total = 0, places = null, tree = null, picW = null;      // picW: the picture part of the writing part (brnfck-qwen3.5-0.8b-vision)
+  // A program that trains a network (compiler/train): its parts as the generator marks them, in writer.json.
+  // t: what it reads, from writer.json: V characters it knows, attention over T, a 'letter' or a 'character' each
+  const TPART = (t) => {
+    const u = t.unit, us = u + 's', T = I.words(t.T), V = t.V, kid = t.text === 'shakespeare' ? 'writes lines like Shakespeare’s' : 'makes up names';
+    return {
+      start: ['tset', 'Writes the markers and the seed', 'Markers', 'The writing part. It reads nothing and prints nothing: it puts a marker in every slot of 13 cells, so that the walks over them know where to stop, marks which slots draw a random start value, and writes the seed of the random numbers.'],
+      init: ['tset', 'Draws the random start weights', 'Start weights', 'One walk over all the slots. In every marked slot: one step of the random numbers (x becomes 69069 x + 1), and the top bits of x as the start value of its weight. Every weight starts here, at random.'],
+      read: ['tread', 'Reads a ' + u + ', moves the context on', 'Reads', 'Here the loop of the training starts: once for every step of 32 ' + us + ', and inside it once for every ' + u + '. A comma reads the ' + u + ', it becomes a token, and the context of the last ' + us + ' moves on by one.'],
+      'key-forward': ['tfwd', 'Queries, keys and their scores', 'Queries', 'A walk over the ' + t.dk + ' frames of the queries and keys. In each: the query of the newest ' + u + ', the keys of the last ' + T + ' positions, and their products added to the ' + T + ' scores, which ride along to the next frame.'],
+      attention: ['tatt', 'Softmax of the attention', 'Attention', 'The ' + T + ' scores become how much of each position to take: the largest of them, an exponential from a table, their sum, and 1 divided by the sum from a table.'],
+      forward: ['tfwd', 'Forward through the network', 'Forward', 'A walk over the frames of the network, one frame per unit, the same piece of text for each. In a frame: the numbers the context ' + us + ' pick, a tanh from a table, and the unit’s share of the ' + V + ' logits, carried on to the next frame.'],
+      head: ['thead', 'Softmax, loss and its gradient', 'Loss', 'The ' + V + ' logits become chances: the largest, an exponential from a table, the sum and 1 divided by it. The loss of the ' + u + ' is the logarithm of the sum minus the logit of the right ' + u + '; the gradient of each logit is its chance, minus one for the right ' + u + '.'],
+      backward: ['tbwd', 'Back through the network', 'Backward', 'Backpropagation: a walk back over the frames, from the last to the first. Every frame takes the gradient of the logits, works out its own, and adds to the velocity of every weight it used.'],
+      'attention-backward': ['tatt', 'Back through the attention softmax', 'Attention back', 'The gradient goes back through the softmax of the attention: for each of the ' + T + ' positions, how its score should change.'],
+      'key-backward': ['tbwd', 'Back into the queries and keys', 'Keys back', 'A walk back over the ' + t.dk + ' frames of the queries and keys: the gradient of every score adds to the velocities of the query and the keys that made it.'],
+      momentum: ['tmom', 'Moves every weight', 'Momentum', 'After 32 ' + us + ', one walk over all the slots: every weight moves by its velocity, rounded to the scale of the weight, and the velocity keeps 7/8 of itself for the next step.' + (t.text === 'shakespeare' ? ' Then every weight shrinks by 1/4096, so that no weight grows without end.' : '')],
+      'print-step': ['tout', 'Prints the step and the loss', 'Prints', 'The step number and the loss of its 32 ' + us + ' become digits, and a line like “step 12 loss 2.345” goes out through the full stops.'],
+      'child-weights': ['tkid', 'Prints the child’s weights', 'Child weights', 'After the last step: one walk over all the slots prints every weight as a run of + or −, then 13 times >. That is the writing part of the child program.'],
+      engine: ['tkid', 'Prints the child’s engine', 'Child engine', 'The engine of the child, printed character by character: the program that ' + kid + ' with the weights above. A run of the same character is printed by a counting loop.'],
+    };
+  };
+  function trainParts(w, e) {
+    const parts = w.parts, at = (n) => parts.find((p) => p[0] === n), t = Object.assign({ V: 27, T: w.train.context, dk: w.train.dk, unit: 'letter', text: 'names' }, w.train), TP = TPART(t);
+    const bigram = w.train.kind === 'bigram', SAYS = { forward: 'A walk over 27 frames, one for every letter that could come next, the same piece of text for each. In a frame: the number the last letter picks from its row of the table, rounded to a logit, queued for the head.', backward: 'A walk back over the 27 frames: each takes the gradient of its letter and adds it to the velocity of the number the last letter picked.' };
+    spans = parts.map(([n, from, to]) => { const [fam, title, short, says0] = TP[n], says = bigram && SAYS[n] ? SAYS[n] : says0; return { from, to, fam, kind: 'engine', id: n, title, short, says, part: n === 'start' ? 0 : 1, row: title }; });
+    spanFrom = Float64Array.from(spans, (s) => s.from);
+    names = [];
+    const add = (tier, from, to, text, short) => { const n = { tier, from, to, text, texts: short && short !== text ? [text, short] : [text] }; names.push(n); return n; };
+    const kid = at('child-weights')[1], step = at('read')[1], after = at('momentum')[1], end = at('print-step')[2];
+    add(0, 0, w.program.writer, 'WRITES MARKERS AND THE SEED', 'SETS UP');
+    add(0, w.program.writer, kid, 'TRAINS THE NETWORK', 'TRAINS');
+    add(0, kid, total, 'PRINTS THE CHILD PROGRAM', 'THE CHILD');
+    for (const s of spans) add(1, s.from, s.to, s.title, s.short);
+    names.sort((a, b) => a.from - b.from);
+    const leaf = (s) => ({ text: s.title, from: s.from, to: s.to, fam: s.fam, span: s }), inside = (a, b) => spans.filter((s) => s.from >= a && s.to <= b).map(leaf);
+    tree = { text: 'The program', says: 'One line of text, every character one of eight commands.', from: 0, to: total, open: true, kids: [
+      { text: 'Sets up', says: 'Markers, the seed, and the random start weights.', from: 0, to: step, kids: inside(0, step) },
+      { text: 'For every ' + t.unit + ' (32 per step)', says: 'Read the ' + t.unit + ', forward, loss, backward.', from: step, to: after, kids: inside(step, after) },
+      { text: 'After every 32 ' + t.unit + 's', says: 'Move the weights, print the loss.', from: after, to: end, kids: inside(after, end) },
+      { text: 'At the end: the child program', says: 'Print the trained weights and an engine that ' + (t.text === 'shakespeare' ? 'writes lines like Shakespeare’s' : 'makes up names') + '.', from: kid, to: total, kids: inside(kid, total) },
+    ] };
+    places = [{ name: 'Whole program', home: true }, { name: 'Where the training starts', at: step, z: 3, id: 'start' }];
+  }
   const ready = Promise.all([I.ready, I.tiles(HERO)]).then(([all, t]) => {
     W = all.W; E = all.E; TI = t; total = W.program.chars;
     ORDER = t.order; SIDE = t.side; TOP = t.top || ORDER - 3;
+    if (E.family === 'train') return trainParts(W, E);
     const SEC = I.SEC, w = W, e = E;
     spans = [];
     for (const [ri, from, to, cells, blocks, also] of w.stretches) {
@@ -331,14 +375,14 @@
       chars: (z) => Wd * Hd / 4 ** z, zFor: (n) => Math.log2(Math.sqrt(Wd * Hd / n)),
     },
   };
-  LAYOUTS.lanes = Object.assign({}, LAYOUTS.line, { name: 'Lanes', says: 'The one line split into seven lanes, one for each command; the two brackets share a lane. Best to see where each command lives: the single read and the single print are lone ticks near the end.' });
+  LAYOUTS.lanes = Object.assign({}, LAYOUTS.line, { name: 'Lanes', says: 'The one line split into seven lanes, one for each command; the two brackets share a lane. Best to see where each command lives: the reads (one, or three in brnfck-qwen3.5-0.8b-vision) and the single print are lone ticks in the engine.' });
   LAYOUTS.tape = Object.assign({}, LAYOUTS.line, { name: 'What it writes', says: 'Above, the text of the program; below, the memory it fills, cell by cell. A band joins each part of the text to the cells it writes. Best to see what the text is for, and how much text a part of memory costs.' });
   let partRows = null, partFrom = null, partRow = 0;
   const partRowsOf = () => {
     if (partRows) return partRows;
     // (the picture part: the merger and its queue of vectors come before its layers in the text, the squares' weights and positions after them)
     const picL = picW ? spans.find((q) => q.part === 0 && q.layer >= 100) : null;
-    const key = (q) => (q.part ? 'The engine' : q.kind === 'cls' ? 'Output table' : q.kind === 'walk' ? 'Walk to the engine' : q.layer >= 100 ? 'Picture layer ' + (q.layer - 99) : picW && q.from >= picW.from && q.from < picW.to ? (q.from < picL.from ? 'Picture: merger' : 'Picture: squares in') : q.layer >= 0 ? 'Layer ' + (q.layer + 1) : q.kind === 'emb' ? 'Table of word pieces' : 'Vocabulary');
+    const key = (q) => (q.row ? q.row : q.part ? 'The engine' : q.kind === 'cls' ? 'Output table' : q.kind === 'walk' ? 'Walk to the engine' : q.layer >= 100 ? 'Picture layer ' + (q.layer - 99) : picW && q.from >= picW.from && q.from < picW.to ? (q.from < picL.from ? 'Picture: merger' : 'Picture: squares in') : q.layer >= 0 ? 'Layer ' + (q.layer + 1) : q.kind === 'emb' ? 'Table of word pieces' : 'Vocabulary');
     partRows = [];
     for (const q of spans) { const k = key(q), last = partRows[partRows.length - 1]; if (last && (last.name === k || (!q.part && k === 'Vocabulary' && q.to - q.from < total / 5000))) last.to = q.to; else partRows.push({ name: k, from: q.from, to: q.to }); }
     if (partRows.length > 1 && partRows[0].to - partRows[0].from < total / 5000) { partRows[1].from = partRows[0].from; partRows.shift(); }      // a few free cells before the first part

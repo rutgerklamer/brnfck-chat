@@ -10,17 +10,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../site.css?v=r10">
+<link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../ui/system.css?v=r6">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="../ui/how.css?v=r10">
 </head>
 <body>
-<script src="../site.js?v=r17" data-section="insights"></script>
+<script src="../site.js?v=r23" data-section="insights"></script>
 <main class="doc article how" id="main">
 
   <header class="plain">
-    <p class="kicker crumbs"><a href="../how/">Program insights</a><span>How it works</span></p>
+    <p class="kicker crumbs"><a href="../how/">Insights</a><span>How it works</span></p>
     <h1>How it works</h1>
     <p class="lead">You type a question. A program written with only eight different commands prints an answer. In between, your question goes one route, and the last stretch of that route is then repeated once for every piece of the answer. You need no programming to follow it.</p>
     <div class="top-nav">
@@ -475,8 +475,9 @@ node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "De
     <h2 id="fromhere-h">Where to go next</h2>
     <p>Inside the program measures the two parts you met here, the writing part and the engine. The program map shows them as one picture. The lessons let you build the loop, the lookup and the harder arithmetic yourself.</p>
     <ol class="dest">
-      <li style="--c: var(--c-open)"><a href="../inside/"><i aria-hidden="true">[]</i><b>Inside the program</b><small>Article</small><span>Take the writing part and the engine apart, with figures drawn from the program itself.</span></a></li>
-      <li style="--c: var(--c-open)"><a href="../compare/"><i aria-hidden="true">[]</i><b>Compare the models</b><small>Article</small><span>Watch the memory of Qwen3.8-27B fade and be written over, word piece by word piece.</span></a></li>
+      <li style="--c: var(--c-minus)"><a href="../inside/"><i aria-hidden="true">-</i><b>Inside the program</b><small>Article</small><span>Take the writing part and the engine apart, with figures drawn from the program itself.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../compare/"><i aria-hidden="true">[]</i><b>Compare the models</b><small>Article</small><span>Watch the memory of Qwen3.5-0.8B fade and be written over, word piece by word piece.</span></a></li>
+      <li style="--c: var(--c-open)"><a href="../train/"><i aria-hidden="true">[]</i><b>Trained in brainfuck</b><small>Article</small><span>Three programs that train a network themselves, from random weights. Train one in your browser and watch its loss fall.</span></a></li>
       <li style="--c: var(--c-gt)"><a href="../map/"><i aria-hidden="true">&lt;&gt;</i><b>Program map</b><small>The whole program</small><span>See every character of it in one picture, and zoom in until you can read the commands.</span></a></li>
       <li style="--c: var(--c-plus)"><a href="../brainfuck/"><i aria-hidden="true">+</i><b>Learn</b><small>Two courses</small><span>Start from the eight commands, then build the copy, the multiplication and the search for the highest score.</span></a></li>
       <li style="--c: var(--c-in)"><a href="../?m=small"><i aria-hidden="true">,</i><b>Ask brnfck-smollm2-135m</b><small>Chatbot</small><span>Put a question of your own through the route you just followed.</span></a></li>
@@ -499,7 +500,7 @@ node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "De
   </section>
 </main>
 <script src="../program-source.js?v=r6"></script>
-<script src="../program-start.js?v=r6"></script>
+<script src="../program-start.js?v=r7"></script>
 <script src="../learn/core.js?v=r6"></script>
 <script src="../ui/article.js?v=r7"></script>
 <script src="../ui/how.js?v=r15"></script>

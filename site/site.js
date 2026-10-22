@@ -7,17 +7,21 @@
   var SECTIONS = [
     { key: 'chat', name: 'Chatbot', glyph: ',', c: '--c-in', path: '', folders: [''],
       does: 'Ask a question. A brainfuck program answers it.' },
-    { key: 'learn', name: 'Learn', glyph: '+', c: '--c-plus', path: 'brainfuck/', folders: ['brainfuck', 'learn', 'reference', 'challenges/basics'],
-      does: 'Start from the eight commands, one small lesson at a time.',
-      pages: [['Start here', 'brainfuck/'], ['Brainfuck basics', 'challenges/basics/'], ['Build toward a chatbot', 'learn/'], ['Reference', 'reference/']] },
-    { key: 'insights', name: 'Program insights', glyph: '[]', c: '--c-open', path: 'how/', folders: ['how', 'inside', 'deltanet', 'vision', 'about'],
-      does: 'Read how a question becomes an answer, part by part.',
-      pages: [['How it works', 'how/'], ['Inside the program', 'inside/'], ['Compare the models', 'compare/'], ['Looking at a picture', 'vision/'], ['About the project', 'about/']] },
-    { key: 'map', name: 'Program map', glyph: '<>', c: '--c-gt', path: 'map/', folders: ['map'],
-      does: 'See every character of the program, and zoom in.' },
-    { key: 'play', name: 'Play', glyph: '.', c: '--c-out', path: 'playground/', folders: ['playground', 'challenges', 'patterns'],
-      does: 'Write your own brainfuck and run it.',
-      pages: [['Playground', 'playground/'], ['Challenges', 'challenges/'], ['Code patterns', 'patterns/']] },
+    { key: 'learn', name: 'Learn', glyph: '+', c: '--c-plus', path: 'brainfuck/', folders: ['brainfuck', 'learn', 'reference', 'patterns', 'challenges/basics'],
+      does: 'Two courses from the eight commands, and pieces to look up.',
+      pages: [['Start here', 'brainfuck/'], ['Brainfuck basics', 'challenges/basics/', '1'], ['Build toward a chatbot', 'learn/', '2'], ['Code patterns', 'patterns/'], ['Reference', 'reference/']] },
+    { key: 'insights', name: 'Insights', glyph: '-', c: '--c-minus', path: 'how/', folders: ['how', 'inside', 'map', 'compare'],
+      does: 'How a question becomes an answer, and every character of the program.',
+      pages: [['How it works', 'how/'], ['Inside the program', 'inside/'], ['Program map', 'map/'], ['Compare the models', 'compare/']] },
+    { key: 'lab', name: 'Lab', glyph: '[]', c: '--c-open', path: 'train/', folders: ['train', 'vision', 'coder'],
+      does: 'What else a brainfuck program can do: train a network, look at a picture, write brainfuck.',
+      pages: [['Trained in brainfuck', 'train/'], ['Looking at a picture', 'vision/'], ['Brainfuck that writes brainfuck', 'coder/']] },
+    { key: 'play', name: 'Play', glyph: '.', c: '--c-out', path: 'playground/', folders: ['playground', 'challenges'],
+      does: 'Write your own brainfuck, and have it checked.',
+      pages: [['Playground', 'playground/'], ['Challenges', 'challenges/']] },
+    { key: 'about', name: 'About', quiet: true, c: '--muted', path: 'about/', folders: ['about', 'sitemap'],
+      does: 'Who made this, how to run it yourself, and every page.',
+      pages: [['About the project', 'about/'], ['Every page', 'sitemap/']] },
   ];
 
   // ---- where are we? the longest folder that the address starts with wins ----
@@ -39,14 +43,29 @@
   var bar = el('header', 'top'), inner = el('div', 'in');
   var brand = el('a', 'brand'); brand.href = href(''); brand.append(mark(), 'brnfck.chat');
   var nav = el('nav', 'main'); nav.id = 'site-nav'; nav.setAttribute('aria-label', 'Site');
+  // a page of a section, as a link: a course number first if it has one; the page you are on, or the
+  // part of the section you are in, is current
+  function pageLink(s, p) {
+    var a = el('a'); a.href = /^https:/.test(p[1]) ? p[1] : href(p[1]);
+    if (p[2]) { var n = el('i', '', p[2]); n.setAttribute('aria-hidden', 'true'); a.append(n); }
+    a.append(p[0]);
+    if (clean(a.href) === here || (p[1] !== s.path && rel.indexOf(p[1]) === 0)) a.setAttribute('aria-current', clean(a.href) === here ? 'page' : 'true');
+    return a;
+  }
   var ul = el('ul');
   SECTIONS.forEach(function (s) {
-    var li = el('li'), a = el('a'), g = el('i', '', s.glyph);
-    a.href = href(s.path); a.style.setProperty('--c', 'var(' + s.c + ')');
-    g.setAttribute('aria-hidden', 'true');
-    a.append(g, el('b', '', s.name), el('span', '', s.does));
+    var li = el('li', s.quiet ? 'quiet' : ''), a = el('a');
+    a.href = href(s.path); li.style.setProperty('--c', 'var(' + s.c + ')');
+    if (s.glyph) { var g = el('i', '', s.glyph); g.setAttribute('aria-hidden', 'true'); a.append(g); }
+    a.append(el('b', '', s.name), el('span', '', s.does));
     if (s === section) a.setAttribute('aria-current', clean(a.href) === here ? 'page' : 'true');
-    li.append(a); ul.append(li);
+    li.append(a);
+    if (s.pages) {                                              // its pages: shown in the open menu only
+      var pl = el('ul', 'pages');
+      s.pages.forEach(function (p) { var pi = el('li'); pi.append(pageLink(s, p)); pl.append(pi); });
+      li.append(pl);
+    }
+    ul.append(li);
   });
   nav.append(ul);
   var theme = el('button', 'theme'); theme.type = 'button'; theme.append(el('b'));
@@ -56,12 +75,9 @@
   if (section && section.pages) {
     var row = el('div', 'sub'), rin = el('div', 'in'), sub = el('nav'), sul = el('ul');
     sub.setAttribute('aria-label', section.name);
-    section.pages.forEach(function (p) {
-      var li = el('li'), a = el('a', '', p[0]); a.href = /^https:/.test(p[1]) ? p[1] : href(p[1]);
-      if (clean(a.href) === here || (p[1] !== section.path && rel.indexOf(p[1]) === 0)) a.setAttribute('aria-current', clean(a.href) === here ? 'page' : 'true');
-      li.append(a); sul.append(li);
-    });
-    sub.append(sul); rin.append(el('span', 'lab', section.name), sub); row.append(rin); bar.append(row);
+    section.pages.forEach(function (p) { var li = el('li'); li.append(pageLink(section, p)); sul.append(li); });
+    var lab = el('a', 'lab', section.name); lab.href = href(section.path);
+    sub.append(sul); rin.append(lab, sub); row.append(rin); bar.append(row);
   }
   me.parentNode.insertBefore(bar, me);
   function measure() { document.documentElement.style.setProperty('--top-h', bar.offsetHeight + 'px'); }
@@ -94,12 +110,12 @@
   });
   showTheme();
 
-  // ---- the footer: the same five sections, with their pages ----
+  // ---- the footer: the same sections, with their pages; About with what you look for at the end ----
   var SOURCE = 'https://github.com/rutgerklamer/brnfck-chat';      // the code of the site and the compiler, MIT
   function foot() {
     var f = el('footer', 'foot'), box = el('div', 'in');
-    box.append(el('p', '', 'Four chat models, each running as one brainfuck program: SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, and Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all four under the Apache 2.0 licence. Brainfuck only runs them. Their answers can be wrong.'));
-    SECTIONS.concat([{ name: 'About', glyph: '', c: '--muted', pages: [['Run it yourself', 'how/#run'], ['Credits', 'how/#credits'], ['Every page', 'sitemap/'], ['Source code (MIT)', SOURCE]] }]).forEach(function (s) {
+    box.append(el('p', '', 'Five chat models, each running as one brainfuck program: SmolLM2-135M-Instruct by Hugging Face, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud, Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, and Qwen2.5-Coder-0.5B-Instruct by Alibaba Cloud, trained further here to write brainfuck, all five under the Apache 2.0 licence; brnfck-qwen3.5-0.8b-vision runs Qwen3.5-0.8B with its picture part. Brainfuck only runs them, and their answers can be wrong. The networks of the Lab are trained inside brainfuck itself.'));
+    SECTIONS.filter(function (s) { return !s.quiet; }).concat([{ name: 'About', glyph: '', c: '--muted', pages: [['About the project', 'about/'], ['Run it yourself', 'how/#run'], ['Credits', 'how/#credits'], ['Every page', 'sitemap/'], ['Source code (MIT)', SOURCE]] }]).forEach(function (s) {
       var d = el('div'), h = el('h2'), l = el('ul');
       if (s.glyph) { var g = el('i', '', s.glyph); g.style.setProperty('--c', 'var(' + s.c + ')'); g.setAttribute('aria-hidden', 'true'); h.append(g); }
       h.append(s.name);

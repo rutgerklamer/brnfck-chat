@@ -3,6 +3,9 @@
 *.dat
 *.bin
 out/
+!/compiler/train/out/
+/compiler/train/out/*
+!/compiler/train/out/*.txt
 /site/programs/
 /site/models/
 /compiler/downloads/
@@ -13,9 +16,11 @@ out/
 
 # The data of site/vision/ is small and part of the site (compiler/qwen3.5/vision/record.js)
 !/site/vision/data/*.bin
+!/site/train/data/shakespeare/*.bin
 
 # Logs, packages and system files
 *.log
 node_modules/
 .DS_Store
 Thumbs.db
+/.venv/

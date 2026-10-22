@@ -28,8 +28,13 @@ const DEFS = {
     family: 'qwen3.5', vision: true, name: 'Qwen3.5-0.8B', label: 'brnfck-qwen3.5-0.8b-vision', web: 'programs/brnfck-qwen3.5-0.8b-vision.bf',
     log: 'compiler/qwen3.5/vision/out/verify_pure.log', logOf: 'node compiler/qwen3.5/vision/verify_pure.js',
   },
+  // the four programs that train a network themselves (compiler/train): their map data comes from tools/map-data/train.js
+  'train-bigram': { family: 'train', train: 'bigram', name: 'brnfck-names-bigram-756', label: 'brnfck-train-names-bigram-756', web: 'programs/brnfck-train-names-bigram-756.bf', log: 'compiler/train/out/brnfck-names-bigram-756.txt', logOf: 'node tools/train.js bigram' },
+  'train-mlp': { family: 'train', train: 'mlp', name: 'brnfck-names-mlp-7k', label: 'brnfck-train-names-mlp-7k', web: 'programs/brnfck-train-names-mlp-7k.bf', log: 'compiler/train/out/brnfck-names-mlp-7k.txt', logOf: 'node tools/train.js mlp' },
+  'train-attn': { family: 'train', train: 'attn', name: 'brnfck-names-attn-10k', label: 'brnfck-train-names-attn-10k', web: 'programs/brnfck-train-names-attn-10k.bf', log: 'compiler/train/out/brnfck-names-attn-10k.txt', logOf: 'node tools/train.js attn' },
+  'train-shakespeare': { family: 'train', train: 'shakespeare', name: 'brnfck-shakespeare-attn-55k', label: 'brnfck-train-shakespeare-attn-55k', web: 'programs/brnfck-train-shakespeare-attn-55k.bf', log: 'compiler/train/out/brnfck-shakespeare-attn-55k.txt', logOf: 'node tools/train-long.js shakespeare' },
 };
-const IDS = Object.keys(DEFS);
+const IDS = Object.keys(DEFS).filter((id) => !DEFS[id].train);         // the five chat programs
 
 const COMMANDS = '+-<>[].,';
 const commandIndex = new Int8Array(256).fill(-1);
