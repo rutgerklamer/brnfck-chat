@@ -1,11 +1,11 @@
-// The Web Worker of brnfck-qwen2.5-coder-0.5b (the same engine as brnfck-qwen2.5-0.5b, other weights).
+// The Web Worker of brnfck-qwen2.5-coder-0.5b (the engine of brnfck-qwen2.5-0.5b, other weights).
 'use strict';
 importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r9', '../program-source.js?v=r6');
 
 (function () {
   const BFWasm = self.BFWasm, RunCore = self.RunCore, Question = self.Question, ProgramSource = self.ProgramSource;
   const now = () => performance.now();
-  const PIECE_GAP_MS = 20;
+  const PIECE_GAP_MS = 20;                                      // output after a pause this long starts a new word piece
   let view = null, ex = null, exe = null, meta = null, saved = null, startPointer = 0, dirty = false;
 
   // the memory slots as they are now, for the page (runtime/peek.js); view comes with a 'watch' message
@@ -25,6 +25,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
     return out;
   }
 
+  // Runs the writing part as it downloads (it puts the model on the tape), then compiles the engine to WebAssembly.
   async function load(m) {
     meta = m.meta;
     let stage = 'memory';
@@ -48,7 +49,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
         if (done) break;
         if (at + value.length > total) throw new Error(`the program text is longer than the ${total} characters ${meta.program.replace('.bf', '.meta.json')} says: build the files again`);
         if (!sampled && at + value.length > total / 2 && value.length >= 3000) { sampled = true; self.postMessage({ type: 'sample', text: BFWasm.latin1(value.subarray(0, 3000)) }); }
-        if (at < writer) ex.feed(value);                       // executes this piece of the program (up to the end of the writing part)
+        if (at < writer) ex.feed(value);                       // runs it, up to the end of the writing part
         if (at + value.length > writer) { const from = Math.max(0, writer - at); rest.set(value.subarray(from), at + from - writer); }
         at += value.length;
         if (now() - told > 100) { told = now(); tell(at); }

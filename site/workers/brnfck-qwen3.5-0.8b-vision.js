@@ -1,14 +1,12 @@
-// The Web Worker of brnfck-qwen3.5-0.8b-vision: Qwen3.5-0.8B with its vision part. Its tape (4.46 GiB) needs a 64-bit
-// memory, as that of brnfck-qwen2.5-1.5b (whose worker this one follows). It reads a picture and a question: the page
-// hands it the 196,608 bytes of the picture's squares (home.js squaresOf), it adds the question.
-// Its meta file has no restore ranges: a second question loads the program again (home.js).
+// The Web Worker of brnfck-qwen3.5-0.8b-vision: a 4.46 GiB tape in a 64-bit memory, as in brnfck-qwen2.5-1.5b's worker.
+// It reads the picture's 196,608 bytes of squares (home.js squaresOf), then the question.
 'use strict';
 importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r9', '../program-source.js?v=r6');
 
 (function () {
   const BFWasm = self.BFWasm, RunCore = self.RunCore, Question = self.Question, ProgramSource = self.ProgramSource;
   const now = () => performance.now();
-  const PIECE_GAP_MS = 20;
+  const PIECE_GAP_MS = 20;                                      // output after a pause this long starts a new word piece
   const gib = (bytes) => (bytes / 2 ** 30).toFixed(2);
   const num = (n) => Math.round(n).toLocaleString('en-US');
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -31,6 +29,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
     return out;
   }
 
+  // The largest 64-bit memory, in 64 KiB pages, this browser lets a program declare (a binary search).
   function declaredLimit() {
     const can = (pages) => { try { new WebAssembly.Memory({ address: 'i64', initial: 0n, maximum: BigInt(pages) }); return true; } catch (e) { return false; } };
     if (!can(1)) return 0;
@@ -48,7 +47,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
     if (limit < pages) throw new Error(`this browser allows a 64-bit WebAssembly memory of at most ${num(limit)} pages (${gib(limit * 65536)} GiB); the tape needs ${num(pages)} pages (${gib(bytes)} GiB)`);
     let last = null;
     for (let attempt = 0; attempt < (again ? 8 : 1); attempt++) {
-      if (attempt) await sleep(2000);                           // (the memory of a worker that was just ended is given back a little later)
+      if (attempt) await sleep(2000);                           // a just-ended worker's memory is given back a little later
       try { return new WebAssembly.Memory({ address: 'i64', initial: BigInt(pages), maximum: BigInt(pages) }); } catch (e) { last = e; }
     }
     throw new Error(`the browser allows a 64-bit memory of up to ${gib(limit * 65536)} GiB, but it did not get the ${gib(bytes)} GiB (${num(pages)} pages, ${num(bytes)} bytes) the tape needs from this computer now (${(last && last.message) || last})`);
@@ -72,6 +71,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
     tape[last - 1] = 0;
   }
 
+  // Runs the writing part as it downloads (it puts the model on the tape), then compiles the engine to WebAssembly.
   async function load(m) {
     meta = m.meta;
     let stage = 'memory';
@@ -95,7 +95,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
         if (done) break;
         if (at + value.length > total) throw new Error(`the program text is longer than the ${total} characters ${meta.program.replace('.bf', '.meta.json')} says: build the files again`);
         if (!sampled && at + value.length > total / 2 && value.length >= 3000) { sampled = true; self.postMessage({ type: 'sample', text: BFWasm.latin1(value.subarray(0, 3000)) }); }
-        if (at < writer) ex.feed(value);                       // executes this piece of the program (up to the end of the writing part)
+        if (at < writer) ex.feed(value);                       // runs it, up to the end of the writing part
         if (at + value.length > writer) { const from = Math.max(0, writer - at); rest.set(value.subarray(from), at + from - writer); }
         at += value.length;
         if (now() - told > 200) { told = now(); tell(at); }
@@ -112,7 +112,7 @@ importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../run
       exe = new BFWasm.Program(new WebAssembly.Module(g.bytes), { cellBits: g.cellBits, tapeSize: g.tapeSize, stats: g.stats, pages: g.pages }, ex.memory);
       startPointer = ex.pointer;
 
-      // the cells to put back before a second question
+      // the cells to put back before a second question; with no restore ranges, home.js loads the program again
       try {
         saved = restoreRanges(meta.restore).map(([first, n]) => ({ first, cells: ex.tape.slice(first, first + n) }));
       } catch (e) { saved = null; }

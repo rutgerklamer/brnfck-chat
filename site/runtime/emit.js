@@ -51,6 +51,7 @@ class Emitter {
 
   // ---- arithmetic patterns ------------------------------------------------
 
+  // Every target addr += f * src; src ends 0.
   scatter(src, targets) {
     const live = targets.filter(([, f]) => f !== 0).sort((a, b) => a[0] - b[0]);
     if (!live.length) return this.clear(src);

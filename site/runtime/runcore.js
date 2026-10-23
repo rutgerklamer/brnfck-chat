@@ -123,6 +123,8 @@
       gbuf.set(chunk.subarray(from, to), glen); glen += k;
     }
 
+    // Runs program text as it streams in: top-level commands at once, each loop gathered and run compiled.
+    // From a loop over loopLimit or (tailOnInput) a `,` on, the rest is collected as the tail for compileTail.
     function feed(chunk) {
       let i = 0, n = chunk.length;
       if (fed + n > stopAt) n = stopAt - fed;

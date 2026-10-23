@@ -141,6 +141,7 @@ class Patterns extends Emitter {
     return this;
   }
 
+  // Y (from 0) = clamp(floor((X + addend) / 2^k), lo, lo + 2^n - 1), read off bits k..k+n-1 by the bit peel.
   requant(X, Y, { k, n = 8, lo = -(2 ** (n - 1)), addend = 0, clamp = true, outs = null }, s) {
     this.addBig(X, addend - lo * 2 ** k, [s[4], s[5]]);
     this.requantCore(X, outs || [{ cell: Y, bits: n }], k, n, clamp, s);
@@ -264,6 +265,7 @@ class Patterns extends Emitter {
     return this;
   }
 
+  // y += table[low n bits of x] (table length 2^n): a tree of bit tests with one leaf per entry.
   lookup(x, y, table, s, { keepX = true, kStep = 4 } = {}) {
     const n = Math.log2(table.length);
     if (!Number.isInteger(n) || n < 1 || n > this.B) throw new Error('table length must be a power of two');

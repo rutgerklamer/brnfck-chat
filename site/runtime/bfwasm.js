@@ -51,7 +51,7 @@
           const d = CLS[s[i]];
           if (d === 3) mv++; else if (d === 4) mv--; else if (d !== 0) break;
         }
-        if ((mv | 0) !== mv && M instanceof Int32Array) M = new Float64Array(M); // a move of 2^31 cells or more (only a 64-bit memory has room for it)
+        if ((mv | 0) !== mv && M instanceof Int32Array) M = new Float64Array(M); // a move of 2^31+ cells (64-bit memory only)
       } else if (c === 5 || c === 6) {
         if (n === cap) grow();
         T[n] = c === 5 ? OUT : IN; N[n] = 0; M[n] = mv; mv = 0; lastNonAdd = n; n++; i++;
@@ -183,9 +183,8 @@
   const MAX_PAGES = 262144;   // engine limit on a 64-bit memory (V8: 16 GiB)
 
   // ---------------------------------------------------------------- code generator
-  // o: cellBits 8 | 16 | 32, tapeSize, the tuning limits read below, and two choices:
-  //   memory 'own' | 'imported': imported = the tape is env.mem and the program starts at the byte offset in the global sp
-  //   address 32 | 64: the memory's address width; 64 = a tape of more than 4 GiB
+  // o: cellBits 8 | 16 | 32, tapeSize, tuning limits; memory 'own' | 'imported' (tape is env.mem, start at global sp);
+  // address 32 | 64 (64: a tape of more than 4 GiB)
   function generate(prog, o) {
     o = o || {};
     const T = prog.T, N = prog.N, M = prog.M, X = prog.X, n = prog.length;
@@ -475,7 +474,7 @@
       return { W, wr, all: Array.from(R), leaf, near: lo >= -SAFE && hi <= SAFE };
     }
 
-    // ---- symbolic execution of a straight-line loop body: every cell becomes
+    // ---- symbolic execution of a straight-line loop body: every cell becomes c + sum of factor * start cell
     function symRange(a, b, A, S, o) {
       let terms = 0;
       const get = (o) => {
@@ -912,7 +911,7 @@
     out.bytes([0, 0x61, 0x73, 0x6D, 1, 0, 0, 0]);
     const section = (id, body) => { out.u8(id); out.uleb(body.n); out.append(body); };
     const memLimits = (b) => { b.u8(mem64 ? 5 : 1); b.uleb(pages); b.uleb(pages); }; // 1: has a maximum, 5: and is 64-bit
-    // types: 0 (ptr)->(ptr) and 1 (ptr)->() for the program, 2 ()->(i32), 3 ()->(); with an i64 pointer also 4 (i32)->() and 5 ()->(i64)
+    // types: 0 (ptr)->(ptr), 1 (ptr)->() for the program, 2 ()->(i32), 3 ()->(); i64 pointer: 4 (i32)->(), 5 ()->(i64)
     let s = new Buf(64);
     if (mem64) s.bytes([6, 0x60, 1, 0x7E, 1, 0x7E, 0x60, 1, 0x7E, 0, 0x60, 0, 1, 0x7F, 0x60, 0, 0, 0x60, 1, 0x7F, 0, 0x60, 0, 1, 0x7E]);
     else s.bytes([4, 0x60, 1, 0x7F, 1, 0x7F, 0x60, 1, 0x7F, 0, 0x60, 0, 1, 0x7F, 0x60, 0, 0]);
@@ -980,7 +979,7 @@
       c.pos += k;
       return k;
     }
-    // opt: onOutput, flushEvery, collect, keep (leave the tape as it is), pointer (the cell to start on: memory 'imported')
+    // opt: onOutput, flushEvery, collect, keep (leave the tape as it is), pointer (start cell, memory 'imported')
     run(input, opt) {
       opt = opt || {};
       const ex = this.instance.exports;
@@ -1033,7 +1032,7 @@
   const tapeOf = (memory, tapeSize, cellBits) => (cellBits === 8 ? new Uint8Array(memory.buffer, BASE, tapeSize)
     : cellBits === 16 ? new Uint16Array(memory.buffer, BASE, tapeSize) : new Uint32Array(memory.buffer, BASE, tapeSize));
 
-  // Node, before the first 64-bit memory or module: explicit bounds checks run brnfck-qwen2.5-1.5b in about 30% less time than V8's default (trap handling)
+  // Node, before the first 64-bit memory: explicit bounds checks beat trap handling (brnfck-qwen2.5-1.5b ~30% faster)
   let checksChosen = false;
   function explicitBoundsChecks() {
     if (checksChosen || typeof process !== 'object' || !process.versions || !process.versions.v8 || typeof require !== 'function') return;

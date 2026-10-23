@@ -60,6 +60,7 @@ class Emitter {
 
   // ---- arithmetic patterns ------------------------------------------------
 
+  // Every target addr += f * src; src ends 0.
   scatter(src, targets) {
     const live = targets.filter(([, f]) => f !== 0).sort((a, b) => a[0] - b[0]);
     if (!live.length) return this.clear(src);
@@ -282,6 +283,7 @@ class Patterns extends Emitter {
     return this;
   }
 
+  // Y (from 0) = clamp(floor((X + addend) / 2^k), lo, lo + 2^n - 1), read off bits k..k+n-1 by the bit peel.
   requant(X, Y, { k, n = 8, lo = -(2 ** (n - 1)), addend = 0, clamp = true, outs = null }, s) {
     this.addBig(X, addend - lo * 2 ** k, [s[4], s[5]]);
     this.requantCore(X, outs || [{ cell: Y, bits: n }], k, n, clamp, s);
@@ -405,6 +407,7 @@ class Patterns extends Emitter {
     return this;
   }
 
+  // y += table[low n bits of x] (table length 2^n): a tree of bit tests with one leaf per entry.
   lookup(x, y, table, s, { keepX = true, kStep = 4 } = {}) {
     const n = Math.log2(table.length);
     if (!Number.isInteger(n) || n < 1 || n > this.B) throw new Error('table length must be a power of two');
@@ -575,9 +578,8 @@ const MU = 3;                   // momentum 1 - 2^-3 = 0.875
 const SEED = 20261021;          // seed of the starting weights
 const SAMPLE_SEED = 1021;       // seed of the child's sampling
 
-// The models. gs: the gradient of a logit is shifted right by gs, which sets the learning rate
-// (lr / batch = 2^(-5 - gs)); epochs: passes over the text; samples: lines the child prints; chars: the
-// characters, token by token (token 0 ends a line); reset: the context starts empty after every line.
+// gs: a logit's gradient is shifted right by gs (lr / batch = 2^(-5 - gs)); epochs: passes over the text; samples: lines
+// the child prints; chars: the tokens (token 0 ends a line); reset: the context starts empty after every line.
 const MODELS = {
   bigram: {
     name: 'brnfck-names-bigram-756', kind: 'bigram', ctx: 1, hidden: 0,
@@ -647,11 +649,11 @@ const tanhAt = (i) => TANH[i + 128], tprimeAt = (i) => TPRIME[i + 128], expAt = 
 
 const tokenOf = (ch) => (ch === 10 ? 0 : ch - 96);
 const charOf = (t) => (t === 0 ? 10 : t + 96);
-// the token of every character code of a model (-1: not one of its characters)
 // the child draws with this many top bits of a random number: their value times the sum S of the
 // exponentials (less than tokens * 2^14) stays below 2^30; and the running sums stay below 2^sumBits
 const sampleBits = (m) => Math.min(10, Math.floor(30 - Math.log2(m.chars.length * 16384)));
 const sumBits = (m) => Math.ceil(Math.log2(m.chars.length * 16384));
+// the token of every character code of a model (-1: not one of its characters)
 const tokensOf = (m) => { const t = new Int16Array(256).fill(-1); [...m.chars].forEach((c, i) => { t[c.charCodeAt(0)] = i; }); return t; };
 
 module.exports = {
@@ -674,9 +676,8 @@ class Kernels extends Patterns {
 
   // ---- walks -------------------------------------------------------------------------------
 
-  // Run body once per block: blocks of `stride` cells from `first` on, as long as the cell at
-  // `marker` (an address inside the first block) is not zero; dir -1 walks to lower addresses.
-  // The body is written for the first block. `count`: how many blocks there are (for the pointer).
+  // Runs body (written for the first block) once per block of `stride` cells while the cell at `marker` is not zero;
+  // dir -1 walks to lower addresses. `count`: how many blocks there are (for the pointer).
   walk(marker, stride, count, body, dir = 1) {
     this.to(marker).raw('[');
     body();
@@ -714,9 +715,8 @@ class Kernels extends Patterns {
     return this;
   }
 
-  // Y (0 before) = lo + (floor((X + addend) / 2^k) - lo, clamped to 0..2^n-1 or kept modulo 2^n);
-  // X ends 0. The bits are peeled from the lowest on; outputs of any width.
-  // s: X2 Za Zb T H0 H1 K Kt F tmp
+  // Y (0 before) = lo + (floor((X + addend) / 2^k) - lo, clamped to 0..2^n-1 or kept modulo 2^n); X ends 0.
+  // Bits are peeled from the lowest on. s: X2 Za Zb T H0 H1 K Kt F tmp
   shift(X, Y, k, n, { lo = 0, addend = k ? 2 ** (k - 1) : 0, clamp = false } = {}, s) {
     const [X2, Za, Zb, T, H0, H1, K, Kt, F, tmp] = s, H = [H0, H1], sc = { T, H, K, Kt };
     const J = k + n - 1, s0 = this.B - 1 - J;
@@ -781,10 +781,8 @@ class Kernels extends Patterns {
     return this;
   }
 
-  // Every outs [y, table] gets y += table[x] for x in from..length-1: a switch on (x - from) / 64
-  // picks a block, and inside it the rest of x counts down through nested loops. Cheap in
-  // characters when the table changes in small steps, and never more than about 64 + blocks deep.
-  // s: c tmp H0 H1 HI F and 10 cells for a shift
+  // Every outs [y, table] gets y += table[x], x in from..length-1: a switch on (x - from) / 64, then nested loops count
+  // down the rest (cheap when the table changes in small steps). s: c tmp H0 H1 HI F and 10 cells for a shift
   chainAll(x, outs, from, s, { keepX = true } = {}) {
     const [c, tmp, H0, H1, HI, F, ...s10] = s, N = outs[0][1].length, G = 64;
     if (keepX) this.copy(x, c, tmp); else this.move(x, c);
@@ -846,9 +844,8 @@ class Kernels extends Patterns {
     return this;
   }
 
-  // Print a non-negative number held in base (base..base+7 free otherwise, base ends 0):
-  // `digits` digits, the leading zeros as nothing (or as zeros when keepZeros), `point`: print a
-  // '.' before the last 3 digits. D: `digits` free cells for the digits; t: 3 free cells.
+  // Print a non-negative number in base (base..base+7 free, base ends 0) as `digits` digits, leading zeros blank unless
+  // keepZeros; `point`: a '.' before the last 3 digits. D: `digits` free cells for the digits; t: 3 free cells.
   printNumber(base, digits, D, t, { point = false, keepZeros = false } = {}) {
     for (let i = 0; i < digits; i++) {
       this.divmod10(base);
@@ -881,19 +878,10 @@ module.exports = { Kernels };
 "compiler/train/layout.js": function (module, exports, require, __dirname) {
 'use strict';
 
-// Where every cell of a training program (and of its child, which has the same tape) lives.
-//
-//   [global cells]
-//   attn only: [key frame -1] [key frame 0] ... [key frame dk-1] [landing] [end slot] [attention head]
-//   [frame -1] [frame 0] ... [frame units-1] [landing frame] [b2 slots] [end slot]
-//   [head cells] [head slot 0] ... [head slot 26] [end head slot]
-//
-// A frame holds one unit: an output token (bigram), a hidden unit (mlp, attn) or a dimension of the
-// queries and keys (the key frames of attn). It is a row of slots of 13 cells; a slot holds one
-// parameter (W, its velocity V), 8 scratch cells and two lanes. Lanes carry values from frame to
-// frame. The walks over frames, slots and head slots all stop on a zero marker.
+// Every cell of a training program and its child: globals, (attn) key frames and head, frames, b2 slots, head slots.
+// A frame: one unit (output token, hidden unit or query/key dimension) as a row of slots; walks stop on zero markers.
 
-
+// A slot of 13 cells: marker, parameter W, its velocity, 8 scratch cells, lanes LA and LB from frame to frame.
 const SL = 13;
 const MK = 0, W = 1, VEL = 2, LA = 11, LB = 12;
 const S = (i) => 3 + i;
@@ -1022,14 +1010,8 @@ module.exports = { layout, regionValues, setFromValues, SL, MK, W, VEL, LA, LB, 
 "compiler/train/gen.js": function (module, exports, require, __dirname) {
 'use strict';
 
-// The two brainfuck programs of a model:
-//   the training program: random start weights from a seed, then for every batch of characters it
-//   reads, forward, loss, backward and a momentum step; it prints the loss of every step and at the
-//   end the child program;
-//   the child program: the trained weights as one run of + or - per cell, then an engine that
-//   samples names from them;
-//   the training program that prints its next generation (selfTrainer): it trains like the first,
-//   then prints itself with the weights it ended with written in, so that running that one trains on.
+// The brainfuck programs of a model: the trainer (a momentum step per batch, a loss line per step, then the child), the
+// child (weights as runs of + or -, then a sampling engine), and selfTrainer, which prints itself with its new weights.
 
 const S = require('./spec');
 const { Kernels } = require('./kernels');
@@ -1588,13 +1570,9 @@ class Gen {
   }
 
   // ---- the training program that prints its next version --------------------------------------
-  //
-  // gen0 = [writing part: markers, seed] [the body as data] [start weights] [body]
-  // gen1 = [writing part: the weights, velocities, step and context gen0 ended with] [the body as data] [body]
-  //
-  // The body trains on what it reads, then prints the next generation: a writing part for what is on
-  // its tape now, the writing part of the data, and the data read back as code, which is the body
-  // itself. Fed nothing, it prints the child of its weights instead.
+
+  // gen0 = [writing part: markers, seed] [body as data] [start weights] [body]; gen1 = [writing part: gen0's end state]
+  // [body as data] [body]. The body prints that writing part, the data's writing part, and the data as code (itself).
 
   // where a value cell's writing part goes: at the cell, the cell after it free
   printValue(X, s) {
