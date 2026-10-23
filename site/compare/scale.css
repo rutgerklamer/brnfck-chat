@@ -1,4 +1,4 @@
-/* "Every program at one scale" and "How they grew" (compare/index.html, scale.js). */
+/* "Every program at one scale" (compare/index.html, scale.js). */
 
 #fig-eight .ctl.top { margin: 0 0 var(--s3); }
 #fig-eight .seg { display: flex; flex: 1 1 auto; }
@@ -19,24 +19,6 @@
 #fig-eight .sc-row.train .sc-track > i { background: var(--d2); }
 #fig-eight .sc-row.child .sc-track > i { background: var(--d1); }
 #fig-eight .sc-val { font: 600 var(--fs-ui)/1.3 var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
-
-/* how they grew */
-#fig-grew canvas { display: block; width: 100%; height: auto; background: var(--panel); border: 1px solid var(--line); }
-#fig-grew .gr-key { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: var(--s2) 0 0; color: var(--muted); }
-#fig-grew .sw { display: inline-block; flex: 0 0 auto; width: .9rem; height: .9rem; margin-right: var(--s2); vertical-align: -.1em; background: var(--c-in); }
-#fig-grew .train .sw { background: var(--d2); }
-#fig-grew .child .sw { background: var(--d1); }
-#fig-grew .gr-days { list-style: none; margin: var(--s4) 0 0; padding: 0; max-width: none; }
-#fig-grew .gr-days > li { margin: 0 0 var(--s3); }
-#fig-grew .gr-day { margin: 0 0 var(--s1); padding-bottom: var(--s1); border-bottom: var(--edge) solid var(--ink); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
-#fig-grew .gr-days ul { list-style: none; margin: 0; padding: 0; }
-#fig-grew .gr-days ul > li { display: flex; align-items: baseline; gap: 0; margin: 0; padding: var(--s1) 0; border-bottom: 1px solid var(--line); }
-#fig-grew .gr-days b { font: 600 var(--fs-ui)/1.4 var(--mono); }
-#fig-grew .gr-days em { margin-left: var(--s2); color: var(--muted); font: 500 var(--fs-small)/1.4 var(--mono); font-style: normal; }
-#fig-grew .gr-days em.cur { color: var(--good); }
-#fig-grew .gr-days small { display: block; color: var(--muted); font-size: var(--fs-small); }
-#fig-grew .gr-days small .up { color: var(--good); font-weight: 600; }
-#fig-grew .gr-days small .down { color: var(--c-out); font-weight: 600; }
 
 @media (max-width: 40em) {
   #fig-eight .sc-rows { grid-template-columns: minmax(0, 1fr) auto; }

@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="../ui/system.css?v=r6">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
 <link rel="stylesheet" href="compare.css?v=r7">
-<link rel="stylesheet" href="scale.css?v=r3">
+<link rel="stylesheet" href="scale.css?v=r4">
 </head>
 <body>
 <script src="../site.js?v=r23" data-section="insights"></script>
@@ -38,7 +38,6 @@
           <li><a href="#attn">The layers that still look back</a></li>
           <li><a href="#live">Ask it yourself</a></li>
           <li><a href="#eight">Every program at one scale</a></li>
-          <li><a href="#grew">How they grew</a></li>
           <li><a href="#notes">Notes and sources</a></li>
         </ol>
       </nav>
@@ -252,18 +251,6 @@
     <p>The largest chat model has two million times as many weights as the smallest training program, and the program that runs it is nine thousand times as long. Most of a chat program writes its weights onto the tape; a training program is nearly all engine, because its weights start as random numbers it draws itself. What it does with them, the chat programs never do: for every letter it reads, it goes back through its own network and changes every weight a little.</p>
   </section>
 
-  <section id="grew" aria-labelledby="grew-h">
-    <h2 id="grew-h">How they grew</h2>
-    <p>No program is ever taken off this list. When a program changes, it gets a new version beside the old ones: a chat program rebuilt with other code, a training program whose generator changed, and a child for every pass of a long training run, each a little better than the one before. All <span data-reg="versions">16</span> versions so far, when they came and how large they are:</p>
-    <figure class="fig" id="fig-grew" aria-label="Every version of every program by the day it came and its length">
-      <canvas role="img" aria-label="Every version of every program: when it came, and its length in characters"></canvas>
-      <p class="key small gr-key"><span class="chat"><i class="sw"></i>runs a chat model</span><span class="train"><i class="sw"></i>trains a network</span><span class="child"><i class="sw"></i>writes with what it learned</span></p>
-      <p class="tell" aria-live="polite">Point at a dot: a version of a program.</p>
-      <ol class="gr-days" reversed></ol>
-      <p class="measured">From <code>site/registry.json</code>. The day of a first version is when the program first came up in the history of the code; the passes of a long run carry the time their child was printed. Characters on a scale of factors of ten. A loss is in nats per character: for the children of the names the last 500 steps of training, for the passes of Shakespeare the text kept apart, which they never read.</p>
-    </figure>
-  </section>
-
   <section id="fromhere" aria-labelledby="fromhere-h">
     <h2 id="fromhere-h">Where to go next</h2>
     <p>The Chatbot runs the brainfuck program itself. How it works follows one question through a program, Inside the program takes one apart, and the map shows one whole.</p>
@@ -289,6 +276,6 @@
 </main>
 <script src="../ui/article.js?v=r7"></script>
 <script src="compare.js?v=r10"></script>
-<script src="scale.js?v=r2"></script>
+<script src="scale.js?v=r3"></script>
 </body>
 </html>

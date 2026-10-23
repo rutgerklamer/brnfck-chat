@@ -269,7 +269,7 @@ The page runs `site/compare/live/float.js` and `site/compare/live/deltanet.js`, 
 `compiler/qwen3.5/`. After a change there, run `node tools/site-qwen3.5.js`.
 
 Every program of the site is in `site/registry.json`, with every version it has had: "Compare the models" shows
-them all at one scale and when each version came. After building a program, changing a generator or a pass of a
+them all at one scale. After building a program, changing a generator or a pass of a
 long training run, add what is new:
 
 ```
