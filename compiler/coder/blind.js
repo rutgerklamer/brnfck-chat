@@ -1,10 +1,7 @@
 'use strict';
 
-// The blind test of brnfck-qwen2.5-coder-0.5b: 60 tasks written by hand, in other words than the generator of
-// data.js uses, each with its own test cases. They never go into training: data.js refuses a question that is one
-// of these. Some ask for two skills at once, which no training family has.
-//   node compiler/coder/blind.js questions            ->  compiler/coder/out/blind.json
-//   node compiler/coder/blind.js judge <answers>      the answers of ask.py or spec_ask.js, run on the test cases
+// Blind test of brnfck-qwen2.5-coder-0.5b: 60 hand-written tasks with test cases, never trained on (data.js refuses them).
+//   node compiler/coder/blind.js questions | judge <answers>   (-> out/blind.json; answers of ask.py or spec_ask.js)
 
 const fs = require('fs');
 const path = require('path');

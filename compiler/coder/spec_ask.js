@@ -1,7 +1,6 @@
 'use strict';
 
-// The answers of the whole-number spec of compiler/qwen/engine/ to the questions of a JSON file: what the brainfuck
-// program prints, token for token. Needs compiler/qwen/engine/data/<model>/calib.json (compiler/qwen/reference/calibrate.js).
+// Answers questions with the whole-number spec (what the brainfuck program prints); needs calib.json from calibrate.js.
 //   node compiler/coder/spec_ask.js [questions.json] [answers.json] [--model coder-0.5b]
 
 const fs = require('fs');

@@ -1,8 +1,6 @@
 'use strict';
 
-// Training examples for brnfck-qwen2.5-coder-0.5b: a task in words and a brainfuck program that does it.
-// Every program is run by the checker of site/challenges/ on random inputs before it is kept.
-// The tasks of blind.js are the test and those of check.js pick a snapshot: a question that is one of them is never used.
+// Training examples for brnfck-qwen2.5-coder-0.5b: a task in words and a brainfuck program, checked on random inputs.
 //   node compiler/coder/data.js [count] [seed]   ->  compiler/coder/out/train.jsonl, test.jsonl
 
 const fs = require('fs');
@@ -61,7 +59,6 @@ function randomText(maxLen) {
 const randomInput = (alphabet, maxLen, minLen = 0) => Array.from({ length: int(minLen, maxLen) }, () => pick(alphabet)).join('');
 
 // ---- the families: each returns { q, code, f (input -> output), inputs } or null to skip this draw
-// held(...) is true for a parameter that a challenge uses: those draws are skipped.
 const F = {};
 
 F.text = () => {
@@ -274,7 +271,7 @@ F.swapPairs = () => {
   return { q: sentence(lead(), q) + pick(EMPTY_OK), code: ',[>,[.<.[-]>[-]]<[.[-]],]', f: (x) => x.replace(/(.)(.)/gs, '$2$1'), inputs: ['', 'a', 'abcd', 'abcde', randomInput(LOWER, 9, 1)] };
 };
 
-// if-else on one cell that is zero or not: then = printed when zero
+// if-else on one cell: prints zero when it is 0, else nonzero; the two cells to its right are scratch
 function branch(zero, nonzero) { return '>+<[>-<[-]>>' + set(code(nonzero)) + '.[-]<<]>[>' + set(code(zero)) + '.[-]<-]'; }
 
 F.isEmpty = () => {
@@ -416,7 +413,7 @@ F.perChar = () => {
   if (o.k === -32 && o.drop && /[a-z]/.test(o.drop)) return null;
   let body = set(o.k) + (o.before ? '>' + set(code(o.before)) + '.[-]<' : '') + '.'.repeat(o.n) + (o.after ? '>' + set(code(o.after)) + '.[-]<' : '');
   const program = o.drop ? ',[' + set(-code(o.drop)) + '[' + set(code(o.drop)) + body + '[-]],]' : ',[' + body + ',]';
-  // the words: one clause per part, in an order that reads well
+  // the question: one clause per part
   let q = pick(['Print every character of the input', 'Print each character of the input', 'Go through the input and print every character', 'For every character of the input, print it']);
   if (o.drop) parts.push(pick([`except the ${name(o.drop, true)} characters`, `but leave out every ${name(o.drop, true)}`, `skipping every ${name(o.drop, true)}`]));
   if (o.k) parts.push(shiftWords(o.k));
@@ -470,7 +467,7 @@ F.phases = () => {
   return { q: sentence(lead(), q) + pick(EMPTY_OK), code: program, f, inputs: ['', pick(al), randomInput(al, len ? 9 : 8, 1), randomInput(al, 5, 1)] };
 };
 
-// ---- more ways to say the same: another verb, or "a program that ..." (applied to some questions of every family)
+// ---- rewording: another verb, or "a program that ..."
 const VERB = { Print: 'prints', Read: 'reads', Copy: 'copies', Reverse: 'reverses', Count: 'counts', Swap: 'swaps', Add: 'adds', Multiply: 'multiplies', Subtract: 'subtracts',
   Convert: 'converts', Halve: 'halves', Move: 'moves', Repeat: 'repeats', Echo: 'echoes', Make: 'makes', Replace: 'replaces', Output: 'outputs', Go: 'goes', For: null, Behave: 'behaves', The: null };
 const SAME = { Print: ['Output', 'Show', 'Display', 'Write out', 'Produce'], Read: ['Take', 'Read in'], Copy: ['Echo'], Reverse: ['Flip'], Count: ['Tally'] };
@@ -480,7 +477,7 @@ function reword(q) {
   const r = rnd();
   if (r < 0.4 && SAME[m[1]]) return pick(SAME[m[1]]) + q.slice(m[1].length);
   if (r < 0.8 && VERB[m[1]]) {
-    // the verbs after 'and' and 'then' of the first sentence follow: 'reads one digit and counts down'
+    // later verbs of the first sentence follow: 'reads one digit and counts down'
     const rest = q.slice(m[1].length).replace(/^([^.]*)/, (first) => first.replace(/(and|then) ([a-z]+)/g, (w, j, v) => { const V = VERB[v[0].toUpperCase() + v.slice(1)]; return V ? j + ' ' + V : w; }));
     return pick(['Write a program that ', 'Make a program that ', 'I need a program that ', 'Create a brainfuck program that ', 'Code that ', 'A program that ']) + VERB[m[1]] + rest;
   }
@@ -489,6 +486,7 @@ function reword(q) {
 const WEIGHT = { perChar: 4, phases: 4 };
 
 // ---- making and checking examples
+// The questions of blind.js (the test) and check.js (snapshot choice) are never used.
 const BLIND = new Set([...require('./blind').BLIND, ...require('./check').CHECK].map((t) => t.question.toLowerCase()));
 function check(ex) {
   for (const input of ex.inputs) {
@@ -498,8 +496,7 @@ function check(ex) {
   return null;
 }
 
-// The same number of examples from every family (more from the families made of parts); a family with few
-// different wordings repeats them.
+// Equal counts per family (more for those in WEIGHT); a family with few wordings repeats them.
 function make(n, families, skip = new Set()) {
   const out = [], names = Object.keys(families), total = names.reduce((t, f) => t + (WEIGHT[f] || 1), 0);
   for (const fam of names) {

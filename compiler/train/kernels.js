@@ -11,9 +11,8 @@ class Kernels extends Patterns {
 
   // ---- walks -------------------------------------------------------------------------------
 
-  // Run body once per block: blocks of `stride` cells from `first` on, as long as the cell at
-  // `marker` (an address inside the first block) is not zero; dir -1 walks to lower addresses.
-  // The body is written for the first block. `count`: how many blocks there are (for the pointer).
+  // Runs body (written for the first block) once per block of `stride` cells while the cell at `marker` is not zero;
+  // dir -1 walks to lower addresses. `count`: how many blocks there are (for the pointer).
   walk(marker, stride, count, body, dir = 1) {
     this.to(marker).raw('[');
     body();
@@ -51,9 +50,8 @@ class Kernels extends Patterns {
     return this;
   }
 
-  // Y (0 before) = lo + (floor((X + addend) / 2^k) - lo, clamped to 0..2^n-1 or kept modulo 2^n);
-  // X ends 0. The bits are peeled from the lowest on; outputs of any width.
-  // s: X2 Za Zb T H0 H1 K Kt F tmp
+  // Y (0 before) = lo + (floor((X + addend) / 2^k) - lo, clamped to 0..2^n-1 or kept modulo 2^n); X ends 0.
+  // Bits are peeled from the lowest on. s: X2 Za Zb T H0 H1 K Kt F tmp
   shift(X, Y, k, n, { lo = 0, addend = k ? 2 ** (k - 1) : 0, clamp = false } = {}, s) {
     const [X2, Za, Zb, T, H0, H1, K, Kt, F, tmp] = s, H = [H0, H1], sc = { T, H, K, Kt };
     const J = k + n - 1, s0 = this.B - 1 - J;
@@ -118,10 +116,8 @@ class Kernels extends Patterns {
     return this;
   }
 
-  // Every outs [y, table] gets y += table[x] for x in from..length-1: a switch on (x - from) / 64
-  // picks a block, and inside it the rest of x counts down through nested loops. Cheap in
-  // characters when the table changes in small steps, and never more than about 64 + blocks deep.
-  // s: c tmp H0 H1 HI F and 10 cells for a shift
+  // Every outs [y, table] gets y += table[x], x in from..length-1: a switch on (x - from) / 64, then nested loops count
+  // down the rest (cheap when the table changes in small steps). s: c tmp H0 H1 HI F and 10 cells for a shift
   chainAll(x, outs, from, s, { keepX = true } = {}) {
     const [c, tmp, H0, H1, HI, F, ...s10] = s, N = outs[0][1].length, G = 64;
     if (keepX) this.copy(x, c, tmp); else this.move(x, c);
@@ -183,9 +179,8 @@ class Kernels extends Patterns {
     return this;
   }
 
-  // Print a non-negative number held in base (base..base+7 free otherwise, base ends 0):
-  // `digits` digits, the leading zeros as nothing (or as zeros when keepZeros), `point`: print a
-  // '.' before the last 3 digits. D: `digits` free cells for the digits; t: 3 free cells.
+  // Print a non-negative number in base (base..base+7 free, base ends 0) as `digits` digits, leading zeros blank unless
+  // keepZeros; `point`: a '.' before the last 3 digits. D: `digits` free cells for the digits; t: 3 free cells.
   printNumber(base, digits, D, t, { point = false, keepZeros = false } = {}) {
     for (let i = 0; i < digits; i++) {
       this.divmod10(base);

@@ -1,13 +1,7 @@
 'use strict';
 
-// The two brainfuck programs of a model:
-//   the training program: random start weights from a seed, then for every batch of characters it
-//   reads, forward, loss, backward and a momentum step; it prints the loss of every step and at the
-//   end the child program;
-//   the child program: the trained weights as one run of + or - per cell, then an engine that
-//   samples names from them;
-//   the training program that prints its next generation (selfTrainer): it trains like the first,
-//   then prints itself with the weights it ended with written in, so that running that one trains on.
+// The brainfuck programs of a model: the trainer (a momentum step per batch, a loss line per step, then the child), the
+// child (weights as runs of + or -, then a sampling engine), and selfTrainer, which prints itself with its new weights.
 
 const S = require('./spec');
 const { Kernels } = require('./kernels');
@@ -566,13 +560,9 @@ class Gen {
   }
 
   // ---- the training program that prints its next version --------------------------------------
-  //
-  // gen0 = [writing part: markers, seed] [the body as data] [start weights] [body]
-  // gen1 = [writing part: the weights, velocities, step and context gen0 ended with] [the body as data] [body]
-  //
-  // The body trains on what it reads, then prints the next generation: a writing part for what is on
-  // its tape now, the writing part of the data, and the data read back as code, which is the body
-  // itself. Fed nothing, it prints the child of its weights instead.
+
+  // gen0 = [writing part: markers, seed] [body as data] [start weights] [body]; gen1 = [writing part: gen0's end state]
+  // [body as data] [body]. The body prints that writing part, the data's writing part, and the data as code (itself).
 
   // where a value cell's writing part goes: at the cell, the cell after it free
   printValue(X, s) {

@@ -1,5 +1,4 @@
-# Asks a model the questions of a JSON file and writes its answers: greedy, at most 256 tokens of conversation,
-# the way the brainfuck program answers.
+# Asks a model the questions of a JSON file, greedy within 256 tokens of conversation as the brainfuck program does.
 #   .venv/Scripts/python compiler/coder/ask.py [questions.json] [answers.json] [--model DIR] [--checkpoint FILE] [--cpu]
 
 import argparse, json, os, time
@@ -16,14 +15,14 @@ a = argparse.ArgumentParser()
 a.add_argument('questions', nargs='?', default=os.path.join(OUT, 'challenges.json'))
 a.add_argument('answers', nargs='?', default=os.path.join(OUT, 'answers.json'))
 a.add_argument('--model', default=os.path.join(ROOT, 'compiler', 'downloads', 'qwen2.5-coder-0.5b-brainfuck'))
-a.add_argument('--checkpoint')  # the weights of a checkpoint of compiler/coder/train.py instead
+a.add_argument('--checkpoint')  # weights from compiler/coder/train.py instead
 a.add_argument('--cpu', action='store_true')  # leaves the GPU to a training run
 args = a.parse_args()
 
 tok = AutoTokenizer.from_pretrained(args.model)
 dev = 'cpu' if args.cpu else 'cuda'
 model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.float32 if args.cpu else torch.bfloat16)
-if args.checkpoint and args.checkpoint.endswith('.safetensors'):   # a snapshot of train.py: the weights alone, the output layer tied
+if args.checkpoint and args.checkpoint.endswith('.safetensors'):  # a train.py snapshot: weights alone, output layer tied
     from safetensors.torch import load_file
     model.load_state_dict({k: v.float() for k, v in load_file(args.checkpoint).items()}, strict=False)
     model.tie_weights()

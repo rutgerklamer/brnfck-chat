@@ -1,8 +1,7 @@
 'use strict';
 
-// Build a training program, run it through the WebAssembly runtime on the names, check every line
-// it prints and every weight it ends with against reference.js, then run the child program it printed
-// and check its names. Writes the programs and a log to compiler/train/out/.
+// Builds a training program, runs it on its text and checks its lines, weights and printed child against reference.js.
+// Writes the programs and a log to compiler/train/out/.
 
 const fs = require('fs');
 const path = require('path');

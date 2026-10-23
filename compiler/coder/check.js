@@ -1,10 +1,7 @@
 'use strict';
 
-// The check tasks of brnfck-qwen2.5-coder-0.5b: 30 more tasks written by hand, terser and in other words than both
-// data.js and blind.js. They pick the best snapshot of a training run (train.py --snap); the blind tasks of blind.js
-// stay untouched for the score. Neither set is ever used to teach.
-//   node compiler/coder/check.js questions            ->  compiler/coder/out/check.json
-//   node compiler/coder/check.js judge <answers>      the answers of ask.py, run on the test cases
+// 30 hand-written check tasks that pick the best training snapshot (train.py --snap), so blind.js stays untouched.
+//   node compiler/coder/check.js questions | judge <answers>   (questions -> out/check.json; answers of ask.py)
 
 const fs = require('fs');
 const path = require('path');

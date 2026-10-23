@@ -13,9 +13,8 @@ const MU = 3;                   // momentum 1 - 2^-3 = 0.875
 const SEED = 20261021;          // seed of the starting weights
 const SAMPLE_SEED = 1021;       // seed of the child's sampling
 
-// The models. gs: the gradient of a logit is shifted right by gs, which sets the learning rate
-// (lr / batch = 2^(-5 - gs)); epochs: passes over the text; samples: lines the child prints; chars: the
-// characters, token by token (token 0 ends a line); reset: the context starts empty after every line.
+// gs: a logit's gradient is shifted right by gs (lr / batch = 2^(-5 - gs)); epochs: passes over the text; samples: lines
+// the child prints; chars: the tokens (token 0 ends a line); reset: the context starts empty after every line.
 const MODELS = {
   bigram: {
     name: 'brnfck-names-bigram-756', kind: 'bigram', ctx: 1, hidden: 0,
@@ -85,11 +84,11 @@ const tanhAt = (i) => TANH[i + 128], tprimeAt = (i) => TPRIME[i + 128], expAt = 
 
 const tokenOf = (ch) => (ch === 10 ? 0 : ch - 96);
 const charOf = (t) => (t === 0 ? 10 : t + 96);
-// the token of every character code of a model (-1: not one of its characters)
 // the child draws with this many top bits of a random number: their value times the sum S of the
 // exponentials (less than tokens * 2^14) stays below 2^30; and the running sums stay below 2^sumBits
 const sampleBits = (m) => Math.min(10, Math.floor(30 - Math.log2(m.chars.length * 16384)));
 const sumBits = (m) => Math.ceil(Math.log2(m.chars.length * 16384));
+// the token of every character code of a model (-1: not one of its characters)
 const tokensOf = (m) => { const t = new Int16Array(256).fill(-1); [...m.chars].forEach((c, i) => { t[c.charCodeAt(0)] = i; }); return t; };
 
 module.exports = {

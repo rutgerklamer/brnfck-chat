@@ -14,8 +14,8 @@ const ok = (good, name, extra = '') => { console.log(`${good ? 'ok  ' : 'FAIL'} 
 let seed = 12345;
 const rnd = (lo, hi) => { seed = lcg(seed); return lo + Math.floor(((seed >>> 0) / 2 ** 32) * (hi - lo + 1)); };
 
-// Run many cases in one program: case i uses the cells from 40 * i on. setup(e, base) writes
-// the code; want(base) the expected [address, value] pairs.
+// Run many cases in one program, case i on the cells from 64 * i + 2: setup(e, base, case) writes its code;
+// case.want holds the expected [offset, value] pairs, every other cell must end 0.
 function batch(name, cases, setup, { output = null } = {}) {
   const e = new Kernels(), W = 64;
   cases.forEach((c, i) => setup(e, W * i + 2, c));

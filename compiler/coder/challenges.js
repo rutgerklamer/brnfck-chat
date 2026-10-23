@@ -1,8 +1,7 @@
 'use strict';
 
 // The challenges of site/challenges/ as questions for brnfck-qwen2.5-coder-0.5b, and the judgement of its answers.
-//   node compiler/coder/challenges.js questions          ->  compiler/coder/out/challenges.json
-//   node compiler/coder/challenges.js judge <answers>    the answers of compiler/coder/ask.py, judged by the site's checker
+//   node compiler/coder/challenges.js questions | judge <answers>   (questions -> out/challenges.json)
 
 const fs = require('fs');
 const path = require('path');
@@ -14,7 +13,7 @@ const { questionBytes } = require('../qwen/program/common');
 const OUT = path.join(__dirname, 'out');
 const LIST = self.BFData.CHALLENGES;
 
-// The statement as a reader of the page sees it (code marks gone), cut the way the program cuts a question.
+// The statement without code marks, cut the way the program cuts a question.
 const question = (ch) => questionBytes(ch.text.replace(/`/g, '')).subarray(0, -1).toString('utf8');
 
 function questions() {

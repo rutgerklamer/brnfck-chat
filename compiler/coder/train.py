@@ -1,10 +1,5 @@
-# Teaches Qwen2.5-Coder-0.5B-Instruct to answer a task with a brainfuck program (compiler/coder/out/train.jsonl).
-# Writes compiler/downloads/qwen2.5-coder-0.5b-brainfuck/ in the layout of the downloaded model, which
-# compiler/qwen/ builds a brainfuck program from.
-#   .venv/Scripts/python compiler/coder/train.py [--epochs 2] [--lr 2e-5] [--resume] [--src DIR] [--dst DIR]
-# With --plain FILE (compiler/coder/stack.py) it is the first stage instead: brainfuck as people wrote it, the loss on
-# every token, no question; the second stage then starts from its --dst with --src.
-# Every 500 steps it saves compiler/coder/out/checkpoint.pt; an empty file compiler/coder/out/STOP makes it save and stop.
+# Teaches Qwen2.5-Coder-0.5B-Instruct to answer tasks in brainfuck; writes downloads/qwen2.5-coder-0.5b-brainfuck/.
+#   .venv/Scripts/python compiler/coder/train.py [--epochs 2] [--lr 2e-5] [--resume] [--src DIR] [--dst DIR] [--plain FILE]
 
 import argparse, json, math, os, random, shutil, time
 import torch
@@ -26,18 +21,19 @@ a.add_argument('--batch', type=int, default=32)
 a.add_argument('--micro', type=int, default=8)
 a.add_argument('--seed', type=int, default=1)
 a.add_argument('--log', type=int, default=50)
-a.add_argument('--train-embedding', action='store_true')  # the embedding (tied to the output layer) stays as it was unless asked
+a.add_argument('--train-embedding', action='store_true')  # else the embedding (tied to the output layer) stays frozen
 a.add_argument('--resume', action='store_true')
 a.add_argument('--src', default=os.path.join(DOWNLOADS, 'qwen2.5-coder-0.5b'))
 a.add_argument('--dst', default=os.path.join(DOWNLOADS, 'qwen2.5-coder-0.5b-brainfuck'))
 a.add_argument('--plain')
-a.add_argument('--snap', type=int, default=1000)  # every so many steps the weights alone, as out/snap-<step>.safetensors (0: none)
+a.add_argument('--snap', type=int, default=1000)  # steps between out/snap-<step>.safetensors (0: none)
 args = a.parse_args()
 SRC, DST = args.src, args.dst
 random.seed(args.seed)
 torch.manual_seed(args.seed)
-# An error rather than the slow (and on this machine unstable) spill of GPU memory into system memory.
+# An error rather than the slow, unstable spill of GPU memory into system memory.
 torch.cuda.set_per_process_memory_fraction(0.85)
+# A checkpoint every 500 steps; an empty file out/STOP makes the run save and stop.
 CHECKPOINT, STOP = os.path.join(DATA, 'checkpoint.pt'), os.path.join(DATA, 'STOP')
 
 tok = AutoTokenizer.from_pretrained(SRC)
@@ -58,7 +54,7 @@ def load(file):
     return out, long
 
 if args.plain:
-    # windows of brainfuck tokens: no question, the loss on every token
+    # first stage (stack.py): windows of brainfuck, no question, the loss on every token
     windows = [([], json.loads(l)) for l in open(args.plain, encoding='utf8')]
     random.shuffle(windows)
     cut = max(64, len(windows) // 50)
@@ -145,7 +141,7 @@ while step < steps:
             print(f'  test loss {loss:.4f}, whole answer exactly right (one pass, greedy per token) {100 * exact:.1f}%', flush=True)
             if step < steps: save_checkpoint()
         if args.snap and step % args.snap == 0 and step < steps:
-            # the weights alone, to pick the best moment afterwards on tasks that are not the test (check.js)
+            # weights alone, to pick the best step afterwards with check.js
             save_file({k: v.detach().to(torch.bfloat16).contiguous().cpu() for k, v in model.state_dict().items() if k != 'lm_head.weight'},
                       os.path.join(DATA, f'snap-{step}.safetensors'), metadata={'format': 'pt'})
         if os.path.exists(STOP):
@@ -161,5 +157,5 @@ sd = {k: v.detach().to(torch.bfloat16).contiguous().cpu() for k, v in model.stat
 save_file(sd, os.path.join(DST, 'model.safetensors'), metadata={'format': 'pt'})
 for f in ['config.json', 'generation_config.json', 'tokenizer.json', 'tokenizer_config.json']:
     shutil.copy(os.path.join(SRC, f), os.path.join(DST, f))
-if os.path.exists(CHECKPOINT): os.remove(CHECKPOINT)  # only needed to continue an unfinished run
+if os.path.exists(CHECKPOINT): os.remove(CHECKPOINT)  # only needed to resume
 print(f'{DST} written ({time.time() - t0:.0f} s of training)')

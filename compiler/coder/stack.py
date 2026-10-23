@@ -1,8 +1,4 @@
-# The first stage of teaching brnfck-qwen2.5-coder-0.5b: brainfuck as people wrote it, from the Brainfuck files of
-# The Stack (BigCode, deduplicated, permissively licensed). Needs the terms of bigcode/the-stack-dedup accepted on
-# Hugging Face and a login on this computer (.venv/Scripts/hf auth login).
-# Keeps only the eight commands, drops files whose brackets do not match, short ones and copies, and cuts long
-# programs into windows the model can hold.
+# First-stage data of brnfck-qwen2.5-coder-0.5b: The Stack's Brainfuck files, eight commands only, cut into windows.
 #   .venv/Scripts/python compiler/coder/stack.py   ->  compiler/coder/out/stack.jsonl, stack.txt (what it kept)
 
 import hashlib, json, os, re
@@ -13,9 +9,10 @@ from transformers import AutoTokenizer
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 OUT = os.path.join(os.path.dirname(__file__), 'out')
 SRC = os.path.join(ROOT, 'compiler', 'downloads', 'qwen2.5-coder-0.5b')
-WINDOW = 240            # tokens per piece: the conversation of the program holds 256
+WINDOW = 240            # tokens per piece: the program's conversation holds 256
 MIN_COMMANDS = 24
 
+# Needs the terms of bigcode/the-stack-dedup accepted on Hugging Face and a login (.venv/Scripts/hf auth login).
 path = hf_hub_download('bigcode/the-stack-dedup', 'data/brainfuck/data-00000-of-00001.parquet', repo_type='dataset')
 table = pq.read_table(path, columns=['content', 'max_stars_repo_name', 'max_stars_repo_licenses'])
 rows = table.to_pylist()

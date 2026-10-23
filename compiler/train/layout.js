@@ -1,18 +1,9 @@
 'use strict';
 
-// Where every cell of a training program (and of its child, which has the same tape) lives.
-//
-//   [global cells]
-//   attn only: [key frame -1] [key frame 0] ... [key frame dk-1] [landing] [end slot] [attention head]
-//   [frame -1] [frame 0] ... [frame units-1] [landing frame] [b2 slots] [end slot]
-//   [head cells] [head slot 0] ... [head slot 26] [end head slot]
-//
-// A frame holds one unit: an output token (bigram), a hidden unit (mlp, attn) or a dimension of the
-// queries and keys (the key frames of attn). It is a row of slots of 13 cells; a slot holds one
-// parameter (W, its velocity V), 8 scratch cells and two lanes. Lanes carry values from frame to
-// frame. The walks over frames, slots and head slots all stop on a zero marker.
+// Every cell of a training program and its child: globals, (attn) key frames and head, frames, b2 slots, head slots.
+// A frame: one unit (output token, hidden unit or query/key dimension) as a row of slots; walks stop on zero markers.
 
-
+// A slot of 13 cells: marker, parameter W, its velocity, 8 scratch cells, lanes LA and LB from frame to frame.
 const SL = 13;
 const MK = 0, W = 1, VEL = 2, LA = 11, LB = 12;
 const S = (i) => 3 + i;
