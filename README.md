@@ -142,7 +142,13 @@ cd ../..
 ```
 
 For the others replace `brnfck-smollm2-135m` with `brnfck-qwen2.5-0.5b`, `brnfck-qwen2.5-1.5b`,
-`brnfck-qwen3.5-0.8b` or `brnfck-qwen3.5-0.8b-vision`.
+`brnfck-qwen3.5-0.8b`, `brnfck-qwen3.5-0.8b-vision`, `brnfck-qwen2.5-coder-0.5b` or one of the
+training programs, such as `brnfck-train-names-attn-10k`.
+
+The dataset also holds what the training programs printed (`bf/children/`), the training programs
+that print their next generation (`bf/generations/`), the whole Shakespeare run with every pass and
+its child (`runs/brnfck-shakespeare-attn-55k/`) and the models trained for brnfck-qwen2.5-coder-0.5b
+(`models/`, in the layout of the download).
 
 On the computer that built these programs (8 cores, 32 GB) the whole run took about 30 minutes
 for `small`, 20 for `0.5b`, 50 for `1.5b`, 25 for `0.8b`, 40 for `0.8b-vision`, and for `coder-0.5b` an
