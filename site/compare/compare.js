@@ -5,7 +5,7 @@
   var A = window.Article, el = A.el, fmt = A.fmt;
   var $ = function (id) { return document.getElementById(id); };
   var ASK = [['france', 'What is the capital of France?'], ['nl', 'Wat is de hoofdstad van Nederland?'], ['colours', 'Name three primary colors.']];
-  var V = 'r3';                      // the version of data/*.json and live/*.js: raise it when one of them changes
+  var V = 'r4';                      // the version of data/*.json and live/*.js: raise it when one of them changes
 
   // ---- the recordings ------------------------------------------------------------------
   // record.js: per word piece and head of the 18 DeltaNet layers, table size, half-life, write strength, scale, folds
