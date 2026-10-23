@@ -18,7 +18,7 @@
   }
   function generators() {
     if (!gen) {
-      gen = Promise.all(['../runtime/emit.js?v=r6', '../runtime/patterns.js?v=r6'].map((u) => fetch(new URL(u, base)).then((r) => { if (!r.ok) throw new Error(u + ': ' + r.status); return r.text(); })))
+      gen = Promise.all(['../runtime/emit.js?v=r7', '../runtime/patterns.js?v=r7'].map((u) => fetch(new URL(u, base)).then((r) => { if (!r.ok) throw new Error(u + ': ' + r.status); return r.text(); })))
         .then(([e, p]) => { const emit = loadCommonJS(e, () => ({})); const pat = loadCommonJS(p, () => emit); return { Emitter: emit.Emitter, Patterns: pat.Patterns }; });
     }
     return gen;
