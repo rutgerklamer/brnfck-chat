@@ -2,7 +2,6 @@
 
 // Which model the scripts of this folder work on: --model=0.5b (default), --model=1.5b or --model=coder-0.5b.
 
-const path = require('path');
 
 let NAME = '0.5b';
 for (let i = process.argv.length - 1; i >= 2; i--) {

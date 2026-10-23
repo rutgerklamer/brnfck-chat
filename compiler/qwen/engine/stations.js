@@ -5,7 +5,7 @@
 const SC = 1, BEST = 2, TOT = 3, WW = 4, DD = 5, EE = 6, HSC = 7;   // fields of a head frame; HSC.. = scratch cells
 
 module.exports = (Engine, K) => {
-  const { range, HS, CN, POS, SXT, LC, C4, C5, TT, H0, H1 } = K;
+  const { range, HS, CN, POS, SXT, LC, C4, C5, H0, H1 } = K;
   const E = Engine.prototype;
   const car1 = (base, j) => base + 2 * (j + 1);        // carried cell j of a slide with stride 1, direction +1
 
