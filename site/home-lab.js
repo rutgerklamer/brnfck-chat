@@ -57,7 +57,7 @@
       live = []; t0 = performance.now(); $('ltNames').hidden = true; draw();
       say('Building the training program with the generator, in this browser…');
       $('ltGo').textContent = 'Stop';
-      const w = worker = new Worker('train/worker.js?v=r3');
+      const w = worker = new Worker('train/worker.js?v=r6');
       if (window.LeaveGuard) LeaveGuard.set('lab-train', true);
       let queued = false;
       const redraw = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; draw(); }); };

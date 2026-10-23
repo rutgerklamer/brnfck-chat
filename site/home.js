@@ -7,24 +7,24 @@
   const size = ProgramStart.size;
 
   const MODELS = {
-    small: { name: 'small', label: 'brnfck-smollm2-135m', model: 'SmolLM2-135M-Instruct', worker: 'workers/brnfck-smollm2-135m.js?v=r9',
+    small: { name: 'small', label: 'brnfck-smollm2-135m', model: 'SmolLM2-135M-Instruct', worker: 'workers/brnfck-smollm2-135m.js?v=r10',
       manifestUrl: 'dist/small/manifest.json', metaUrl: 'programs/brnfck-smollm2-135m.meta.json', fileUrl: 'programs/brnfck-smollm2-135m.bf',
       needGB: 1.5, download: '180 MB', startup: '9 to 16 s', perPiece: '0.6 to 1.0 s' },
-    '0.5b': { name: '0.5b', label: 'brnfck-qwen2.5-0.5b', model: 'Qwen2.5-0.5B-Instruct', worker: 'workers/brnfck-qwen2.5-0.5b.js?v=r9',
+    '0.5b': { name: '0.5b', label: 'brnfck-qwen2.5-0.5b', model: 'Qwen2.5-0.5B-Instruct', worker: 'workers/brnfck-qwen2.5-0.5b.js?v=r10',
       manifestUrl: 'dist/0.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-0.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-0.5b.bf',
       needGB: 4, download: '749 MB', startup: '33 to 47 s', perPiece: 'about 2.3 s' },
-    '1.5b': { name: '1.5b', label: 'brnfck-qwen2.5-1.5b', model: 'Qwen2.5-1.5B-Instruct', worker: 'workers/brnfck-qwen2.5-1.5b.js?v=r9',
+    '1.5b': { name: '1.5b', label: 'brnfck-qwen2.5-1.5b', model: 'Qwen2.5-1.5B-Instruct', worker: 'workers/brnfck-qwen2.5-1.5b.js?v=r10',
       manifestUrl: 'dist/1.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-1.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-1.5b.bf',
       needGB: 8, download: 'about 2.1 GB', startup: '2 min 27 s', perPiece: 'about 9 s', wide: true },
-    '0.8b': { name: '0.8b', label: 'brnfck-qwen3.5-0.8b', model: 'Qwen3.5-0.8B', worker: 'workers/brnfck-qwen3.5-0.8b.js?v=r2',
+    '0.8b': { name: '0.8b', label: 'brnfck-qwen3.5-0.8b', model: 'Qwen3.5-0.8B', worker: 'workers/brnfck-qwen3.5-0.8b.js?v=r3',
       manifestUrl: 'dist/0.8b/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b.bf',
       needGB: 5, download: '1.36 GB', startup: '2 min 10 s to 2 min 37 s', perPiece: 'about 5.6 s', loadsEach: true },
     // with its part for pictures: reads a picture (pics below) before the question
-    '0.8b-vision': { name: '0.8b-vision', label: 'brnfck-qwen3.5-0.8b-vision', model: 'Qwen3.5-0.8B, with pictures', worker: 'workers/brnfck-qwen3.5-0.8b-vision.js?v=r1',
+    '0.8b-vision': { name: '0.8b-vision', label: 'brnfck-qwen3.5-0.8b-vision', model: 'Qwen3.5-0.8B, with pictures', worker: 'workers/brnfck-qwen3.5-0.8b-vision.js?v=r2',
       manifestUrl: 'dist/0.8b-vision/manifest.json', metaUrl: 'programs/brnfck-qwen3.5-0.8b-vision.meta.json', fileUrl: 'programs/brnfck-qwen3.5-0.8b-vision.bf',
       needGB: 7, download: '1.51 GB', startup: '1 min 40 s, then 14 min', perPiece: 'about 5.6 s', loadsEach: true, wide: true, picture: true },
     // answers with a brainfuck program of its own (coder/data/coder.json: its measured run); the answer can be run under it
-    'coder-0.5b': { name: 'coder-0.5b', label: 'brnfck-qwen2.5-coder-0.5b', model: 'Qwen2.5-Coder-0.5B-Instruct, taught brainfuck', worker: 'workers/brnfck-qwen2.5-coder-0.5b.js?v=r1',
+    'coder-0.5b': { name: 'coder-0.5b', label: 'brnfck-qwen2.5-coder-0.5b', model: 'Qwen2.5-Coder-0.5B-Instruct, taught brainfuck', worker: 'workers/brnfck-qwen2.5-coder-0.5b.js?v=r2',
       manifestUrl: 'dist/coder-0.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-coder-0.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-coder-0.5b.bf',
       needGB: 4, download: '758 MB', startup: '35 to 70 s', perPiece: 'about 2.2 s', code: true, noMap: true },      // no Program map data
   };
