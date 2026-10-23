@@ -28,8 +28,12 @@ const SHOTS = {
   scale: { url: '/compare/', w: 1300, h: 900, wait: 6000, prep: `document.getElementById('fig-eight').scrollIntoView()`, clip: '#fig-eight .sc-rows' },
   // the child of the Shakespeare run on "Now is the winter of our disconte": where it looks, and its guesses
   shakespeare: { url: '/train/', w: 1100, h: 900, wait: 7000, prep: `document.getElementById('sh-att-pick').parentElement.style.display = 'none'; document.getElementById('fig-sh-att').scrollIntoView()`, clip: '#sh-att-text, #sh-att-row, #sh-att-next' },
-  // the program brnfck-qwen2.5-coder-0.5b wrote for the challenge Even or odd, coloured by command
-  coder: { url: '/coder/', w: 1000, h: 900, wait: 5000, prep: `(() => { const s = document.getElementById('ask-task'); s.value = [...s.options].find((o) => /Even or odd/.test(o.textContent)).value; s.dispatchEvent(new Event('change')); document.getElementById('fig-ask').scrollIntoView(); })()`, clip: '#ask-q, #ask-code' },
+  // "It prints its next generation" on Trained in brainfuck: the table of gen20, the parts of a generation, every generation's names
+  gen: { url: '/train/', w: 1100, h: 900, wait: 6000, prep: `document.getElementById('fig-gen').scrollIntoView()`, clip: '#gen-view' },
+  genparts: { url: '/train/', w: 1100, h: 900, wait: 6000, prep: `document.getElementById('fig-gen-parts').scrollIntoView()`, clip: '#gen-parts' },
+  gennames: { url: '/train/', w: 1100, h: 900, wait: 6000, prep: `document.getElementById('fig-gen-names').scrollIntoView()`, clip: '#gen-rows' },
+  // the program brnfck-qwen2.5-coder-0.5b (final round) wrote for the challenge The larger one, coloured by command
+  coder: { url: '/coder/', w: 1000, h: 900, wait: 5000, prep: `(() => { const s = document.getElementById('ask-task'); s.value = [...s.options].find((o) => /The larger one/.test(o.textContent)).value; s.dispatchEvent(new Event('change')); document.getElementById('fig-ask').scrollIntoView(); })()`, clip: '#ask-q, #ask-code' },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
