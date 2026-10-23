@@ -30,7 +30,7 @@
   const change = (fn) => { const s = read(); fn(s); write(s); return s; };
   const ints = (a, max) => (Array.isArray(a) ? a.filter((i) => Number.isInteger(i) && i >= 0 && i <= max) : []);
 
-  const store = S.store = {
+  S.store = {
     remembers: () => mode === 'local',
     all: read,
     // basics

@@ -5,7 +5,6 @@
   const TIME_LIMIT = 5000;
   const q = new URLSearchParams(location.search);
   const ch = D.byId[q.get('c') || ''] || null, proj = D.PROJECTS.find((p) => p.id === q.get('p')) || null;
-  const main = $('main');
   const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // text with `code` in it -> nodes
