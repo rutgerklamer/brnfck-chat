@@ -46,7 +46,7 @@ const OFFW = G.engine.OFFW, OFFE = QWEN ? G.engine.OFFE : 2 ** 20 + 1;
 lap('engine generated again, ' + regions.length + ' tape regions');
 
 // ---- the encoder again, reporting
-const events = [];
+const events = [];                               // kind 0: a block, 1: cells written directly, 2: cells skipped
 const radKeys = [], radIndex = new Map();
 const digitHist = new Float64Array(41);          // lower digits -20..20
 const topHist = new Float64Array(81);            // top digits -40..40 (clamped)
@@ -54,6 +54,7 @@ const perCell = new Float64Array(64);            // characters per cell inside b
 const kindChars = {}, kindCells = {};
 const enc = hookedEncoder();
 const hash = crypto.createHash('sha256');
+// a block writes each cell as centre m plus balanced digits in the radices R: D plus the sum of |digit| characters
 const onBlock = (c, K, ch, from, to, sp, fix) => {
   const key = ch.R.join(',') || '-';
   if (!radIndex.has(key)) { radIndex.set(key, radKeys.length); radKeys.push(key); }
@@ -117,6 +118,7 @@ let maxDepthW = 0, maxDepthE = 0, longRunLT = 0;
 lap('file scanned: ' + [...COMMANDS].map((c, i) => `${c} ${num(countW[i] + countE[i])}`).join('  '));
 
 // ---- tape statistics
+// entropy of the cell values per slice of 2^20 cells, counted in an open-addressing hash table
 let entropyBits = 0, nonZero = 0, unary = 0;
 {
   const BITS = 21, SIZE = 1 << BITS, keys = new Int32Array(SIZE), cnts = new Int32Array(SIZE), used = new Int32Array(1 << 20);
@@ -154,6 +156,7 @@ lap('histograms');
 
 // ---- events -> stretches of the file with a name
 events.sort((x, y) => x.off - y.off);
+// a skip goes with the event after it; a block or direct write with the region (not work) it covers most
 let regOfNext = null;
 for (let i = events.length - 1; i >= 0; i--) {
   const e = events[i];
@@ -191,6 +194,7 @@ for (const s of folded) { const k = regions[s.region].kind; kindChars[k] = (kind
 const arr = (a) => Array.from(a);
 const trim = (h, lo) => { let a = 0, b = h.length - 1; while (a < b && !h[a]) a++; while (b > a && !h[b]) b--; return { from: a + lo, counts: arr(h.subarray(a, b + 1)) }; };
 
+// blocks.bin, 32 bytes per event: off (f64), len, cell, K (u32), kind, D, radix key, f (u8), m (i32)
 const RECORD = 32;
 {
   const b = Buffer.alloc(events.length * RECORD);

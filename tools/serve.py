@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-"""Serves site/ like `python -m http.server`, and also sends part of a file (HTTP Range requests).
-The page compare/ and the model files in models/ are sent cross-origin isolated (COOP and COEP), so that
-the model in the browser may share memory between threads.
-
-    python tools/serve.py        http://localhost:8766/
-    python tools/serve.py 9000   another port
+"""Serves site/ with HTTP Range requests; compare/ and models/ cross-origin isolated, so threads may share memory.
+    python tools/serve.py [port]        (default: http://localhost:8766/)
 """
 import os
 import re

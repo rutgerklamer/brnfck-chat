@@ -1,11 +1,6 @@
 'use strict';
 
-// The Shakespeare part of "Trained in brainfuck" (site/train/): reads the long run of
-// tools/train-long.js (compiler/train/out/long/brnfck-shakespeare-attn-55k/) and writes
-//   site/train/data/shakespeare.json         the loss over the run, every pass, what each child wrote
-//   site/train/data/shakespeare/pass-NN.bin  the weights of each pass's child (16-bit, region by region),
-//                                            from which the page builds and runs that child
-// Pass 0 is the child of the random start weights. Run it again while the run goes on, or after it.
+// The Shakespeare data of site/train/ from the run of tools/train-long.js: shakespeare.json and shakespeare/pass-NN.bin.
 //   node tools/site-shakespeare.js
 
 const fs = require('fs');
@@ -54,6 +49,7 @@ function parseChild(src) {
   if (i !== w.length || childWritingOf(L, vals) !== w) throw new Error('the child does not read back the same');
   return vals;
 }
+// pass-NN.bin: the child's weights as 16-bit numbers, region after region; the page builds and runs the child from them
 const writeBin = (p, vals) => fs.writeFileSync(path.join(BIN, `pass-${pad(p)}.bin`), Buffer.concat(vals.map((v) => Buffer.from(v.buffer, v.byteOffset, v.byteLength))));
 
 // pass 0: the child of the random start weights, run as brainfuck
@@ -67,8 +63,7 @@ const passes = state.done.map((d) => {
   const file = path.join(RUN, `pass-${pad(d.pass)}.bf`), src = fs.readFileSync(file, 'latin1');
   writeBin(d.pass, parseChild(src));
   const sample = fs.readFileSync(path.join(RUN, `pass-${pad(d.pass)}.sample.txt`), 'latin1');
-  // stepDigits: the only difference was a printed step number from 100,000 on, which the program printed
-  // with 5 digits until the fix after pass 4 (a difference in the weights, velocities or child adds its own note)
+  // stepDigits: the only difference is a printed step number from 100,000 on, which passes up to 4 printed with 5 digits
   const stepDigits = !d.equal && /^step (\d+) differs$/.test(d.note || '') && +d.note.split(' ')[1] >= 100000;
   return { pass: d.pass, step: d.step, seconds: Math.round(d.seconds), msPerChar: +d.msPerChar.toFixed(3), loss: +d.loss.toFixed(6), held: +d.held.toFixed(6), equal: d.equal, note: d.note || undefined, stepDigits: stepDigits || undefined, sample, childChars: src.length };
 });

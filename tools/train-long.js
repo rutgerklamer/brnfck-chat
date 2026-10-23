@@ -1,18 +1,7 @@
 'use strict';
 
-// A long training run inside brainfuck, in passes over the text, that can stop and go on. Every pass runs the
-// training program on one pass of the text in the WebAssembly runtime: the first from random start weights,
-// every next one (the program without its writing part and start weights) on the tape the pass before left,
-// saved to disk in between. Alongside, on another core, reference.js does the same training; every line and,
-// after every pass, every weight and velocity must be equal. Every pass ends with the child program it
-// printed, which writes 40 lines of its own.
-//
-//   node tools/train-long.js shakespeare              start, or go on after the last finished pass
-//   node tools/train-long.js shakespeare --passes 12  how many passes in all (the first start sets it)
-//   node tools/train-long.js shakespeare --status     what is done
-//   (--dir <folder>: another folder than out/long/<model>/; --chars <n>: passes of n characters, for a test)
-//
-// Everything goes to compiler/train/out/long/<model>/; the summary to compiler/train/out/<model>.txt.
+// A long training run inside brainfuck, pass by pass, that can stop and go on; reference.js runs alongside, must agree.
+//   node tools/train-long.js shakespeare [--passes 12] [--status] [--dir <folder>] [--chars <n>]
 
 const fs = require('fs');
 const path = require('path');
@@ -107,7 +96,7 @@ async function onePass(pass) {
   });
   const refEnded = new Promise((res) => worker.on('exit', res));
 
-  // the program
+  // the program: pass 1 from random start weights; later passes skip the writing part and go on from the saved tape
   const engine = new Gen(m, { child: true }).childEngine();
   const src = new Gen(m).trainer(engine, { resume: pass > 1 }).src;
   const exe = BFWasm.compileSync(src, { cellBits: 32, tapeSize: L.tapeSize });
@@ -147,7 +136,7 @@ async function onePass(pass) {
   const sample = BFWasm.compileSync(child, { cellBits: 32, tapeSize: L.tapeSize }).run('').text;
   fs.writeFileSync(file(pass, 'sample.txt'), sample);
 
-  // wait for the reference, then compare everything
+  // wait for the reference, then compare every line, weight, velocity and the child
   await refEnded;
   while (equal < Math.min(mine.length, ref.lines.length) && firstBad === null) { if (mine[equal] === ref.lines[equal]) equal++; else firstBad = equal; }
   let note = '', ok = !ref.failed && firstBad === null && equal === steps;
@@ -168,7 +157,7 @@ async function onePass(pass) {
   fs.writeFileSync(STATE, JSON.stringify(state, null, 1));
   say(`   pass ${pass} done in ${hms(d.seconds)}: loss ${lossPass.toFixed(3)} (mean of the pass), held apart ${ref.held === null ? '-' : ref.held.toFixed(3)} · ${ok ? 'every line, weight, velocity and the child equal to the reference' : 'NOT equal: ' + note}`);
   say(`   its child, ${num(child.length)} characters, wrote:\n` + sample.split('\n').slice(0, 12).map((x) => '     | ' + x).join('\n'));
-  // keep the tapes and states of the last two passes (the children and their text all)
+  // keep the tapes and states of the last two passes only; every child and its text stays
   for (const old of [pass - 2]) if (old >= 1) for (const ext of ['tape', 'json']) { try { fs.unlinkSync(file(old, ext)); } catch (e) { } }
 }
 

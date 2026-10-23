@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// The pictures of the figures that the start page and the README show (site/show/): each one taken from the page
-// itself, in headless Chrome, after its figure has drawn, cropped to the figure.
+// The figure pictures of the start page and the README (site/show/): each page in headless Chrome, cropped to its figure.
 //   node tools/shots.js [name...]        (the site must be served on http://localhost:8840, with the data of README step 5)
 'use strict';
 const fs = require('fs');
@@ -12,8 +11,7 @@ const SITE = process.env.SITE || 'http://localhost:8840';
 const OUT = path.join(__dirname, '..', 'site', 'show');
 const CHROME = process.env.CHROME || ['C:/Program Files/Google/Chrome/Application/chrome.exe', '/usr/bin/google-chrome', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find((p) => fs.existsSync(p));
 
-// name: the page, the size of the window, what to do once it is there (in the page), and what to crop to: the box
-// around the elements of a selector, or (map) around what is drawn on the canvas, the dark sheet left out
+// the box around what is drawn on the map's canvas, the dark sheet left out
 const MAPBOX = `(() => {
   const c = document.getElementById('m-canvas'), g = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, bg = g.slice(0, 3);
   let x0 = c.width, y0 = c.height, x1 = 0, y1 = 0;
@@ -22,6 +20,7 @@ const MAPBOX = `(() => {
   return { x: r.left + scrollX + x0 * k - m, y: r.top + scrollY + y0 * k - m, width: (x1 - x0) * k + 2 * m, height: (y1 - y0) * k + 2 * m };
 })()`;
 const HIDE_MAP = `document.getElementById('m-panel-toggle').click(); document.head.insertAdjacentHTML('beforeend', '<style>.mapctl, #m-mini { display: none !important; }</style>')`;
+// name: the page, the window size, what to run in the page, and what to crop to (the box around clip's elements, or box)
 const SHOTS = {
   map: { url: '/map/?m=0.8b-vision', w: 1300, h: 1100, wait: 9000, prep: HIDE_MAP, box: MAPBOX },
   picture: { url: '/vision/', w: 1300, h: 900, wait: 6000, prep: `document.getElementById('fig-look').scrollIntoView()`, clip: '#look-view' },

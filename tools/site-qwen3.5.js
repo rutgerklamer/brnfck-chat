@@ -1,7 +1,6 @@
 'use strict';
 
-// Copies the model code of compiler/qwen3.5 (float.js, deltanet.js) to site/compare/live/, where the page
-// "Compare the models" runs it in the browser. With --check it only compares, and fails when a copy differs.
+// Copies float.js and deltanet.js of compiler/qwen3.5 to site/compare/live/; --check only compares, failing on a change.
 //   node tools/site-qwen3.5.js [--check]
 
 const fs = require('fs');

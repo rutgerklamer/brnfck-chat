@@ -1,12 +1,7 @@
 'use strict';
 
-// A neural network trained inside brainfuck. Builds the training program of a model, runs it on the
-// names through the WebAssembly runtime, checks it against the whole-number reference step by step,
-// runs the child program it prints, and writes the programs and a log to compiler/train/out/.
-//
-//   node tools/train.js            all three: brnfck-names-bigram-756, brnfck-names-mlp-7k, brnfck-names-attn-10k
-//   node tools/train.js attn       one of them (bigram, mlp or attn)
-//   node tools/train.js mlp --every 1   print the loss of every step (default: every 50th)
+// Trains a network inside brainfuck on the names, checked step by step against the reference, then runs its child.
+//   node tools/train.js [bigram mlp attn] [--every 50]      (default: all three; --every: print the loss every n steps)
 
 const fs = require('fs');
 const path = require('path');

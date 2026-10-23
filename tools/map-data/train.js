@@ -1,10 +1,6 @@
 #!/usr/bin/env node
-// The map data of the four programs that train a network themselves (compiler/train): the program text in
-// site/programs/, and in site/inside/data/<id>/ what the map reads: writer.json and engine.json (here: the
-// parts of the program as the generator marks them), tiles.json with tiles/ and deep/ (tiles.js), depth.json
-// (depth.js) and an empty blocks.bin (these programs write their few numbers cell by cell, in no blocks).
-//   node tools/map-data/train.js               all four
-//   node tools/map-data/train.js train-attn    one of train-bigram, train-mlp, train-attn, train-shakespeare
+// Map data of the four training programs (compiler/train): program text, writer.json, engine.json, tiles and depth.json.
+//   node tools/map-data/train.js [train-bigram|train-mlp|train-attn|train-shakespeare]        (default: all four)
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -52,6 +48,7 @@ for (const id of ids) {
   fs.writeFileSync(path.join(dir, 'engine.json'), JSON.stringify({
     made: 'tools/map-data/train.js', family: 'train', from: writer, chars: chars - writer, comma: commas[0], commaAll: commas, dot, sections: [], marks: [], model: { name: d.label },
   }));
+  // no blocks: these programs write their few numbers cell by cell
   fs.writeFileSync(path.join(dir, 'blocks.bin'), Buffer.alloc(0));
   for (const tool of ['tiles.js', 'depth.js']) execFileSync(process.execPath, [path.join(__dirname, tool), id], { stdio: 'inherit' });
   console.log(`${id}: ${num(chars)} characters, ${parts.length} parts, deepest ${Math.max(deepW, deepE)}, ${commas.length} commas, ${num(dots.length)} full stops [${((Date.now() - t0) / 1000).toFixed(1)} s]`);

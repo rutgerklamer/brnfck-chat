@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Runs a real program on one question and counts where the steps go: trace-<name>.json.
-//   node tools/map-data/trace.js small                                  its default question, into trace-france.json
-//   node tools/map-data/trace.js 1.5b "What is 12 + 30?" sum --max 25   this question, into trace-sum.json, for 25 positions at most
+//   node tools/map-data/trace.js 1.5b ["What is 12 + 30?" sum] [--max 25]      (--max: positions at most)
 'use strict';
 const fs = require('fs');
 const os = require('os');
@@ -54,7 +53,7 @@ const REF = MODEL.ref(), fixed = REF.prefix, refCase = REF.cases.find((c) => c.q
 const input = MODEL.questionBytes(question);
 const { T, N, M, X, length } = prog, size = tape.length;
 const kinds = new Float64Array(NS * 16);           // steps per section and kind of instruction
-const ev = [];
+const ev = [];                                     // 5 per section entered: section, step, pointer, lo and hi of the one before
 const samples = [];                                // steps, pointer: every SAMPLE steps
 const SAMPLE = 1 << 21;
 const outBytes = [], outAt = [];
@@ -64,6 +63,7 @@ const flush = () => { for (let i = 0; i < cnt.length; i++) { kinds[i] += cnt[i];
 let batches = 0, told = Date.now();
 const kindNames = ['add', 'print', 'read', 'loop test at [', 'loop test at ]', 'clear', 'multiply loop, 1 target', 'multiply loop, 2 targets', 'multiply loop, 3 or more', 'move only'];
 
+// The events as steps per section for every position and layer, with the detail of the first position that prints.
 function save(complete, list, endSteps, endP, endLo, endHi) {
   const all = list.concat([255, endSteps, endP, endLo, endHi]);
   const E = [];

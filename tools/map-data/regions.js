@@ -32,9 +32,8 @@ function layers35(E, add) {
   }
 }
 
-// The vision part of the picture program (compiler/qwen3.5/vision/gen.js layout() and resting()): the queue of the
-// squares' positions, the patch embedding, 12 layers of its own, the merger and the queue of the vectors it hands the
-// text model. Its kinds start with v; its strips of constants are those of the text layers.
+// The vision part of the picture program (compiler/qwen3.5/vision/gen.js layout(), resting()): square positions, patch
+// embedding, its 12 layers, merger, vectors for the text model. Kinds start with v, except the strips of constants.
 function vision(vp, add) {
   const x = vp.x, { Lo, M, pre, PRE, SS } = x, { dim, hidden } = vp.va, N = vp.N, L = -2;          // layer -2: the picture part as a whole
   const mat = (kind, l, org, m) => add(kind, l, org + m.G + 1, org + m.G + m.C * (m.R + 1), { rows: m.R, cols: m.C });
@@ -59,6 +58,7 @@ function vision(vp, add) {
 function tapeRegions(E, layout) {
   const { N, M, Lo, a } = E, T = a.maxTokens, dim = a.dim, tok = layout.tok, qwen = tok.BSZ !== undefined;
   const raw = [];
+  // the layouts give virtual addresses: real cell = N - virtual, so [vlo, vhi] becomes [N - vhi, N - vlo + 1)
   const add = (kind, layer, vlo, vhi, extra = {}) => raw.push({ kind, layer, from: N - vhi, to: N - vlo + 1, ...extra });
   const P = (l) => E.P0 + l * E.stride, chunkQ = (c) => E.PL + c * E.CST;
   for (let c = 0; c < E.nC; c++) add('cls', c, chunkQ(c) + M.cls.G + 1, chunkQ(c) + M.cls.G + dim * (a.chunk + 1), { rows: a.chunk, cols: dim });

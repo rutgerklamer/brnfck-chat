@@ -20,6 +20,7 @@ const DOWNLOADS = {
   '1.5b': { repo: 'Qwen/Qwen2.5-1.5B-Instruct', dir: 'compiler/downloads/qwen2.5-1.5b', files: [['config.json', 660], ['generation_config.json', 242], ['model.safetensors', 3087467144], ['tokenizer.json', 7031645], ['tokenizer_config.json', 7305]] },
 };
 
+// The steps of each build in order; mem: free memory needed, disk: written, spare: to keep free after it, all in GiB.
 const STEPS = {
   small: [
     { run: ['compiler/smollm/engine/build_real.js'], mem: 2, disk: 0.4, time: 'about 2 minutes', makes: 'compiler/smollm/engine/out/weights.bin (354 MB), chat.bf, ref.json', what: 'load the model as whole numbers, write the weight stream and the reference answers of the engine' },

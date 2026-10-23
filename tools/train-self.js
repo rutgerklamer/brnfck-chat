@@ -1,14 +1,7 @@
 'use strict';
 
-// The training program that prints its next generation. gen0 trains on the first part of the text
-// and prints gen1: itself, with the weights, velocities, step and context it ended with written in.
-// gen1 trains on the next part and prints gen2, and so on; the last one, fed nothing, prints the
-// child. Every line, every printed program and the child are checked against the reference, and the
-// child against the one of a single run over the whole text.
-//
-//   node tools/train-self.js                       bigram, mlp and attn, in 3 generations each
-//   node tools/train-self.js attn --generations 5
-//   node tools/train-self.js shakespeare --chars 64000
+// The training program that prints its next generation; the last, fed nothing, prints the child. Checked by reference.js.
+//   node tools/train-self.js [bigram mlp attn | shakespeare] [--generations 3] [--chars 64000]
 
 const fs = require('fs');
 const path = require('path');
@@ -46,6 +39,7 @@ for (const key of keys) {
 
   const one = R.train(m, text);
   let prog = P0.src, from;
+  // gen k trains on part k of the text and prints gen k + 1: itself with its weights, velocities, step and context in it
   for (let k = 0; k < G; k++) {
     const a = Math.floor((k * steps) / G) * m.batch, b = Math.floor(((k + 1) * steps) / G) * m.batch;
     const part = text.subarray(a, b), ref = R.train(m, part, { from });

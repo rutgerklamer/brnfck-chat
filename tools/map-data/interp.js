@@ -9,6 +9,7 @@ function compile(code) {
   const ops = [], stack = [];
   let mv = 0;
   const push = (op, at) => { op.mv = mv; op.at = at; mv = 0; ops.push(op); };
+  // a loop of adds only that ends where it started and takes 1 from its start cell: a multiply (no targets: a clear)
   const mulOf = (body, trailing) => {
     const delta = new Map(); let off = 0;
     for (const op of body) { if (op.t !== ADD) return null; off += op.mv; delta.set(off, (delta.get(off) || 0) + op.n); }

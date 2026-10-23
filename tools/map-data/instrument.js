@@ -17,7 +17,7 @@ function family(model) {
     };
   }
   if (model === '0.8b' || model === '0.8b-vision') {
-    // Qwen3.5: the engine notes its own named steps (layout().marks); its text is kept in pieces that count their characters.
+    // Qwen3.5: the engine notes its own named steps (layout().marks); its text is in pieces that count their characters.
     // The vision part of the picture program notes its steps in the same list, with the kind 'vision'.
     const { ChatProgram } = require(path.join(ROOT, 'compiler', 'qwen3.5', 'program', 'gen')), vision = model === '0.8b-vision';
     return {
@@ -127,8 +127,8 @@ function build(model = 'small') {
 // The steps of the Qwen3.5 engine that hold other steps: the heads of a DeltaNet layer are shown by their parts,
 // the heads of an attention layer as one step (its one part, the gain, is short).
 const nested = (m) => (m.name === 'heads' && m.layerKind === 'lin') || (m.name === 'gain' && m.layerKind === 'att');
-// The name a step has on the pages: a step that does the same in every layer keeps its name; a step of a DeltaNet
-// layer that does something else than the step of that name in an attention layer gets a name of its own.
+// The name of a step on the pages: dn.<name> for a DeltaNet step that does something else than the attention step of
+// that name; every other step keeps its name.
 const DN_OWN = new Set(['sweep1', 'round', 'conv', 'qk', 'load', 'decay', 'vq', 'predict', 'delta', 'write', 'read', 'next', 'gated', 'sweep2', 'xatt']);
 const keyOf = (m) => (m.layerKind === 'lin' && DN_OWN.has(m.name) ? 'dn.' + m.name : m.name);
 

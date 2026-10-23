@@ -1,5 +1,5 @@
 'use strict';
-// The main numbers of the five programs side by side, from what the other scripts wrote: compare.json.
+// The main numbers of the five chat programs (models.js IDS) side by side, from what tools/map-data wrote: compare.json.
 const fs = require('fs');
 const path = require('path');
 const { DEFS, IDS, DATA, ROOT, num } = require('./models');
@@ -27,8 +27,7 @@ for (const id of IDS) {
   if (need.length) { console.log(`${id}: left out, missing ${need.join(', ')}`); continue; }
   const W = read('writer.json'), E = read('engine.json'), T = read('tiles.json'), C = DEFS[id].vision ? null : read('checks.json');
   const all = W.counts.writer.map((v, i) => v + W.counts.engine[i]), eng = W.counts.engine;
-  // cells of the tape and characters of the text, by kind of region; everything of the vision part of the picture program
-  // (from where it starts on the tape) counts as 'picture'
+  // tape cells and text characters by kind of region; all of the picture program's vision part counts as 'picture'
   const V = E.model.vision, kindOf = (r) => (V && r.from >= V.from ? 'picture' : r.kind);
   const tapeKinds = {}, textKinds = {};
   for (const r of W.regions) tapeKinds[kindOf(r)] = (tapeKinds[kindOf(r)] || 0) + r.to - r.from;
@@ -39,7 +38,7 @@ for (const id of IDS) {
   const names = fs.existsSync(path.join(dir, 'traces.json')) ? read('traces.json') : [];
   if (names.length) {
     const runs = names.map((n) => read(`trace-${n}.json`)), long = runs[runs.length - 1], first = runs[0], tot = long.positions.map((p) => p.total);
-    // position 24: the first after the fixed opening lines in brnfck-smollm2-135m and the Qwen2.5 programs; brnfck-qwen3.5-0.8b has none, and runs it too
+    // position 24: the first after the fixed opening lines (brnfck-qwen3.5-0.8b has none, and runs it too)
     const p24 = first.positions.find((p) => p.position === 24) || first.positions.find((p) => p.position === first.fixedPositions) || first.positions[0];
     steps = {
       question: long.question, runs: runs.length, complete: long.complete !== false, from: long.positions[0].position, to: long.positions[long.positions.length - 1].position, count: long.positions.length,

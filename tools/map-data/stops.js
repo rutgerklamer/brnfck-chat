@@ -1,10 +1,6 @@
 #!/usr/bin/env node
-// Where the only comma and the only full stop of a program are: the data of the figure "One comma,
-// one full stop" on the page how/. For each of the two it keeps the section of the engine around it,
-// the mix of commands along the program, the engine and that section, how many loops are open at it,
-// and the text right around it.
-//   node tools/map-data/stops.js          all four programs
-//   node tools/map-data/stops.js small    one of small, 0.5b, 1.5b, 0.8b
+// The only comma and full stop of a program, for the figure on how/: section, mix of commands, open loops, text around.
+//   node tools/map-data/stops.js [small|0.5b|1.5b|0.8b]        (default: all four)
 'use strict';
 const fs = require('fs');
 const path = require('path');

@@ -1,12 +1,6 @@
 #!/usr/bin/env node
-// Runs a real program on one question and reads its residual stream off the tape after every layer: lens-<name>.json.
-// The numbers are checked cell for cell against the whole-number spec. Then, for every position that prints a word piece,
-// the program's own output layer (the spec's head()) is applied to the numbers of every layer: the word piece the
-// program would print if it stopped there (a "logit lens"). For brnfck-qwen3.5-0.8b the multi-token prediction head of
-// the model (compiler/qwen3.5/reference/mtp.js, in floating point) also guesses, from the same numbers, the word piece
-// after the next one.
-//   node --expose-gc tools/map-data/lens.js small                                  its default question, into lens-france.json
-//   node --expose-gc tools/map-data/lens.js 1.5b "What is 12 + 30?" sum --max 9     this question, into lens-sum.json; 9 printed word pieces at most
+// Logit lens of a real run: the residual after each layer, read off the tape, checked against the spec: lens-<name>.json.
+//   node --expose-gc tools/map-data/lens.js 1.5b ["What is 12 + 30?" sum] [--max 9]    (default: lens-france.json)
 'use strict';
 const fs = require('fs');
 const os = require('os');
@@ -150,7 +144,7 @@ positions.forEach((q, i) => {
 });
 lap(`the tape equals the spec: ${num(compared)} numbers in ${positions.length} positions x ${layers} layers`);
 
-// ---- the multi-token prediction head (brnfck-qwen3.5-0.8b): its guess at position i is for the word piece at i + 2
+// ---- the multi-token prediction head of brnfck-qwen3.5-0.8b (reference/mtp.js, floating point): guess at i is for i + 2
 let mtp = null;
 if (MODEL.family === 'qwen3.5') {
   const F = req('qwen3.5', 'reference', 'float'), H = req('qwen3.5', 'reference', 'mtp'), dir = F.modelDir(['', '', '--model=qwen3.5-0.8b']);

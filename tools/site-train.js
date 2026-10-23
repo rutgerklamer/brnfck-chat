@@ -1,11 +1,7 @@
 'use strict';
 
-// The page "Trained in brainfuck" (site/train/): writes site/train/lib.js, the generator and the
-// reference of compiler/train in one file for the browser, and site/train/data/<model>.json, made by
-// reference.js: the loss of every step, the weights at 16 steps, the child's names and fingerprint, and
-// the size of every part of the training program.
-//   node tools/site-train.js           both
-//   node tools/site-train.js --lib     only lib.js (a second)
+// Writes site/train/lib.js (compiler/train in one file for the browser) and site/train/data/<model>.json (reference.js).
+//   node tools/site-train.js [--lib]        (--lib: only lib.js)
 
 const fs = require('fs');
 const path = require('path');
@@ -18,6 +14,7 @@ const MODULES = [
   'compiler/train/reference.js', 'compiler/train/data.js',
 ];
 
+// lib.js: every module wrapped in a function, loaded by a small require; fs, path and crypto are stubs
 function writeLib() {
   const names = fs.readFileSync(path.join(ROOT, 'compiler/train/data/names.txt'), 'latin1');
   const parts = MODULES.map((f) => `${JSON.stringify(f)}: function (module, exports, require, __dirname) {\n${fs.readFileSync(path.join(ROOT, f), 'utf8')}\n}`);

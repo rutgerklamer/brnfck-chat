@@ -1,17 +1,6 @@
 'use strict';
 
-// The registry of every program of the site: site/registry.json. Every page that lists programs reads it,
-// so a new program, or a new version of one, shows up everywhere.
-//
-// Three groups: programs that run a chat model (trained elsewhere), programs that train a network
-// themselves, and their children, which write with what the training learned. A program has versions: a
-// rebuild that changed it, or a pass of a long training run. Nothing is ever taken out: a version stays
-// in the registry when its files are gone. The current version is the last one, or for a trained child
-// the one with the lowest loss on text it never saw.
-//
-// It reads what this checkout has (site/programs/*.meta.json, the size table of the chat models, the
-// generator of compiler/train, site/train/data/, the long runs in compiler/train/out/long/), adds what
-// is new and keeps the rest. At the end it checks that every program has its insight pages.
+// Writes site/registry.json: every program of the site with its versions (a changed rebuild, a training pass).
 //   node tools/registry.js
 
 const fs = require('fs');

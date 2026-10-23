@@ -33,7 +33,7 @@ let bytes = 0, files = 0;
 // The counts of + - < > per pixel of the tile that is being filled, for every level.
 const acc = {}; for (let L = LOW; L <= TOP; L++) acc[L] = new Uint32Array(CHUNK * 4);
 
-// Write tile t of level L from its counts, then hand the counts on to the level above.
+// Write tile t of level L (256 x 256 pixels, 2 bytes each: + - < > as 4-bit shares of 15), then hand its counts up.
 function flush(L, t) {
   const a = acc[L], cpp = levels[L].charsPerPixel, shift = ORDER - L, out = Buffer.alloc(CHUNK * 2);
   const [ox, oy] = d2xy(t * CHUNK * cpp).map((v) => Math.floor(v / 2 ** shift) & ~255);

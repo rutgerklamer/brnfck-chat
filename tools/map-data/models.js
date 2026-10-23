@@ -23,7 +23,7 @@ const DEFS = {
     family: 'qwen3.5', name: 'Qwen3.5-0.8B', label: 'brnfck-qwen3.5-0.8b', web: 'programs/brnfck-qwen3.5-0.8b.bf',
     log: 'compiler/qwen3.5/program/out/verify_pure.log', logOf: 'node compiler/qwen3.5/program/verify_pure.js',
   },
-  // the program of brnfck-qwen3.5-0.8b with the vision part of the model at the end of its tape: it reads a picture, then the question
+  // brnfck-qwen3.5-0.8b with the vision part at the end of its tape: it reads a picture, then the question
   '0.8b-vision': {
     family: 'qwen3.5', vision: true, name: 'Qwen3.5-0.8B', label: 'brnfck-qwen3.5-0.8b-vision', web: 'programs/brnfck-qwen3.5-0.8b-vision.bf',
     log: 'compiler/qwen3.5/vision/out/verify_pure.log', logOf: 'node compiler/qwen3.5/vision/verify_pure.js',

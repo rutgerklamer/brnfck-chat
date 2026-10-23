@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-// How deep the loops are nested along a program: the data of the map layout "Skyline".
-//   node tools/map-data/depth.js          all five programs
-//   node tools/map-data/depth.js 0.5b     one of small, 0.5b, 1.5b, 0.8b, 0.8b-vision
+// How deep the loops are nested along a program: depth.json, the data of the map layout "Skyline".
+//   node tools/map-data/depth.js [small|0.5b|1.5b|0.8b|0.8b-vision]        (default: all five)
 'use strict';
 const fs = require('fs');
 const path = require('path');
 const { modelOf, IDS } = require('./models');
 
-const BINS = 4096, FINE = 16384;
+const BINS = 4096, FINE = 16384;                 // the deepest nesting in BINS stretches of the program, FINE of the engine
 for (const id of process.argv[2] ? [process.argv[2]] : IDS) {
   const M = modelOf(id), total = M.meta.programBytes, from = M.meta.writerBytes, per = total / BINS, fper = (total - from) / FINE;
   const max = new Uint8Array(BINS), fine = new Uint8Array(FINE), fd = fs.openSync(M.file, 'r'), buf = Buffer.allocUnsafe(1 << 24);
