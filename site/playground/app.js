@@ -662,7 +662,7 @@
     renderExamples(PGExamples.groups, box);
     const gen = el('div'); box.append(gen);
     // the project's own generators: the files themselves, as the lessons use them
-    Promise.all(['../runtime/emit.js?v=r6', '../runtime/patterns.js?v=r6'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ': ' + r.status); return r.text(); })))
+    Promise.all(['../runtime/emit.js?v=r7', '../runtime/patterns.js?v=r7'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ': ' + r.status); return r.text(); })))
       .then(([e, p]) => { const emit = loadCommonJS(e, () => ({})); const pat = loadCommonJS(p, () => emit); renderExamples(PGExamples.generated(emit.Emitter, pat.Patterns), gen); })
       .catch(() => { gen.append(el('p', 'muted small', 'The examples made by emit.js and patterns.js could not be loaded: those two files were not found next to this folder.')); });
     const sec = el('section', 'pg-ex'); sec.append(el('h3', '', 'Famous programs, elsewhere'), el('p', 'muted small', 'Not included here: they belong to their authors. Copy one from its source, paste it in the editor and run it. These links leave this site.'));

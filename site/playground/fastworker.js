@@ -36,7 +36,7 @@ self.onmessage = (ev) => {
     pauseAsked = false; waiting = false; spent = 0;
     try {
       if (m.engine === 'wasm') {
-        importScripts('../runtime/bfwasm.js?v=r7');
+        importScripts('../runtime/bfwasm.js?v=r9');
         t0 = performance.now();
         const exe = self.BFWasm.compileSync(m.src, { cellBits: set.bits, tapeSize: set.size });
         self.postMessage({ type: 'started', engine: 'wasm', compileMs: performance.now() - t0 });
