@@ -340,6 +340,14 @@ the child printed. It writes to `compiler/train/out/`:
 | `brnfck-names-mlp-7k.bf` | the child it printed |
 | `brnfck-names-mlp-7k.txt` | the log: sizes, time, the loss of every step, the names |
 
+To train on a list of your own, give a text file with one word per line. Letters are lowercased and accents
+dropped; lines with anything other than a to z are skipped. It trains on as many characters as the names run,
+and its files take the name of the list:
+
+```
+node tools/train.js mlp --words places.txt    # brnfck-train-places-mlp-7k.bf prints brnfck-places-mlp-7k.bf
+```
+
 To run a program on its own (any brainfuck interpreter with 32-bit wrapping cells, where `,` gives 0
 at the end of the input, runs them the same way):
 
