@@ -49,12 +49,14 @@ main.cdr pre.bf .x { color: var(--muted); font-weight: 400; font-style: italic; 
 main.cdr .cdr-cases { width: 100%; border-collapse: collapse; font: 500 .9375rem/1.4 var(--mono); }
 main.cdr .cdr-cases th { padding: var(--s1) var(--s3) var(--s1) 0; border-bottom: var(--edge) solid var(--ink); color: var(--muted); font: var(--lab); letter-spacing: var(--ls-lab); text-align: left; text-transform: uppercase; }
 main.cdr .cdr-cases td { padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
-main.cdr .cdr-cases .r { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+main.cdr .cdr-cases .r { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
 main.cdr .cdr-cases td.mk { width: 2rem; text-align: center; font-weight: 700; }
 main.cdr .cdr-cases tr.ok .mk { color: var(--good); }
 main.cdr .cdr-cases tr.no .mk { color: var(--c-out); }
 main.cdr .cdr-cases tr.no td:nth-child(3) { color: var(--t-out); }
 main.cdr .txt i { font-style: normal; color: var(--muted); }
+main.cdr .txt .rep { margin: 0 .2em 0 .1em; font-size: .8em; white-space: nowrap; }
+main.cdr .txt .more { font-family: var(--sans); font-size: .85em; }
 main.cdr .none { color: var(--muted); font-style: italic; font-family: var(--sans); }
 main.cdr .own { margin-top: var(--s4); }
 main.cdr label.word { display: flex; align-items: center; gap: var(--s3); flex: 1 1 18rem; }
@@ -102,9 +104,7 @@ main.cdr .cdr-time .legend small { color: var(--muted); font: 500 var(--fs-ui)/1
 /* ---- the kinds of examples ---- */
 main.cdr .cdr-fams { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--s3); }
 main.cdr .fam { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border: 1px solid var(--line); background: var(--panel); min-width: 0; }
-main.cdr .fam.added { border: var(--edge) solid var(--ink); }
-main.cdr .fam .h { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); margin: 0; font: 700 var(--fs-ui)/1.3 var(--mono); }
-main.cdr .fam .new { padding: 0 var(--s1); background: var(--go); color: var(--on-go); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
+main.cdr .fam .h { margin: 0; font: 700 var(--fs-ui)/1.3 var(--mono); }
 main.cdr .fam .q { margin: 0; color: var(--ink-2); font-size: var(--fs-small); line-height: 1.45; }
 main.cdr .fam pre.bf { padding: var(--s2); border-width: 1px; font-size: .75rem; line-height: 1.45; max-height: 7.5rem; overflow: hidden; }
 

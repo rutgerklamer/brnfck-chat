@@ -7,16 +7,25 @@
   var num = function (n) { return Math.round(n).toLocaleString('en-US'); };
   var D = null, state = { set: 'challenges', ver: null, id: null }, results = {};
 
-  // a text as it is shown in a table cell: line breaks and spaces made visible
+  // a text as it is shown in a table cell: line breaks and spaces made visible, a character or a group of up
+  // to 16 repeated at least four times (8 characters or more) written once with its count, and the rest cut
+  // after 160 characters
+  var SHOW = 160;
   function shown(s) {
     if (s === '') return el('span', 'none', 'nothing');
-    var span = el('span', 'txt');
-    for (var i = 0; i < s.length; i++) {
-      var c = s.charCodeAt(i);
-      if (c === 10) span.append(el('i', 'ctl', '↵'));
-      else if (c === 32) span.append(el('i', 'sp', '·'));
-      else if (c < 32 || c > 126) span.append(el('i', 'ctl', '\\' + c));
-      else span.append(s[i]);
+    var span = el('span', 'txt'), put = 0, i = 0;
+    function ch(c) { var n = c.charCodeAt(0); return n === 10 ? el('i', 'esc', '↵') : n === 32 ? el('i', 'sp', '·') : n < 32 || n > 126 ? el('i', 'esc', '\\' + n) : document.createTextNode(c); }
+    while (i < s.length) {
+      if (put >= SHOW) { span.append(el('i', 'more', ' … and ' + num(s.length - i) + ' more')); break; }
+      var unit = 1, reps = 1;
+      for (var p = 1; p <= 16; p++) {
+        var k = 1;
+        while (i + (k + 1) * p <= s.length && s.substr(i + k * p, p) === s.substr(i, p)) k++;
+        if (k >= 4 && k * p >= 8 && k * p > unit * reps) { unit = p; reps = k; }
+      }
+      for (var j = 0; j < unit; j++) span.append(ch(s[i + j]));
+      if (reps > 1) span.append(el('i', 'rep', '×' + num(reps)));
+      put += unit + (reps > 1 ? 1 : 0); i += unit * reps;
     }
     return span;
   }
@@ -174,8 +183,8 @@
   function drawFams() {
     var box = $('fams'); box.textContent = '';
     D.families.forEach(function (f) {
-      var card = el('div', 'fam' + (f.added ? ' added' : ''));
-      var h = el('p', 'h'); h.append(el('b', '', NAMES[f.key] || f.key)); if (f.added) h.append(el('span', 'new', 'new'));
+      var card = el('div', 'fam');
+      var h = el('p', 'h'); h.append(el('b', '', NAMES[f.key] || f.key));
       var pre = el('pre', 'bf'); paint(pre, f.code);
       card.append(h, el('p', 'q', f.question), pre);
       box.append(card);
