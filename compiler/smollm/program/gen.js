@@ -23,6 +23,7 @@ class ChatProgram extends Engine {
   // Real cell of a virtual address of the engine.
   R(v) { return this.N - v; }
 
+  // fn writes code in real addresses; swapped here, since build() mirrors the whole program at the end.
   real(fn) {
     const p = this.p, q = new Patterns(32);
     q.ptr = this.R(p.ptr);
@@ -31,6 +32,7 @@ class ChatProgram extends Engine {
     p.ptr = this.R(q.ptr);
   }
 
+  // q.read that skips blanks (9, 11, 12, 13, 32) while LEAD is set, i.e. before the first other character.
   skipLeadingBlanks(q) {
     const { LEAD, GO, F, A, B, TMP } = this.glue, plain = Patterns.prototype.read;
     q.read = (cell) => {

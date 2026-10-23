@@ -24,6 +24,7 @@ class Out {
 
 // ---- constants
 
+// Cheapest way to write n: n times '+', or q * b + r with a loop on the cell to the right (cost in characters).
 const memo = new Map();
 function constPlan(n, depth) {
   if (n <= 14 || depth <= 0) return { cost: n, b: 0 };
@@ -50,6 +51,7 @@ function constCode(n, sign, depth = 7) {
 }
 const constCost = (n, depth = 7) => constPlan(n, depth).cost;
 
+// Adds delta to the cell left of the pointer, with a loop in the current cell when that is shorter.
 function fixCode(delta) {
   const n = Math.abs(delta), ch = delta < 0 ? '-' : '+';
   if (n === 0) return '';
@@ -76,6 +78,7 @@ function candidateLists() {
   return lists;
 }
 
+// Sum of |digit| of e in balanced digits of radices R; the top digit is left in top1[0].
 const top1 = new Float64Array(1);
 function digitCost(e, R) {
   let c = 0;
@@ -91,6 +94,7 @@ function digitCost(e, R) {
 
 // ---- the encoder
 
+// Long zero runs are skipped; other cells are written one by one or as a block of digit planes around m (Horner in R).
 function encodeTape(tape, pointer, sink, options = {}) {
   const o = { blockMax: 8192, zeroRun: 48, sample: 512, maxPlanes: 15, ...options };
   const size = tape.length, out = new Out(sink), lists = candidateLists().filter((l) => l.length < o.maxPlanes);

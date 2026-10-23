@@ -8,6 +8,7 @@ const range = (n, f = (i) => i) => Array.from({ length: n }, (_, i) => f(i));
 const ZW = 80;            // width of the scratch window of a slide loop
 const HS = 32;            // cells per attention head frame
 
+// The CT control cells of a matrix's gap, as offsets from its ctrl.
 const CT = 46;
 const CN = 0, POS = 1, SXT = 2, LC = 3, C4 = 4, C5 = 5, XC = 6, NEG = 7, PAR = 8, FIRST = 9, LOC = 10, TT = 11,
   TA = 12, EA = 13, TB = 14, EB = 15, TC = 16, EC = 17, ZA = 18, ZB = 19, TP = 20, H0 = 21, H1 = 22, KK = 23, KT = 24, B0 = 25;
@@ -41,6 +42,7 @@ class Engine {
 
   // ---- layout ----------------------------------------------------------------
 
+  // The gap of an R x C matrix, offsets from its origin: input queue q, carried y, sums m and a1, control cells ctrl.
   mat(R, C, Ylen, nb, carry = [LC, SXT, POS, CN]) {
     const q = R + 5, y = q + C + 4, m = y + Ylen + 1, a1 = m + R + 1, ctrl = a1 + R + 1;
     return { R, C, Ylen, nb, carry, dst: 1, q, y, m, a1, ctrl, G: ctrl + CT };

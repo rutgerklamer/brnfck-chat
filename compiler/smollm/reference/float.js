@@ -35,6 +35,7 @@ function readSafetensors(file) {
   return { header, get, close: () => fs.closeSync(fd) };
 }
 
+// Rows of every head reordered so the rotation pairs (i, i + headSize/2) sit side by side as (2i, 2i + 1).
 function pairRows(W, rows, cols, headSize) {
   const out = new Float32Array(W.length), half = headSize / 2;
   for (let r = 0; r < rows; r++) {

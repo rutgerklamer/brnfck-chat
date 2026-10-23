@@ -63,6 +63,7 @@ function tableCells(L) {
   };
 }
 
+// The walk to a table record: G long hops of H cells, then R hops of SS, carrying cells along.
 function walker(p, L) {
   const c = tableCells(L), { SS, H } = L, raw = (s) => p.code.push(s);
   return {

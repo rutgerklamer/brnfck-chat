@@ -28,6 +28,7 @@ const DEFAULTS = {
 const u32 = (v) => v >>> 0;                       // exact for |v| < 2^53
 const bitlen = (v) => 32 - Math.clz32(v);         // number of bits of an unsigned 32-bit value
 
+// round(v / 2^k), clamped to the n-bit range that starts at lo: the rounding every integer value goes through.
 function rq32(v, k, n, lo = -(2 ** (n - 1)), addend = k > 0 ? 2 ** (k - 1) : 0) {
   if (k + n > 31) throw new Error('rq32: k + n must be <= 31');
   const X = (v + addend - lo * 2 ** k) | 0;       // what the cell holds
@@ -39,6 +40,7 @@ function rqWrap(v, k, n, lo = -(2 ** (n - 1)), addend = k > 0 ? 2 ** (k - 1) : 0
   return lo + ((u32(v + addend - lo * 2 ** k) >>> k) & (2 ** n - 1));
 }
 
+// W (times the norm's gain) as bits-bit integers at wb <= top fraction bits; d = top - wb brings the sums back to top.
 function quantise(W, bits, gain, cols, top) {
   const lim = 2 ** (bits - 1) - 1;
   let max = 0;
