@@ -5,7 +5,9 @@
 out/
 !/compiler/train/out/
 /compiler/train/out/*
-!/compiler/train/out/*.txt
+!/compiler/train/out/brnfck-names-*.txt
+!/compiler/train/out/brnfck-shakespeare-*.txt
+!/compiler/train/out/brnfck-train-names-*-generations.txt
 /site/programs/
 /site/models/
 /compiler/downloads/

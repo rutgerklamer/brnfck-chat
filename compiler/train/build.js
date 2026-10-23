@@ -16,8 +16,9 @@ const OUT = path.join(__dirname, 'out');
 const num = (n) => Math.round(n).toLocaleString('en-US');
 const now = () => Number(process.hrtime.bigint()) / 1e6;
 
-function build(key, { print = console.log, every = 1, chars = 0 } = {}) {
-  const m = S.MODELS[key];
+// model: a model of its own instead of S.MODELS[key] (data.js wordsModel)
+function build(key, { print = console.log, every = 1, chars = 0, model = null } = {}) {
+  const m = model || S.MODELS[key];
   if (!m) throw new Error(`no model ${key}; one of ${Object.keys(S.MODELS).join(', ')}`);
   const L = layout(m), trainerName = m.name.replace('brnfck-', 'brnfck-train-');
   const all = trainingText(m), text = chars ? all.subarray(0, chars - (chars % m.batch)) : all, steps = text.length / m.batch;
@@ -28,7 +29,7 @@ function build(key, { print = console.log, every = 1, chars = 0 } = {}) {
   const ok = (good, s) => { say(`${good ? 'ok  ' : 'FAIL'}  ${s}`); if (!good) failed++; };
 
   say(`${m.name}: ${S.paramsOf(m).total.toLocaleString('en-US')} parameters, ${m.kind === 'bigram' ? 'context 1' : `context ${m.ctx}, hidden ${m.hidden}${m.kind === 'attn' ? `, attention over ${m.T} letters with ${m.dk}-dimensional queries and keys` : ''}`}`);
-  say(`training text: ${num(text.length)} characters (${m.text === 'shakespeare' ? 'of data/shakespeare.txt' : m.epochs + ' epochs of ' + num(names().length) + ' names'}), batch ${m.batch}, ${num(steps)} steps`);
+  say(`training text: ${num(text.length)} characters (${m.text === 'shakespeare' ? 'of data/shakespeare.txt' : m.epochs + ' epochs of ' + num(names(m).length) + (m.words ? ' words of ' + path.basename(m.wordsFile) : ' names')}), batch ${m.batch}, ${num(steps)} steps`);
 
   // the reference
   let t = now();
@@ -91,7 +92,7 @@ function build(key, { print = console.log, every = 1, chars = 0 } = {}) {
   const childFile = path.join(OUT, `${m.name}.bf`);
   fs.writeFileSync(childFile, child);
   const cr = runBF(child, { tapeSize: L.tapeSize });
-  ok(cr.text === samples, `${path.relative(process.cwd(), childFile)} prints the reference's ${m.samples} names (${num(cr.ms.compile)} ms to compile, ${(cr.ms.run / 1000).toFixed(2)} s to run)`);
+  ok(cr.text === samples, `${path.relative(process.cwd(), childFile)} prints the reference's ${m.samples} ${m.words ? 'words' : 'names'} (${num(cr.ms.compile)} ms to compile, ${(cr.ms.run / 1000).toFixed(2)} s to run)`);
 
   const perStep = runSec / steps;
   const report = {
