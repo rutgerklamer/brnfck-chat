@@ -1,6 +1,5 @@
-/* The switch between the programs, on /map/ and /inside/: one button with the program shown, and under it a list of
-   all five, each with a bar to scale of its length (the writing part, then the engine as the dark tip; in the picture
-   program, the picture part between them: its numbers at the end of the writing part, its text at the start of the engine). */
+/* The program switch on /map/ and /inside/: a button with the program shown, under it a list of all five, each with a
+   bar to scale of its length: the writing part, the picture part (picture program only), then the engine as dark tip. */
 .progpick { --pp-pic: color-mix(in srgb, var(--d2) 30%, #c8283a); position: relative; flex: 0 1 auto; min-width: 0; margin: 0; }
 .progpick details { position: relative; }
 .progpick summary { display: flex; align-items: center; gap: var(--s2); min-height: var(--target); padding: 0 var(--s3); list-style: none; cursor: pointer; border: var(--edge) solid var(--ink); background: var(--bg); color: var(--ink); font: var(--ctl); white-space: nowrap; user-select: none; }
@@ -33,8 +32,7 @@
 .progpick ul a[aria-current] .pp-name::after { content: " \2713"; }
 .progpick .pp-name { grid-area: name; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .progpick .pp-n { grid-area: n; font-weight: 400; color: var(--muted); white-space: nowrap; }
-/* --w: the length of the program, as a share of the longest; --e: where the engine starts and --p, --q: the picture part,
-   as shares of the program */
+/* --w: program length as a share of the longest; --e: where the engine starts, --p..--q: the picture part (shares) */
 .progpick .pp-bar { grid-area: bar; display: block; height: 8px; background: color-mix(in srgb, var(--line) 45%, transparent); }
 .progpick .pp-bar i { display: block; height: 100%; width: var(--w); min-width: 2px; background: linear-gradient(to right, var(--rule) var(--p, var(--e)), var(--pp-pic) var(--p, var(--e)) var(--q, var(--e)), var(--ink) var(--q, var(--e))); }
 .progpick .pp-away { grid-column: 1 / -1; font-weight: 400; color: var(--muted); font-size: .75rem; }
@@ -43,10 +41,10 @@
   .progpick .pp-len { display: none; }
   .progpick summary { padding: 0 var(--s2); }
   .progpick ul a { grid-template-areas: "name name" "bar n"; align-items: center; }
-  .progpick .pp-away { grid-row: 3; }      /* the names in full; the bars, all equally shorter, stay to scale */
+  .progpick .pp-away { grid-row: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .progpick .pp-caret { transition: none; } }
 @media print { .progpick details { display: none; } }
-/* the programs that train a network themselves: a second list under the first, at the same scale; their map is on train/ */
+/* the programs that train a network: a second list under the first, at the same scale; their map is on train/ */
 .progpick .pp-group { margin: 0 var(--s3) var(--s1); color: var(--ink); font: var(--lab); letter-spacing: var(--ls-lab); text-transform: uppercase; }
 .progpick .pp-sub { margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }

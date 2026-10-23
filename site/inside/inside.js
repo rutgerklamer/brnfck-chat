@@ -130,10 +130,7 @@
   });
 
   // ---- 1b. the program printed: every book on its shelf, coloured by what its characters write ----
-  // A book is 300 pages of 1,800 characters, as under "How much is it?". Its colour is the family of the
-  // region that most of its characters write (the stretches of writer.json); characters between the
-  // stretches only walk. The books of the engine are light, and the two that hold the only
-  // comma and the only full stop are ringed.
+  // A book: 300 pages of 1,800 characters, coloured by the family of the region most of its characters write (writer.json).
   const BOOK = 300 * 1800;
   lazy($('lib-card'), async () => {
     const W = WJ, E = EJ, total = W.program.chars, writer = W.program.writer, N = Math.ceil(total / BOOK);
@@ -872,7 +869,7 @@
     items.forEach(([a, b]) => { const li = el('li', 'verdict ok'); li.append(el('b', '', a), el('div', 'muted', b)); $('c-page').append(li); });
   });
 
-  // ---- 8. the four programs side by side
+  // ---- 8. brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b side by side
   lazy($('s8'), async () => {
     const X = await get('/compare.json'), Ms = X.models.filter((M) => !M.vision), small = Ms[0];      // the four chat programs (the picture program is on the page vision/)
     const famOf = (kind) => (KIND[kind] ? KIND[kind].fam : 'work');

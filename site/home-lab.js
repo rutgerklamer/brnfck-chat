@@ -1,7 +1,5 @@
-// The Lab on the start page (index.html, "Try the Lab here"): three programs that do more than chat, each working in place.
-//   1 brnfck-train-names-mlp-7k trains in this browser (train/worker.js), its loss drawn over the recorded run
-//   2 the answer of brnfck-qwen2.5-coder-0.5b from a run of the program (coder/data/coder.json), run here on any input
-//   3 where a square of the cat looks, as the picture program computes it (vision/data/look.json and look-cat.bin)
+// The Lab on the start page (index.html): brnfck-train-names-mlp-7k training here, an answer of
+// brnfck-qwen2.5-coder-0.5b run on any input, and where a square of the cat looks (vision/data/look.json).
 (() => {
   'use strict';
   const $ = (id) => document.getElementById(id);

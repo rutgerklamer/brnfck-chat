@@ -84,6 +84,7 @@
     }
   }
 
+  // A runnable figure: o.build(slider values) gives the program, run once to count its steps, then replayed to step k.
   function runner(fig, o) {
     var prog = el('div', 'bf prog'), groups = el('div', 'groups'), tape = el('div', 'tape joined'), tell = el('p', 'tell'), vals = el('div', 'ctl vals'), ctl = el('div', 'ctl');
     var printed = null, inLine = null, inBox = null, spec = null, m = null, sc = null, more = null, moreBox = null;

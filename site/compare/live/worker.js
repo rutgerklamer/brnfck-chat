@@ -1,10 +1,7 @@
 'use strict';
 
-// Runs Qwen3.5 in a web worker for the page compare/, with the code of compiler/qwen3.5 (copied next to this
-// file by tools/site-qwen3.5.js): float.js for the model, deltanet.js for the Gated DeltaNet layers in whole
-// numbers. The weights come from model.safetensors, one tensor per request, into shared memory, and every
-// matrix-vector product is shared out over a pool of threads (pool.js). The page sends { type: 'start', model }
-// with the address of the folder that holds config.json, tokenizer.json and model.safetensors.
+// Runs Qwen3.5 in a web worker for compare/ with compiler/qwen3.5 (copied here by tools/site-qwen3.5.js): float.js for
+// the model, deltanet.js for whole-number DeltaNet layers; matrix-vector products are shared over threads (pool.js).
 
 const V = new URL(self.location.href).searchParams.get('v') || '';   // the version compare.js gives this file
 const at = (file) => (V ? `${file}?v=${V}` : file);
@@ -92,6 +89,7 @@ async function start() {
   const total = names.reduce((s, k) => s + header[k].data_offsets[1] - header[k].data_offsets[0], 0);
   const data = new Map(), queue = names.slice();
   let done = 0;
+  // one tensor per range request, six at a time, into shared memory
   await Promise.all(Array.from({ length: 6 }, async () => {
     while (queue.length) {
       const k = queue.shift(), [a, b] = header[k].data_offsets;
@@ -177,6 +175,7 @@ async function ask(question, setting, maxNew) {
   say({ type: 'done', promptTokens: ids.length, tokens: out.length, promptMs: t1 - t0, ms: performance.now() - t1 });
 }
 
+// { type: 'start', model }: model is the folder with config.json, tokenizer.json and model.safetensors
 onmessage = (e) => {
   const msg = e.data;
   if (msg.type === 'ask') ask(msg.question, msg.setting, msg.maxNew).catch((err) => say({ type: 'error', text: String(err.stack || err) }));

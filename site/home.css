@@ -203,7 +203,7 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .eng-detail dl.facts { margin: var(--s3) 0 0; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
 .eng-ctl { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s2) 0 0; }
 
-/* ---- one question, four programs ---- */
+/* ---- the race of the programs (home-figures.js) ---- */
 #fig-race .frame-head { flex-wrap: wrap; row-gap: 2px; }
 .race-q { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s3); margin: 0 0 var(--s4); font: 600 1rem var(--mono); }
 .race-q .label { margin: 0; }

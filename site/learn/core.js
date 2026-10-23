@@ -290,7 +290,7 @@ self.LearnCore = (function () {
         const b = Math.log2(U), hb = Math.log2(N / U);
         p.splitDigits(0, [{ cell: LO, bits: b }, { cell: HI, bits: hb }], sc);
         p.to(HI).raw('[').add(HI, -1).move(HI, HI + U * SS).move(LO, LO + U * SS).to(HI + U * SS).raw(']');
-        p.ptr = HI;                                   // from here on: addresses of the record we stand in
+        p.ptr = HI;                                   // from here on: addresses in the record the pointer is in
       } else p.move(0, LO);
       p.to(LO).raw('[').add(LO, -1).move(LO, LO + SS).to(LO + SS).raw(']');
       p.ptr = LO;

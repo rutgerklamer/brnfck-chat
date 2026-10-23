@@ -7,9 +7,8 @@
   var num = function (n) { return Math.round(n).toLocaleString('en-US'); };
   var D = null, state = { set: 'challenges', ver: null, id: null }, results = {};
 
-  // a text as it is shown in a table cell: line breaks and spaces made visible, a character or a group of up
-  // to 16 repeated at least four times (8 characters or more) written once with its count, and the rest cut
-  // after 160 characters
+  // a text for a table cell: line breaks and spaces made visible, a group of up to 16 characters repeated 4+ times
+  // (8+ characters) written once with its count, cut after 160 characters
   var SHOW = 160;
   function shown(s) {
     if (s === '') return el('span', 'none', 'nothing');

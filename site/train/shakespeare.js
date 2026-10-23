@@ -1,7 +1,5 @@
-// "Trained in brainfuck", Shakespeare: the long run of brnfck-shakespeare-attn-55k (tools/train-long.js).
-// The loss over the run, what the child of every pass wrote, a child built from the weights of a pass
-// and run here, and where it looks. Data: data/shakespeare.json and data/shakespeare/pass-NN.bin
-// (tools/site-shakespeare.js).
+// "Trained in brainfuck", Shakespeare: the loss of brnfck-shakespeare-attn-55k, what each pass wrote, a child run here
+// and where it looks. Data: data/shakespeare.json, data/shakespeare/pass-NN.bin (tools/site-shakespeare.js).
 (function () {
   'use strict';
   const T = self.Train, m = T.spec.MODELS.shakespeare, L = T.layout.layout(m);
@@ -86,8 +84,7 @@
     g.fillStyle = css('panel'); g.fillRect(0, 0, Wd, H);
     g.font = '11px ' + css('mono'); g.lineWidth = 1;
     for (let l = 2; l <= 4; l += 0.5) { g.strokeStyle = css('line'); g.beginPath(); g.moveTo(x0, Y(l) + 0.5); g.lineTo(x1, Y(l) + 0.5); g.stroke(); g.fillStyle = css('muted'); g.fillText(l.toFixed(1), 6, Y(l) + 4); }
-    // the passes, and the one picked
-    // a pass number where there is room for it (the scale squeezes the later passes), the last one always
+    // the passes: a number where the square-root scale leaves room, the last one always
     const lastX = X(n * per) - g.measureText('pass ' + n).width - 8;
     let room = -1e9;
     for (let p = 0; p <= n; p++) {

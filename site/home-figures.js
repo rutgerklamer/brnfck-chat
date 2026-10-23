@@ -1,5 +1,5 @@
-// The figures further down the home page: a zoom from one command to the whole program, the engine
-// as text and as work, and one question answered by the four programs. Each starts when it scrolls into view.
+// The figures further down the home page: a zoom from one command to the whole program, the engine as text and as
+// work, the programs answering one question, and runs by hand. Each starts when it scrolls into view.
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
@@ -30,9 +30,7 @@
   }
 
   // ---- 1. Zoom out: from one command to the whole program of brnfck-qwen2.5-1.5b ----
-  // Every square has the area of its number of characters, and lies inside the square it is part of
-  // (where it lies there is not where it is in the program). The text drawn is one real block of the
-  // writing part, from the data of the page inside/.
+  // Square areas are character counts, each inside the square it is part of; the text is a real block (inside/ data).
   const INK = { '+': '#e69f00', '-': '#3d9bd6', '<': '#9aa3b2', '>': '#9aa3b2', '[': '#cc79a7', ']': '#cc79a7', ',': '#00b384', '.': '#e8601c' };
   soon($('fig-zoom'), async () => {
     let W, B;
@@ -144,10 +142,8 @@
       // one command: outlined over the text, fading once it is too small to see
       ctx.globalAlpha = clamp(k / 3);
       ctx.strokeStyle = '#f2b01e'; ctx.lineWidth = 2; ctx.strokeRect(bx + FC * k, by + FR * k, k, k);
-      // labels: each square has its own at its upper left corner, inside the band between it and the square
-      // within it, so that no two labels ever cover each other; the whole program, whose band is less than a
-      // pixel, has its label just above it. A label shows its numbers too when the band is deep enough, and
-      // fades in and out as its room grows and shrinks.
+      // labels: at each square's upper left corner, in the band between it and the square within it, so none overlap;
+      // the whole program's label sits above it. Numbers show when the band is deep enough; labels fade with their room.
       for (let i = top; i >= 2; i--) {
         const [x, y, s] = sq(LEVELS[i].side * k), band = i === 2 ? s / 2 : (s - LEVELS[i - 1].side * k) / 2;
         // the longest of three that fits: name and both numbers, name and characters, the name alone
@@ -203,13 +199,11 @@
   });
 
   // ---- 2. The engine of brnfck-qwen2.5-1.5b: its text and its work, both to scale ----
-  // Above, the characters of every section (engine.json); below, the steps of one printed word piece,
-  // counted by the project's interpreter (trace-sum.json); a band joins the two of each section.
+  // Above, the characters of every section (engine.json); below, the steps of one printed word piece (trace-sum.json).
   const short = (n) => (n >= 1e9 ? (n / 1e9).toFixed(2) + ' billion' : n >= 1e6 ? (n / 1e6).toFixed(1) + ' million' : fmt(n));
   const pct = (x) => (x === 0 ? '0%' : x < 0.001 ? 'under 0.1%' : (100 * x).toFixed(x < 0.1 ? 1 : 0) + '%');
   const FAMV = { out: '--k-out', att: '--k-att', att2: '--k-att2', mem: '--k-mem', ff: '--k-ff', ff2: '--k-ff2', emb: '--k-emb', text: '--k-text', tidy: '--k-tidy', work: '--k-work' };
-  // short names, written inside the bars where a section is wide enough (the full names are under the
-  // figure); the first that fits is used
+  // short names, written inside the bars where a section is wide enough; the first that fits is used
   const SHORT = { ask: ['Read the question', 'Read'], queue: ['Line up'], take: ['Take a piece', 'Take'], emb: ['Fetch its row', 'Fetch'], xn1: ['Scale'], sweep1: ['Question, key, value', 'Q, K, V'], qkv: ['Round'], rot: ['Turn'], store: ['Store'], att: ['Look back'], mixed: ['Divide'], hop: ['Carry'], sweep2: ['Attention out', 'Out'], xatt: ['Add'], xn2: ['Scale'], sweep3: ['Widen'], hid: ['Bend'], sweep4: ['Back'], xout: ['Add'], xnf: ['Scale'], cls: ['Score every word piece', 'Score'], return: ['Walk home', 'Home'], print: ['Print'] };
   // dark or light letters, whichever reads better on a colour as getComputedStyle gives it
   const inkOn = (css) => {
@@ -319,19 +313,15 @@
   });
 
   // ---- 3. Two questions, five programs ----
-  // The answers are the ones the programs print, checked at build time (compiler/*/out/ref*.json;
-  // brnfck-qwen3.5-0.8b stops at its limit of 30 word pieces, its pieces as in compare/data/step.json); the times
-  // are the middle of each range in the table of this page (brnfck-qwen3.5-0.8b: 2 min 10 s to 2 min 37 s, about
-  // 5.6 s a piece). Reading a word piece of the question takes about as long as printing one.
-  // brnfck-qwen3.5-0.8b-vision gets the photo of the cat and its own question (85 word pieces with the 64 of the
-  // picture, vision/out/ref-vision-qwen3.5-0.8b.json). Its times are from one run in the browser: ready after 100 s,
-  // its first word piece 823 s later (read is that, less one piece), then 5.6 s a piece.
+  // Answers as the programs print them (compiler/*/out/ref*.json; brnfck-qwen3.5-0.8b stops at 30 word pieces); times are
+  // the middle of each range in the page's table. Reading a word piece takes about as long as printing one.
   const RACE = [
     { label: 'brnfck-smollm2-135m', startup: 12.5, piece: 0.8, question: 13, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
     { label: 'brnfck-qwen2.5-0.5b', startup: 40, piece: 2.3, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
     { label: 'brnfck-qwen2.5-1.5b', startup: 147, piece: 9, question: 12, answer: ['The', ' capital', ' of', ' France', ' is', ' Paris', '.'] },
     { label: 'brnfck-qwen3.5-0.8b', startup: 143.5, piece: 5.6, question: 19, answer: ['The', ' capital', ' of', ' France', ' is', ' **', 'Paris', '**.', '\n\n',
       'Located', ' in', ' the', ' heart', ' of', ' the', ' country', ',', ' Paris', ' is', ' the', ' largest', ' city', ' in', ' France', ' and', ' serves', ' as', ' the', ' seat', ' of'] },
+    // times of one browser run: ready after 100 s, first word piece 823 s later (read is that, less one piece)
     { label: 'brnfck-qwen3.5-0.8b-vision', box: 'racePic', startup: 100, read: 818, piece: 5.6, reading: 'looks at the photo, reads the question',
       answer: ['A', ' close', '-up', ' portrait', ' of', ' a', ' fluffy', ' tab', 'by', ' cat', ' with', ' striking', ' blue', ' eyes', ',', ' set', ' against', ' a', ' soft', ',', ' warm', '-ton', 'ed', ' background', '.'] },
   ];
@@ -344,7 +334,7 @@
       const lane = document.createElement('div'); lane.className = 'lane';
       lane.innerHTML = '<p class="who"><b></b><span class="when"></span></p><div class="track"><i class="on"></i><i class="tip"></i></div><p class="said"><span class="whole" aria-hidden="true"></span><span><span class="out"></span><span class="cursor"></span></span></p>';
       lane.querySelector('b').textContent = r.label;
-      lane.querySelector('.whole').textContent = r.answer.join('') + '\u00a0';   // keeps the room of the whole answer and the cursor, so nothing below jumps
+      lane.querySelector('.whole').textContent = r.answer.join('') + '\u00a0';   // reserves the whole answer's room, so nothing below jumps
       // the three stretches of time, to scale: one gradient with hard edges
       const a = 100 * r.startup / end, b = 100 * (r.startup + reads(r)) / end, c = 100 * total / end;
       const track = lane.querySelector('.track');
@@ -381,10 +371,7 @@
   }, { threshold: 0.5 });                                    // the race starts when it can be watched
 
   // ---- 4. With pencil and paper: one run of each program, one step a second, on the calendar ----
-  // The steps are those the project's interpreter counted for every word piece of a real run
-  // (trace-*.json): each piece of the question read, each piece of the answer printed, and the last
-  // one, which decides the answer is done. The bar of a run ends now and starts as many seconds ago as
-  // the run has steps. Years are calendar years: below 1 they are BCE, and there is no year 0.
+  // Steps per word piece of a real run (trace-*.json); a run's bar ends now and starts as many seconds ago as it has steps.
   const HAND = [
     { name: 'small', label: 'brnfck-smollm2-135m', file: 'trace-france.json' },
     { name: '0.5b', label: 'brnfck-qwen2.5-0.5b', file: 'trace-sum.json' },
@@ -397,6 +384,7 @@
     { ce: 1450, name: 'The printing press' },
   ];
   const YEAR = 31556952, Y0 = 1 - 13000;                    // seconds in a year; the left end, 13,000 BCE
+  // calendar years: below 1 they are BCE, and there is no year 0
   const nowYear = () => 1970 + Date.now() / 1000 / YEAR;
   const yearOf = (m) => (m.bce ? 1 - m.bce : m.ce);
   // a calendar year as people write it, rounded as far as the measure allows
@@ -469,8 +457,7 @@
       });
     }
     box.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') choose(null); });
-    // the events above the line, each in the first row where it does not touch another; the axis
-    // under them with as many years as fit
+    // the events above the line, each in the first row where it touches no other; the axis under them
     function layout() {
       const W = box.clientWidth, rows = [], ROW = 34;
       for (const [m, d, g] of guides) {

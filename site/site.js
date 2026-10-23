@@ -24,7 +24,7 @@
       pages: [['About the project', 'about/'], ['Every page', 'sitemap/']] },
   ];
 
-  // ---- where are we? the longest folder that the address starts with wins ----
+  // ---- the current section: the longest folder that the address starts with wins ----
   function clean(href) { return href.split('#')[0].split('?')[0].replace(/index\.html$/, ''); }
   var here = clean(location.href), rel = here.indexOf(root) === 0 ? here.slice(root.length) : '';
   var none = me.getAttribute('data-page') === 'none';                // the 404 page: no entry is current
@@ -43,8 +43,7 @@
   var bar = el('header', 'top'), inner = el('div', 'in');
   var brand = el('a', 'brand'); brand.href = href(''); brand.append(mark(), 'brnfck.chat');
   var nav = el('nav', 'main'); nav.id = 'site-nav'; nav.setAttribute('aria-label', 'Site');
-  // a page of a section, as a link: a course number first if it has one; the page you are on, or the
-  // part of the section you are in, is current
+  // a page of a section as a link, with its course number; marked current for this page or the part it is in
   function pageLink(s, p) {
     var a = el('a'); a.href = /^https:/.test(p[1]) ? p[1] : href(p[1]);
     if (p[2]) { var n = el('i', '', p[2]); n.setAttribute('aria-hidden', 'true'); a.append(n); }
@@ -110,7 +109,7 @@
   });
   showTheme();
 
-  // ---- the footer: the same sections, with their pages; About with what you look for at the end ----
+  // ---- the footer: the same sections with their pages, About last ----
   var SOURCE = 'https://github.com/rutgerklamer/brnfck-chat';      // the code of the site and the compiler, MIT
   function foot() {
     var f = el('footer', 'foot'), box = el('div', 'in');
@@ -124,9 +123,8 @@
     });
     f.append(box); document.body.append(f);
   }
-  // ---- the page strip: on a long page, its parts as one bar under the menu, each as long as it is on
-  // the page. What you have read is filled in; a part is a link to its start. ----
-  // the words of a heading, without what is only decoration (aria-hidden) and without a leading #
+  // ---- the page strip: a long page's parts as one bar under the menu, to scale, filled as far as read ----
+  // the words of a heading, without aria-hidden decoration and a leading #
   function words(h) {
     var c = h.cloneNode(true);
     [].forEach.call(c.querySelectorAll('[aria-hidden="true"]'), function (n) { n.remove(); });
@@ -182,10 +180,8 @@
     if (window.ResizeObserver) new ResizeObserver(layout).observe(main);
     layout();
   }
-  // ---- leaving while a program works: a page marks work that would be lost (a program loading, writing an
-  // answer or training) with LeaveGuard.set(name, true) and clears it with LeaveGuard.set(name, false). While
-  // anything is marked, the browser asks before the page is closed, reloaded or left; the rest of the time
-  // there is no listener at all, so the page can still be kept for the back button. ----
+  // ---- LeaveGuard.set(name, on): while any work is marked, the browser asks before the page is left.
+  // Without marked work there is no beforeunload listener, so the page can still be kept for the back button.
   var working = {};
   function askFirst(e) { e.preventDefault(); e.returnValue = ''; }
   window.LeaveGuard = {

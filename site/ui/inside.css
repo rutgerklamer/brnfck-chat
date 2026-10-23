@@ -103,7 +103,7 @@ main.inside { max-width: var(--wide); padding-top: var(--s5); }
 .inside .bars .rowbtn[aria-pressed="true"] > div > .bar { outline: 2px solid var(--ink); outline-offset: 1px; }
 .inside .bars .rowbtn:focus-visible > .lab { outline: var(--ring) solid var(--accent); outline-offset: 2px; }
 #w-stages { row-gap: 0; }
-#x-table { min-width: 42rem; }           /* the four programs side by side: scrolls sideways on a narrow screen */
+#x-table { min-width: 42rem; }           /* the four chat programs side by side (inside.js section 8): scrolls sideways on a narrow screen */
 .inside .stack { height: 2rem; min-width: 0; background: var(--sunk); }
 .inside .bars .stack { height: 1.5rem; }
 .inside .stack > .in { display: flex; gap: 1px; height: 100%; min-width: 3px; }

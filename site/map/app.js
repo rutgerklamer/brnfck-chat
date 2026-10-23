@@ -18,7 +18,7 @@
   let liveT = 0;
   const announce = (t) => { clearTimeout(liveT); live.textContent = ''; liveT = setTimeout(() => { live.textContent = t; }, 120); };
   const LNAME = { tree: 'Outline' }; for (const k in M.LAYOUTS) LNAME[k] = M.LAYOUTS[k].name;
-  const BASIC = ['fold', 'line', 'rows', 'tree'], MORE = ['lanes', 'density', 'skyline', 'parts', 'tape', 'time', 'three'].filter((k) => !I.TRAIN || !['tape', 'time', 'three'].includes(k));      // the order of the layouts, everywhere; a training program writes no model and runs no question
+  const BASIC = ['fold', 'line', 'rows', 'tree'], MORE = ['lanes', 'density', 'skyline', 'parts', 'tape', 'time', 'three'].filter((k) => !I.TRAIN || !['tape', 'time', 'three'].includes(k));      // layout order; a training program has no model or question
   if (I.TRAIN) ['tape', 'time', 'three'].forEach((k) => document.querySelectorAll('#m-more option[value="' + k + '"], #m-layout-sel option[value="' + k + '"]').forEach((o) => o.remove()));
   const SAYS = (k) => (k === 'tree' ? M.SAYS_TREE : M.LAYOUTS[k].says).replace('Best to start with, and to see how long', 'Best to see how long');
   const whereText = () => {
@@ -112,7 +112,6 @@
 
   // ---- the small map, the names, the layout, the colours
   // the small map: on when chosen under Display, and only while part of the program is out of view
-  // (with the whole program in view it would show the same picture twice)
   let miniWanted = true;
   let mapUp = false;
   function placeMini() {
@@ -224,7 +223,7 @@
   let groups = [], flat = [], current = null, lastPlace = null;
   const others = () => ['small', '0.5b', '1.5b', '0.8b'].filter((m) => m !== I.MODEL);
   const fillAlso = (box, p) => { box.textContent = ''; box.append('The same place in '); const o = others(); o.forEach((m, k) => { if (k) box.append(k === o.length - 1 ? ' or ' : ', '); const a = el('a', '', I.MODELS[m].short); a.href = '?m=' + m + '#preset=' + p.id; box.append(a); }); box.append('.'); box.hidden = false; };
-  // a section of the engine by its id, or (brnfck-qwen3.5-0.8b, whose layers are written four times) the first one of that name
+  // a section by id, or the first of that key (brnfck-qwen3.5-0.8b writes its layers four times)
   const secOf = (E, id) => E.sections.find((s) => s.id === id) || E.sections.find((s) => s.key === id);
   // the text of the layers: one layer, or the four layers of a group of brnfck-qwen3.5-0.8b
   const layerText = (E) => {

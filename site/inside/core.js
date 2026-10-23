@@ -23,8 +23,9 @@
     'train-bigram': { short: 'brnfck-train-names-bigram-756', train: true },
     'train-shakespeare': { short: 'brnfck-train-shakespeare-attn-55k', train: true },
   };
-  const MODEL = MODELS[document.documentElement.getAttribute('data-model')] ? document.documentElement.getAttribute('data-model') : '1.5b';     // brnfck-qwen2.5-1.5b, the largest, is the one a page shows when nothing is asked
-  const TRAIN = !!MODELS[MODEL].train, VIS = MODEL === '0.8b-vision', QWEN = MODEL !== 'small' && !TRAIN, Q35 = MODEL === '0.8b' || VIS, ROOT = new URL('..', HERE).href;      // Q35: Qwen3.5, with DeltaNet layers; VIS: and its vision part; TRAIN: a program that trains a network
+  const MODEL = MODELS[document.documentElement.getAttribute('data-model')] ? document.documentElement.getAttribute('data-model') : '1.5b';     // default: brnfck-qwen2.5-1.5b, the largest
+  // Q35: Qwen3.5, with DeltaNet layers; VIS: and its vision part; TRAIN: a program that trains a network
+  const TRAIN = !!MODELS[MODEL].train, VIS = MODEL === '0.8b-vision', QWEN = MODEL !== 'small' && !TRAIN, Q35 = MODEL === '0.8b' || VIS, ROOT = new URL('..', HERE).href;
   let DATA = HERE + 'data/' + MODEL + '/';
   const dataBase = fetch(HERE + 'data-hosts.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((h) => { if (h && typeof h[MODEL] === 'string' && h[MODEL]) DATA = new URL(h[MODEL], HERE).href; });
   const FILES = { small: ['programs/brnfck-smollm2-135m.meta.json', 'programs/brnfck-smollm2-135m.bf'], '0.5b': ['programs/brnfck-qwen2.5-0.5b.meta.json', 'programs/brnfck-qwen2.5-0.5b.bf'], '1.5b': ['programs/brnfck-qwen2.5-1.5b.meta.json', 'programs/brnfck-qwen2.5-1.5b.bf'], '0.8b': ['programs/brnfck-qwen3.5-0.8b.meta.json', 'programs/brnfck-qwen3.5-0.8b.bf'], '0.8b-vision': ['programs/brnfck-qwen3.5-0.8b-vision.meta.json', 'programs/brnfck-qwen3.5-0.8b-vision.bf'],
@@ -33,7 +34,7 @@
   let programP = null;
   const program = (model = MODEL) => { const go = () => (window.ProgramStart ? window.ProgramStart.find({ name: model, manifestUrl: MODELS[model].train ? null : ROOT + 'dist/' + model + '/manifest.json', metaUrl: ROOT + FILES[model][0], fileUrl: ROOT + FILES[model][1], hostsUrl: ROOT + 'program-hosts.json' }).catch(() => null) : Promise.resolve(null)); if (model !== MODEL) return go(); return programP || (programP = go()); };
   // a word of data-only: a program, 'smol', 'qwen' (the programs of Qwen2.5 and Qwen3.5), 'qwen2' (the programs of Qwen2.5),
-  // 'chat' (the five that run a chat model) or 'train' (the three that train a network)
+  // 'chat' (those that run a chat model) or 'train' (those that train a network)
   const mine = (only) => only.split(/\s+/).some((t) => t === MODEL || (t === 'qwen' && QWEN) || (t === 'qwen2' && QWEN && !Q35) || (t === 'smol' && !QWEN && !TRAIN) || (t === 'chat' && !TRAIN) || (t === 'train' && TRAIN));
   document.querySelectorAll('[data-only]').forEach((n) => { if (!mine(n.getAttribute('data-only'))) n.remove(); });
   const switches = [...document.querySelectorAll('#modelbar a[data-m], #choose a[data-m]')];
@@ -391,7 +392,7 @@
   const chunk = (c) => {
     if (!chunkCache.has(c)) {
       const ranged = tilesInfo && tilesInfo.range, last = tilesInfo ? Math.min((c + 1) * CHUNK, tilesInfo.chars) - 1 : 0;
-      // a stored piece of 64 KiB is far less to fetch than the piece of the program around it; a site without them reads the program
+      // a stored 64 KiB piece is less to fetch than the program around it; without stored pieces, read the program
       const fromProgram = () => (programNow && programNow.manifest ? fromChunks(c, last) : fetch(PROGRAM, { headers: { Range: 'bytes=' + c * CHUNK + '-' + last }, cache: 'no-store' }).then((r) => { if (r.status !== 206) throw new Error('the server did not send a part of the file'); return r.arrayBuffer(); }));
       const p = (!ranged ? deepPiece(c) : inDeep(c) ? deepPiece(c).catch(fromProgram) : fromProgram()).then((b) => new Uint8Array(b));
       p.catch(() => setTimeout(() => chunkCache.delete(c), 4000));      // a piece that failed is tried again, but not at once

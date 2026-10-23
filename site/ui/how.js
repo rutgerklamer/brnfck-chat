@@ -186,7 +186,7 @@
     var s = slider('Number in the left cell', 0, 60, 10, function (v) { return fmt(Math.round(Math.pow(10, v / 10))); });
     $('f-ctl').append(s.label);
     function draw() {
-      var n = Math.round(Math.pow(10, Number(s.input.value) / 10));                 // 1 to 1,000,000, each step of the slider a little more
+      var n = Math.round(Math.pow(10, Number(s.input.value) / 10));                 // 10^(v / 10): 1 to 1,000,000
       var r = LearnCore.count(CODE, { bits: 32, size: 4, init: { 0: n }, plainMax: 5e7 });
       $('f-s1').textContent = fmt(r.plain.steps) + ' commands';
       $('f-s2').textContent = fmt(r.fast.steps) + (r.fast.steps === 1 ? ' operation' : ' operations');
@@ -218,7 +218,7 @@
     draw();
   };
 
-  // ---- 7c. the four programs
+  // ---- 7c. brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b
   figs['fig-size'] = function () {
     var M = {
       small: ['SmolLM2-135M-Instruct', 'about 135 million', '1,030,902,380 characters', '188,012,789 cells (717 MiB)', 'about 1.5 GB', 'about 9 to 16 s', 'about 0.6 to 1.0 s'],
@@ -236,12 +236,12 @@
   };
 
   // ---- 8b. one comma, one full stop: where they are, in four steps ----------------------
-  // stops.json (tools/map-data/stops.js) has, for each of the two, the section of the engine that holds
-  // it, the mix of commands along the program, the engine and that section, and the text around it.
+  // stops.json (tools/map-data/stops.js): for each of the two, its engine section, the mix of commands along the
+  // program, the engine and that section, and the text around it.
   figs['fig-stop'] = function () {
     var canvas = $('stop-view'), cache = {}, D = null, k = 1, model = 'small';
     var NAME = { ask: 'The part that reads the question', print: 'The part that prints a word piece' };
-    var ORDER = '+-<>[].,', STACK = '<>+-[],.';                 // the walking at the bottom of a column, then the digits, then the loops
+    var ORDER = '+-<>[].,', STACK = '<>+-[],.';                 // stacked bottom up: walking, digits, loops
     var VAR = { '+': '--c-plus', '-': '--c-minus', '<': '--c-lt', '>': '--c-gt', '[': '--c-open', ']': '--c-close', ',': '--c-in', '.': '--c-out' };
     var probe = el('i'); probe.hidden = true; canvas.after(probe);
     var colour = function (v) { probe.style.color = 'var(' + v + ')'; return getComputedStyle(probe).color; };
@@ -340,9 +340,8 @@
   };
 
   // ---- 8c. the word piece every layer would print (a logit lens) -------------------------
-  // lens-france.json (tools/map-data/lens.js): for every printed word piece, the numbers after each layer, read off the
-  // tape of a real run and given to the program's own last step: the best three word pieces, and the share and place of
-  // the one that was printed. For brnfck-qwen3.5-0.8b also the guesses of its multi-token prediction head.
+  // lens-france.json (tools/map-data/lens.js): per printed word piece and layer, the best three word pieces and the share
+  // and place of the printed one; for brnfck-qwen3.5-0.8b also the guesses of its multi-token prediction head.
   figs['fig-lens'] = function () {
     var grid = $('lens-grid'), said = $('lens-said'), cache = {}, D = null, model = 'small';
     var show = function (s) { return s === '<|im_end|>' || s === '<|endoftext|>' ? 'end' : s.replace(/^ /, '␣').replace(/\n/g, '⏎').replace(/ /g, '␣'); };
@@ -423,6 +422,7 @@
 
   Object.keys(figs).forEach(function (id) { if ($(id)) figs[id](); });
 
+  // Counts the eight commands in the whole file of brnfck-smollm2-135m as it downloads.
   (function () {
     if (!$('c-go')) return;
     var WHERE = { name: 'small', manifestUrl: '../dist/small/manifest.json', metaUrl: '../programs/brnfck-smollm2-135m.meta.json', fileUrl: '../programs/brnfck-smollm2-135m.bf' };

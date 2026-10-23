@@ -1,8 +1,5 @@
-// The figures of "Compare the models" (compare/index.html). The recordings in data/ are written by
-// compiler/qwen3.5/compare/record.js: per answer, per word piece and per head of the 18 DeltaNet layers of Qwen3.5-0.8B,
-// the size of its table, its half-life, write strength, scale and folds, and 32 x 32 of two tables;
-// compiler/qwen3.5/compare/record-parts.js: three heads step by step and the gates of the layers that look back (step.json,
-// attn.json); compiler/qwen3.5/compare/shapes.js: the weights and sizes of the four models (shapes.json).
+// The figures of "Compare the models" (compare/index.html), from the recordings in data/ written by
+// compiler/qwen3.5/compare/record.js, record-parts.js (step.json, attn.json) and shapes.js (shapes.json).
 (function () {
   'use strict';
   var A = window.Article, el = A.el, fmt = A.fmt;
@@ -11,6 +8,7 @@
   var V = 'r3';                      // the version of data/*.json and live/*.js: raise it when one of them changes
 
   // ---- the recordings ------------------------------------------------------------------
+  // record.js: per word piece and head of the 18 DeltaNet layers, table size, half-life, write strength, scale, folds
   var cache = {};
   var bytes = function (b64, Type) { var s = atob(b64), u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return Type ? new Type(u.buffer) : u; };
   function load(key) {
@@ -82,10 +80,8 @@
   }
   var FONT = '500 12px "IBM Plex Mono", ui-monospace, monospace', FONT_B = '600 13px "IBM Plex Sans", system-ui, sans-serif';
 
-  // ---- one recorded conversation, played: the shared part of the two figures ------------------
-  // o.draw(J, t): t = -1 before the first word piece, else the word piece just taken in
-  // o.load(key), when given, loads the one recording of the figure instead of the three recorded answers; o.start(J), the
-  // word piece to show first.
+  // ---- one recorded conversation, played: the shared part of the figures ------------------
+  // o.draw(J, t): t = -1 before the first word piece; o.load(key): the figure's own recording; o.start(J): the first shown
   var THINK = /^<\/?think>$/;
   function player(fig, o) {
     var seg = fig.querySelector('.dn-ask'), text = fig.querySelector('.dn-text'), J = null, key = seg ? ASK[0][0] : 'one', t = -1, spans = [];
@@ -205,8 +201,7 @@
   })();
 
   // ---- the map of the heads, shared by the recorded and the live figure ------------------------
-  // 24 layers: a row of squares for a DeltaNet layer, a thin row for one that looks back. value(i): 0 .. 1 on
-  // the colour scale, or null for an empty table; ring(i): a fold at this word piece; sel: the chosen head.
+  // a row of squares per DeltaNet layer, a thin row per layer that looks back; value(i): 0 .. 1 or null if empty; ring(i): a fold
   function paintMap(map, layers, heads, sel, value, ring) {
     var W = map.parentNode.clientWidth, LABW = 34, cell = Math.max(10, Math.min(26, Math.floor((W - LABW) / heads))), THIN = Math.max(6, Math.round(cell / 3));
     var all = layers[layers.length - 1] + 1, rows = [], y = 0;
@@ -321,7 +316,7 @@
     });
   })();
 
-  // ---- the shapes of the four models (data/shapes.json, compiler/qwen3.5/compare/shapes.js) -----------------------
+  // ---- the shapes of SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen3.5-0.8B (data/shapes.json, compiler/qwen3.5/compare/shapes.js) ---
   var shapes = null;
   function loadShapes() { if (!shapes) shapes = fetch('data/shapes.json?v=' + V).then(function (r) { if (!r.ok) throw new Error('no data'); return r.json(); }); return shapes; }
   function whenNear(fig, start) {
@@ -332,7 +327,7 @@
   // text on a coloured block
   var onRGB = function (c) { return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 > 0.55 ? '#111' : '#fff'; };
 
-  // ---- A. the two models to scale: every weight the same room ---------------------------------------------
+  // ---- A. Qwen2.5-0.5B and Qwen3.5-0.8B to scale: every weight the same room ------------------------------
   (function () {
     var fig = $('fig-stack'); if (!fig) return;
     var canvas = fig.querySelector('canvas'), tell = fig.querySelector('.tell'), D = null, geo = [], sel = 3;
@@ -416,7 +411,7 @@
     onTheme(draw);
   })();
 
-  // ---- B. what the four models keep, and what a word piece costs, against the length -------------------------
+  // ---- B. what SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen3.5-0.8B keep, and what a word piece costs, against the length ---
   (function () {
     var fig = $('fig-cost'); if (!fig) return;
     var canvas = fig.querySelector('canvas'), tell = fig.querySelector('.tell'), read = fig.querySelector('.dn-read'), seg = fig.querySelector('.dn-view');
@@ -713,11 +708,10 @@
   })();
 
   // ---- 4. the model itself, in this browser ---------------------------------------------------------
-  // live/worker.js runs Qwen3.5-0.8B with the code of compiler/qwen3.5, the weights from models/qwen3.5-0.8b/.
-  // After every word piece it sends the size of every table; the map uses the colour scale of the recordings.
+  // live/worker.js runs Qwen3.5-0.8B and sends the size of every table after every word piece
   (function () {
     var fig = $('fig-live'); if (!fig) return;
-    var MODEL = new URL('../models/qwen3.5-0.8b/', location.href).href, LO = -2.5, HI = 1.5;
+    var MODEL = new URL('../models/qwen3.5-0.8b/', location.href).href, LO = -2.5, HI = 1.5;   // LO, HI: log10 colour scale of the recordings
     var q = fig.querySelector('.lv-q'), go = fig.querySelector('.lv-go'), stop = fig.querySelector('.lv-stop'), meter = fig.querySelector('.lv-meter');
     var status = fig.querySelector('.lv-status'), asked = fig.querySelector('.lv-asked'), answer = fig.querySelector('.lv-answer'), modes = fig.querySelector('.lv-mode'), io = fig.querySelector('.lv-io');
     var map = fig.querySelector('.dn-map'), hist = fig.querySelector('.dn-hist'), who = fig.querySelector('.dn-who'), said = fig.querySelector('.dn-said');

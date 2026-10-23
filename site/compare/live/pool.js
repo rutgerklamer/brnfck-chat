@@ -1,8 +1,6 @@
 'use strict';
 
-// The threads of worker.js: each computes its share of the rows of y = W x, with W, x and y in shared memory.
-// worker.js loads this file too, for poolRows (it computes a share itself).
-//
+// The threads of worker.js (which loads this file too for poolRows): each computes a share of the rows of y = W x.
 // ctrl (Int32Array): 0 job number, 1 shares done, 2 matrix, 3 rows, 4 columns, 5 matrices received (all threads)
 
 const POOL_LUT = new Float32Array(65536); // bfloat16 bits -> value

@@ -26,7 +26,7 @@
     // answers with a brainfuck program of its own (coder/data/coder.json: its measured run); the answer can be run under it
     'coder-0.5b': { name: 'coder-0.5b', label: 'brnfck-qwen2.5-coder-0.5b', model: 'Qwen2.5-Coder-0.5B-Instruct, taught brainfuck', worker: 'workers/brnfck-qwen2.5-coder-0.5b.js?v=r1',
       manifestUrl: 'dist/coder-0.5b/manifest.json', metaUrl: 'programs/brnfck-qwen2.5-coder-0.5b.meta.json', fileUrl: 'programs/brnfck-qwen2.5-coder-0.5b.bf',
-      needGB: 4, download: '758 MB', startup: '35 to 70 s', perPiece: 'about 2.2 s', code: true, noMap: true },      // (no Program map data yet)
+      needGB: 4, download: '758 MB', startup: '35 to 70 s', perPiece: 'about 2.2 s', code: true, noMap: true },      // no Program map data
   };
   const EXAMPLES = ['What is the capital of France?', 'What is 12 + 30?', 'Who wrote Romeo and Juliet?', 'Hello'];
   const PICTURE_EXAMPLES = ['Describe this picture in one sentence.', 'What colour are the eyes?', 'How many windmills are there?', 'What is in this picture?'];
@@ -89,8 +89,7 @@
     }
   }
   const previews = fetch('home-source.json').then(r => r.ok ? r.json() : null).catch(() => null);
-  // the window shows the chosen program (brnfck-qwen2.5-1.5b when none can be chosen);
-  // only when the excerpt belongs to the program this site hosts (same SHA-256)
+  // the window shows the chosen program (brnfck-qwen2.5-1.5b when none can be chosen), if the excerpt's SHA-256 matches
   async function showSource(name, meta) {
     const all = await previews, sample = all && all[name];
     if (choice && model && model.name !== name) return;      // another model was chosen in the meantime
@@ -336,8 +335,8 @@
     }
   }
 
-  // ---- the picture of brnfck-qwen3.5-0.8b-vision: its middle square at 256 x 256 pixels, as its 256 squares of 16 x 16,
-  // in blocks of two by two, every square its red, green and blue pixels row by row (compiler/qwen3.5/reference/vision.js squares)
+  // ---- the picture of brnfck-qwen3.5-0.8b-vision: its middle square at 256 x 256, as 256 squares of 16 x 16 in blocks of
+  // two by two, each square its red, green and blue pixels row by row (compiler/qwen3.5/reference/vision.js squares)
   const SIDE = 256, SQ = 16, picture = { img: null, name: 'cat' };
   function squaresOf(img) {
     const c = document.createElement('canvas'); c.width = c.height = SIDE;

@@ -27,7 +27,7 @@
     o = o || {};
     const d = P.byId[id];
     return Learn.machine($(box), Object.assign({ code: d.code, bits: 8, cells: 6, init: d.init || null, inputText: d.input || '', input: Array.from(d.input || '', (ch) => ch.charCodeAt(0)), max: 2e5 }, o.machine || {}, {
-      onEnd: (m) => { if (o.when && !o.when(m)) { if (o.else) L.note(i, o.else(m)); return; } L.done(i, o.text(m)); $('v' + i).classList.add('said'); },   // watching a run is not an answer: the line draws only its mark
+      onEnd: (m) => { if (o.when && !o.when(m)) { if (o.else) L.note(i, o.else(m)); return; } L.done(i, o.text(m)); $('v' + i).classList.add('said'); },   // watching is not answering: the line draws only its mark
     }));
   };
 

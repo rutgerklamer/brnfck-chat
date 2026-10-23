@@ -1,6 +1,5 @@
-// The tape of a running program, drawn on the chat page: where each part of the model lies (from the
-// data the pages inside/ and map/ use), what the program has written so far, where its pointer is, and
-// which memory slots are filled. The worker reads the tape (runtime/peek.js); this file only draws.
+// The tape of a running program on the chat page: where each part of the model lies, what is written so far, the
+// pointer, and which memory slots are filled. The worker reads the tape (runtime/peek.js); this file only draws.
 (function () {
   'use strict';
   const INSIDE = new URL('../inside/', document.currentScript.src).href;
@@ -68,8 +67,7 @@
     return { ctx, w, h };
   }
 
-  // The whole tape as one strip, to scale. Pale: what will lie there. Full colour: read from the
-  // tape as not zero. The mark above: the pointer.
+  // The whole tape as one strip, to scale: pale where a part will lie, full colour where not zero; the mark: the pointer.
   function drawStrip(canvas, L, s) {
     const { ctx, w, h } = fit(canvas), col = colours(), top = 9, sh = h - top, cw = w / COLS;
     for (let i = 0; i < COLS; i++) {
@@ -87,9 +85,8 @@
     }
   }
 
-  // The memory slots: a row per layer (layer 1 at the top), a column per position. g says which
-  // columns hold the fixed opening lines, the question and the answer; newest: columns just filled;
-  // zoom: only the filled columns and a few more, across the whole width.
+  // The memory slots: a row per layer (layer 1 on top), a column per position. g: which columns hold the opening lines,
+  // the question and the answer; newest: the column just filled; zoom: only the filled columns and a few more.
   const shownColumns = (L, g) => (g.zoom ? Math.min(L.positions, Math.max(32, (g.limit || 0) + 4)) : L.positions);
   function drawGrid(canvas, L, mem, g) {
     const { ctx, w, h } = fit(canvas), col = colours(), P = L.positions, cw = w / shownColumns(L, g), rh = h / L.layers;

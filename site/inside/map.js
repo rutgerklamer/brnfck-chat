@@ -380,7 +380,7 @@
   let partRows = null, partFrom = null, partRow = 0;
   const partRowsOf = () => {
     if (partRows) return partRows;
-    // (the picture part: the merger and its queue of vectors come before its layers in the text, the squares' weights and positions after them)
+    // the picture part's merger and vector queue come before its layers in the text; squares' weights and positions after
     const picL = picW ? spans.find((q) => q.part === 0 && q.layer >= 100) : null;
     const key = (q) => (q.row ? q.row : q.part ? 'The engine' : q.kind === 'cls' ? 'Output table' : q.kind === 'walk' ? 'Walk to the engine' : q.layer >= 100 ? 'Picture layer ' + (q.layer - 99) : picW && q.from >= picW.from && q.from < picW.to ? (q.from < picL.from ? 'Picture: merger' : 'Picture: squares in') : q.layer >= 0 ? 'Layer ' + (q.layer + 1) : q.kind === 'emb' ? 'Table of word pieces' : 'Vocabulary');
     partRows = [];

@@ -1,6 +1,5 @@
-// "Every program at one scale" (compare/index.html, #eight): every program of the site from the registry
-// (../registry.json, tools/registry.js), the programs that run a chat model, the ones that train a network
-// and their children, in their current versions, on a scale where every line is a factor of ten.
+// "Every program at one scale" (compare/index.html, #eight): every program in ../registry.json (tools/registry.js),
+// in its current version, on a scale where every line is a factor of ten.
 (function () {
   'use strict';
   const fig = document.getElementById('fig-eight');

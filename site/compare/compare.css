@@ -20,7 +20,7 @@ main.dn .dn-text > span.ask { color: var(--ink-2); font-style: italic; }
 main.dn .dn-text > span.ans { color: var(--ink); }
 main.dn .dn-text > span.sp { display: inline-block; margin: 0 2px; padding: 0 3px; border: 1px solid var(--line); color: var(--muted); font: 500 .6875rem/1.4 var(--mono); white-space: nowrap; vertical-align: .1em; }
 main.dn .dn-text > span.now { background: var(--go); color: var(--on-go); box-shadow: 0 0 0 1px var(--go); }
-main.dn .dn-text > span.gap.now::before { content: "↵"; padding: 0 2px; }      /* the empty lines of the think block are not drawn: this marks where they are */
+main.dn .dn-text > span.gap.now::before { content: "↵"; padding: 0 2px; }      /* marks where the undrawn empty lines of the think block are */
 main.dn .dn-note { margin: calc(-1 * var(--s3)) 0 var(--s4); color: var(--muted); font: var(--fs-small)/1.5 var(--sans); }
 main.dn .dn-note .sp { display: inline-block; margin: 0 2px; padding: 0 3px; border: 1px solid var(--line); font: 500 .6875rem/1.4 var(--mono); white-space: nowrap; vertical-align: .1em; }
 main.dn canvas { display: block; width: 100%; }
@@ -61,13 +61,13 @@ main.dn .dn-look::before { content: ""; width: 16px; height: 6px; background: va
 @media (max-width: 36em) { #fig-live .lv-io { height: 13em; } }
 main.dn .dn-two[hidden], #fig-live .lv-io[hidden] { display: none; }
 
-/* ---- the two models to scale (fig-stack) ---- */
+/* ---- Qwen2.5-0.5B and Qwen3.5-0.8B to scale (fig-stack) ---- */
 main.dn .dn-legend { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: 0 0 var(--s3); color: var(--ink-2); font: var(--fs-ui)/1.4 var(--sans); }
 main.dn .dn-legend > span { display: inline-flex; align-items: center; gap: var(--s2); }
 main.dn .dn-stack { max-width: 44rem; cursor: pointer; }
 main.dn :is(.dn-stack, .dn-cost):focus-visible { outline: var(--ring) solid var(--ink); outline-offset: 2px; }
 
-/* ---- what the four programs keep (fig-cost) ---- */
+/* ---- what SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen3.5-0.8B keep (fig-cost) ---- */
 main.dn .dn-read { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px var(--s3); align-items: center; max-width: 34rem; margin: var(--s3) 0 0; font: var(--fs-ui)/1.4 var(--sans); font-variant-numeric: tabular-nums; }
 main.dn .dn-read > .r { display: contents; }
 main.dn .dn-read .v { font-family: var(--mono); text-align: right; }

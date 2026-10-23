@@ -1,6 +1,5 @@
-// The Web Worker of "Trained in brainfuck": builds a training program with the generator of
-// compiler/train (lib.js), runs it on the names, and then runs the child program it prints; or
-// builds and runs a child of the Shakespeare run from its weights.
+// The Web Worker of "Trained in brainfuck": builds a training program (lib.js), runs it on the names and then the
+// child program it prints; or builds and runs a child of the Shakespeare run from its weights.
 'use strict';
 importScripts('../runtime/bfwasm.js?v=r8', 'lib.js?v=r5');
 
@@ -22,7 +21,7 @@ importScripts('../runtime/bfwasm.js?v=r8', 'lib.js?v=r5');
   const latin1 = (bytes) => { let s = ''; for (let i = 0; i < bytes.length; i += 8192) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192)); return s; };
   const bytesOf = (s) => Uint8Array.from(s, (c) => c.charCodeAt(0));
 
-  // the W cell of every slot, as the page draws it: w / 256, rounded, at most 127 either way
+  // the W cell (+1 in a slot of SL cells) of every slot, as the page draws it: w / 256, rounded, clamped to ±127
   function weights(tape, L) {
     let n = 0;
     for (const R of L.regions) n += R.regionSlots;
@@ -37,6 +36,7 @@ importScripts('../runtime/bfwasm.js?v=r8', 'lib.js?v=r5');
     return out;
   }
 
+  // The training program prints one loss line per step, then the child program as its last line.
   async function train(key) {
     const b = build(key);
     self.postMessage({ type: 'built', chars: b.src.length, parts: b.parts, writer: b.writer, engine: b.engine, ms: b.ms });
@@ -71,8 +71,8 @@ importScripts('../runtime/bfwasm.js?v=r8', 'lib.js?v=r5');
     self.postMessage({ type: 'names', names: c.text, ms: now() - t });
   }
 
-  // A child from its weights (w: the values of every slot at the child's scale, region after region),
-  // with its own seed and number of lines: built, compiled and run here, its text sent as it comes.
+  // A child from its weights (w: every slot at the child's scale, region after region), seed and number of lines:
+  // built, compiled and run here, its text sent as it comes.
   function child(msg) {
     const m = T.spec.MODELS[msg.key], L = T.layout.layout(m), t0 = now();
     let off = 0;

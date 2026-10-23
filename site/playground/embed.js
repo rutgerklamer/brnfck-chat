@@ -1,4 +1,5 @@
-// Put a small, runnable brainfuck playground in any page of this site: load this script, and every element with class "bf-play" (the program is its text or data-code; data-input, data-names, data-rows and so on set the rest) becomes one.
+// Turns every element with class "bf-play" on a page into a small runnable playground (embed.html in a frame).
+// The program is its text or data-code; data-input, data-names, data-rows and the like set the rest.
 (function () {
   'use strict';
   var base = new URL('.', (document.currentScript && document.currentScript.src) || location.href).href;

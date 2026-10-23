@@ -44,8 +44,8 @@
         for (var t = 0; t < upTo; t++) { var r = place(t), x = (r[1] + 0.5) * cw, y = (r[0] + 0.5) * cw; if (t) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
         ctx.stroke();
       } else if (sq >= 0) {
-        // what square sq takes in from elsewhere, in this layer: dark where it takes in nothing, to the scale of the square
-        // it takes in most besides itself and the notepad squares; those two as they are, the notepad squares ringed in blue
+        // what square sq takes in, in this layer: darker where less, scaled to its top square besides itself and the
+        // notepad squares; those two left as they are, the notepad squares ringed in blue
         var row = (layer - 1) * n + sq, L = D.look, R = registers(), top = topOf(sq), max = L[row * n + top] || 1;
         for (var u = 0; u < n; u++) {
           if (R[u] || u === sq) continue;
@@ -73,8 +73,8 @@
       for (var u = 0; u < n; u++) { var v = D.look[row * n + u], p = place(u); all += v; if (Math.abs(p[0] - me[0]) <= 1 && Math.abs(p[1] - me[1]) <= 1) close += v; }
       return all ? close / all : 0;
     }
-    // The registers of this layer: squares that every square takes in, whatever is in them (3% or more of what a square
-    // takes in, on average over all 256; an even share would be 0.4%). Larger vision models do the same [4].
+    // The registers (notepad squares) of this layer: squares every square takes in whatever is in them, 3% or more on
+    // average over all 256 (an even share is 0.4%).
     var regs = {};
     function registers() {
       var key = pic + ' ' + layer;

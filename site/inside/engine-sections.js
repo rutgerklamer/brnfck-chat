@@ -57,9 +57,8 @@
       print: { fam: 'text', group: Z, name: 'End piece? Otherwise print', desc: 'If the chosen piece is one of the two "end" pieces, the program stops. Otherwise it walks to the piece\'s record in the vocabulary table. The record says: this piece is one byte, or it is two smaller pieces. The program follows those rules down, with a small stack, and prints the bytes with the one output command.' },
     };
   };
-  // Qwen3.5 (brnfck-qwen3.5-0.8b): three DeltaNet layers and one attention layer, then again. The text of each of the four
-  // places in such a group is written once, and a loop runs the group six times. A section of the text (u0.xn1, ...)
-  // has the entry of its name (xn1, dn.conv, ...) with the layers it runs for as its group; the step counts are by name.
+  // Qwen3.5 (brnfck-qwen3.5-0.8b): groups of three DeltaNet layers and one attention layer, each place written once and run
+  // six times by a loop. Section u0.xn1 gets the entry of xn1, its layers as group; step counts are by name.
   const secQwen35 = (E) => {
     const m = E.model, M = E.matrices, lay = E.layout, T = m.tables, D = m.deltanet, n = fmt, base = secQwen(E);
     const nLin = m.types.filter((t) => t === 'lin').length, nAtt = m.layers - nLin, g = m.groups, per = m.unit.length;
@@ -119,10 +118,8 @@
     }
     return S;
   };
-  // brnfck-qwen3.5-0.8b-vision: before the question, the vision part of the model runs once over the picture. It reads the
-  // squares of the picture one by one, and then goes round its layers: a round is the second half of one layer and the
-  // first half of the next, for every square, and every round has its own text (each layer has its own widths). A
-  // section of the text (v3.att, ...) has the entry of its name (v.att, ...) with its round as its group.
+  // brnfck-qwen3.5-0.8b-vision: before the question the vision part reads the squares, then runs rounds, each its own text:
+  // the second half of a layer and the first half of the next. Section v3.att gets the entry of v.att, its round as group.
   const secVision = (E) => {
     const m = E.model, V = m.vision, M = V.matrices, n = fmt, R = 'The picture part, in its rounds', rc = (x) => n(x.rows) + ' rows and ' + n(x.cols) + ' columns';
     const S = {
