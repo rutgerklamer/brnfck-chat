@@ -107,6 +107,7 @@
   const WORD = { finding: 'finding the program', idle: 'nothing loaded', loading: 'loading', ready: 'ready', running: 'running', unfit: 'not on this device', failed: 'stopped on an error' };
   function setState(s) {
     state = s;
+    if (window.LeaveGuard) LeaveGuard.set('chat', s === 'loading' || s === 'running');   // leaving would lose the load or the answer
     $('main').dataset.state = s;
     $('figState').textContent = WORD[s] || '';
     point(...(AT[s] || ['', '']));

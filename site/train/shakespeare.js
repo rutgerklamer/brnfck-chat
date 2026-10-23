@@ -220,6 +220,7 @@
   function done(said) {
     if (wk) wk.terminate();
     wk = null;
+    if (window.LeaveGuard) LeaveGuard.set('child', false);
     $('sh-go').textContent = 'Run the child';
     if (said) $('sh-run-said').textContent = said;
   }
@@ -234,6 +235,7 @@
     $('sh-run-said').textContent = 'Building the child of pass ' + p + ' from its weights…';
     $('sh-go').textContent = 'Stop';
     const me = wk = new Worker('worker.js?v=r5');
+    if (window.LeaveGuard) LeaveGuard.set('child', true);
     let text = '', built = 0, pending = false;
     const show = () => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; const o = $('sh-out'); o.innerHTML = script(text) + '<span class="cursor"></span>'; o.scrollTop = o.scrollHeight; }); };
     me.onmessage = (ev) => {

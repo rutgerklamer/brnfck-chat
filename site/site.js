@@ -182,6 +182,22 @@
     if (window.ResizeObserver) new ResizeObserver(layout).observe(main);
     layout();
   }
+  // ---- leaving while a program works: a page marks work that would be lost (a program loading, writing an
+  // answer or training) with LeaveGuard.set(name, true) and clears it with LeaveGuard.set(name, false). While
+  // anything is marked, the browser asks before the page is closed, reloaded or left; the rest of the time
+  // there is no listener at all, so the page can still be kept for the back button. ----
+  var working = {};
+  function askFirst(e) { e.preventDefault(); e.returnValue = ''; }
+  window.LeaveGuard = {
+    set: function (name, on) {
+      var was = Object.keys(working).length > 0;
+      if (on) working[name] = true; else delete working[name];
+      var now = Object.keys(working).length > 0;
+      if (now && !was) window.addEventListener('beforeunload', askFirst);
+      else if (was && !now) window.removeEventListener('beforeunload', askFirst);
+    },
+  };
+
   function ready() { foot(); strip(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready); else ready();
 })();

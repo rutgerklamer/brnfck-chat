@@ -239,6 +239,8 @@
   var L = { P: null, worker: null, ready: false, id: 0, run: null, t0: 0 };
   var size = function (n) { return self.ProgramStart ? ProgramStart.size(n) : num(n / 1e6) + ' MB'; };
   function liveSay(t) { $('live-said').textContent = t; }
+  // loading the program or writing an answer: leaving the page would lose it
+  function liveBusy() { if (self.LeaveGuard) LeaveGuard.set('coder', !!L.run || (!!L.worker && !L.ready)); }
   function stage(t, part) { $('live-prog').hidden = false; $('live-stage').textContent = t; if (part != null) $('live-bar').value = part; }
   function liveFind() {
     EXAMPLES.forEach(function (id) {
@@ -274,6 +276,7 @@
     L.worker.onerror = function (ev) { liveFail('The background worker stopped' + (ev && ev.message ? ' (' + ev.message + ')' : '') + '. The usual cause is too little free memory.'); };
     L.worker.postMessage(Object.assign({ type: 'load', again: false }, L.P.loadMessage()));
     L.t0 = performance.now();
+    liveBusy();
   }
   function ask(q) {
     L.run = { id: ++L.id, q: q, code: '', pieces: 0, t0: performance.now(), dec: new TextDecoder('utf-8') };
@@ -281,6 +284,7 @@
     $('live-code').textContent = ''; $('live-len').textContent = '';
     stage('Reading your task, one word piece at a time (about 2.2 s each). Nothing is printed until it has read all of it.', null);
     L.worker.postMessage({ type: 'ask', id: L.run.id, question: q });
+    liveBusy();
   }
   function onLive(m) {
     if (m.type === 'progress') {
@@ -309,6 +313,7 @@
       $('live-pg').href = '../playground/#u=' + b64(JSON.stringify({ c: r.code, i: $('live-in').value }));
       liveRun();
       if (!m.reusable) { L.worker.terminate(); L.worker = null; L.ready = false; $('live-go').textContent = 'Load and ask'; }
+      liveBusy();
     } else if (m.type === 'error') liveFail(m.message);
   }
   function liveRun() {
@@ -321,6 +326,7 @@
   function liveFail(msg) {
     if (L.worker) { L.worker.terminate(); L.worker = null; }
     L.ready = false; L.run = null;
+    liveBusy();
     $('live-prog').hidden = true; $('live-go').disabled = false; $('live-go').textContent = 'Load and ask';
     liveSay(String(msg).replace(/\.?$/, '.') + ' Close other tabs and programs until about 4 GB is free, and try again.');
   }

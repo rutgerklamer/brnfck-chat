@@ -48,6 +48,7 @@
     }).catch(() => say('The data of this experiment could not be loaded.')));
     function stop(text) {
       if (worker) { worker.terminate(); worker = null; }
+      if (window.LeaveGuard) LeaveGuard.set('lab-train', false);
       $('ltGo').textContent = 'Train again';
       if (text) say(text);
     }
@@ -59,6 +60,7 @@
       say('Building the training program with the generator, in this browser…');
       $('ltGo').textContent = 'Stop';
       const w = worker = new Worker('train/worker.js?v=r3');
+      if (window.LeaveGuard) LeaveGuard.set('lab-train', true);
       let queued = false;
       const redraw = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; draw(); }); };
       w.onmessage = (ev) => {

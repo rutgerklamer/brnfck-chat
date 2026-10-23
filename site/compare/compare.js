@@ -771,6 +771,7 @@
     });
     function setBusy(v) {
       busy = v; go.disabled = v; stop.hidden = !v || !info; q.readOnly = v;
+      if (window.LeaveGuard) LeaveGuard.set('live', v);
       Array.prototype.forEach.call(modes.children, function (o) { o.disabled = v; });
     }
     function start() {
