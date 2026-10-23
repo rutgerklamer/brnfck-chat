@@ -100,7 +100,7 @@ function loadTokenizer(dir) {
   // Words of a text that holds no added token: [[bytes of word 1], ...]
   const wordsOf = (piece) => splitWords(piece.normalize('NFC')).map((w) => Array.from(Buffer.from(w, 'utf8')));
 
-  // Without step 1: the text is taken as ordinary text even if it is an added token.
+  // Without cutting out added tokens: the text is taken as ordinary text even if it is an added token.
   const encodePlain = (text) => wordsOf(text).flatMap((bytes) => bpe(bytes.map((b) => byteChar[b]).join('')));
 
   const encode = (text) => {

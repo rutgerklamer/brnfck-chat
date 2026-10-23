@@ -1,6 +1,6 @@
 'use strict';
 
-// THE SPEC of the brainfuck engine in this folder.
+// THE SPEC of the brainfuck engine in this folder: whole numbers only, the program prints what this computes.
 
 const fs = require('fs');
 const path = require('path');
@@ -9,7 +9,7 @@ const DEFAULTS = {
   weightBits: 8,    // weights are stored in this many bits, sign included; every matrix row has its own power-of-two scale
   tops: { wq: 12, wk: 12, wv: 14, wo: 12, w1: 12, w3: 12, w2: 12, cls: 12 },
   EB: 12, embBits: 11, // embedding table (|value| <= 0.201), also read by the output layer
-  XB: 12, xBits: 21,
+  XB: 12, xBits: 21,   // residual stream
   NB: 8, nBits: 14,    // normalised residual x / rms(x) (|value| < sqrt(896) = 29.9)
   gainB: 8, gainBits: 14, // normalisation gain (0.00 .. 16.8)
   ngBits: 17,          // normalised residual times gain, NB fraction bits (|value| <= 162)
@@ -35,6 +35,7 @@ const DEFAULTS = {
 const u32 = (v) => v >>> 0;                       // exact for |v| < 2^53
 const bitlen = (v) => 32 - Math.clz32(v);         // number of bits of an unsigned 32-bit value
 
+// clamp(floor((v + addend) / 2^k), lo, lo + 2^n - 1), with the wrap of a 32-bit cell.
 function rq32(v, k, n, lo = -(2 ** (n - 1)), addend = k > 0 ? 2 ** (k - 1) : 0) {
   const X = (v + addend - lo * 2 ** k) | 0;       // what the cell holds
   const q = X >> k, hi = 2 ** n - 1;
@@ -193,7 +194,7 @@ function build(src, prefix, options = {}) {
     }
   };
 
-  // ---- the fixed prefix: keys and values as data; position 0 from the float model (its values are far outside every range)
+  // ---- the fixed prefix: keys and values as data; position 0 from the float model (far outside every range)
   const NP = prefix.ids.length;
   const pre = {
     n: NP, ids: prefix.ids.slice(),
@@ -295,7 +296,7 @@ function build(src, prefix, options = {}) {
     if (!wantLogits && !trace) return null;
     return head(x, tr);
   }
-  // The output layer on its own: the scores of a residual xs (tools/map-data/lens.js gives it the residual after every layer).
+  // The output layer on its own: the scores of a residual xs (tools/map-data/lens.js uses it after every layer).
   function head(xs, tr = () => {}) {
     normalise(xs, xn, gFinal); tr('xnf', -1, xn);
     matvec(wcls.w, xn, vocab, logits, wcls.d);
@@ -324,7 +325,7 @@ function build(src, prefix, options = {}) {
 
 const argmax = (a) => { let best = 0; for (let i = 1; i < a.length; i++) if (a[i] > a[best]) best = i; return best; };
 
-const STOP = [151645, 151643];
+const STOP = [151645, 151643];   // <|im_end|>, <|endoftext|>
 
 const MODEL_SETTINGS = {
   '0.5b': {},

@@ -7,6 +7,7 @@ const fs = require('fs');
 function packWeights(shape, net, layout, sink) {
   const { dim, hidden, heads, kvHeads, headSize: hs } = shape, kv = kvHeads * hs, share = heads / kvHeads;
   const { OFFW, OFFE } = layout, CH = layout.chunkRows, nL = net.layers.length;
+  // query heads in engine order: head 0 of every key/value group first, then head 1, ... (model head g * share + s)
   const perm = (j) => { const s = Math.floor(j / kv), g = Math.floor((j % kv) / hs), i = j % hs; return (g * share + s) * hs + i; };
   const L = net.layers, E = net.emb;
   const value = {

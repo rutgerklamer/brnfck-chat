@@ -9,6 +9,7 @@ const range = (n, f = (i) => i) => Array.from({ length: n }, (_, i) => f(i));
 const ZW = 80;            // width of the scratch window of a slide loop
 const HS = 32;            // cells per attention head frame
 
+// The CT control cells that travel with a matrix's gap, by offset; B0.. hold the bits of the current input.
 const CT = 46;
 const CN = 0, POS = 1, SXT = 2, LC = 3, C4 = 4, C5 = 5, XC = 6, NEG = 7, PAR = 8, FIRST = 9, LOC = 10, TT = 11,
   TA = 12, EA = 13, TB = 14, EB = 15, TC = 16, EC = 17, ZA = 18, ZB = 19, TP = 20, H0 = 21, H1 = 22, KK = 23, KT = 24, B0 = 25;
@@ -132,6 +133,7 @@ class Engine {
 
   // ---- small code patterns -----------------------------------------------------
 
+  // acc += sign * a * b for every [b, acc, sign], with a read as an nb-bit two's-complement number.
   mul(a, nb, triples, s, keepA) {
     const p = this.p, [Za, Zb, T, h0, h1, K, Kt, tmp] = s;
     p.shl(a, Za, 32 - nb, [h0, h1], 1, keepA ? tmp : null);
@@ -157,6 +159,7 @@ class Engine {
     }, { Zo: m < 32 ? Zb : Za, T, H: [h0, h1], K, Kt });
   }
 
+  // Y = (X + addend) >> k, clamped to n bits from lo; rqSplit puts the top bit apart in TOP.
   rqN(X, Y, { k, n, lo = -(2 ** (n - 1)), addend = k > 0 ? 2 ** (k - 1) : 0, clamp = true, offset = false }, s, ex) {
     const p = this.p, hop = [s[4], s[5]], outs = [], cells = [Y, ex[0], ex[1]];
     for (let i = 0, left = n; left > 0; i++) { const b = Math.min(8, left); outs.push({ cell: cells[i], bits: b }); left -= b; }
@@ -230,6 +233,7 @@ class Engine {
     p.loop(E, () => { p.add(E, -1); els(); });
   }
 
+  // Runs body n times while its window (counter, NC carried cells, scratch) moves stride cells per round.
   slide(n, base, dir, stride, body, NC = 4) {
     const p = this.p, w = (k) => base + dir * k, s1 = stride + 1, step = dir * stride;
     const sc = (k) => { if (s1 * (NC + 1) + k >= ZW) throw new Error('slide window too small'); return w(s1 * (NC + 1) + k); };
@@ -246,6 +250,7 @@ class Engine {
     return c;
   }
 
+  // Moves the run of non-zero cells that starts at l dist cells on (stripRight4: four cells per round).
   stripRight(l, dist) {
     const p = this.p;
     p.to(l).raw('[>]<[[-' + '>'.repeat(dist) + '+' + '<'.repeat(dist) + ']<]');

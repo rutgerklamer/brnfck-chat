@@ -30,6 +30,7 @@ function charClass(cp) {
   return CLASS.O;
 }
 
+// Entry b: the class of a first byte b, and in sub the 64-entry table for the next byte when that decides the class.
 function byteTable() {
   const entry = [{ cls: 0, sub: 0 }], tables = [];
   const most = (list) => {

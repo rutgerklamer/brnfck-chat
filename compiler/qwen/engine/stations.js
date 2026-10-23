@@ -9,6 +9,7 @@ module.exports = (Engine, K) => {
   const E = Engine.prototype;
   const car1 = (base, j) => base + 2 * (j + 1);        // carried cell j of a slide with stride 1, direction +1
 
+  // X = sum at src - off * sx: takes the stored weight offset out (sx = sum of the inputs, moved on to sx + 1).
   E.fixSum = function (src, X, sx, off, others = []) {
     const p = this.p;
     p.move(src, X);
@@ -152,7 +153,7 @@ module.exports = (Engine, K) => {
   E.qkvRound = function () {
     const { p, P, Lo, M, a, so, kv } = this, { dim, R } = a, Mq = M.qkv;
     const arr = P + Lo.aQ, c = (k) => arr + Mq.ctrl + k, base = P + Lo.Ascr, QK = P + Lo.Aqk, slot0 = P + Lo.dock + this.SS, tmp = P + Lo.At;
-    // n rows starting at row `row` of the matrix (our order), rounded by [k, bits]
+    // n rows starting at row `row` of the matrix (engine order), rounded by [k, bits]
     const round = (n, row, dst, [k, bits], last) => {
       if (last) p.move(c(SXT), car1(base, 0)); else p.copy(c(SXT), car1(base, 0), tmp);
       const w = this.slide(n, base, 1, 1, (c) => {
@@ -409,6 +410,7 @@ module.exports = (Engine, K) => {
     p.move(ct(C4), tail + 2);
   };
 
+  // Back over every matrix (unsweep) to the start, carrying the index of the best score to gl.T.
   E.goHome = function () {
     const { p, M, a, pre, PL, Lo, stride, gl, CST, nC } = this, T0 = (Q) => Q - this.PRE + pre.t + 34;
     const tail = PL + nC * CST;

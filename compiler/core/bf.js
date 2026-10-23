@@ -1,8 +1,7 @@
 'use strict';
 
-// The compile step of an optimising brainfuck interpreter: runs of + - and < > become one operation,
-// and a loop that only adds and moves becomes one multiplication. tools/map-data/trace.js checks its
-// own position-keeping copy against it; compiler/qwen3.5/engine/bfrun.js builds on its pieces.
+// Compile step of an optimising brainfuck interpreter: runs of + - < > fold, add-and-move loops become multiplications.
+// compiler/qwen3.5/engine/bfrun.js builds on it; tools/map-data/trace.js checks its own copy against it.
 
 const ADD = 0, OUT = 1, IN = 2, JZ = 3, JNZ = 4, CLEAR = 5, MUL1 = 6, MUL2 = 7, MULN = 8, NOP = 9;
 
@@ -64,7 +63,7 @@ function compile(src) {
   return flatten(ops);
 }
 
-// Flatten into typed arrays: far faster to interpret than objects.
+// Typed arrays, far faster than objects: T op, M pointer move before it, N amount, jump target or index into X.
 function flatten(ops) {
   const T = new Uint8Array(ops.length), N = new Int32Array(ops.length), M = new Int32Array(ops.length);
   const table = [];

@@ -6,7 +6,7 @@ const { Engine } = require('../engine/gen');
 const { Patterns } = require('../../../site/runtime/patterns');
 const T = require('../tokenizer/gen');
 
-const GLUE = 16;                       // cells between the engine and the tokenizer (ours)
+const GLUE = 16;                       // cells between the engine and the tokenizer
 const swap = (code) => code.replace(/[<>]/g, (ch) => (ch === '<' ? '>' : '<'));
 
 class ChatProgram extends Engine {
@@ -14,7 +14,7 @@ class ChatProgram extends Engine {
     super(arch);
     const N = this.N;
     this.tok = T.layout(N + GLUE, tokOptions);
-    // our own cells, in real addresses (N + 1 stays empty)
+    // the glue cells, in real addresses (N + 1 stays empty)
     const g = (i) => N + 2 + i;
     this.glue = { TMP: g(0), CNT: g(1), TRASH: g(2) };
     this.cut = null;
@@ -77,7 +77,7 @@ class ChatProgram extends Engine {
 
   build() {
     const { src, layout } = super.build(), L = this.tok;
-    // the two parts: the load part reads the data files, the rest the question; the cut must be outside every loop and before any output
+    // the load part reads the data files, the rest the question; the cut lies outside every loop, before any output
     const { chars, pointer } = this.cut, loadSrc = src.slice(0, chars), restSrc = src.slice(chars);
     let depth = 0;
     for (let i = 0; i < loadSrc.length; i++) { const ch = loadSrc.charCodeAt(i); if (ch === 91) depth++; else if (ch === 93) depth--; }

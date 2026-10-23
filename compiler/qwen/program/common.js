@@ -51,6 +51,7 @@ function questionBytes(text, maxBytes = TOK.maxChars) {
   return Buffer.concat([bytes, Buffer.from([10])]);
 }
 
+// The cells a question changes (token, position, stored keys and values); put back, the next question can start.
 function restoreInfo(layout, arch) {
   const kv = arch.kvHeads * arch.headSize, real = layout.real;
   return {

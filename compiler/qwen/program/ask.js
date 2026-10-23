@@ -1,6 +1,7 @@
 'use strict';
 
 // Ask a Qwen2.5 chat model a question.
+//   node compiler/qwen/program/ask.js [--model 0.5b|1.5b|coder-0.5b] [--data] [--max pieces] question
 
 const fs = require('fs');
 const { files, questionBytes, num, gib } = require('./common');

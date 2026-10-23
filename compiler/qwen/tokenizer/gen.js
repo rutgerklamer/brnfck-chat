@@ -71,6 +71,7 @@ function layout(base = 0, opts = {}) {
   };
 }
 
+// dst = n bits of X from bit k (at most 18), read in pieces of six bits.
 function bitField(p, X, dst, k, n, hs, d) {
   const outs = [];
   for (let i = 0; 6 * i < n; i++) outs.push({ cell: d[i], bits: Math.min(6, n - 6 * i) });
@@ -499,6 +500,7 @@ function emitEncode(p, L) {
   return p;
 }
 
+// dst = the first id of the output; the other elements move one forward.
 function emitPopId(p, L, dst) {
   const raw = (s) => p.code.push(s), M = L.OUT, ID = L.OUT + 1;
   p.move(ID, dst); p.clear(M);
@@ -524,7 +526,7 @@ function emitPrint(p, L, idCell, { tmp }) {
     tw.fetch([[2, c.G]], T(1), T(2), T(3));
     p.clear(c.R);
     tw.back([c.G]);
-    // S: record number or byte in the low slotBits bits, then "is a byte", "is a pair"
+    // SV: record number or byte in the low slotBits bits, then "is a byte", "is a pair"
     p.move(c.G, SV);
     tw.split(SV, hs, [{ cell: ISB, bits: 1 }, { cell: ISP, bits: 1 }]);
     p.add(F, 1);

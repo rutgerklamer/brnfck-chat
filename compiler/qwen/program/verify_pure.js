@@ -1,6 +1,7 @@
 'use strict';
 
 // The self-contained program site/programs/brnfck-qwen2.5-<model>.bf, checked.
+//   node compiler/qwen/program/verify_pure.js [model] [scan | tape | ask [question numbers]]
 
 const fs = require('fs');
 const os = require('os');
