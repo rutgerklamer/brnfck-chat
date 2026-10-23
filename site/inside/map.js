@@ -412,7 +412,7 @@
   LAYOUTS.skyline = Object.assign({}, LAYOUTS.line, { name: 'Skyline', says: 'The one line with a height: how many loops lie inside one another there. Flat where the program only writes numbers, towers in the engine. Best to see where the program is complicated.' });
   LAYOUTS.time = Object.assign({}, LAYOUTS.line, { name: 'Text and time', says: 'Above, the text of the engine; below, the steps one word piece took, measured in a run. A band joins each section of the text to its share of the time. Best to see that a short piece of text can take most of the time.',
     zHome: () => Math.log2(Wd * 0.9 / E.chars), home: () => ({ cx: E.from + E.chars / 2, cy: 0 }) });
-  LAYOUTS.three = Object.assign({}, LAYOUTS.line, { name: 'Five programs', says: 'Above, this program; below, all five programs as bars at one scale, cut into the same parts. Best to compare how long they are and what they are made of.' });
+  LAYOUTS.three = Object.assign({}, LAYOUTS.line, { name: 'Five chat programs', says: 'Above, this program; below, brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b, brnfck-qwen3.5-0.8b and brnfck-qwen3.5-0.8b-vision as bars at one scale, cut into the same parts. Best to compare how long they are and what they are made of.' });
   const LINES = { line: 1, lanes: 1, tape: 1, density: 1, skyline: 1, time: 1, three: 1 }, SECOND = { tape: 1, time: 1, three: 1 };      // SECOND: the lower ribbon is something else than the same line closer
   const isLine = () => LINES[layout] === 1;
   let depthData = null, depthWait = null, cmpData = null, cmpWait = null;

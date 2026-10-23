@@ -22,13 +22,12 @@
   <header class="plain">
     <p class="kicker crumbs"><a href="../train/">Lab</a><span>Trained in brainfuck</span></p>
     <h1>Trained in brainfuck</h1>
-    <p class="lead">The chat programs on this site run models that were trained elsewhere, on graphics cards. The three programs on this page learn themselves. Each starts from random numbers, reads a list of 1,402 names through its comma command, and learns from it, one step after another: it guesses the next letter, measures how wrong it was, and moves every weight a little. When it is done, it prints a second brainfuck program, its child, which holds what it learned and makes up new names. A fourth, larger one learned Shakespeare overnight.</p>
+    <p class="lead">The chat programs on this site run models that were trained elsewhere, on graphics cards. brnfck-train-names-bigram-756, brnfck-train-names-mlp-7k and brnfck-train-names-attn-10k learn themselves. Each starts from random numbers, reads a list of 1,402 names through its comma command, and learns from it, one step after another: it guesses the next letter, measures how wrong it was, and moves every weight a little. When it is done, it prints a second brainfuck program, its child, which holds what it learned and makes up new names. brnfck-train-shakespeare-attn-55k, larger, learned Shakespeare overnight.</p>
     <div class="top-nav">
       <nav id="contents" aria-labelledby="contents-h">
         <p class="label" id="contents-h">Contents</p>
         <ol class="contents">
           <li><a href="#train">Train one here</a></li>
-          <li><a href="#shakespeare">Shakespeare, overnight</a></li>
           <li><a href="#nets">Three networks</a></li>
           <li><a href="#numbers">Learning in whole numbers</a></li>
           <li><a href="#map">The program to scale</a></li>
@@ -36,6 +35,7 @@
           <li><a href="#names">Names they made up</a></li>
           <li><a href="#checked">How it was checked</a></li>
           <li><a href="#cost">What it costs</a></li>
+          <li><a href="#shakespeare">Shakespeare, overnight</a></li>
           <li><a href="#notes">Notes and sources</a></li>
         </ol>
       </nav>
@@ -79,77 +79,6 @@
         <p class="names" id="train-names-list"></p>
       </div>
       <p class="measured">Grey dots: the loss of every step as the plain JavaScript version of the training printed it (<code>compiler/train/reference.js</code>); the line is the average of 100 steps. A run here draws its own dots over them; they land exactly on the grey ones. The weights: every cell of the tape that holds a weight, as a pixel, orange above zero and blue below, row by row as the program stores them. During a run they are read from the running program; otherwise from the same training in JavaScript, at the step on the slider.</p>
-    </figure>
-  </section>
-
-  <section id="shakespeare" aria-labelledby="shakespeare-h">
-    <h2 id="shakespeare-h">Shakespeare, overnight</h2>
-    <p>The same kind of network, made larger, learned Shakespeare. <span data-sh="name">brnfck-shakespeare-attn-55k</span> looks at the last 16 characters with its attention and at the last 4 with <span data-sh="hidden">128</span> hidden units, and has <span data-sh="params">54,513</span> weights. Its training program, <span data-sh="program">29 million</span> characters of brainfuck, read the plays of Tiny Shakespeare through its comma command on one core of a home computer, in passes of a million characters, about three quarters of an hour each. It learns from the first 90% of the text. The last 10% it never reads; that part measures how well it does on text it has not seen. The <a href="../map/?m=train-shakespeare">Program map</a> shows its training program, all of it, down to single commands.</p>
-
-    <dl class="stats" id="sh-stats">
-      <div><dt>Passes</dt><dd id="sh-st-passes">&nbsp;</dd></div>
-      <div><dt>Characters read</dt><dd id="sh-st-chars">&nbsp;</dd></div>
-      <div><dt>Time</dt><dd id="sh-st-time">&nbsp;</dd></div>
-      <div><dt>Loss on unseen text</dt><dd id="sh-st-held">&nbsp;</dd></div>
-      <div><dt>Equal to the reference</dt><dd id="sh-st-same">&nbsp;</dd></div>
-    </dl>
-    <p class="measured" id="sh-st-note" hidden></p>
-
-    <figure class="fig" id="fig-sh-loss" aria-label="The loss over the whole run, and on the text kept apart after every pass">
-      <canvas id="sh-loss" role="img" aria-describedby="sh-loss-said"></canvas>
-      <canvas id="sh-held" role="img" aria-label="The loss on the unseen text after every pass, on a scale that fits it"></canvas>
-      <p class="key small" id="sh-loss-key"></p>
-      <p class="tell" id="sh-loss-said" aria-live="polite">&nbsp;</p>
-      <p class="measured">The line: the loss the training program printed, in nats per character, the mean of the steps between two progress lines of the run (about every two minutes); the first 2,000 steps from the plain JavaScript version of the training, in groups of 20, which prints the same lines. The dots: the loss on the 10% kept apart, after each pass. The dashed lines are what simpler guesses score on that part: every character equally likely, how often each character comes, and the character before only. The steps are on a square-root scale, so that the first minutes, when it learns the most, are wide enough to see. Below it, the loss on the unseen text alone, after each pass, on a scale that fits those numbers. Click to pick a pass.</p>
-    </figure>
-
-    <h3 id="sh-pass-h">What each pass wrote</h3>
-    <p>After every pass the training program printed its child: a second brainfuck program of about 12 million characters, the weights as runs of plus and minus, then an engine that writes 40 lines. Pass 0 is the child of the random weights it started from.</p>
-    <figure class="fig" id="fig-sh-pass" aria-labelledby="sh-pass-h">
-      <div class="ctl picks">
-        <label class="snap sh-pass"><span>Pass</span><input type="range" id="sh-pass" min="0" max="1" value="1" aria-describedby="sh-pass-said"><output id="sh-pass-out">&nbsp;</output></label>
-        <button type="button" class="quiet" id="sh-play">Play from the start</button>
-      </div>
-      <p class="tell" id="sh-pass-said" aria-live="polite">&nbsp;</p>
-      <div class="sh-script" id="sh-text" tabindex="0" aria-label="What the child of this pass wrote"></div>
-    </figure>
-
-    <h3 id="sh-run-h">Run a child here</h3>
-    <p>Your browser builds the child of the pass above from its weights, compiles the brainfuck to WebAssembly and runs it. With seed 1021 and 40 lines it is the program the training printed, and it must write the same text, character for character. Any other seed draws other characters from the same chances.</p>
-    <figure class="fig" id="fig-sh-run" aria-labelledby="sh-run-h">
-      <div class="ctl picks">
-        <label class="word sh-seed"><span>Seed</span><input type="number" id="sh-seed" value="1021" min="1" max="999999" step="1" inputmode="numeric"></label>
-        <button type="button" class="quiet" id="sh-dice">New seed</button>
-        <span class="seg" id="sh-lines" role="group" aria-label="How many lines"><button type="button" data-n="10" aria-pressed="false">10 lines</button><button type="button" data-n="40" aria-pressed="true">40 lines</button><button type="button" data-n="100" aria-pressed="false">100 lines</button></span>
-        <button type="button" class="primary" id="sh-go">Run the child</button>
-      </div>
-      <dl class="stats" id="sh-run-stats">
-        <div><dt>Child of pass</dt><dd id="sh-rs-pass">&nbsp;</dd></div>
-        <div><dt>Program</dt><dd id="sh-rs-chars">&nbsp;</dd></div>
-        <div><dt>Built and compiled</dt><dd id="sh-rs-build">&nbsp;</dd></div>
-        <div><dt>Writing</dt><dd id="sh-rs-run">&nbsp;</dd></div>
-        <div><dt>Same as overnight</dt><dd id="sh-rs-same">&nbsp;</dd></div>
-      </dl>
-      <div class="sh-script live" id="sh-out" aria-live="off" tabindex="0" aria-label="What the child writes"></div>
-      <p class="tell" id="sh-run-said" aria-live="polite">&nbsp;</p>
-    </figure>
-
-    <h3 id="sh-att-h">Where it looks</h3>
-    <p>Type the start of a line. The child of the pass above weighs the last 16 characters; the bars show how much of each it takes in to guess the next one, and below are its guesses. <em>Take its guess</em> adds its first guess and goes on from there.</p>
-    <figure class="fig" id="fig-sh-att" aria-labelledby="sh-att-h">
-      <div class="ctl picks">
-        <label class="word sh-line"><span>Text so far</span><textarea id="sh-att-text" rows="2" spellcheck="false" autocomplete="off">KING RICHARD III:
-Now is the winter of our disconte</textarea></label>
-      </div>
-      <div class="ctl picks">
-        <span class="seg" id="sh-att-pick" role="group" aria-label="Examples"></span>
-        <button type="button" class="quiet" id="sh-att-take">Take its guess</button>
-      </div>
-      <div class="att-row sh-att-row" id="sh-att-row"></div>
-      <p class="label att-next-h">Its guesses for the next character</p>
-      <div class="att-next" id="sh-att-next"></div>
-      <p class="tell" id="sh-att-said" aria-live="polite">&nbsp;</p>
-      <p class="measured">Computed in your browser exactly as the child program computes it: its weights, read from the child the training printed, through the same whole-number arithmetic (<code>compiler/train/reference.js</code>, <code>forward</code>). The bars are drawn against the largest; the numbers below them are per cent. A space is shown as ·, the end of a line as ↵, and a place before the text starts as an end of line.</p>
     </figure>
   </section>
 
@@ -239,6 +168,77 @@ Now is the winter of our disconte</textarea></label>
       </table>
     </div>
     <p class="measured">Measured with Node.js 24 on the computer that built the chat programs (8 cores), one run each, in the WebAssembly runtime of this site; logs in <code>compiler/train/out/</code>. The loss is the average of the loss lines of the last 500 steps (the last 75 for one letter back), in nats per letter. A run in your browser takes about as long.</p>
+  </section>
+
+  <section id="shakespeare" aria-labelledby="shakespeare-h">
+    <h2 id="shakespeare-h">Shakespeare, overnight</h2>
+    <p>The same kind of network, made larger, learned Shakespeare. <span data-sh="name">brnfck-shakespeare-attn-55k</span> looks at the last 16 characters with its attention and at the last 4 with <span data-sh="hidden">128</span> hidden units, and has <span data-sh="params">54,513</span> weights. Its training program, <span data-sh="program">29 million</span> characters of brainfuck, read the plays of Tiny Shakespeare through its comma command on one core of a home computer, in passes of a million characters, about three quarters of an hour each. It learns from the first 90% of the text. The last 10% it never reads; that part measures how well it does on text it has not seen. The <a href="../map/?m=train-shakespeare">Program map</a> shows its training program, all of it, down to single commands.</p>
+
+    <dl class="stats" id="sh-stats">
+      <div><dt>Passes</dt><dd id="sh-st-passes">&nbsp;</dd></div>
+      <div><dt>Characters read</dt><dd id="sh-st-chars">&nbsp;</dd></div>
+      <div><dt>Time</dt><dd id="sh-st-time">&nbsp;</dd></div>
+      <div><dt>Loss on unseen text</dt><dd id="sh-st-held">&nbsp;</dd></div>
+      <div><dt>Equal to the reference</dt><dd id="sh-st-same">&nbsp;</dd></div>
+    </dl>
+    <p class="measured" id="sh-st-note" hidden></p>
+
+    <figure class="fig" id="fig-sh-loss" aria-label="The loss over the whole run, and on the text kept apart after every pass">
+      <canvas id="sh-loss" role="img" aria-describedby="sh-loss-said"></canvas>
+      <canvas id="sh-held" role="img" aria-label="The loss on the unseen text after every pass, on a scale that fits it"></canvas>
+      <p class="key small" id="sh-loss-key"></p>
+      <p class="tell" id="sh-loss-said" aria-live="polite">&nbsp;</p>
+      <p class="measured">The line: the loss the training program printed, in nats per character, the mean of the steps between two progress lines of the run (about every two minutes); the first 2,000 steps from the plain JavaScript version of the training, in groups of 20, which prints the same lines. The dots: the loss on the 10% kept apart, after each pass. The dashed lines are what simpler guesses score on that part: every character equally likely, how often each character comes, and the character before only. The steps are on a square-root scale, so that the first minutes, when it learns the most, are wide enough to see. Below it, the loss on the unseen text alone, after each pass, on a scale that fits those numbers. Click to pick a pass.</p>
+    </figure>
+
+    <h3 id="sh-pass-h">What each pass wrote</h3>
+    <p>After every pass the training program printed its child: a second brainfuck program of about 12 million characters, the weights as runs of plus and minus, then an engine that writes 40 lines. Pass 0 is the child of the random weights it started from.</p>
+    <figure class="fig" id="fig-sh-pass" aria-labelledby="sh-pass-h">
+      <div class="ctl picks">
+        <label class="snap sh-pass"><span>Pass</span><input type="range" id="sh-pass" min="0" max="1" value="1" aria-describedby="sh-pass-said"><output id="sh-pass-out">&nbsp;</output></label>
+        <button type="button" class="quiet" id="sh-play">Play from the start</button>
+      </div>
+      <p class="tell" id="sh-pass-said" aria-live="polite">&nbsp;</p>
+      <div class="sh-script" id="sh-text" tabindex="0" aria-label="What the child of this pass wrote"></div>
+    </figure>
+
+    <h3 id="sh-run-h">Run a child here</h3>
+    <p>Your browser builds the child of the pass above from its weights, compiles the brainfuck to WebAssembly and runs it. With seed 1021 and 40 lines it is the program the training printed, and it must write the same text, character for character. Any other seed draws other characters from the same chances.</p>
+    <figure class="fig" id="fig-sh-run" aria-labelledby="sh-run-h">
+      <div class="ctl picks">
+        <label class="word sh-seed"><span>Seed</span><input type="number" id="sh-seed" value="1021" min="1" max="999999" step="1" inputmode="numeric"></label>
+        <button type="button" class="quiet" id="sh-dice">New seed</button>
+        <span class="seg" id="sh-lines" role="group" aria-label="How many lines"><button type="button" data-n="10" aria-pressed="false">10 lines</button><button type="button" data-n="40" aria-pressed="true">40 lines</button><button type="button" data-n="100" aria-pressed="false">100 lines</button></span>
+        <button type="button" class="primary" id="sh-go">Run the child</button>
+      </div>
+      <dl class="stats" id="sh-run-stats">
+        <div><dt>Child of pass</dt><dd id="sh-rs-pass">&nbsp;</dd></div>
+        <div><dt>Program</dt><dd id="sh-rs-chars">&nbsp;</dd></div>
+        <div><dt>Built and compiled</dt><dd id="sh-rs-build">&nbsp;</dd></div>
+        <div><dt>Writing</dt><dd id="sh-rs-run">&nbsp;</dd></div>
+        <div><dt>Same as overnight</dt><dd id="sh-rs-same">&nbsp;</dd></div>
+      </dl>
+      <div class="sh-script live" id="sh-out" aria-live="off" tabindex="0" aria-label="What the child writes"></div>
+      <p class="tell" id="sh-run-said" aria-live="polite">&nbsp;</p>
+    </figure>
+
+    <h3 id="sh-att-h">Where it looks</h3>
+    <p>Type the start of a line. The child of the pass above weighs the last 16 characters; the bars show how much of each it takes in to guess the next one, and below are its guesses. <em>Take its guess</em> adds its first guess and goes on from there.</p>
+    <figure class="fig" id="fig-sh-att" aria-labelledby="sh-att-h">
+      <div class="ctl picks">
+        <label class="word sh-line"><span>Text so far</span><textarea id="sh-att-text" rows="2" spellcheck="false" autocomplete="off">KING RICHARD III:
+Now is the winter of our disconte</textarea></label>
+      </div>
+      <div class="ctl picks">
+        <span class="seg" id="sh-att-pick" role="group" aria-label="Examples"></span>
+        <button type="button" class="quiet" id="sh-att-take">Take its guess</button>
+      </div>
+      <div class="att-row sh-att-row" id="sh-att-row"></div>
+      <p class="label att-next-h">Its guesses for the next character</p>
+      <div class="att-next" id="sh-att-next"></div>
+      <p class="tell" id="sh-att-said" aria-live="polite">&nbsp;</p>
+      <p class="measured">Computed in your browser exactly as the child program computes it: its weights, read from the child the training printed, through the same whole-number arithmetic (<code>compiler/train/reference.js</code>, <code>forward</code>). The bars are drawn against the largest; the numbers below them are per cent. A space is shown as ·, the end of a line as ↵, and a place before the text starts as an end of line.</p>
+    </figure>
   </section>
 
   <section id="notes" aria-labelledby="notes-h">

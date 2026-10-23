@@ -704,7 +704,7 @@
     if (!T) {
       $('w-intro').textContent = 'No run of this program was counted step by step.';
       $('w-card').hidden = true; $('w-card2').hidden = true;
-      $('w-explain').append(el('p', '', 'This program was not run under the counting interpreter, so there is no breakdown of its steps. Its times per word piece, from the project\'s log, are in the table of the four programs side by side.'));
+      $('w-explain').append(el('p', '', 'This program was not run under the counting interpreter, so there is no breakdown of its steps. Its times per word piece, from the project\'s log, are in the table under SmolLM2, Qwen2.5 and Qwen3.5 side by side.'));
       return;
     }
     const D = T.detail, ids = T.sections, ix = (id) => ids.indexOf(id);

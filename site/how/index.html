@@ -215,7 +215,7 @@
         <tr><td>Look up one of 256 values in a table</td><td class="n">about 500</td><td class="n">about 68</td></tr>
         <tr><td>Find the highest of 512 scores</td><td class="n">119,000 to 595,000</td><td class="n">about 5,000</td></tr>
       </table></div>
-      <p>Even so, one word piece of brnfck-smollm2-135m is 1.6 to 1.9 billion steps: 1.60 billion early in an answer, 1.92 billion at the last position the program has room for. Starting up takes 9 to 16 seconds when the file comes from the same computer. The bigger models have more weights, so they take longer: about 2.3 seconds for a word piece of brnfck-qwen2.5-0.5b, 7 to 12 seconds for brnfck-qwen2.5-1.5b and about 5.6 seconds for brnfck-qwen3.5-0.8b. <a href="../learn/05-peel.html">The lesson &ldquo;peeling off bits&rdquo;</a> shows the trick behind the first row of the table.</p>
+      <p>Even so, one word piece of brnfck-smollm2-135m is 1.6 to 1.9 billion steps: 1.60 billion early in an answer, 1.92 billion at the last position the program has room for. Starting up takes 9 to 16 seconds when the file comes from the same computer. Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen3.5-0.8B have more weights than SmolLM2-135M, so they take longer: about 2.3 seconds for a word piece of brnfck-qwen2.5-0.5b, 7 to 12 seconds for brnfck-qwen2.5-1.5b and about 5.6 seconds for brnfck-qwen3.5-0.8b. <a href="../learn/05-peel.html">The lesson &ldquo;peeling off bits&rdquo;</a> shows the trick behind the first row of the table.</p>
     </div></details>
 
     <h3 id="weights">A billion characters of numbers</h3>
@@ -232,9 +232,9 @@
       <div class="ctl" id="w-ctl"></div>
     </figure>
 
-    <p>Counting takes one plus sign for every unit. The second program writes the number the way we write 93 with two digits and not with ninety-three tally marks: a few plus signs, a short loop that multiplies by five, a few more plus signs. Both programs ran in your browser, and the last column is what each left in its cell. For a small number counting is the shorter of the two. For a large one it is far longer.</p>
+    <p>Counting takes one plus sign for every unit. The program in fives writes the number the way we write 93 with two digits and not with ninety-three tally marks: a few plus signs, a short loop that multiplies by five, a few more plus signs. Both programs ran in your browser, and the last column is what each left in its cell. For a small number counting is the shorter of the two. For a large one it is far longer.</p>
     <p>This is a small example. In the program of brnfck-smollm2-135m the loop that multiplies is written once for a block of up to 8,192 cells, so per cell little more than the plus signs is left. It also uses digits below zero and other multipliers than five. That way its first 1,004,387,443 characters fill 163,494,188 cells, at about 6 characters for each <span class="ev">counted</span>. As rows of plus signs the same numbers would take about 43 trillion characters <span class="ev">estimated</span>.</p>
-    <p>Those first characters are the <b>writing part</b> of the program: they put the model on the tape and read nothing. The last 26.5 million characters are the <b>engine</b>. The engine holds the one comma and the one full stop, and it does everything on the route above: reading the question, cutting it into word pieces, the layers, choosing and printing. Drawn to scale, the two parts look like this:</p>
+    <p>Those first characters are the <b>writing part</b> of the program: they put SmolLM2-135M on the tape and read nothing. The last 26.5 million characters are the <b>engine</b>. The engine holds the one comma and the one full stop, and it does everything on the route above: reading the question, cutting it into word pieces, the layers, choosing and printing. Drawn to scale, the two parts look like this:</p>
 
     <figure class="fig col" id="fig-parts" aria-label="The program of brnfck-smollm2-135m as one bar, to scale: the writing part is 97.43% of it, the engine the last 2.57%">
       <div class="stack" aria-hidden="true"><i class="d5" style="width:97.43%"></i><i class="d2" style="width:2.57%"></i></div>
@@ -244,7 +244,7 @@
     <p>Nearly all of the program only writes numbers. The part that answers is the sliver at the right end. <a href="../inside/">Inside the program</a> takes both parts apart.</p>
     <p>A bigger model has more weights, and everything grows with them. Choose a model and compare:</p>
 
-    <figure class="fig col" id="fig-size" aria-label="What each of the four programs costs: program, tape, memory and time">
+    <figure class="fig col" id="fig-size" aria-label="What brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b cost: program, tape, memory and time">
       <dl class="facts" id="z-facts" aria-live="polite">
         <div><dt>The model</dt><dd></dd></div>
         <div><dt>Weights</dt><dd></dd></div>
@@ -298,10 +298,10 @@
           </ul>
         </div>
       </div>
-      <p>What goes into a program is letters and what comes out is letters. The word pieces, the weights and the arithmetic are all inside it. This holds for the four programs of text: each has only the eight commands, exactly one <code>,</code> and one <code>.</code>, and its only input is the question. brnfck-qwen3.5-0.8b-vision also has only the eight commands and one <code>.</code>, but three <code>,</code>: one reads a picture before the question, two read the question (its first character, then the others).</p>
+      <p>What goes into a program is letters and what comes out is letters. The word pieces, the weights and the arithmetic are all inside it. This holds for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b, brnfck-qwen3.5-0.8b and brnfck-qwen2.5-coder-0.5b: each has only the eight commands, exactly one <code>,</code> and one <code>.</code>, and its only input is the question. brnfck-qwen3.5-0.8b-vision also has only the eight commands and one <code>.</code>, but three <code>,</code>: one reads a picture before the question, two read the question (its first character, then the others).</p>
       <p><b>What it does not mean:</b></p>
       <ul>
-        <li><b>The models were not made in brainfuck.</b> SmolLM2-135M-Instruct was trained by Hugging Face <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud <a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, and Qwen3.5-0.8B by the Qwen team of Alibaba Cloud, all in the usual way. Brainfuck only runs them.</li>
+        <li><b>The models were not made in brainfuck.</b> SmolLM2-135M-Instruct was trained by Hugging Face <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a>, Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct by Alibaba Cloud <a class="cite" href="#ref-7" aria-label="Source 7">[7]</a>, Qwen3.5-0.8B by the Qwen team of Alibaba Cloud and Qwen2.5-Coder-0.5B-Instruct by Alibaba Cloud, all in the usual way. For brnfck-qwen2.5-coder-0.5b, Qwen2.5-Coder-0.5B-Instruct was then taught to write brainfuck on a graphics card, also not in brainfuck. Brainfuck only runs them.</li>
         <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was first converted to whole-number arithmetic. That version picks the same next word piece as the original model in 94.8% of the tested cases for brnfck-smollm2-135m (345 of 364), 96.6% for brnfck-qwen2.5-0.5b (477 of 494) and 97.2% for brnfck-qwen2.5-1.5b (318 of 327). For brnfck-qwen3.5-0.8b it is 95.1% (214 of 225 positions of its answers): the program computes its whole-number version bit for bit, and that version was compared with the original.</li>
         <li><b>It needs cells of 32 bits.</b> A cell here holds a number from 0 to 4,294,967,295 and goes round to 0 after that. Many brainfuck interpreters have cells that hold 0 to 255; on those these programs print nonsense.</li>
         <li><b>It needs a fast interpreter.</b> See <a href="#fast">&ldquo;Why is it this fast?&rdquo;</a> One command at a time would take far too long.</li>
@@ -412,8 +412,8 @@ node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "De
         <tr><td>Time per word piece</td><td class="n">about 0.6 to 1.0 seconds</td><td class="n">measured</td></tr>
         <tr><td>Work per word piece</td><td class="n">1.6 to 1.9 billion steps</td><td class="n">measured</td></tr>
       </table></div>
-      <div class="scroll" tabindex="0" role="group" aria-label="The five programs side by side; scrolls sideways on a narrow screen"><table id="tab-4" class="wide">
-        <caption>The five programs side by side. Counts are counted in the program files; times are measured.</caption>
+      <div class="scroll" tabindex="0" role="group" aria-label="Five chat programs side by side; scrolls sideways on a narrow screen"><table id="tab-4" class="wide">
+        <caption>Five chat programs side by side; brnfck-qwen2.5-coder-0.5b has its own page, <a href="../coder/">Brainfuck that writes brainfuck</a>. Counts are counted in the program files; times are measured.</caption>
         <tr><th>What</th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th><th class="n">brnfck-qwen3.5-0.8b-vision</th></tr>
         <tr><td>The model</td><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B</td><td class="n">Qwen3.5-0.8B with its part for pictures</td></tr>
         <tr><td>Weights</td><td class="n">about 135 million</td><td class="n">about 494 million</td><td class="n">about 1.54 billion</td><td class="n">about 752 million (the text part)</td><td class="n">about 853 million (752 million of text, 101 million for pictures)</td></tr>
@@ -431,7 +431,7 @@ node compiler/qwen3.5/vision/ask.js compiler/qwen3.5/vision/pictures/cat.png "De
 
     <details class="q fold" id="limits"><summary>What all this does not show</summary><div class="a">
       <ul>
-        <li><b>The figures simplify.</b> The row lookup, the three weights, the scores and the number written in fives use small or made-up numbers. The program of the model also uses digits below zero and other multipliers than five.</li>
+        <li><b>The figures simplify.</b> The row lookup, the three weights, the scores and the number written in fives use small or made-up numbers. brnfck-smollm2-135m also uses digits below zero and other multipliers than five.</li>
         <li><b>The route is that of brnfck-smollm2-135m.</b> The question, its word pieces, the character count and the first table of numbers are of the program with 135 million weights. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b are built in the same way; their numbers are in the table of the models side by side.</li>
         <li><b>The answers can be wrong.</b> brnfck-smollm2-135m is often wrong, also on simple sums. brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b usually get simple sums and facts right but are still wrong on harder facts. Brainfuck adds nothing and removes nothing; do not rely on anything a model says.</li>
         <li><b>The numbers were rounded.</b> The whole-number versions pick the same next word piece as the original models in 94.8%, 96.6%, 95.1% and 97.2% of the tested cases, not in all.</li>

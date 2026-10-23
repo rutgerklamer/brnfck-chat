@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About the project · brnfck.chat</title>
-<meta name="description" content="Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program, and one of them also with its part for pictures. Ask one a question, see how it works, or learn it step by step.">
+<meta name="description" content="Five real chat models, SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B, Qwen3.5-0.8B and Qwen2.5-Coder-0.5B, from 135 million to 1.54 billion weights, each written out as one brainfuck program, and Qwen3.5-0.8B also with its part for pictures. Ask one a question, see how it works, or learn it step by step.">
 <meta property="og:title" content="About the project · brnfck.chat">
-<meta property="og:description" content="Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program, and one of them also with its part for pictures. Ask one a question, see how it works, or learn it step by step.">
+<meta property="og:description" content="Five real chat models, SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B, Qwen3.5-0.8B and Qwen2.5-Coder-0.5B, from 135 million to 1.54 billion weights, each written out as one brainfuck program, and Qwen3.5-0.8B also with its part for pictures. Ask one a question, see how it works, or learn it step by step.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="brnfck.chat">
 <meta name="twitter:card" content="summary">
@@ -37,7 +37,7 @@
   <header class="plain">
     <p class="kicker crumbs"><a href="../about/">About</a><span>About the project</span></p>
     <h1>Chat models that run as brainfuck programs</h1>
-    <p class="lead">Four real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program. One of them also looks at pictures, in a fifth program.</p>
+    <p class="lead">Five real chat models, from 135 million to 1.54 billion weights, each written out as one brainfuck program: SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B, Qwen3.5-0.8B and Qwen2.5-Coder-0.5B. brnfck-qwen3.5-0.8b-vision runs Qwen3.5-0.8B with its part for pictures as well.</p>
   </header>
 
   <section class="abstract" aria-labelledby="abs">
@@ -50,7 +50,7 @@
       <canvas id="m-canvas" role="img" aria-label="The whole program of brnfck-qwen2.5-1.5b as one picture. Each coloured field is a part of the model: the output table, twenty-eight layers of weights, the table of word pieces, and in one corner the engine."></canvas>
       <div class="mapgate"><a class="btn" href="../map/">Explore the map</a><span class="small">Every character of the program is on it. Zoom in until you can read the commands.</span></div>
     </div>
-    <figcaption id="cap-map">The whole program of brnfck-qwen2.5-1.5b, Qwen2.5-1.5B-Instruct: 11,430,468,880 characters of brainfuck, folded into one square. A colour is one part of the model; the engine that does the sums is the small patch in the corner. On <a href="../map/">the map</a> you can zoom in to single commands, for each of the four programs.</figcaption>
+    <figcaption id="cap-map">The whole program of brnfck-qwen2.5-1.5b, Qwen2.5-1.5B-Instruct: 11,430,468,880 characters of brainfuck, folded into one square. A colour is one part of Qwen2.5-1.5B; the engine that does the sums is the small patch in the corner. On <a href="../map/">the map</a> you can zoom in to single commands, for brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b, brnfck-qwen3.5-0.8b, brnfck-qwen3.5-0.8b-vision and the four programs that train a network.</figcaption>
   </figure>
 
   <figure id="fig-answers" aria-labelledby="cap-answers">
@@ -61,7 +61,7 @@
   </figure>
 
   <p class="row">
-    <a class="btn go" href="../">Ask the model</a>
+    <a class="btn go" href="../">Open the Chatbot</a>
     <a class="btn quiet" href="../?m=small">Ask the small, faster model</a>
     <a class="btn quiet" href="../how/">Read how it works first</a>
   </p>
@@ -70,9 +70,9 @@
   <section id="what">
     <h2>What this is</h2>
     <aside class="sidenote"><b>Note.</b> Times were measured on one desktop computer with the program file on its own disk. They depend on how busy the machine is <a class="cite" href="#ref-6" aria-label="Note 6">[6]</a>.</aside>
-    <p>A chat model is a very long list of numbers, called weights, and a fixed recipe of sums. Here four such models are each written out as a single program in which every character is one of the eight commands. Almost all of a program writes the model's numbers into memory. The last part does the thinking. The only thing a program reads is your question, and the only thing it prints is the answer. brnfck-qwen3.5-0.8b-vision reads a picture first.</p>
+    <p>A chat model is a very long list of numbers, called weights, and a fixed recipe of sums. Here five such models, SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B, Qwen3.5-0.8B and Qwen2.5-Coder-0.5B, are each written out as a single program in which every character is one of the eight commands. Almost all of a program writes the model's numbers into memory. The last part does the thinking. The only thing a program reads is your question, and the only thing it prints is the answer. brnfck-qwen3.5-0.8b-vision reads a picture first.</p>
     <dl class="facts full">
-      <div><dt>programs, of four models <span class="ev">counted</span></dt><dd>5</dd></div>
+      <div><dt>chat programs, of five models <span class="ev">counted</span></dt><dd>6</dd></div>
       <div><dt>different commands, and nothing else <span class="ev">counted</span></dt><dd>8</dd></div>
       <div><dt>input command in each program of text: it reads your question <span class="ev">counted</span></dt><dd>1</dd></div>
       <div><dt>characters in the program of brnfck-qwen2.5-1.5b <span class="ev">counted</span></dt><dd>11,430,468,880</dd></div>
@@ -84,7 +84,7 @@
     <h2>The models, compared</h2>
     <p>The same idea at four sizes. A bigger model answers better, and you wait longer for it. brnfck-qwen3.5-0.8b runs Qwen3.5, a newer generation than Qwen2.5, with a different kind of layer. brnfck-qwen3.5-0.8b-vision runs the same model with its part for pictures.</p>
     <div class="scroll full" tabindex="0" role="group" aria-label="Table 1, scrolls sideways on a narrow screen"><table id="tab-models">
-      <caption>The four models as five brainfuck programs. Read down a column for one program, or along a row to compare. Counts are counted in the program files; times are measured on one desktop computer.</caption>
+      <caption>SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen3.5-0.8B as five brainfuck programs; brnfck-qwen2.5-coder-0.5b, which runs Qwen2.5-Coder-0.5B, has its own page, <a href="../coder/">Brainfuck that writes brainfuck</a>. Read down a column for one program, or along a row to compare. Counts are counted in the program files; times are measured on one desktop computer.</caption>
       <thead><tr><th></th><th class="n">brnfck-smollm2-135m</th><th class="n">brnfck-qwen2.5-0.5b</th><th class="n">brnfck-qwen2.5-1.5b</th><th class="n">brnfck-qwen3.5-0.8b</th><th class="n">brnfck-qwen3.5-0.8b-vision</th></tr></thead>
       <tbody>
         <tr><th scope="row">Model</th><td class="n">SmolLM2-135M-Instruct</td><td class="n">Qwen2.5-0.5B-Instruct</td><td class="n">Qwen2.5-1.5B-Instruct</td><td class="n">Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></td><td class="n">Qwen3.5-0.8B with its part for pictures <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a></td></tr>
@@ -109,7 +109,7 @@
       <div data-dl="0.8b"><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-qwen3.5-0.8b.bf" download>brnfck-qwen3.5-0.8b.bf</a> (brnfck-qwen3.5-0.8b, 7.71 GB)</div>
       <div><a href="https://huggingface.co/datasets/rutgerklamer/brnfck-chat/resolve/main/bf/brnfck-qwen3.5-0.8b-vision.bf" download>brnfck-qwen3.5-0.8b-vision.bf</a> (brnfck-qwen3.5-0.8b-vision, 8.93 GB)</div>
     </div>
-    <p>The four models were published under the Apache 2.0 licence <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. Each program holds only the eight commands, with one output command. The programs of text have exactly one input command; brnfck-qwen3.5-0.8b-vision has three: one reads the picture, two the question (its first character, then the others). Brainfuck has whole numbers only, so each model was first converted to whole numbers. The row "Same next word piece as the original model" of <a href="#tab-models">Table 1</a> says how often that version agrees with the original <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</p>
+    <p>SmolLM2-135M-Instruct, Qwen2.5-0.5B-Instruct, Qwen2.5-1.5B-Instruct, Qwen3.5-0.8B and Qwen2.5-Coder-0.5B-Instruct were published under the Apache 2.0 licence <a class="cite" href="#ref-1" aria-label="Source 1">[1]</a> <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>. Each program holds only the eight commands, with one output command. The programs of text have exactly one input command; brnfck-qwen3.5-0.8b-vision has three: one reads the picture, two the question (its first character, then the others). Brainfuck has whole numbers only, so each model was first converted to whole numbers. The row "Same next word piece as the original model" of <a href="#tab-models">Table 1</a> says how often that version agrees with the original <a class="cite" href="#ref-7" aria-label="Note 7">[7]</a>.</p>
     <figure id="fig-wait" aria-labelledby="cap-wait">
       <div class="bars under">
         <span class="lab">brnfck-smollm2-135m</span><span>about 0.6 to 1.0 s</span><div aria-hidden="true"><div class="bar ink" style="width:5%"></div><div class="bar range" style="width:3.33%"></div></div>
@@ -140,10 +140,10 @@
       <li><a href="../vision/"><b>Looking at a picture</b><span>brnfck-qwen3.5-0.8b-vision reads a picture and a question. Where every square of the picture looks, layer by layer, and what the program said about four photos.</span></a></li>
       <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
       <li><a href="../map/"><b>Program map</b><span>Every character of a program on one map: zoom from the whole of it down to single commands. As one line, as rows, folded into a square, or as an outline. For brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b.</span></a></li>
-      <li><a href="../inside/"><b>Inside the program</b><span>A walk through each of brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b: its parts one by one, one block of weights taken apart, the engine, where the time goes, and the four side by side. All measured.</span></a></li>
+      <li><a href="../inside/"><b>Inside the program</b><span>A walk through each of brnfck-smollm2-135m, brnfck-qwen2.5-0.5b, brnfck-qwen2.5-1.5b and brnfck-qwen3.5-0.8b: its parts one by one, one block of weights taken apart, the engine, where the time goes, and all four side by side. All measured.</span></a></li>
       <li><a href="../brainfuck/"><b>Start here</b><span>Where learning starts. The language the models are written in: eight commands, a machine to try them on, and where to go for a playground, patterns, challenges and a reference.</span></a></li>
       <li><a href="../challenges/basics/"><b>Brainfuck basics</b><span>The language in ten short lessons, for complete beginners.</span></a></li>
-      <li><a href="../learn/"><b>Build toward a chatbot</b><span>Eleven lessons with puzzles, for when you want to try every trick of the model yourself.</span></a></li>
+      <li><a href="../learn/"><b>Build toward a chatbot</b><span>Eleven lessons with puzzles, for when you want to try every trick of the chat programs yourself.</span></a></li>
       <li><a href="../how/#questions"><b>Questions and caveats</b><span>The last part of How it works. What "pure" means and does not mean, how it was checked, the numbers, the credits.</span></a></li>
     </ul>
   </section>
@@ -174,7 +174,7 @@
       <li id="step-8"><b>The self-contained program</b><span>The model data that the program of <a href="#step-7">step 7</a> read moved into the program itself: a billion characters that write the weights onto the tape. Nothing is read but the question. This is <a href="../?m=small">brnfck-smollm2-135m</a> on this site.</span></li>
       <li id="step-9"><b>brnfck-qwen2.5-0.5b: 494 million weights</b><span>Qwen2.5-0.5B-Instruct <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> as one program of 4,169,659,608 characters. It still runs in the browser: <a href="../?m=0.5b">the chat with brnfck-qwen2.5-0.5b</a>.</span></li>
       <li id="step-10"><b>brnfck-qwen2.5-1.5b: 1.54 billion weights</b><span>Qwen2.5-1.5B-Instruct <a class="cite" href="#ref-2" aria-label="Source 2">[2]</a> as one program of 11,430,468,880 characters. Its tape of 1,827,870,014 cells takes 6.81 GiB, so it needs an interpreter with 64-bit memory. It runs from the command line, and on 11 October 2026 it ran from start to answer in one desktop Chromium browser: <a href="../?m=1.5b">the chat with brnfck-qwen2.5-1.5b</a>. Ready in 2 min 27 s, then 9.0 seconds per word piece (measured).</span></li>
-      <li id="step-11"><b>brnfck-qwen3.5-0.8b: a different kind of layer</b><span>Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>, about 752 million weights, is the smallest model with the same kind of layers as Qwen3.8-27B, a much larger model. 18 of its 24 layers are Gated DeltaNet layers: a memory of fixed size, whatever the length of the conversation. The other 6 look back at every earlier word piece, one after every three DeltaNet layers. As one program it has 7,709,034,855 characters. Its tape of 1,067,424,772 cells takes 3.98 GiB and fits a 32-bit memory, unlike that of brnfck-qwen2.5-1.5b. All 11 checks pass: only the eight commands, one input and one output command, the tape equal to the model in 1,018 SHA-256 sums, and the reference answer to &ldquo;What is the capital of France?&rdquo;, 30 word pieces, to the letter. The program follows its whole-number recipe exactly, with weights of 10 bits; that recipe picks the same next word piece as the original model at 214 of 225 positions (95.1%). <a href="../compare/">Compare the models</a> explains the new kind of layer. <a href="../compare/#live">Ask it yourself</a> there runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. <a href="../?m=0.8b">The chat with brnfck-qwen3.5-0.8b</a>.</span></li>
+      <li id="step-11"><b>brnfck-qwen3.5-0.8b: a different kind of layer</b><span>Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a>, about 752 million weights, is the smallest model with the same kind of layers as Qwen3.8-27B, a much larger model. 18 of its 24 layers are Gated DeltaNet layers: a memory of fixed size, whatever the length of the conversation. The other 6 look back at every earlier word piece, one after every three DeltaNet layers. As one program it has 7,709,034,855 characters. Its tape of 1,067,424,772 cells takes 3.98 GiB and fits a 32-bit memory, unlike that of brnfck-qwen2.5-1.5b. All 11 checks pass: only the eight commands, one input and one output command, the tape equal to Qwen3.5-0.8B as loaded, in 1,018 SHA-256 sums, and the reference answer to &ldquo;What is the capital of France?&rdquo;, 30 word pieces, to the letter. The program follows its whole-number recipe exactly, with weights of 10 bits; that recipe picks the same next word piece as the original model at 214 of 225 positions (95.1%). <a href="../compare/">Compare the models</a> explains the new kind of layer. <a href="../compare/#live">Ask it yourself</a> there runs Qwen3.5-0.8B in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. <a href="../?m=0.8b">The chat with brnfck-qwen3.5-0.8b</a>.</span></li>
       <li id="step-12"><b>brnfck-qwen3.5-0.8b-vision: a picture</b><span>Qwen3.5-0.8B <a class="cite" href="#ref-8" aria-label="Source 8">[8]</a> also has a part that was trained on pictures, about 101 million weights: 12 layers that look at a picture of 256 by 256 pixels in squares of 16 by 16, and turn every block of four squares into one word piece for the text model. brnfck-qwen3.5-0.8b-vision is brnfck-qwen3.5-0.8b with that part at the end of its tape: one program of 8,931,101,427 characters that reads the 196,608 bytes of the picture, then the question. Its tape of 1,197,356,368 cells takes 4.46 GiB, so it needs 64-bit memory, as brnfck-qwen2.5-1.5b does. All 21 checks pass: only the eight commands, the tape equal to the loaded model, and for six questions about four photos the text of the reference to the letter. <a href="../vision/">Looking at a picture</a> shows where every square looks. <a href="../?m=0.8b-vision">The chat with brnfck-qwen3.5-0.8b-vision</a>.</span></li>
     </ol>
     <figure id="fig-growth" aria-labelledby="cap-growth">
@@ -194,7 +194,7 @@
   <section id="earlier">
     <h2>Has this been done before?</h2>
     <p>An earlier public project (lobotoml) ran a neural network of 7 neurons in brainfuck, for the XOR function <a class="cite" href="#ref-4" aria-label="Source 4">[4]</a>. We looked for an earlier language model or chat model in brainfuck and found none. Our search was limited, so we do not claim to be the first.</p>
-    <p>The chat programs run models that were trained elsewhere. The three programs on <a href="../train/">Trained in brainfuck</a> train one themselves: they start from random weights, learn from a list of names step by step, and print a second program that makes up new names.</p>
+    <p>The chat programs run models that were trained elsewhere. The four programs on <a href="../train/">Trained in brainfuck</a>, brnfck-train-names-bigram-756, brnfck-train-names-mlp-7k, brnfck-train-names-attn-10k and brnfck-train-shakespeare-attn-55k, train one themselves: they start from random weights, learn from a list of names or from Shakespeare step by step, and print a second program that writes with what they learned.</p>
   </section>
 
   <section id="limits">
@@ -218,7 +218,7 @@
       <li id="ref-4"><b>lobotoml</b>, an earlier public project: a neural network of 7 neurons in brainfuck, for the XOR function.</li>
       <li id="ref-5"><b>Brainfuck</b>, a language designed by Urban Müller in 1993.</li>
       <li id="ref-6"><b>Measurements of this project.</b> Character counts are counted in the program files; times were measured on one desktop computer with the program file on its own disk. The full tables are on How it works, under <a href="../how/#numbers">"The numbers"</a>.</li>
-      <li id="ref-7"><b>Agreement with the original models.</b> The same next word piece in 345 of 364 tested cases for brnfck-smollm2-135m (94.8%), 477 of 494 for brnfck-qwen2.5-0.5b (96.6%) and 318 of 327 for brnfck-qwen2.5-1.5b (97.2%). For brnfck-qwen3.5-0.8b, 214 of 225 answer positions (95.1%): its whole-number recipe, which the program computes bit for bit, against the model in floating point; with 8-bit weights it would be 209 of 225. See How it works, <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></li>
+      <li id="ref-7"><b>Agreement with the original models.</b> The same next word piece in 345 of 364 tested cases for brnfck-smollm2-135m (94.8%), 477 of 494 for brnfck-qwen2.5-0.5b (96.6%) and 318 of 327 for brnfck-qwen2.5-1.5b (97.2%). For brnfck-qwen3.5-0.8b, 214 of 225 answer positions (95.1%): its whole-number recipe, which the program computes bit for bit, against Qwen3.5-0.8B in floating point; with 8-bit weights it would be 209 of 225. See How it works, <a href="../how/#pure">"What does &quot;pure brainfuck&quot; mean, and what does it not mean?"</a></li>
       <li id="ref-8"><b>Qwen3.5-0.8B</b>, the model of brnfck-qwen3.5-0.8b and brnfck-qwen3.5-0.8b-vision. Made by the Qwen team of Alibaba Cloud and published under the Apache 2.0 licence: <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B">huggingface.co/Qwen/Qwen3.5-0.8B</a>. Its weights and layers are from its model files; the counts are counted in the program file, and the times were measured on one desktop computer, in the browser and from the command line.</li>
     </ol>
   </section>
@@ -226,11 +226,11 @@
   <section id="fromhere" aria-labelledby="fromhere-h">
     <h2 class="nonum" id="fromhere-h">From here</h2>
     <ul class="tiles" aria-label="Where to go from here">
-      <li><a href="../"><b>Ask the model</b><span>brnfck-qwen2.5-0.5b, in your browser. A download of 749 MB.</span></a></li>
+      <li><a href="../"><b>Ask brnfck-qwen2.5-0.5b</b><span>brnfck-qwen2.5-0.5b, in your browser. A download of 749 MB.</span></a></li>
       <li><a href="../how/"><b>How it works</b><span>One question followed from your keyboard to the first printed word. No programming needed.</span></a></li>
       <li><a href="../inside/"><b>Inside the program</b><span>The parts of the program, one by one, measured.</span></a></li>
       <li><a href="../map/"><b>Program map</b><span>Every character of the program as one picture, to zoom into.</span></a></li>
-      <li><a href="../brainfuck/"><b>Start here</b><span>The path from eight commands to this program.</span></a></li>
+      <li><a href="../brainfuck/"><b>Start here</b><span>The path from eight commands to programs like these.</span></a></li>
     </ul>
   </section>
 </main>
@@ -239,8 +239,8 @@
 <script src="../program-start.js?v=r7"></script>
 <script src="../program-download.js?v=r6"></script>
 <script src="../inside/engine-sections.js?v=r11"></script>
-<script src="../inside/core.js?v=r19"></script>
-<script src="../inside/map.js?v=r18"></script>
+<script src="../inside/core.js?v=r20"></script>
+<script src="../inside/map.js?v=r19"></script>
 <script>
 document.querySelectorAll('#downloads [data-dl]').forEach(function (box) { if (window.Inside && window.ProgramDownload) window.Inside.program(box.getAttribute('data-dl')).then(function (P) { if (P) window.ProgramDownload.attach(box, P); }); });
 </script>

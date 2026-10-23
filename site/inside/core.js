@@ -12,11 +12,11 @@
 
   // ---- which program
   const MODELS = {
-    small: { short: 'brnfck-smollm2-135m', built: 'in about a minute' },
-    '0.5b': { short: 'brnfck-qwen2.5-0.5b', built: 'in about two and a half minutes' },
-    '1.5b': { short: 'brnfck-qwen2.5-1.5b', built: 'in about seven minutes' },
-    '0.8b': { short: 'brnfck-qwen3.5-0.8b', built: 'in about six and a half minutes' },
-    '0.8b-vision': { short: 'brnfck-qwen3.5-0.8b-vision' },
+    small: { short: 'brnfck-smollm2-135m', model: 'SmolLM2-135M', built: 'in about a minute' },
+    '0.5b': { short: 'brnfck-qwen2.5-0.5b', model: 'Qwen2.5-0.5B', built: 'in about two and a half minutes' },
+    '1.5b': { short: 'brnfck-qwen2.5-1.5b', model: 'Qwen2.5-1.5B', built: 'in about seven minutes' },
+    '0.8b': { short: 'brnfck-qwen3.5-0.8b', model: 'Qwen3.5-0.8B', built: 'in about six and a half minutes' },
+    '0.8b-vision': { short: 'brnfck-qwen3.5-0.8b-vision', model: 'Qwen3.5-0.8B' },
     // the programs that train a network themselves (compiler/train); only the map shows them
     'train-attn': { short: 'brnfck-train-names-attn-10k', train: true },
     'train-mlp': { short: 'brnfck-train-names-mlp-7k', train: true },
