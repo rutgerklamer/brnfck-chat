@@ -12,7 +12,7 @@ const { esc, fmt } = V;
 // the ?v= of the files the pages load: site.css and site.js as the start page has them, so they never fall behind
 const HOME = fs.readFileSync(path.join(__dirname, '..', 'site', 'index.html'), 'utf8');
 const versionOf = (file) => HOME.match(new RegExp(file.replace('.', '\\.') + '\\?v=(\\w+)'))[1];
-const VERSION = { siteCss: versionOf('site.css'), siteJs: versionOf('site.js'), ui: 'r7', own: 'r7' };
+const VERSION = { siteCss: versionOf('site.css'), siteJs: versionOf('site.js'), system: 'r7', article: 'r8', patterns: 'r7', articleJs: 'r8', own: 'r7' };
 const ICON ="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E";
 const groupOf = (p) => data.GROUPS.find((g) => g.id === p.group);
 const bitsOf = (v) => core.widths(v)[0];
@@ -36,9 +36,9 @@ function page({ title, desc, body, cls }) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="stylesheet" href="../site.css?v=${VERSION.siteCss}">
-<link rel="stylesheet" href="../ui/system.css?v=${VERSION.ui}">
-<link rel="stylesheet" href="../ui/article.css?v=${VERSION.ui}">
-<link rel="stylesheet" href="../ui/patterns.css?v=${VERSION.ui}">
+<link rel="stylesheet" href="../ui/system.css?v=${VERSION.system}">
+<link rel="stylesheet" href="../ui/article.css?v=${VERSION.article}">
+<link rel="stylesheet" href="../ui/patterns.css?v=${VERSION.patterns}">
 </head>
 <body>
 <script src="../site.js?v=${VERSION.siteJs}" data-section="learn"></script>
@@ -48,7 +48,7 @@ ${body}
 <script src="core.js?v=${VERSION.own}"></script>
 <script src="data.js?v=${VERSION.own}"></script>
 <script src="view.js?v=${VERSION.own}"></script>
-<script src="../ui/article.js?v=${VERSION.ui}"></script>
+<script src="../ui/article.js?v=${VERSION.articleJs}"></script>
 <script src="ui.js?v=${VERSION.own}"></script>
 </body>
 </html>
