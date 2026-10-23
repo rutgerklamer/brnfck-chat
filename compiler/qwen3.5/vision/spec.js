@@ -1,18 +1,7 @@
 'use strict';
 
-// THE SPEC of the vision part in brainfuck (vision/gen.js computes exactly these numbers): the vision part of Qwen3.5
-// (reference/vision.js) in whole numbers, with the building blocks of compiler/qwen/engine/spec.js.
-//
-// - LayerNorm becomes the rms norm of the text engines. The residual stream is only ever read through a LayerNorm, so
-//   the mean is taken out of everything that is added to it: the patch embedding and the positions, and the outputs of
-//   the attention and of the feed-forward layer (C W with C = I - 1 1^T / n: every column minus its mean). With x of
-//   mean 0, LayerNorm(x) = x / rms(x) * w + b, and b goes into the bias of the matrix after it.
-// - Every layer has its own widths: the residual of the last layer reaches 2,240, that of the first ones 9.
-// - gelu(a) = a * Phi(a), Phi from a table that ends in 0 and 1 (a clamped index), as silu in ../engine/spec.js.
-// - The patch embedding reads the bytes of the picture as they are: 1 / 127.5 and -1 are in its weights and bias.
-// - The attention of the text engines, over all squares: the score table includes 1 / sqrt(64).
-// - The output: one vector of 1024 per four squares, at EB fraction bits, the scale of the embedding table of the
-//   text model (../engine/spec.js), which reads it in place of the row of <|image_pad|>.
+// The spec of the vision part of Qwen3.5 (reference/vision.js) in whole numbers; vision/gen.js computes exactly these.
+// Built from compiler/qwen/engine/spec.js; out comes one vector of 1024 per four squares, at the text embedding's scale.
 
 const Q = require('../../qwen/engine/spec');
 const { rq32, rqWrap, quantise } = Q;
@@ -22,7 +11,7 @@ const DEFAULTS = {
   maxTop: 30,               // weights keep at most this many fraction bits (a row with small weights: fewer than weightBits of its own)
   NB: 8, nBits: 15,         // x / rms(x) (|value| < sqrt(768) = 27.7)
   gainB: 8, gainBits: 14,   // gains w of the norms (-0.41 .. 18)
-  ngBits: 18,               // normalised times gain, NB fraction bits (|value| <= 500); a matrix input of n bits costs 2^n characters in each sweep
+  ngBits: 18,               // normalised times gain, NB fraction bits (|value| <= 500); n input bits cost 2^n characters per sweep
   invSize: 4096, invB: 11,
   biasBits: 31,             // biases at the scale of the doubled sums
   QB: 7, qBits: 14, KB: 7, kBits: 14,  // queries and keys (|q|, |k| <= 12.8)
@@ -133,6 +122,7 @@ function build(V, sq, options = {}) {
   const { weightBits: WB, NB, nBits, gainB, gainBits, ngBits, biasBits, QB, KB, kBits, qBits, VB, vBits, gapShift, expSize, scoreBits, xBits, gBits, phiIn, phiRange, PHB, MGB, mgBits } = cfg;
   const F = require('../reference/float'), FL = (W16) => F.toFloat(W16);
   const ints = (a, f, bits) => Float64Array.from(a, (v) => { const r = Math.round(v * f); if (r !== clampTo(r, bits)) throw new Error(`a constant needs more than ${bits} bits`); return r; });
+  // All that is added to the residual is centered, so x has mean 0 and LayerNorm(x) = x / rms(x) * w + b (the rms norm).
   const center = (Wt, rows, cols) => {             // C W: every column minus its mean over the rows
     const out = new Float64Array(Wt.length);
     for (let c = 0; c < cols; c++) { let m = 0; for (let r = 0; r < rows; r++) m += Wt[r * cols + c]; m /= rows; for (let r = 0; r < rows; r++) out[r * cols + c] = Wt[r * cols + c] - m; }

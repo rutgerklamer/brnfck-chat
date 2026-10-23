@@ -2,13 +2,6 @@
 
 // The gated full attention token mixer (spec.js attention()), after the attention of the Qwen2.5 engine
 // (compiler/qwen/engine/stations.js).
-//
-// One layer, from P: the input matrix (rows q, k, gate, v), the area where its sums are rounded and every head
-// is normalised and rotated, the slots (a dock, then one per position, then one more), the output matrix.
-// The queries are in the order of the Qwen2.5 engine: segment s of kvDim numbers holds query head g * share + s
-// of every key/value head g, so that one pass over a key serves all the query heads that read it.
-// What crosses the slots (the queue of the output matrix, the walk home, the reader's counter) is carried
-// one slot at a time, so that no code has to walk the whole length of the slots.
 
 const SC = 1, BEST = 2, TOT = 3, WW = 4, DD = 5, EE = 6, HSC = 7, HS = 32;   // fields of a head frame; HSC.. = scratch
 
@@ -16,12 +9,15 @@ const sizes = (a) => {
   const { heads, kvHeads, headSize: hs, qDim, rotDim } = a, kv = kvHeads * hs;
   return { heads, kvHeads, hs, qDim, kv, share: heads / kvHeads, rotHalf: rotDim / 2, NH: heads + kvHeads, W: qDim + kv, T: a.maxTokens };
 };
-// query number j in our order -> its number in the model
+// Engine order: segment s of kvDim numbers holds query head g * share + s of every key/value head g, so one pass
+// over a key serves all the query heads that read it. permOf: query number j in engine order -> its number in the model.
 const permOf = (a) => {
   const { hs, kv, share } = sizes(a);
   return (j) => { const s = Math.floor(j / kv), g = Math.floor((j % kv) / hs), i = j % hs; return (g * share + s) * hs + i; };
 };
 
+// One layer from P: the input matrix (rows q, k, gate, v), the area where heads are rounded, normalised and rotated,
+// the slots (a dock, one per position, one more), the output matrix.
 function layout(e, K) {
   const a = e.a, { ZW } = K, { dim } = a, { qDim, kv, hs, heads, rotHalf, W, T } = sizes(a), { ngBits, vBits } = a.cfg;
   if (a.heads % a.kvHeads || a.rotDim % 2 || a.rotDim > a.headSize) throw new Error('bad head sizes');
@@ -69,7 +65,8 @@ function layout(e, K) {
   return Lo;
 }
 
-// Carry the cells at offsets `cells` of slot `from` to slot `to`, one slot per round; body(s, d) runs in every round.
+// Carry the cells at offsets `cells` of slot `from` to slot `to`, one slot per round, so no code walks the whole
+// length of the slots; body(s, d) runs in every round.
 function walk(e, P, Lo, from, to, cells, body) {
   const p = e.p, { so, SS } = Lo, n = Math.abs(to - from), d = Math.sign(to - from) * SS, s = P + Lo.slot(from), cnt = s + so.WC;
   p.addBig(cnt, n, [cnt + 4, cnt + 5]);
@@ -100,7 +97,7 @@ function emit(e, K, P, Lo) {
 function qkvRound(e, K, P, Lo) {
   const p = e.p, a = e.a, { car1, SXT } = K, { qDim, kv, W } = sizes(a), R = a.R, M = Lo.Min;
   const arr = P + Lo.aQ, c = (k) => arr + M.ctrl + k, base = P + Lo.Ascr, tmp = P + Lo.At;
-  // n rows from row `row` (our order), rounded by [k, bits]
+  // n rows from row `row` (engine order), rounded by [k, bits]
   const round = (n, row, dst, [k, bits], last) => {
     if (last) p.move(c(SXT), car1(base, 0)); else p.copy(c(SXT), car1(base, 0), tmp);
     const w = e.slide(n, base, 1, 1, (c) => {
@@ -346,7 +343,7 @@ function resting(e, K, P, Lo) {
 
 function values(arch, net, layout) {
   const { dim } = arch, { qDim, kv, W, hs } = sizes(arch), perm = permOf(arch), L = net.layers, OFFW = layout.OFFW;
-  // row r of the input matrix (our order): [matrix, its row]
+  // row r of the input matrix (engine order): [matrix, its row]
   const row = (Q, r) => (r < qDim ? [Q.wq, perm(r)] : r < W ? [Q.wk, r - qDim] : r < W + qDim ? [Q.wg, perm(r - W)] : [Q.wv, r - W - qDim]);
   return {
     mats: {

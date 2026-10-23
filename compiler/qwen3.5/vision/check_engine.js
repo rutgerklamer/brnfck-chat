@@ -1,8 +1,6 @@
 'use strict';
 
-// The vision part in brainfuck (gen.js) against its spec (spec.js) on small synthetic models (synth.js), under
-// ../engine/bfrun.js: stage by stage for the first squares of every round, then whole runs: the vectors in the queue of
-// pictures, and a clean tape.
+// The vision part in brainfuck (gen.js) against spec.js on synthetic models: stage by stage, then whole runs, clean tape.
 //   node compiler/qwen3.5/vision/check_engine.js [quick] [seed]
 
 const Spec = require('./spec');
@@ -96,7 +94,7 @@ function check(name, size, pictures, options = {}, stages = 2) {
 check('two layers, 16 squares', { dim: 32, hidden: 64, depth: 2, heads: 2 }, [1, 2]);
 if (!quick) {
   check('three layers, 64 squares, larger values', { dim: 32, hidden: 48, depth: 3, heads: 4, hot: 2, side4: 8 }, [3]);
-  // as many squares as the program reads: counts of 256 and more are built from base-256 digits (addBig), with cells to spare
+  // 256 squares, as the program reads: counts of 256 and more are built from base-256 digits (addBig), with cells to spare
   check('two layers, 256 squares', { dim: 16, hidden: 32, depth: 2, heads: 2, side4: 16 }, [4], {}, 1);
 }
 console.log(failed ? `\n${failed} FAILED, ${passed} ok` : `\nall ${passed} ok`);

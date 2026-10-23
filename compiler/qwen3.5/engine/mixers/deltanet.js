@@ -1,15 +1,7 @@
 'use strict';
 
-// The Gated DeltaNet token mixer (spec.js deltaNet()).
-//
-// One layer, from P: the input matrix (rows: queries, keys and values before the convolution, z, a, b), the
-// stations that round its sums, run the convolution (its window of the last kernel - 1 inputs rests here) and
-// normalise the queries and keys, then one region per value head, one more region, and the output matrix.
-// A region holds the state St of its head as dk columns of dv numbers, each column with room beside it:
-// a pass over the state is a loop over the columns that peels the bits of that column's input once and adds
-// the column into an accumulator (which then moves on to the next column) once per bit.
-// The inputs of the heads travel through the regions on a conveyor (q, k, v, a, b and two constants per head),
-// together with the residual, z and the outputs of the heads done so far (the last head first).
+// The Gated DeltaNet token mixer (spec.js deltaNet()): input matrix (q, k, v, z, a, b), convolution, q/k norm,
+// one region per value head holding its state St, one more region for the gated norm, then the output matrix.
 
 const sizes = (a) => {
   const { nk, nv, dk, dv, kernel, keyDim, valueDim, convDim, dim } = a;
@@ -23,7 +15,8 @@ function layout(e, K) {
   let at;
   const take = (n) => { const x = at; at += n + 1; return x; };
 
-  // one column of a head's state, and its room
+  // One column of St (dv numbers) and its room: a pass peels the bits of the column's input once and adds the
+  // column into the accumulator AC (which then moves on to the next column) once per bit.
   const co = {};
   at = 0;
   co.S = take(dv); co.AC = take(dv); co.DV = take(dv); co.QU = take(dk); co.XK = take(1);
@@ -31,12 +24,12 @@ function layout(e, K) {
   co.W = take(dv + ZW + 4);        // window of the slides inside a column
   const CS = at + 1;
 
-  // one region
+  // one region per value head, and one more
   const ro = {};
   at = 1;
   ro.RC = take(1);                 // counter of the loop over the regions
   ro.D = take(1);                  // the head scale D (rests here)
-  // the conveyor: the inputs of the heads still to come (head by head, the next one first), the outputs, the residual, z
+  // the conveyor: inputs of the heads still to come (next one first), outputs (last head first), the residual, z
   ro.IQ = take(nv * dk); ro.IK = take(nv * dk); ro.IV = take(nv * dv); ro.IA = take(nv); ro.IB = take(nv); ro.IDT = take(nv); ro.ILA = take(nv);
   ro.OUT = take(nv * dv); ro.XR = take(dim); ro.ZR = take(valueDim); ro.CT = take(4);
   ro.OH = take(dv); ro.VT = take(dv); ro.QD = take(dk);
@@ -121,9 +114,8 @@ function bitsOf(e, X, nbits, NEG, B, s) {
   p.peel(Za, { m: nbits + 1, onSet: (j) => p.add(j === 0 ? NEG : B[j - 1], 1) }, { Zo: Zb, T: TT, H: [h0, h1], K: KK, Kt });
 }
 
-// One pass over the columns of a head (frame: column 0 at COL). For every column: its input x (taken by take(V)),
-// then ACC += x * SRC for the dv numbers SRC of the column (SRC: the state, or the deltas the pass carries).
-// after(): the rest of the round. The input has xBits bits.
+// One pass over the columns of a head (column 0 at COL): per column take(V) gives its input x (xBits bits), then
+// AC += x * SRC over the column's dv numbers (SRC: the state, or the deltas the pass carries); after() ends the round.
 function pass(e, Lo, COL, xBits, take, SRC, after) {
   const p = e.p, { co, CS } = Lo, { dk, dv } = sizes(e.a), T = (k) => COL + co.T + k;
   const CNT = T(0), V = T(3), NEG = T(4), N2 = T(5), E2 = T(6), tm = T(7), B = Array.from({ length: xBits }, (_, b) => T(8 + b)), s = Array.from({ length: 20 }, (_, i) => T(30 + i));
@@ -191,7 +183,7 @@ function roundIn(e, K, P, Lo) {
 function conv(e, K, P, Lo) {
   const p = e.p, a = e.a, { convDim, kernel } = sizes(a), { mixBits, CWB, MB, CB, cBits } = a.cfg;
   const WIN = (j) => P + Lo.WIN + j * convDim, CW = (j) => P + Lo.CW + j * convDim, MIX = P + Lo.MIX;
-  // (the numbers of a channel are first moved next to the work: the strips are far apart)
+  // a channel's numbers move next to the work first: the strips are far apart
   e.slide(convDim, P + Lo.Dscr, 1, 1, (c) => {
     const S = c.sc(0), PRE = c.sc(1), OUT = c.sc(2), m = c.ss(3, 8), s = c.ss(11, 30), Xw = c.ss(41, kernel), Wc = c.ss(41 + kernel, kernel);
     for (let j = 0; j < kernel - 1; j++) p.move(WIN(j), Xw[j]);
@@ -206,8 +198,7 @@ function conv(e, K, P, Lo) {
   });
 }
 
-// Queries to length 1/sqrt(dk), keys to length 1, per key head.
-// (straight onto the conveyor when every value head has a key head of its own)
+// Queries to length 1/sqrt(dk), keys to length 1, per key head (straight onto the conveyor when rep = 1).
 function normQK(e, K, P, Lo) {
   const p = e.p, a = e.a, { nk, dk, keyDim, rep } = sizes(a), R0 = P + Lo.R0;
   const [QN, KN] = rep === 1 ? [R0 + Lo.ro.IQ, R0 + Lo.ro.IK] : [P + Lo.QN, P + Lo.KN];
@@ -424,7 +415,7 @@ function resting(e, K, P, Lo) {
   return r;
 }
 
-// Where the state of a layer rests: St[h][i][j] and D[h] (for the tests and the second question of a page).
+// Where a layer's state rests: St[h][i][j], D[h] and the convolution window (for the tests and a page's next question).
 function stateCells(e, P, Lo) {
   const { nv, dk, dv, convDim, kernel } = sizes(e.a), { ro, co, CS, RS } = Lo, R0 = P + Lo.R0;
   return {

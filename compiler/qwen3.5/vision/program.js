@@ -1,21 +1,7 @@
 'use strict';
 
-// The text engine of Qwen3.5 with its eyes: the vision part (gen.js) on the same tape, and the word pieces
-// <|image_pad|> of the prompt reading its vectors.
-//
-// - The vision part lies at the end of the tape, after the tokenizer (real addresses; virtual addresses below 0):
-//   every word piece walks between the global cells, the tokenizer and the embedding table, and nothing of that
-//   crosses it. Its queue of pictures is its end next to the tokenizer, about two million cells from the table.
-// - The vision part is read in with the weights, after the text model's, and runs after the weights and before the
-//   question: it reads the picture (its squares, byte by byte) and leaves one vector per four squares in its queue.
-// - At a position whose token is <|image_pad|> the next vector is taken from that queue into the gap of the embedding
-//   table (beforeEmb). It travels with the gap through the table, next to the row it picks (the row of <|image_pad|>
-//   is all zeros), and at the end of the table it is added to the residual (afterEmb): the input of that position is
-//   the picture's vector, at the scale of the table.
-// - The rotation of the full attention layers takes, at every position, the place of that position in the picture
-//   (../engine/spec.js rope; layout.js).
-// The same parts make two programs: on the bare engine (the prompt as ids; the tests) and on the chat program (the
-// prompt as text, through the tokenizer; the program itself).
+// The Qwen3.5 text engine with its eyes: the vision part (gen.js) on the same tape, read by the <|image_pad|> pieces.
+// Two programs: on the bare engine (prompt as ids; the tests) and on the chat program (prompt as text; the program).
 
 const { Engine, archOf, K } = require('../engine/gen');
 const { ChatProgram } = require('../program/gen');
@@ -41,7 +27,8 @@ const withVision = (Base) => class extends Base {
     super(arch, ...rest);
     const vision = this.a.vision;
     if (!vision) throw new Error('no vision part: build the architecture with visionArch()');
-    // the vision part from the first real cell after the engine and the tokenizer on: virtual addresses below 0
+    // the vision part from the first real cell after the engine and the tokenizer on (virtual addresses below 0),
+    // so the walks between the global cells, the tokenizer and the embedding table never cross it
     const vp = this.vp = new VisionPart(this, vision.V, vision.sq, vision.options), size = vp.layout(0);
     this.vReal = (this.tok ? this.tok.tapeSize : this.N + 1) + 2;
     vp.layout(this.N - (this.vReal + size));
@@ -50,8 +37,8 @@ const withVision = (Base) => class extends Base {
     if (this.imageToken >= this.a.vocab) throw new Error('the token of a picture is not in the vocabulary');
   }
 
-  // The picture's vector rides the gap of the embedding table along (sweepEmb of compiler/qwen/engine/gen.js, with
-  // the cells of the vector moved on with the gap after every column).
+  // sweepEmb of compiler/qwen/engine/gen.js with the picture's vector carried along in the gap after every column;
+  // the row of <|image_pad|> is all zeros, so such a position gets the picture's vector alone.
   sweepEmb() {
     const p = this.p, M = this.M.emb, { R: V, G } = M, org = this.E, c = (k) => org + M.ctrl + k, dim = this.a.dim;
     const S0 = org + G + 1, D0 = org + 1, L0 = org + M.lane, IV = org + M.iv;
@@ -60,7 +47,7 @@ const withVision = (Base) => class extends Base {
     p.to(L0).raw('['); p.move(S0, D0); p.add(L0, -1); p.move(L0, L0 + 1); p.to(L0 + 1).raw(']'); p.ptr = L0;
     p.scatter(S0, [[D0, 1], [L0 + 1, 1]]);
     p.to(S0 + 1).raw('['); p.move(S0 + 1, D0 + 1); p.move(L0 + 1, L0 + 2); p.to(S0 + 2).raw(']'); p.ptr = S0 + V;
-    this.slide(dim, org + M.ivs, 1, 1, () => p.move(IV, IV + V + 1));      // (before the picked numbers move on into the cells it uses)
+    this.slide(dim, org + M.ivs, 1, 1, () => p.move(IV, IV + V + 1));      // before the picked numbers move into its cells
     this.stripRight(org + M.y, V + 2);
     p.move(L0 + V, org + M.y + V + 1);
     for (const k of [2, 1, 0]) p.move(c(k), c(k) + V + 1);
@@ -113,9 +100,8 @@ class VisionEngine extends withVision(Engine) {
   emitReadPrompt() { this.runVision(); super.emitReadPrompt(); }
 }
 
-// The chat program: the text model's weights, the tables of the tokenizer, the vision part's weights (from the end
-// next to the tokenizer to the far end, where its run starts), then (the cut) the picture, then the question as text.
-// So what the load part reads is three streams: the text model's weights, the tokenizer, the vision part's weights.
+// The chat program reads three streams (text weights, tokenizer, vision weights from the tokenizer end to the far end),
+// then (the cut) the picture, then the question as text.
 class VisionChatProgram extends withVision(ChatProgram) {
   build() {
     const r = super.build(), tok = r.layout.tokData, vis = r.layout.visionData;

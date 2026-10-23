@@ -1,12 +1,10 @@
-# What the Hugging Face code of Qwen3.5-0.8B makes of a picture: the squares the processor cuts, the vectors the
-# vision part gives the text model, and the greedy answer. compiler/qwen3.5/vision/check_float.js compares
-# compiler/qwen3.5/reference/vision.js with these files. This check is the only part of the project that needs
-# packages: torch, transformers (5.x), pillow.
+# What Hugging Face's Qwen3.5-0.8B makes of a picture (squares, vision vectors, greedy answer), for check_float.js.
 #   python compiler/qwen3.5/vision/hf_check.py compiler/qwen3.5/vision/pictures/cat.png "Describe this picture in one sentence."
 import json
 import os
 import sys
 
+# the only part of the project that needs packages: torch, transformers (5.x), pillow
 import torch
 from PIL import Image
 from transformers import AutoProcessor, Qwen3_5ForConditionalGeneration

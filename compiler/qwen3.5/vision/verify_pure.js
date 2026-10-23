@@ -1,10 +1,6 @@
 'use strict';
 
-// The self-contained program of build_pure.js, checked three ways (as ../program/verify_pure.js):
-//   1 the file holds only the eight commands (and the brackets match; three input commands, after the writing part:
-//     one reads the picture, two the question: its first character, then the others in a loop)
-//   2 the tape its writing part leaves equals the tape the load part leaves after reading its three streams
-//   3 given a picture and a question, it prints the spec's answer
+// Checks build_pure.js's program: 1 only the 8 commands, 2 writing part's tape = load part's, 3 prints the spec's answer.
 //   node compiler/qwen3.5/vision/verify_pure.js [scan] [tape] [ask [question numbers...]]
 
 const fs = require('fs');

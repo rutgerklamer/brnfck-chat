@@ -1,9 +1,7 @@
 'use strict';
 
-// Builds site/programs/brnfck-qwen3.5-0.8b.bf: ONE brainfuck program, question in, answer out, no data file.
-// The load part of the text program (build.js) is run on the weight and tokenizer streams; the tape it leaves
-// is written as brainfuck that writes it (compiler/smollm/pure/encode.js), and the rest of the program follows.
-//   node compiler/qwen3.5/program/build_pure.js
+// Builds site/programs/brnfck-qwen3.5-0.8b.bf, ONE program with no data file: the tape build.js's load part leaves
+// is written as brainfuck that writes it (compiler/smollm/pure/encode.js), then the rest of the program follows.
 
 const fs = require('fs');
 const os = require('os');

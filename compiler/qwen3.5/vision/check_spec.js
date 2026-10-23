@@ -1,8 +1,6 @@
 'use strict';
 
-// The whole-number vision part (spec.js) against the float one (reference/vision.js), on the pictures of pictures/:
-// the vectors it hands the text model, and then the text model in whole numbers (../engine/spec.js) on the float
-// model's own answer about the picture (teacher forced: is the next token the same?) and greedily on its own.
+// spec.js against reference/vision.js on pictures/: the vision vectors, then ../engine/spec.js teacher forced and greedy.
 //   node compiler/qwen3.5/vision/check_spec.js [cat windmills ...] [--options '{"XB": [...]}']
 
 const fs = require('fs');

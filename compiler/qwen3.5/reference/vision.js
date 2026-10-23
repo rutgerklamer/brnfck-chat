@@ -1,20 +1,7 @@
 'use strict';
 
-// Floating point reference for the vision part of Qwen3.5 (the tensors model.visual.*): a picture in, one vector per
-// four squares out, which the text model reads in place of the word pieces <|image_pad|>. Read from the Hugging Face
-// code (modeling_qwen3_5.py: Qwen3_5VisionModel, vision_utils.py; Qwen2VLImageProcessorFast) and checked against it
-// (compiler/qwen3.5/vision/hf_check.py).
-//
-// - The picture, of a size that is a multiple of 32 pixels, is cut into squares of 16 x 16 pixels, in blocks of 2 x 2
-//   squares: the four squares of a block follow each other. A pixel value v becomes v / 127.5 - 1.
-// - The patch embedding is a Conv3d over two frames of one square; a picture is its own second frame, so the two halves
-//   of its kernel are added: one matrix of 768 x 768 (3 colours x 16 x 16 pixels) and a bias.
-// - Learned positions: a grid of 48 x 48 vectors, resampled to the grid of squares (bilinear, corners aligned).
-// - 12 blocks: LayerNorm, attention of 12 heads of 64 in which every square sees every square, with a rotation by row
-//   (numbers 0 .. 15 and 32 .. 47 of a head) and column (16 .. 31, 48 .. 63); LayerNorm, 768 -> 3072 -> 768 with
-//   gelu (tanh form). The merger: LayerNorm per square, the four squares of a block side by side (3072), 3072 -> 3072,
-//   gelu (exact), -> 1024.
-//   node compiler/qwen3.5/reference/vision.js picture.png ["question"]
+// Float reference for the vision part of Qwen3.5 (model.visual.*, checked by vision/hf_check.py): a picture in, one
+// vector per four squares out, which the text model reads in place of the word pieces <|image_pad|>.
 
 const fs = require('fs');
 const path = require('path');
@@ -55,7 +42,7 @@ function readPng(file) {
   return { W, H, rgb };
 }
 
-// The squares of a picture in the order of the model: blocks of 2 x 2 squares, row by row; in a square
+// The 16 x 16 squares of a picture in the model's order: blocks of 2 x 2 squares, row by row; in a square
 // the red pixels row by row, then the green, then the blue. Bytes as they are (0 .. 255).
 function squares(pic, P = 16, merge = 2) {
   const { W, H, rgb } = pic, gh = H / P, gw = W / P;
@@ -89,7 +76,7 @@ function visionShape(dir) {
 
 function loadVision(dir) {
   const V = visionShape(dir), st = F.readSafetensors(path.join(dir, 'model.safetensors')), p = 'model.visual.';
-  // the patch embedding: the two frames of the kernel added
+  // the patch embedding is a Conv3d over two frames; a picture is its own second frame, so the two halves are added
   const K = st.getFloat(p + 'patch_embed.proj.weight'), inN = 3 * V.P * V.P;
   V.patch = new Float32Array(V.dim * inN);
   for (let o = 0; o < V.dim; o++) for (let ch = 0; ch < 3; ch++) for (let i = 0; i < V.P * V.P; i++) {
@@ -241,9 +228,8 @@ function encode(V, sq, probe) {
 
 // ---------------------------------------------------------------- with the text model
 
-// The prompt of one picture and a question, as Qwen3VLProcessor makes it, and the place of every token for the
-// rotation: [time, row, column]. Tokens of the picture: (start, start + row, start + column); after it the count goes on
-// at start + the larger side of the grid of blocks.
+// The prompt of a picture and a question (as Qwen3VLProcessor) and each token's rotation place [time, row, column]:
+// picture tokens (start, start + row, start + column); after it the count goes on at start + the larger block-grid side.
 function visionPrompt(tok, V, sq, question) {
   const k = V.merge, bh = sq.gh / k, bw = sq.gw / k;
   const before = tok.encode('<|im_start|>user\n<|vision_start|>'), after = tok.encode(`<|vision_end|>${question}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n`);

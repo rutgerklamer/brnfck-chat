@@ -1,9 +1,6 @@
 'use strict';
 
-// Floating point reference for the text part of the Qwen3.5 models (model_type qwen3_5; 0.8B .. 27B, Qwen3.8-27B).
-// Three of every four layers are Gated DeltaNet (linear attention with a state per head), the fourth is
-// full attention with an output gate. The site runs this file in a browser (site/compare/live/, a copy): only the functions that take a
-// folder read files.
+// Float reference for the text of Qwen3.5 / Qwen3.8-27B; site/compare/live/ runs a copy: only folder functions read files.
 //   node compiler/qwen3.5/reference/float.js [--model=qwen3.5-0.8b] ["question"]
 
 const fs = require('fs');
@@ -246,7 +243,7 @@ function matvec(W, x, rows, y = new Float64Array(rows)) {
   return y;
 }
 
-// Every matrix-vector product of the forward pass goes through hooks.matvec: site/compare/live/worker.js shares it out over threads.
+// Every matrix-vector product goes through hooks.matvec: site/compare/live/worker.js shares it out over threads.
 const hooks = { matvec };
 
 // The normalisations of Qwen3.5 scale by (1 + w): their gains are stored around 0.
@@ -262,9 +259,8 @@ const sigmoid = (v) => 1 / (1 + Math.exp(-v));
 const silu = (v) => v / (1 + Math.exp(-v));
 const softplus = (v) => (v > 20 ? v : Math.log1p(Math.exp(v))); // as torch, threshold 20
 
-// The position that turns speed f of the rotation when a token has three (time, row, column: tokens of a picture):
-// the speeds take them in turn, 1, 4, 7 .. 31 the row, 2, 5 .. 29 the column, the others the time (mrope_section 11, 11, 10,
-// interleaved). Text has the same number three times: the ordinary rotation.
+// Which of a token's three positions (time, row, column: picture tokens) turns rotation speed f: 1, 4 .. 31 the row,
+// 2, 5 .. 29 the column, the rest the time (mrope_section 11, 11, 10, interleaved); text has one number three times.
 const MROPE = Uint8Array.from({ length: 32 }, (_, f) => (f % 3 === 1 && f < 33 ? 1 : f % 3 === 2 && f < 30 ? 2 : 0));
 
 // Rotate the first rotDim numbers of every head: number f goes with number f + rotDim/2. pos: a number, or [t, row, column].
@@ -288,7 +284,7 @@ const newCache = (m) => ({
   S: m.types.map((t) => (t === 'lin' ? new Float64Array(m.nv * m.dk * m.dv) : null)),             // per value head: S[i * dv + j], key i, value j
 });
 
-// One Gated DeltaNet layer for one token: xn (normalised input) -> out. Exported for the whole-number comparison.
+// One Gated DeltaNet layer (3 of every 4; the 4th is gated full attention) for one token: xn -> out.
 function deltaNet(m, L, conv, S, xn, out, probe, l) {
   const { nk, nv, dk, dv, keyDim, valueDim, convDim, kernel, eps } = m;
   const mix = hooks.matvec(L.wqkv, xn, convDim), z = hooks.matvec(L.wz, xn, valueDim), a = hooks.matvec(L.wa, xn, nv), b = hooks.matvec(L.wb, xn, nv);
@@ -373,9 +369,8 @@ function attention(m, L, ck, cv, xn, pos, out, probe, l, rope = pos) {
   return hooks.matvec(L.wo, mixed, m.dim, out);
 }
 
-// `mixers[l]`, when given, replaces the token mixer of layer l: (xn, out, pos) -> out (the whole-number DeltaNet).
-// opts.x: the input vector in place of the token's row (a picture's word piece, reference/vision.js); opts.rope: the
-// place for the rotation when it is not pos.
+// mixers[l], when given, replaces layer l's token mixer: (xn, out, pos) -> out (the whole-number DeltaNet). opts.x: input
+// in place of the token's row (a picture's word piece, reference/vision.js); opts.rope: the rotation's place if not pos.
 function forward(m, cache, token, pos, wantLogits = true, probe, mixers, opts = {}) {
   const { dim, layers, hidden, eps } = m;
   if (pos >= m.maxPos) throw new Error('position beyond cache size');

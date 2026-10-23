@@ -1,8 +1,7 @@
 'use strict';
 
-// The brainfuck engine (gen.js) against the spec (spec.js) on small synthetic models (synth.js), under bfrun.js.
-//   node compiler/qwen3.5/engine/check_engine.js [none|full] [seed]
-// none: the engine without its token mixers (spec.js noMixer); full: the whole engine.
+// The brainfuck engine (gen.js) against spec.js on small synthetic models (synth.js), under bfrun.js.
+//   node compiler/qwen3.5/engine/check_engine.js [none|full] [seed]   (none: without token mixers, spec.js noMixer)
 
 const Spec = require('./spec');
 const { synthModel } = require('./synth');

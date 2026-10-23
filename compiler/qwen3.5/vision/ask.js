@@ -1,7 +1,6 @@
 'use strict';
 
-// Ask brnfck-qwen3.5-0.8b-vision about a picture: the single file of build_pure.js, the picture and the question its
-// only input. A PNG file of another size is cut to its middle square and scaled to 256 x 256 pixels first.
+// Ask brnfck-qwen3.5-0.8b-vision (build_pure.js) about a PNG; another size is cut to its middle square, scaled to 256 x 256.
 //   node compiler/qwen3.5/vision/ask.js [--max N] picture.png ["Describe this picture in one sentence."]
 
 const fs = require('fs');

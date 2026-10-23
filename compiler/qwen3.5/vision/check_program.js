@@ -1,9 +1,6 @@
 'use strict';
 
-// The text engine with the vision part (program.js VisionEngine) against the two specs on small synthetic models: a
-// prompt with a picture, the ids the program prints against those of the whole-number text model whose picture
-// positions read the vectors of the whole-number vision part; the input of every layer at the picture's positions;
-// and a clean tape.
+// program.js VisionEngine against both specs on synthetic models: the ids printed for a prompt with a picture, a clean tape.
 //   node compiler/qwen3.5/vision/check_program.js [seed]
 
 const Spec = require('../engine/spec');

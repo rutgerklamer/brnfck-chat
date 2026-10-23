@@ -1,9 +1,7 @@
 'use strict';
 
-// The data of the figures "What it said" and "What it costs" of site/vision/: the program's own runs, as
-// verify_pure.js ask notes them (out/run-<n>.json), and its tape in parts, from the layout of program.js.
-//   node compiler/qwen3.5/vision/answers.js
-// Writes site/vision/data/answers.json.
+// Writes site/vision/data/answers.json for the figures "What it said" and "What it costs": the program's own runs
+// (out/run-<n>.json, noted by verify_pure.js ask) and its tape in parts, from the layout of program.js.
 
 const fs = require('fs');
 const path = require('path');

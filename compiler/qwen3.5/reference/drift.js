@@ -1,12 +1,7 @@
 'use strict';
 
-// How far the whole-number Gated DeltaNet (deltanet.js) drifts from the float reference over the 256 tokens of
-// data/seq256.json. Every linear layer gets the float model's own inputs (teacher forcing), so the error
-// measured is that layer's alone.
-//   node compiler/qwen3.5/reference/drift.js             the per-layer table of the default settings
-//   node compiler/qwen3.5/reference/drift.js --sweep     the same, summed up, for other bit widths
-//   node compiler/qwen3.5/reference/drift.js --e2e       all linear layers in whole numbers inside the float model (--e2e={json} for other settings)
-// The float model's inputs, outputs and states are kept in out/capture/ after the first run.
+// How far deltanet.js drifts from the float model over data/seq256.json, each layer fed the float model's own inputs.
+//   node compiler/qwen3.5/reference/drift.js [--sweep (other bit widths) | --e2e[={json}] (inside the float model)]
 
 const fs = require('fs');
 const os = require('os');
@@ -23,6 +18,7 @@ const capFile = (l) => path.join(CAP, `L${l}.bin`);
 
 // ---------------------------------------------------------------- float capture
 
+// The float model's inputs, outputs and states of every linear layer, kept in out/capture/ after the first run.
 function capture() {
   const m = F.loadModel(DIR), lin = m.types.flatMap((t, l) => (t === 'lin' ? [l] : []));
   const S = m.nv * m.dk * m.dv, per = 2 * N * m.dim + CHECK.length * S;

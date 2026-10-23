@@ -1,9 +1,7 @@
 'use strict';
 
-// The whole-number model (spec.js) against the float reference (../float.js), end to end.
+// The whole-number model (spec.js) against the float reference (reference/float.js), end to end.
 //   node compiler/qwen3.5/engine/check_spec.js [--seq] [--ask] ['{"weightBits":10}']
-// --seq: teacher forced over the 256 tokens of ../data/seq256.json: is the next token the same, and the KL divergence
-// --ask: greedy answers to the test questions, from both
 
 const fs = require('fs');
 const path = require('path');
@@ -22,6 +20,7 @@ const { net } = Spec.buildReal(undefined, options);
 console.log(`float model and whole-number model loaded in ${(now() - t).toFixed(0)} s; options ${JSON.stringify(options)}`);
 const scale = 2 ** net.cfg.LB;
 
+// teacher forced over the 256 tokens of data/seq256.json: is the next token the same, and the KL divergence
 if (want('--seq')) {
   const SEQ = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'seq256.json'), 'utf8'));
   const cf = F.newCache(m), ci = net.step.newCache(), N = SEQ.ids.length;
@@ -46,6 +45,7 @@ if (want('--seq')) {
   console.log(`stats: ${JSON.stringify(net.stats)}`);
 }
 
+// greedy answers to the test questions, from both
 if (want('--ask')) {
   for (const qn of QUESTIONS) {
     const prompt = tok.encode(tok.chatPrompt(qn));

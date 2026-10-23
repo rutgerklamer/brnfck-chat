@@ -135,7 +135,7 @@ function packTokenizer(opts = {}, dir = DIR) {
     for (scan++; scan < slots - 1; scan++) if (!C2[scan - 1] && !C2[scan] && !C2[scan + 1]) return scan;
     throw new Error('pack: no free slot');
   };
-  // A token no merge makes is printed through pairs of its own: node i = (parts[i], node i + 1), the last (parts[k - 2], parts[k - 1]).
+  // A token no merge makes prints through pairs of its own: node i = (parts[i], node i + 1), last (parts[k-2], parts[k-1]).
   const spell = (id, bytes) => {
     const parts = tok.bpeBytes(bytes), k = parts.length;
     need(k >= 1 && !parts.includes(id) && Buffer.from(parts.flatMap((x) => tok.tokenBytes(x))).equals(Buffer.from(bytes)), `cannot spell token ${id}`);

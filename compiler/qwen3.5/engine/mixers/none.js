@@ -1,6 +1,6 @@
 'use strict';
 
-// No token mixer: the residual goes on to the feed-forward layer as it is (spec.js with noMixer; tests the rest of the engine).
+// No token mixer: the residual goes on to the feed-forward layer as it is (spec.js noMixer; tests the rest of the engine).
 
 module.exports = {
   layout: () => ({ mix: 0 }),

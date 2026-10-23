@@ -1,11 +1,7 @@
 'use strict';
 
-// The data of the page site/vision/: for every picture of pictures/, where each square looks in each of the 12 layers
-// of the vision part, in the whole numbers the program computes (spec.js: its attention weights, averaged over the 12
-// heads), and the pictures themselves.
+// Data of site/vision/: where each square looks in each vision layer (spec.js attention weights, averaged over heads).
 //   node compiler/qwen3.5/vision/record.js [cat windmills ...]
-// Writes site/vision/data/look-<name>.bin (layers x squares x squares bytes: the share of square t in what square s
-// takes in, times 255, divided by the largest share of that s), look.json (what the files hold) and site/vision/pictures/.
 
 const fs = require('fs');
 const path = require('path');
@@ -23,6 +19,7 @@ for (const name of names) {
   const t = Date.now(), file = path.join(__dirname, 'pictures', name + '.png'), sq = VR.squares(VR.readPng(file), V.P, V.merge), n = sq.n;
   const net = VS.build(V, sq), look = new Float64Array(V.depth * n * n);
   net.encode(sq.bytes, null, (l, s, h, w, total) => { const at = (l * n + s) * n; for (let u = 0; u < n; u++) look[at + u] += w[u] / total / V.heads; });
+  // look-<name>.bin: layers x squares x squares bytes, the share of t in what s takes in, 255 at the largest of that s
   const bytes = new Uint8Array(look.length);
   for (let r = 0; r < V.depth * n; r++) {
     let mx = 0;

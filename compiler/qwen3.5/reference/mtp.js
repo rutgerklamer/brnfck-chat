@@ -1,11 +1,7 @@
 'use strict';
 
-// The multi-token prediction head of Qwen3.5 (the tensors mtp.*), in floating point. From the hidden state of
-// position i after the final norm and the embedding of the token at i + 1 it guesses the token at i + 2.
-// Read from vLLM (qwen3_5_mtp.py, Qwen3_5MultiTokenPredictor; the inputs as v1/spec_decode/llm_base_proposer.py
-// shifts them): the two normalised, side by side, through fc; one full attention layer of the main model's kind
-// with its own keys and values; the norm; the output layer of the main model.
-//   node compiler/qwen3.5/reference/mtp.js ["question"]    the float model's answer, and how often the guesses were right
+// The multi-token prediction head of Qwen3.5 (mtp.*, as vLLM's qwen3_5_mtp.py) in floats: guesses the token at i + 2
+// from the state at i after the final norm and the token at i + 1.   node compiler/qwen3.5/reference/mtp.js ["question"]
 
 const path = require('path');
 const F = require('./float');
@@ -33,7 +29,7 @@ function loadHead(dir, m) {
 // What the head keeps over a conversation: the keys and values of its attention layer.
 const newHeadCache = (m) => ({ k: new Float64Array(m.maxPos * m.kvDim), v: new Float64Array(m.maxPos * m.kvDim) });
 
-// The scores of the token at pos + 2. hidden: the main model's state at pos after its final norm; next: the token at pos + 1.
+// The scores for the token at pos + 2; hidden: the main model's state at pos after its final norm, next: token pos + 1.
 function guess(m, H, cache, hidden, next, pos) {
   const { dim, hidden: hd, eps } = m, both = new Float64Array(2 * dim), e = Float64Array.from(m.emb.subarray(next * dim, (next + 1) * dim), (b) => F.LUT[b]);
   F.rmsnorm(e, H.normE, eps, both, 0, dim);

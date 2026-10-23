@@ -1,27 +1,7 @@
 'use strict';
 
-// The vision part of Qwen3.5 in brainfuck: the squares of a picture in, one vector per four squares out; spec.js
-// computes the same numbers. It lives on the tape of the text engine (../engine/gen.js), before its global cells, is
-// read in with the weights, and runs once: after the weights, before the question.
-//
-// Its layers are built from the parts of the Qwen2.5 engine (compiler/qwen/engine/stations.js): the stations, the
-// sweeps, the rounding of q, k and v with their biases, the rotation, the slots and the attention. What is new:
-// - The attention looks both ways. In round l every square stores its key and value in the slots of layer l, and parks
-//   its query and its residual in its slot. In round l + 1 every square takes them back, reads all the slots, and goes
-//   on through the rest of layer l into the first half of layer l + 1. So the code of a round is the end of one layer
-//   and the start of the next, and every round has its own code: every layer has its own widths (spec.js).
-// - The output matrix and the second matrix of the feed-forward layer add a bias; the feed-forward layer is
-//   gelu(a) = a Phi(a) with a = fc1 x + b, Phi from a table.
-// - The patch embedding reads the bytes of a square from the input, with its own comma; the residual it starts from
-//   is that square's position (and bias), one vector per square, read into a queue with the weights.
-// - The merger: four squares normalised into one queue, two matrices with gelu between them, and the vector into the
-//   queue of pictures that the text model reads at the word pieces <|image_pad|>.
-//
-// Layout (virtual addresses, left to right): the queue of positions, the patch embedding, 12 layers, the merger, the
-// queue of pictures. One layer, from P, as in the Qwen2.5 engine: the station before it at P - PRE (the residual,
-// the gain of the first norm, the doublings and bias of the matrix before it), the matrix of q, k and v, the area
-// where their sums are rounded and turned, the slots (a dock, one per square, one more), the output matrix, the
-// station of the second norm, the first matrix of the feed-forward layer and its area, the second matrix.
+// The vision part of Qwen3.5 in brainfuck: picture squares in, one vector per four squares out (spec.js computes the same).
+// Runs once on the text engine's tape, after the weights and before the question; built from the Qwen2.5 engine's parts.
 
 const Spec = require('./spec');
 const { K } = require('../engine/gen');
@@ -90,7 +70,8 @@ class VisionPart {
     so.HB = so.QS; so.HW = take(HL + ZW + 4);
     if (so.SM + dim - so.HB < HL) throw new Error('the block that crosses the slots does not fit');
     x.SS = at + 1;
-    // one layer, as offsets from P
+    // one layer, as offsets from P: station at P - PRE, q k v matrix and its area, the slots (a dock, one per square, one
+    // more), the output matrix, the station of the second norm, fc1 and its area, fc2
     const L = x.Lo = {};
     L.HL = HL;
     L.aQ = dim * (M.qkv.R + 1);
@@ -119,7 +100,7 @@ class VisionPart {
     ie.U = take(1); ie.DN = take(1); ie.scr = take(this.out + ZW + 2); ie.V = take(this.out); ie.T = take(this.out);
     this.IS = at + 1;
 
-    // the whole region
+    // the whole region, left to right: queue of positions, patch embedding, the layers, the merger, queue of pictures
     let g = v0;
     const alloc = (n) => { const r = g; g += n + 1; return r; };
     this.SQ = alloc((N + 2) * this.QS);                                     // the queue of positions
@@ -220,6 +201,7 @@ class VisionPart {
 
   // ---- the run: the squares from the input through every round into the queue of pictures ------------------
 
+  // Attention looks both ways: round l stores keys and values, round l + 1 reads all slots, so a round spans two layers.
   emitRun() {
     const x = this.x, p = x.p, N = this.N, { so, Lo } = x;
     // round 0: the patch embedding and the first half of layer 0
@@ -347,7 +329,7 @@ class VisionPart {
     x.S('att', () => x.attention());
     x.S('mixed', () => this.mixed(x));
     x.S('hop', () => {
-      // into the dock, over the slots one at a time, into the queue of the output matrix (stations.js layer: in one long move)
+      // into the dock, over the slots one at a time, into the output matrix's queue (stations.js layer: one long move)
       const land = P + Lo.oO + M.o.q, at = P + Lo.oO + M.o.m, sl = this.slot(l, this.N + 1);
       x.slide(Lo.HL, P + Lo.Ascr, 1, 1, () => p.move(P + Lo.Ahop, d0 + so.HB));
       this.walk(x, d0, this.N + 1, SS, (s, d) => x.slide(Lo.HL, s + so.HW, 1, 1, () => p.move(s + so.HB, s + so.HB + d)));
@@ -617,9 +599,8 @@ class VisionPart {
     return r.sort((u, w) => u[0] - w[0]);
   }
 
-  // flags: add v to field f of entries 1 .. n of a queue (entry k at q0 + k * stride), with a counter that walks.
-  // The counter is the cell after the flag, free in every entry; a count of 256 or more is built in two cells of the
-  // scratch of entry 1 at offset scr (the cells after the counter are the other flag, set or not).
+  // flags: add v to field f of entries 1 .. n of a queue (entry k at q0 + k * stride); the counter walks in the cell after
+  // the flag, and a count of 256 or more is built in two scratch cells of entry 1 at offset scr.
   flags(q0, stride, f, n, v, scr) {
     const p = this.x.p, e1 = q0 + stride, c = e1 + f + 1;
     p.addBig(c, n, [e1 + scr, e1 + scr + 1]);

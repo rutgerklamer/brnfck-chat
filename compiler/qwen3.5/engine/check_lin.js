@@ -1,9 +1,7 @@
 'use strict';
 
-// The Gated DeltaNet mixer (mixers/deltanet.js) against the spec (spec.js) on small synthetic models, under bfrun.js.
+// The Gated DeltaNet mixer (mixers/deltanet.js) against spec.js on small DeltaNet-only synthetic models, under bfrun.js.
 //   node compiler/qwen3.5/engine/check_lin.js [quick] [seed]
-// Every model has only DeltaNet layers. Stage by stage at the first positions (with the state of every head),
-// then whole runs: the printed ids and a clean tape.
 
 const Spec = require('./spec');
 const { synthModel } = require('./synth');
@@ -45,6 +43,7 @@ function check(name, size, options, prompts, stages = 3) {
   const Lo = L.Lt.lin, ro = Lo.ro;
   const zOf = (i) => (nv - 1 - Math.floor(i / dv)) * dv + (i % dv), ours = (v) => range(v.length, (i) => v[zOf(i)]);
 
+  // stage by stage at the first positions, with the state of every head
   const ids = prompts[0][0];
   const cache = S.net.step.newCache(), trace = [], states = [];
   for (let pos = 0; pos < stages; pos++) {
@@ -82,6 +81,7 @@ function check(name, size, options, prompts, stages = 3) {
   }
   console.log(`      spec: ${JSON.stringify(S.net.stats)}`);
 
+  // whole runs: the printed ids and a clean tape
   for (const [prompt, maxNew] of prompts) {
     const r = runTo(S, prompt, prompt.length + maxNew - 1), got = unpackIds(r.output), wantIds = Spec.generateIds(S.net, prompt, maxNew, NOSTOP);
     ok(same(got, wantIds), `prompt ${JSON.stringify(prompt)}, ${maxNew} new: ${JSON.stringify(got)}`, `${firstDiff(got, wantIds)} [${r.steps.toLocaleString('en-US')} steps]`);

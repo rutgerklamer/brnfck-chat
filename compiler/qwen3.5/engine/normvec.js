@@ -1,8 +1,7 @@
 'use strict';
 
-// e.normVec(X, OUT, NP, base, t): spec.js normVec in brainfuck, for one vector (a head) of NP.n signed values.
-// X .. X+n-1 are used up (zero afterwards); OUT .. OUT+n-1 (zero before) get the results.
-// base: a scratch window of n + 82 zero cells; t: 40 zero cells. Every address may be frame-relative.
+// e.normVec(X, OUT, NP, base, t): spec.js normVec for one vector (a head) of NP.n signed values, X .. X+n-1 used up
+// into OUT .. OUT+n-1 (zero before). base: n + 82 zero scratch cells, t: 40 zero cells; addresses may be frame-relative.
 
 module.exports = (Engine, { range, car1 }) => {
   const E = Engine.prototype;

@@ -1,9 +1,7 @@
 'use strict';
 
-// Builds site/programs/brnfck-qwen3.5-0.8b-vision.bf: ONE brainfuck program, a picture and a question in, the answer
-// out, no data file. As ../program/build_pure.js: the load part of the program of build.js run on its three streams,
-// the tape it leaves written as brainfuck that writes it, and the rest of the program after it.
-//   node compiler/qwen3.5/vision/build_pure.js
+// Builds site/programs/brnfck-qwen3.5-0.8b-vision.bf, ONE program with no data file (picture and question in, answer out),
+// as ../program/build_pure.js does: from the load part of build.js's program run on its three streams.
 
 const path = require('path');
 const { buildPure } = require('../program/build_pure');

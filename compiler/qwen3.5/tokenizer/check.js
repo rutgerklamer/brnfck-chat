@@ -1,9 +1,7 @@
 'use strict';
 
-// Checks the brainfuck tokenizer of Qwen3.5 against ref.js and float.js.
-//   node compiler/qwen3.5/tokenizer/check.js          everything (a few minutes)
-//   node compiler/qwen3.5/tokenizer/check.js quick    without the lookup of every merge and the timings
-//   ... write                                          also writes out/encode.bf, out/print.bf and out/tokenizer.bin
+// Checks Qwen3.5's brainfuck tokenizer against ref.js and float.js (a few minutes; quick skips merge lookups and timings).
+//   node compiler/qwen3.5/tokenizer/check.js [quick] [write (also out/encode.bf, out/print.bf, out/tokenizer.bin)]
 
 const fs = require('fs');
 const path = require('path');
@@ -236,7 +234,7 @@ const outThree = (p, X, s) => {
 const readThree = (p, X, T) => { p.read(X); p.scatter(X, [[T, 256]]); p.read(X); p.move(X, T); p.scatter(T, [[X, 256]]); p.read(T); p.move(T, X); };
 const scratch = Array.from({ length: 13 }, (_, i) => 4 + i);
 
-// LOAD; then for every question line: ENCODE, write the ids + 1 (three bytes each) and 0 0 0, read one more byte: go on if it is not 0.
+// LOAD; per question line: ENCODE, write the ids + 1 (three bytes each) and 0 0 0, read one more byte: go on if not 0.
 const chatSrc = (lay) => build((p, l) => {
   const GO = 0, N = 1, X = 2;
   G.emitLoad(p, l);
@@ -348,7 +346,7 @@ const progChat = compile(srcChat), steps = [], perByte = [], long = [];
   console.log(`  under the interpreter: ${good} of ${some.length} exact, with the right count and the scratch zero; steps per question ${stats(steps)}; per byte ${stats(perByte)}`);
 }
 
-// the texts of tokens as questions: every 40th token, the tokens of the 27 merges with a part made by a later merge, the 201 tokens no merge makes
+// token texts as questions: every 40th token, the 27 merges with a part from a later merge, the 201 tokens no merge makes
 {
   const t = JSON.parse(fs.readFileSync(path.join(tok.dir, 'tokenizer.json'), 'utf8')), v = t.model.vocab;
   const later = [];

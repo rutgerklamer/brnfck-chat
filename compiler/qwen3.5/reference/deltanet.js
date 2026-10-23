@@ -1,13 +1,7 @@
 'use strict';
 
-// One Gated DeltaNet layer of Qwen3.5 / Qwen3.8 in whole numbers, as compiler/qwen/engine/spec.js does for
-// Qwen2.5's attention: every number is an integer with a fixed number of fraction bits, every product and
-// sum fits a wrapping 32-bit cell, and every function (sigmoid, softplus, exp, 1/sqrt, 1/x) is a table.
-//
-// The state S of a value head (dk x dv) is kept as S = D * St: St whole numbers, D one number per head.
-// The decay multiplies only D; when D drops below 1/2 it is multiplied into St once and set back to 1.
-// Multiplying St itself by a decay of 0.9999 every token would round small entries back to themselves
-// forever (decay: 'direct' does that, for comparison).
+// One Gated DeltaNet layer of Qwen3.5 / Qwen3.8 in whole numbers (as compiler/qwen/engine/spec.js for Qwen2.5):
+// fixed fraction bits, every product and sum fits a wrapping 32-bit cell, every function is a table.
 
 const DEFAULTS = {
   weightBits: 8,       // weights in this many bits, sign included; every matrix row has its own power-of-two scale
@@ -34,7 +28,7 @@ const DEFAULTS = {
   gainB: 10,           // gains of the output norm (0.35 .. 1.19)
   HB: 10, hBits: 18,   // input of out_proj: norm times silu(z) (|h| <= 40.9)
   XB: 12, xBits: 21,   // output, at the scale of the residual stream (|out| <= 3.5)
-  decay: 'block',      // 'block': S = D * St as above; 'direct': St is multiplied by the decay every token
+  decay: 'block',      // 'block': S = D * St, the decay on D; 'direct': St is multiplied by the decay every token
   checks: true,        // count overflows and clamps (drift.js)
 };
 
@@ -90,9 +84,8 @@ function matvec({ w: W, d }, x, rows, y = new Float64Array(rows)) {
 // site/compare/live/worker.js puts the weights in shared memory and the products on threads
 const hooks = { matvec, alloc: (Type, n) => new Type(n) };
 
-// x * c / sqrt(sum x^2 + e), over n numbers at inB fraction bits, to outB fraction bits.
-// As spec.js: x is shifted so that sum |w| < 2^19; the sum of squares of w / 16 fits 31 bits;
-// its top 12 bits index a table of c / sqrt.
+// x * c / sqrt(sum x^2 + e), n numbers at inB to outB fraction bits (as spec.js): x is shifted so sum |w| < 2^19,
+// the sum of squares of w / 16 fits 31 bits and its top 12 bits index a table of c / sqrt.
 function invSqrtTable(c) {
   const TB = Math.floor(11 + 14.5 - Math.log2(c)); // keeps |w * T| < 2^30.5
   return { TB, T: Int32Array.from({ length: 4096 }, (_, i) => (i < 1024 ? 0 : Math.round((c * 2 ** TB) / Math.sqrt((i + 0.5) * 2 ** 19)))) };
@@ -170,11 +163,11 @@ function build(src, l, options = {}) {
   const logA = ints(src.tensor('aLog', l), 2 ** LB, 16); // log A = A_log itself
   const gain = ints(src.tensor('gNorm', l), 2 ** gainB, 16);
 
-  // the state: the convolution window (last kernel-1 inputs, oldest first), St and D per head
+  // the state: the convolution window (last kernel-1 inputs, oldest first) and S = D * St per head; the decay multiplies
+  // only D, folded into St once D < 1/2 (decaying St every token would round small entries back to themselves)
   const win = new Int32Array((kernel - 1) * convDim), St = new Int32Array(nv * dk * dv), D = new Int32Array(nv).fill(2 ** DB);
   const stats = { overflow: 0, renorm: 0, steps: 0 };
   const big = cfg.checks ? (v) => { if (v >= 2 ** 31 || v < -(2 ** 31)) stats.overflow++; } : () => {};
-  // the rounding of the hot loop: rq, or without its clamp count
   // without checks the write into St is inlined: the same numbers as rq32 while nothing wraps (drift.js shows nothing does)
   const nW = Math.min(sBits, 31 - KB), wLo = -(2 ** (nW - 1)), wHi = 2 ** (nW - 1) - 1, wHalf = 2 ** (KB - 1), wScale = 2 ** -KB;
   const sLo = -(2 ** (sBits - 1)), sHi = 2 ** (sBits - 1) - 1;

@@ -1,13 +1,7 @@
 'use strict';
 
-// THE SPEC of the brainfuck engine for Qwen3.5 (model_type qwen3_5): the whole model in whole numbers.
-// Every value is an integer with a fixed number of fraction bits, every product and sum is what a wrapping
-// 32-bit cell holds, every function is a table. The engine (gen.js) computes exactly these numbers.
-//
-// Three of every four layers are a Gated DeltaNet (deltanet.js one folder up, with these changes:
-// the state is folded by a power of two, roundings that cannot overflow wrap instead of clamping),
-// the fourth is full attention with an output gate. Rounding helpers, the residual norm, the feed-forward
-// layer and the output layer are those of compiler/qwen/engine/spec.js.
+// THE SPEC of the brainfuck engine for Qwen3.5: the whole model in fixed-point integers as wrapping 32-bit cells hold
+// them, every function a table; gen.js computes exactly these numbers. Shared parts: compiler/qwen/engine/spec.js.
 
 const Q = require('../../qwen/engine/spec');
 
@@ -59,10 +53,9 @@ const DEFAULTS = {
 const u32 = (v) => v >>> 0;                       // exact for |v| < 2^53
 const bitlen = (v) => 32 - Math.clz32(v);
 
-// rq32: what a 32-bit cell gives for round(v / 2^k), clamped to n bits; quantise: the weights per row (compiler/qwen/engine/spec.js).
+// rq32: a 32-bit cell's round(v / 2^k), clamped to n bits; quantise: the weights per row (compiler/qwen/engine/spec.js).
 const { rq32, quantise } = Q;
-// rqWrap: the same without clamp, modulo 2^n. Here k + n > 32 throws: then the result is not what a cell holds,
-// and the many settings of Qwen3.5 make that easy to get wrong.
+// rqWrap: the same without clamp, modulo 2^n; k + n > 32 throws, as the result would not be what a cell holds.
 function rqWrap(v, k, n, ...rest) {
   if (k + n > 32) throw new Error(`rqWrap: k + n = ${k + n} does not fit a cell`);
   return Q.rqWrap(v, k, n, ...rest);
@@ -88,12 +81,9 @@ function matvec({ w: W, d }, x, rows, y, r0 = 0) {
 }
 
 // ---- normalising one vector (a head) ------------------------------------------------------
-//
-// out = x * c / sqrt(sum x^2 + e), n numbers at inB fraction bits, to outB fraction bits:
-//   A = sum |x|; s = max(bits(A) - 19, sLo); w = round(x * 2^(11 - s) / 2^11)  (so that sum |w| < 2^19)
-//   ss = sum round(w / 16)^2 + E[s]   (E[s] = e at the scale of the sum; s never goes so low that E[s] needs 29 bits)
-//   D2 = the even shift that brings ss to 30 or 31 bits; T = table[top 12 bits of ss * 2^D2]
-//   out = round(w * T * 2^(D2/2) / 2^(TB + 4 - outB))
+
+// out = x * c / sqrt(sum x^2 + e): w = x scaled so sum |w| < 2^19, ss = sum round(w / 16)^2 + e at that scale,
+// D2 = even shift of ss to 30 or 31 bits, T = table[top 12 bits], out = round(w * T * 2^(D2/2) / 2^(TB + 4 - outB)).
 const NK = 11;
 function normPlan(n, c, inB, inBits, e, outB, outBits) {
   const TB = Math.min(Math.floor(11 + 14.5 - Math.log2(c)), 28 - outBits + outB); // |w * T| < 2^30.5, and the last rounding fits a cell
@@ -167,8 +157,8 @@ function makeTables(cfg, shape) {
     exp: Array.from({ length: expSize }, (_, e) => Math.round(attMax * Math.exp((-e * 2 ** gapShift) / (2 ** (2 * QKB) * Math.sqrt(headSize))))),
     // 2^19 / i: i = top 10 bits of the total attention weight
     recip: Array.from({ length: recipSize }, (_, i) => (i ? Math.round(2 ** 19 / (i + 0.5)) : 0)),
-    // rotation per position: cos and sin for each of the rotDim/2 speeds. cfg.rope, when given, holds for every position
-    // its place [time, row, column] (a conversation with a picture, ../vision/), each speed taking one of the three (float.js MROPE)
+    // rotation per position: cos and sin per speed (rotDim/2); cfg.rope, when given, holds each position's place
+    // [time, row, column] (a picture, ../vision/), each speed taking one of the three (float.js MROPE)
     cos: Array.from({ length: maxTokens }, (_, pos) => Array.from(freq, (fr, f) => Math.round(Math.cos(angleOf(cfg.rope, pos, f) * fr) * 2 ** RB))),
     sin: Array.from({ length: maxTokens }, (_, pos) => Array.from(freq, (fr, f) => Math.round(Math.sin(angleOf(cfg.rope, pos, f) * fr) * 2 ** RB))),
   };
@@ -212,7 +202,7 @@ function settings(shape, options = {}) {
 
 // ---- the model ---------------------------------------------------------------------------------
 
-// src: openWeights() of ../float.js (or synth.js): shape fields and tensor(kind, l) as floats.
+// src: openWeights() of ../reference/float.js (or synth.js): shape fields and tensor(kind, l) as floats.
 function build(src, options = {}) {
   const S = settings(src, options), { cfg, tops, R, IB, eout, eo, e2, K3, xUpBits, xDown, tables } = S;
   const { dim, layers, heads, kvHeads, headSize: hs, kvDim, rotDim, hidden, vocab, types, nk, nv, dk, dv, kernel, keyDim, valueDim, convDim } = src;
@@ -301,7 +291,8 @@ function build(src, options = {}) {
   const qr = new Float64Array(qDim), gr = new Float64Array(qDim), kr = new Float64Array(kvDim), vr = new Float64Array(kvDim);
   const qq = new Float64Array(qDim), kk = new Float64Array(kvDim), mixed = new Float64Array(qDim), score = new Float64Array(maxTokens), sums = new Float64Array(hs);
 
-  // Gated DeltaNet: xn (NB fraction bits, times the gain) -> sums of out_proj (before the residual joins)
+  // Gated DeltaNet (3 of every 4 layers): xn (NB fraction bits, times the gain) -> sums of out_proj (before the residual
+  // joins). As ../reference/deltanet.js, but St is folded by powers of two and roundings that cannot overflow wrap.
   function deltaNet(Q, st, xin, outS, tr) {
     const nwB = Math.min(sBits, 31 - KB), npB = Math.min(sBits, 32 - KB);
     // 1. the input matrices, rounded
@@ -359,7 +350,7 @@ function build(src, options = {}) {
         for (let j = 0, at = i * dv; j < dv; j++, at++) {
           const v = St[at] + rqWrap(kv * dd[j], KB, nwB);
           if (v >= 2 ** (sBits - 1) || v < -(2 ** (sBits - 1))) stats.stateOverflow++;
-          St[at] = v;                  // (stateOverflow counts the times v leaves sBits; it never does on real text)
+          St[at] = v;                  // v never leaves sBits on real text
         }
       }
       // read with the query times D: the output at its true scale
@@ -446,9 +437,8 @@ function build(src, options = {}) {
     return matvec(Q.wo, mixed, dim, outS);
   }
 
-  // One position: the token's embedding through every layer; the output scores when asked for.
-  // trace(name, layer, values), when given, sees every stage.
-  // input, when given: the vector of a picture's word piece at EB fraction bits (../vision/spec.js), read in place of the row of the token.
+  // One position through every layer, then the output scores; trace(name, layer, values) sees every stage. input: a
+  // picture's word-piece vector at EB fraction bits (../vision/spec.js), read instead of the token's embedding row.
   function step(cache, token, pos, wantLogits = true, trace = null, input = null) {
     if (pos >= maxTokens) throw new Error(`position ${pos} is beyond maxTokens`);
     const tr0 = (name, l, arr) => { if (trace) trace(name, l, Array.from(arr)); };
@@ -482,7 +472,7 @@ function build(src, options = {}) {
     if (!wantLogits && !trace) return null;
     return head(x, tr0);
   }
-  // The output layer on its own: the scores of a residual xs (tools/map-data/lens.js gives it the residual after every layer).
+  // The output layer alone: the scores of a residual xs (tools/map-data/lens.js gives it the residual after every layer).
   function head(xs, tr = () => {}) {
     normalise(xs, xn, gFinal); tr('xnf', -1, xn);
     matvec(wcls, xn, vocab, logits);

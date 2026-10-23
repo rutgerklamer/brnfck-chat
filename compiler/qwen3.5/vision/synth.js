@@ -1,11 +1,7 @@
 'use strict';
 
-// A SMALL random vision part with the layout of Qwen3.5's (reference/vision.js loadVision()), for testing the brainfuck
-// vision engine quickly: squares of P x P pixels, a grid of side x side learned positions, depth layers, the merger.
-// Its values have the shapes of the real ones: a residual that grows layer by layer with one loud channel, wide gelu
-// inputs in the last layer, gains of the norms up to about 18. hot > 1 makes everything larger, so that values hit
-// their clamps.
-//   const V = synthVision(1), sq = squares(synthPicture(V, 1), V.P, V.merge)
+// A small random vision part with the layout of Qwen3.5's (reference/vision.js loadVision()), for quick tests.
+// Values shaped like the real ones (growing residual, one loud channel, gains up to 18); hot > 1 makes them hit clamps.
 
 const { bf16 } = require('../engine/synth');
 const F = require('../reference/float');

@@ -1,7 +1,6 @@
 'use strict';
 
-// Self-test of bfrun.js and synth.js: hand-written programs, random programs against a plain
-// one-character-at-a-time interpreter (with breakpoints), the speed, and the synth model through float.js.
+// Self-test of bfrun.js (by hand, random programs against a plain interpreter, speed) and of synth.js via float.js.
 //   node compiler/qwen3.5/engine/bfrun_check.js
 
 const { run } = require('./bfrun');
@@ -174,7 +173,7 @@ function plain(src, { input = new Uint8Array(0), tapeSize = 1 << 12, brk = null,
     const m = F.modelFrom(src), prompt = [1, 5, 9, 2, 33];
     const ids = F.generateIds(m, prompt, 20, []);
     check(ids.length === 20 && ids.every((i) => i >= 0 && i < src.vocab), 'generateIds on ' + JSON.stringify(size));
-    // the whole-number DeltaNet layers of ../deltanet.js build on it and mostly agree with the floats
+    // the whole-number DeltaNet layers of reference/deltanet.js build on it and mostly agree with the floats
     const mixers = src.types.map((t, l) => (t === 'lin' ? DN.build(src, l).mixer : null));
     const ints = F.generateIds(m, prompt, 20, [], mixers);
     const agree = ids.filter((t, i) => t === ints[i]).length;

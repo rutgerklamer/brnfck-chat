@@ -1,13 +1,7 @@
 'use strict';
 
-// A brainfuck ENGINE for Qwen3.5 (spec.js), for 32-bit wrapping cells.
-//
-// The building blocks are those of the Qwen2.5 engine (compiler/qwen/engine/gen.js and stations.js): the
-// sweep of a gap through a matrix, the residual norm, the feed-forward layer, the output layer and the walk home
-// are used as they are. What is new is the layout of a model whose layers are of two kinds, and the two token
-// mixers: the Gated DeltaNet (mixers/deltanet.js) and the gated full attention (mixers/attention.js).
-//
-// The layers come in groups (lin lin lin att for Qwen3.5); the code of one group is written once and runs in a loop.
+// A brainfuck ENGINE for Qwen3.5 (spec.js), for 32-bit wrapping cells, on the building blocks of the Qwen2.5 engine.
+// New: layers of two kinds in groups (lin lin lin att) run in a loop; the mixers in mixers/deltanet.js, attention.js.
 
 const fs = require('fs');
 const { Engine: Engine25 } = require('../../qwen/engine/gen');
@@ -294,7 +288,7 @@ class Engine {
     this.readEnd = p.code.chars;
     this.emitReadPrompt();
     p.loop(gl.REM, () => { p.add(gl.REM, -1); this.token(); });
-    // The program in pieces (the whole text can be longer than the longest string V8 holds); the tape mirrored: < and > swapped.
+    // In pieces (the text can pass the longest string V8 holds); the tape mirrored: < and > swapped.
     p.code.flush();
     const chunks = Array.from(p.code, (virt) => {
       if (/[^+\-<>[\].,]/.test(virt)) throw new Error('not pure brainfuck');

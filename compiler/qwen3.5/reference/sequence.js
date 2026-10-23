@@ -1,7 +1,6 @@
 'use strict';
 
-// Writes data/seq256.json: 256 tokens of one conversation (a question and the float model's own answer),
-// the text the whole-number DeltaNet is measured on.
+// Writes data/seq256.json: 256 tokens of a question and the float model's own answer, the text drift.js measures on.
 //   node compiler/qwen3.5/reference/sequence.js [--model=qwen3.5-0.8b]
 
 const fs = require('fs');

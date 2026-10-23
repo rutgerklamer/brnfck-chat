@@ -1,11 +1,6 @@
 'use strict';
 
-// Records the parts of Qwen3.5-0.8B that Qwen2.5 does not have, for the page site/compare/, from one answer of
-// the model in floating point (float.js):
-//   data/step.json  three DeltaNet heads word piece by word piece: decay, write strength, and the q, k, v and z
-//                   of the head (16 bits each), from which the page rebuilds the 128 x 128 table step by step
-//   data/attn.json  the six layers that look back: the size of q and k before their norm and the gains of the
-//                   norms, and for the last of them the output gate of every number of every head (8 bits)
+// Records for site/compare/ the parts of Qwen3.5-0.8B that Qwen2.5 lacks, from one answer in floating point.
 //   node compiler/qwen3.5/compare/record-parts.js [--model=qwen3.5-0.8b]      (about 2 minutes)
 
 const fs = require('fs');
@@ -97,7 +92,7 @@ const text = { question: QUESTION, model: 'Qwen3.5-0.8B', setting: 'floating poi
 const b64 = (u) => Buffer.from(u.buffer, u.byteOffset, u.byteLength).toString('base64');
 const r4 = (v) => +v.toPrecision(4);
 
-// ---- step.json: per head the vectors as 16-bit whole numbers with one scale per vector ----
+// ---- step.json: three DeltaNet heads per word piece: decay, write strength, q, k, v, z (16 bits, a scale per vector)
 function pack(list) {
   const len = list[0].length, data = new Int16Array(list.length * len), scale = [];
   list.forEach((v, t) => {
@@ -137,7 +132,7 @@ const stepHeads = HEADS.map(([L, h, name], j) => {
 });
 fs.writeFileSync(path.join(OUT, 'step.json'), JSON.stringify({ ...text, dk, dv, eps: m.eps, heads: stepHeads }));
 
-// ---- attn.json ----
+// ---- attn.json: per attention layer |q|, |k| before their norm and the norm gains; the last one's gates (8 bits) ----
 const GL = att.length - 1;   // the gate of every number is kept for the last layer that looks back, layer 23
 const gate = new Uint8Array(n * qDim), size = new Uint8Array(n * att.length * (heads + kvHeads));
 const SZ = [-1, 3];   // sizes before the norm, log scale 0.1 .. 1000

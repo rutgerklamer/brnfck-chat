@@ -1,9 +1,6 @@
 'use strict';
 
-// The shapes of the models of the four programs, for the page site/compare/: per layer the weights of each part,
-// counted from the headers of the weight files (only the text model: Qwen3.5-0.8B also has a vision part and a
-// layer that guesses ahead, which the program does not run), and from config.json what each model keeps of the
-// past and how many multiplications a word piece costs.
+// Shapes of the MODELS for site/compare/: weights per layer and part, what each keeps of the past, its multiplications.
 //   node compiler/qwen3.5/compare/shapes.js         writes site/compare/data/shapes.json
 
 const fs = require('fs');
@@ -56,7 +53,7 @@ const models = MODELS.map(([dir, name, program]) => {
   const layers = types.map((kind) => ({ kind, parts: {} }));
   let emb = 0, out = 0, final = 0;
   for (const [k, t] of Object.entries(h)) {
-    if (!k.startsWith(P) && k !== 'lm_head.weight') continue;          // the vision part, the layer that guesses ahead
+    if (!k.startsWith(P) && k !== 'lm_head.weight') continue;          // vision part, layer that guesses ahead: not run
     const n = count(t.shape), rest = k.slice(P.length);
     if (k === 'lm_head.weight') { out += n; continue; }
     if (rest === 'embed_tokens.weight') { emb += n; continue; }
@@ -80,9 +77,8 @@ const models = MODELS.map(([dir, name, program]) => {
   const convDim = nLin ? 2 * c.linear_num_key_heads * c.linear_key_head_dim + c.linear_num_value_heads * c.linear_value_head_dim : 0;
   const table = nLin ? c.linear_num_value_heads * c.linear_key_head_dim * c.linear_value_head_dim : 0;
   const keep = { perPiece: nAtt * 2 * kv, tables: nLin * table, window: nLin ? nLin * (c.linear_conv_kernel_dim - 1) * convDim : 0 };
-  // multiplications per word piece: every weight of the matrices once (the output layer too; the embedding is
-  // only looked up), then per earlier word piece two per number of each query head (its score, its share of the
-  // values), and per DeltaNet head four per number of its table (fade, ask, write, read)
+  // multiplications per word piece: every matrix weight once (the embedding is only looked up), two per number of
+  // each query head per earlier piece (score, share of the values), four per number of each DeltaNet table
   let matrices = 0;
   for (const L of layers) for (const [p, n] of Object.entries(L.parts)) if (!['norm', 'qknorm', 'small', 'bias', 'conv'].includes(p)) matrices += n;
   const work = { weights: matrices + c.vocab_size * c.hidden_size, perPiece: nAtt * c.num_attention_heads * hd * 2, tables: nLin * table * 4 };

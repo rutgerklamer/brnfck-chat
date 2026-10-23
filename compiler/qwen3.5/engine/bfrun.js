@@ -2,11 +2,6 @@
 
 // A fast brainfuck runner for the engine's tests: 32-bit wrapping cells, the compile step of
 // compiler/core/bf.js (runs merged, multiply loops as one op), and a breakpoint by source position.
-//   run(src, { input, tapeSize, breakAt: { charIndex, hit }, maxSteps, eof })
-//     -> { tape, pointer, output, steps, stopped, reason ('break' or 'steps'), ops, hits }
-// breakAt stops the run the hit-th time (1-based) execution reaches the op that starts at or after
-// character charIndex of src: at that moment every character before charIndex that ran has run,
-// and none after it. No op is merged across charIndex, and a loop around it stays a loop.
 
 const { asMulLoop, flatten, ADD, OUT, IN, JZ, JNZ, CLEAR, MUL1, MUL2, MULN, NOP } = require('../../core/bf');
 const BRK = NOP + 1;
@@ -77,6 +72,8 @@ function compile(src, brk = -1) {
   return { ...flatten(ops), F: Int32Array.from(ops, (op) => op.from) };
 }
 
+// breakAt { charIndex, hit } stops the hit-th time (1-based) the op at or after charIndex is reached: every character
+// before charIndex that ran has run, none after it. reason: 'break' or 'steps'.
 function run(src, { input = new Uint8Array(0), tapeSize = 1 << 16, breakAt = null, maxSteps = Infinity, eof = 0 } = {}) {
   const prog = compile(src, breakAt ? breakAt.charIndex : -1);
   const { T, N, M, X, length } = prog;

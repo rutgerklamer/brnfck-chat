@@ -1,9 +1,6 @@
 'use strict';
 
-// Records the memory of the DeltaNet layers for the page site/compare/: three answers of Qwen3.5-0.8B with the
-// 18 DeltaNet layers in whole numbers (deltanet.js, as a brainfuck program would run them), and per token, for
-// every head of every DeltaNet layer: the size |S| of its 128 x 128 state, its decay as a half-life, its write
-// strength beta, its scale D (1/2 .. 1) and whether it renormalised. For two heads the state itself, every fourth row and column.
+// DeltaNet memory of three Qwen3.5-0.8B answers for site/compare/: per token and head |S|, half-life, beta, D, renorm.
 //   node compiler/qwen3.5/compare/record.js [--model=qwen3.5-0.8b]      (about 5 minutes)
 
 const fs = require('fs');
@@ -24,8 +21,7 @@ const lin = m.types.flatMap((t, l) => (t === 'lin' ? [l] : [])), H = m.nv, cells
 const nets = m.types.map((t, l) => (t === 'lin' ? DN.build(src, l, { checks: false }) : null));
 src.close();
 
-// The renormalisations, worked out as deltanet.js does them (its decay tables and D at DB bits). Its stats.renorm
-// counts them per layer; the two counts are compared every token.
+// Renormalisations worked out as deltanet.js does (its decay tables, D at DB bits); checked against its stats.renorm.
 const cfg = DN.DEFAULTS, { AB, LB, DB } = cfg;
 const rq32 = (v, k, n, lo = -(2 ** (n - 1)), addend = k > 0 ? 2 ** (k - 1) : 0) => {
   const X = (v + addend - lo * 2 ** k) | 0, q = X >> k, hi = 2 ** n - 1;
@@ -45,6 +41,7 @@ const fixed = lin.map((l) => ({
   logA: Int32Array.from(m.L[l].aLog, (v) => clampTo(Math.round(v * 2 ** LB), 16)),
 }));
 
+// One answer with the 18 DeltaNet layers in whole numbers (deltanet.js), as a brainfuck program would run them.
 function record(question) {
   for (const n of nets) if (n) n.reset();
   const D = Int32Array.from({ length: cells }, () => 2 ** DB);
@@ -130,8 +127,7 @@ for (const [key, question] of ANSWERS) {
       scale[at] = Math.round((row.scale[i] - 0.5) * 2 * 255);
     }
   });
-  // the two heads drawn whole: of the heads that hold the most at the end, the one that forgets fastest and the
-  // one that forgets slowest (median half-life over the answer)
+  // the two heads drawn whole: of the quarter that holds most at the end, the fastest and slowest to forget
   const median = (a) => { const s = Float64Array.from(a).sort(); return s[s.length >> 1]; };
   const heads = Array.from({ length: cells }, (_, i) => ({ i, end: R.rows[n - 1].norm[i], half: median(R.rows.map((row) => row.half[i])) }))
     .sort((x, y) => y.end - x.end).slice(0, cells / 4).sort((x, y) => x.half - y.half);

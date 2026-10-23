@@ -1,11 +1,7 @@
 'use strict';
 
-// A SMALL random model with the shapes and value ranges of Qwen3.5-0.8B, for testing the engine quickly.
-// It has the interface of openWeights() in ../float.js: the shape fields, tensor(kind, l) as floats,
-// raw(kind, l) as bfloat16 bits of the same values, close(). So float.js runs it as it is:
-//   const F = require('../reference/float'), m = F.modelFrom(synthModel(1)); F.generateIds(m, [1, 2, 3], 8, []);
-// size: { dim, hidden, layers, types, heads, kvHeads, headSize, rotDim, nk, nv, dk, dv, kernel, vocab,
-//         maxPos, theta, eps, tied, hot } (hot > 1: larger weights, so that values hit their clamps)
+// A SMALL random model with the shapes and value ranges of Qwen3.5-0.8B, for testing the engine quickly. Interface of
+// openWeights() in ../reference/float.js: shape fields, tensor(kind, l) as floats, raw(kind, l) as bfloat16 bits, close().
 
 // value -> bfloat16 bits, rounded to nearest, ties to even (as torch)
 const f32 = new Float32Array(1), u32 = new Uint32Array(f32.buffer);
@@ -21,6 +17,7 @@ function synthModel(seed = 1, size = {}) {
   let s = seed >>> 0;
   const rnd = () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const gauss = () => { let a = 0; for (let i = 0; i < 6; i++) a += rnd(); return (a - 3) * 1.41; };
+  // hot > 1: larger weights, so that values hit their clamps
   const {
     dim = 32, hidden = 48, layers = 4, heads = 2, kvHeads = 1, headSize = 16, rotDim = 4,
     nk = 2, nv = 2, dk = 8, dv = 8, kernel = 4, vocab = 64, maxPos = 32, theta = 1e7, eps = 1e-6, tied = true, hot = 1,
@@ -113,7 +110,5 @@ function synthModel(seed = 1, size = {}) {
   const tensor = (kind, l) => floats.get(lookup(kind, l)).slice();
   return { ...shape, shape, raw, tensor, close: () => {} };
 }
-
-// The synth model as float.js's loadModel gives it.
 
 module.exports = { synthModel, bf16, fromBf16 };

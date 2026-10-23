@@ -1,12 +1,7 @@
 'use strict';
 
-// The program of Qwen3.5-0.8B with its vision part (program.js) and what it reads, into vision/out/: the program (its
-// load part and the rest), the weight stream (the text model's, then the vision part's), the tokenizer stream, a meta
-// file, and the spec's answers about the pictures of pictures/ (spec.js and ../engine/spec.js, bit for bit what the
-// program prints).
+// The program of Qwen3.5-0.8B with vision (program.js) into out/: program, weight and tokenizer streams, meta, spec answers.
 //   node compiler/qwen3.5/vision/build.js [program|stream|ref]...     (all three when none is named)
-// What the program reads: a picture of 256 x 256 pixels as its squares (reference/vision.js squares: 256 squares of
-// 16 x 16 pixels, every square its red, green and blue pixels row by row), then the question and a newline.
 
 const fs = require('fs');
 const os = require('os');
@@ -43,7 +38,7 @@ const now = () => Number(process.hrtime.bigint()) / 1e9;
 // The layout of the squares of every picture the program reads (their bytes do not matter here).
 const layoutSquares = (V) => VR.squares({ W: SIDE, H: SIDE, rgb: new Uint8Array(SIDE * SIDE * 3) }, V.P, V.merge);
 
-// The prompt around the question: everything up to <|vision_end|> is the tokenizer's prefix (no newline before the question).
+// The prompt around the question: up to <|vision_end|> it is the tokenizer's prefix (no newline before the question).
 function tokOptions(tok, V, sq) {
   const lay = promptLayout(tok, V, sq), pads = '<|image_pad|>'.repeat(lay.images);
   const head = `<|vision_start|>${pads}<|vision_end|>`, prefix = tok.encode(`<|im_start|>user\n${head}`);
@@ -65,14 +60,14 @@ function generate() {
   return { arch, kinds: e.kinds, vp: e.vp, V, sq, TOK, ...e.build() };
 }
 
-// The bytes the program reads: the squares of the picture, then the question and its newline.
+// The bytes the program reads: the squares of the picture (reference/vision.js squares), then the question and its newline.
 function inputBytes(picture, question) {
   const pic = typeof picture === 'string' ? VR.readPng(picture) : picture;
   if (pic.W !== SIDE || pic.H !== SIDE) throw new Error(`the picture must be ${SIDE} x ${SIDE} pixels`);
   return Buffer.concat([Buffer.from(VR.squares(pic, 16, 2).bytes), questionBytes(question)]);
 }
 
-// The spec's answer: the vision part's vectors, then the text model reading them at the positions of the picture.
+// The spec's answer (what the program prints, bit for bit): the vision vectors, read by the text model at the picture.
 function specAnswer(lm, vnet, ids, imageAt, imageToken, out, bytes, maxNew) {
   const emb = vnet.encode(bytes), cache = lm.step.newCache(), got = [];
   const input = (pos) => (pos < ids.length && ids[pos] === imageToken ? emb.subarray((pos - imageAt) * out, (pos - imageAt + 1) * out) : null);

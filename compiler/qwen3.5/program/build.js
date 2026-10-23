@@ -1,7 +1,6 @@
 'use strict';
 
-// The text-to-text program of Qwen3.5-0.8B and what it reads, into compiler/qwen3.5/program/out/:
-// the program, the tokenizer stream and a meta file (the weight stream is the engine's: engine/build_real.js stream).
+// The text-to-text program of Qwen3.5-0.8B, its tokenizer stream and meta, into out/ (weights: engine/build_real.js).
 //   node compiler/qwen3.5/program/build.js
 
 const fs = require('fs');

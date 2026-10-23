@@ -1,7 +1,6 @@
 'use strict';
 
-// reference/vision.js against the Hugging Face code (the files of hf_check.py in out/): the squares, the prompt with
-// its picture, the vectors of the vision part, and the greedy answer.
+// reference/vision.js against the Hugging Face code (hf_check.py's files in out/): squares, prompt, vectors, greedy answer.
 //   node compiler/qwen3.5/vision/check_float.js cat [windmills ...]
 
 const fs = require('fs');

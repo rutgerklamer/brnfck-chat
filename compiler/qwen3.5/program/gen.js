@@ -23,6 +23,7 @@ class ChatProgram extends Engine {
   // Real cell of a virtual address of the engine.
   R(v) { return this.N - v; }
 
+  // Emits fn(q), written for real cells, into the engine's mirrored tape (< and > swapped).
   real(fn) {
     const p = this.p, q = new Patterns(32);
     q.ptr = this.R(p.ptr);
@@ -69,7 +70,7 @@ class ChatProgram extends Engine {
 
   build() {
     const { src, chunks, length, layout } = super.build(), L = this.tok;
-    // the two parts: the load part reads the data files, the rest the question; the cut must be outside every loop and before any output
+    // the load part reads the data files, the rest the question; the cut must be outside every loop and before any output
     const { chars, pointer } = this.cut, [loadChunks, restChunks] = splitChunks(chunks, chars), loadSrc = loadChunks.join('');
     let depth = 0;
     for (let i = 0; i < loadSrc.length; i++) { const ch = loadSrc.charCodeAt(i); if (ch === 91) depth++; else if (ch === 93) depth--; }

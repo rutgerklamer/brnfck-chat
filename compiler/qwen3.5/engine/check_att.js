@@ -1,8 +1,7 @@
 'use strict';
 
-// The gated full attention mixer (mixers/attention.js) against the spec (spec.js) on small synthetic models, under bfrun.js.
+// The gated attention mixer (mixers/attention.js) against spec.js on small attention-only models, under bfrun.js.
 //   node compiler/qwen3.5/engine/check_att.js [quick] [seed]
-// Every model has only attention layers. Stage by stage at the first positions, then whole runs: the printed ids and a clean tape.
 
 const Spec = require('./spec');
 const { synthModel } = require('./synth');
@@ -42,9 +41,9 @@ function check(name, size, options, prompts, stages = 2) {
   const S = setup(size, options), L = S.layout, a = S.arch, { dim, qDim, headSize: hs, kvHeads, heads, layers } = a, kv = kvHeads * hs;
   console.log(`\n${name}: ${JSON.stringify({ dim, layers, heads, kvHeads, headSize: hs, rotDim: a.rotDim })}; program ${S.prog.length.toLocaleString('en-US')} characters, tape ${L.tapeSize.toLocaleString('en-US')} cells`);
   const perm = att.permOf(a), Lo = L.Lt.att, so = Lo.so, F = att.fields;
-  const ours = (v) => range(v.length, (j) => v[perm(j)]);        // a vector of qDim numbers in our order
+  const ours = (v) => range(v.length, (j) => v[perm(j)]);        // a vector of qDim numbers in engine order
 
-  // stage by stage
+  // stage by stage at the first positions
   const ids = prompts[0][0];
   const cache = S.net.step.newCache(), trace = [];
   for (let pos = 0; pos < stages; pos++) { const tr = {}; S.net.step(cache, ids[pos], pos, true, (nm, l, v) => { (tr[nm] ||= {})[l] = v; }); trace.push(tr); }
@@ -75,7 +74,7 @@ function check(name, size, options, prompts, stages = 2) {
   }
   if (S.net.stats.scoreOverflow) console.log(`      (scores beyond 2^scoreBits: ${S.net.stats.scoreOverflow})`);
 
-  // whole runs
+  // whole runs: the printed ids and a clean tape
   for (const [prompt, maxNew] of prompts) {
     const r = runTo(S, prompt, prompt.length + maxNew - 1), got = unpackIds(r.output), wantIds = Spec.generateIds(S.net, prompt, maxNew, NOSTOP);
     ok(same(got, wantIds), `prompt ${JSON.stringify(prompt)}, ${maxNew} new: ${JSON.stringify(got)}`, `${firstDiff(got, wantIds)} [${r.steps.toLocaleString('en-US')} steps]`);
