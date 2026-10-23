@@ -63,7 +63,7 @@
     const m = E.model, M = E.matrices, lay = E.layout, T = m.tables, D = m.deltanet, n = fmt, base = secQwen(E);
     const nLin = m.types.filter((t) => t === 'lin').length, nAtt = m.layers - nLin, g = m.groups, per = m.unit.length;
     const A = 'Before the first word piece', P = 'For every word piece', L = 'In each of the ' + m.layers + ' layers', DL = 'In each of the ' + nLin + ' DeltaNet layers', AL = 'In each of the ' + nAtt + ' attention layers', Z = 'After the last layer';
-    const rc = (x) => n(x.rows) + ' rows and ' + n(x.cols) + ' columns', head = n(D.keySize) + ' × ' + n(D.valueSize);
+    const rc = (x) => n(x.rows) + ' rows and ' + n(x.cols) + ' columns';
     const S = {
       ask: { ...base.ask, group: A },
       queue: { fam: 'text', group: A, name: 'Count the pieces', desc: 'Hands the number of word pieces of the question to the counters of the engine and sets how many positions may still run: ' + m.maxTokens + '. Nothing is in memory yet: this program has no opening lines worked out beforehand, so every word piece of the question goes through the model, from the first one on.' },
