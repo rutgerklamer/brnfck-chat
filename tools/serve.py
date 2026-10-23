@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Serves site/ with HTTP Range requests; compare/ and models/ cross-origin isolated, so threads may share memory.
-    python tools/serve.py [port]        (default: http://localhost:8766/)
+    python tools/serve.py [port]        (default: http://localhost:8766/; a port in use: the next free one)
 """
 import os
 import re
@@ -89,9 +89,22 @@ class Handler(SimpleHTTPRequestHandler):
             super().log_message(fmt, *args)
 
 
+class Server(ThreadingHTTPServer):
+    allow_reuse_address = os.name != "nt"          # on Windows it lets a second server take a port in use, without an error
+
+
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8766
-    server = ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, directory=ROOT))
+    asked = int(sys.argv[1]) if len(sys.argv) > 1 else 8766
+    for port in range(asked, asked + 20):
+        try:
+            server = Server(("127.0.0.1", port), partial(Handler, directory=ROOT))
+            break
+        except OSError:
+            continue
+    else:
+        sys.exit("Ports %d to %d are all in use." % (asked, asked + 19))
+    if port != asked:
+        print("Port %d is in use." % asked)
     print("Serving %s at http://localhost:%d/  (with byte ranges; Ctrl+C stops)" % (ROOT, port))
     try:
         server.serve_forever()
