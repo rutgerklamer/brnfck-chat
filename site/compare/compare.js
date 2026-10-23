@@ -148,7 +148,7 @@
     var s = A.slider('Word pieces in the conversation', 0, 60, 20, function (v) { return fmt(len(v)); });
     function len(v) { return Math.round(Math.pow(10, v / 12)); }   // 1 .. 100,000
     $('w-ctl').append(s.label);
-    var rows = [['One layer that looks back', 'bar b2'], ['One DeltaNet layer', 'bar']].map(function (r) {
+    var rows = [['Qwen3.8-27B, one layer that looks back', 'bar b2'], ['Qwen3.8-27B, one DeltaNet layer', 'bar']].map(function (r) {
       var lab = el('span', 'name', r[0]), track = el('span', 'track'), bar = el('span', r[1]), val = el('span', 'val');
       track.append(bar); $('w-bars').append(lab, track, val);
       return { bar: bar, val: val };
@@ -158,9 +158,9 @@
       rows[0].bar.style.width = (100 * a / top) + '%'; rows[0].val.textContent = fmt(a);
       rows[1].bar.style.width = (100 * b / top) + '%'; rows[1].val.textContent = fmt(b);
       s.show();
-      $('w-said').textContent = n < 384 ? 'At ' + fmt(n) + (n === 1 ? ' word piece' : ' word pieces') + ', looking back keeps ' + fmt(a) + ' numbers: ' + (b / a >= 10 ? fmt(b / a) : (b / a).toFixed(1)) + ' times fewer than the DeltaNet layer.'
-        : n === 384 ? 'At 384 word pieces both keep 786,432 numbers.'
-          : 'At ' + fmt(n) + ' word pieces, looking back keeps ' + fmt(a) + ' numbers: ' + (a / b >= 10 ? fmt(a / b) : (a / b).toFixed(1)) + ' times as many as the DeltaNet layer, which still keeps 786,432.';
+      $('w-said').textContent = n < 384 ? 'At ' + fmt(n) + (n === 1 ? ' word piece' : ' word pieces') + ', a layer of Qwen3.8-27B that looks back keeps ' + fmt(a) + ' numbers: ' + (b / a >= 10 ? fmt(b / a) : (b / a).toFixed(1)) + ' times fewer than one of its DeltaNet layers.'
+        : n === 384 ? 'At 384 word pieces, both layers of Qwen3.8-27B keep 786,432 numbers.'
+          : 'At ' + fmt(n) + ' word pieces, a layer of Qwen3.8-27B that looks back keeps ' + fmt(a) + ' numbers: ' + (a / b >= 10 ? fmt(a / b) : (a / b).toFixed(1)) + ' times as many as one of its DeltaNet layers, which still keeps 786,432.';
     }
     s.input.addEventListener('input', draw);
     draw();
@@ -444,7 +444,7 @@
       // the programs stop at 256 word pieces
       var x256 = Math.round(X(256)) + 0.5;
       ctx.strokeStyle = C.muted; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(x256, PADT); ctx.lineTo(x256, H - PADB); ctx.stroke(); ctx.setLineDash([]);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = C.muted; ctx.fillText(narrow ? '256' : 'the programs: 256', x256 + 4, PADT + 2);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillStyle = C.muted; ctx.fillText(narrow ? '256' : 'the chat programs: 256', x256 + 4, PADT + 2);
       // one line per model
       D.models.forEach(function (m, i) {
         ctx.strokeStyle = css(rgb(COL[i])); ctx.lineWidth = i === 3 ? 3 : 2;
@@ -463,7 +463,7 @@
       var xn = X(n);
       ctx.fillStyle = C.ink; ctx.fillRect(xn - 1, PADT, 2, H - PADT - PADB);
       D.models.forEach(function (m, i) { ctx.beginPath(); ctx.arc(xn, Y(value(m, n)), 4, 0, 2 * Math.PI); ctx.fillStyle = css(rgb(COL[i])); ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.stroke(); });
-      canvas.setAttribute('aria-label', (view === 'keep' ? 'Numbers kept of the past' : 'Multiplications per word piece') + ' against the length of the conversation, for the four models, at ' + fmt(n) + ' word pieces');
+      canvas.setAttribute('aria-label', (view === 'keep' ? 'Numbers kept of the past' : 'Multiplications per word piece') + ' against the length of the conversation, for SmolLM2-135M, Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen3.5-0.8B, at ' + fmt(n) + ' word pieces');
       // the readout, which is also the key
       read.replaceChildren.apply(read, D.models.map(function (m, i) {
         var row = el('span', 'r' + (i === 3 ? ' me' : '')), sw = el('i', 'sw');
@@ -730,9 +730,9 @@
     // are the files on this site? (the worker reads only the text part of the file: 1.50 of its 1.75 GB)
     fetch(MODEL + 'model.safetensors', { method: 'HEAD' }).then(function (r) {
       if (!r.ok) throw new Error('missing');
-      go.disabled = false; go.textContent = 'Load the model (1.50 GB)';
+      go.disabled = false; go.textContent = 'Load Qwen3.5-0.8B (1.50 GB)';
       status.textContent = 'Nothing is downloaded until you press Load.';
-    }).catch(function () { status.textContent = 'The model files are not on this site, so the model cannot run here.'; });
+    }).catch(function () { status.textContent = 'The files of Qwen3.5-0.8B are not on this site, so it cannot run here.'; });
 
     function draw() {
       if (!info) return;
