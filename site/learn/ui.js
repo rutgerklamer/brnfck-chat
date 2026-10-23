@@ -262,7 +262,7 @@
   Learn.ready = (fn) => {
     const go = () => {
       if (demos) return fn(demos);
-      Promise.all(['../runtime/emit.js?v=r6', '../runtime/patterns.js?v=r6'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ': ' + r.status); return r.text(); })))
+      Promise.all(['../runtime/emit.js?v=r7', '../runtime/patterns.js?v=r7'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ': ' + r.status); return r.text(); })))
         .then(([e, p]) => {
           const emit = loadCommonJS(e, () => ({}));
           const pat = loadCommonJS(p, () => emit);
