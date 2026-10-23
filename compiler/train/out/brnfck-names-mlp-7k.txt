@@ -1,12 +1,12 @@
 brnfck-names-mlp-7k, trained inside brainfuck by brnfck-train-names-mlp-7k
 
 parameters                7,003
-training program          2,955,820 characters (writing part 211,230)
+training program          2,956,550 characters (writing part 211,230)
 child program             1,373,979 characters (weights 716,074, engine 657,905)
 tape                      95,572 cells of 32 bits
 training text             192,576 characters, batch 32, 6,018 steps
-training run              31.6 s in the WebAssembly runtime: 5.26 ms per step, 164 us per character
-the same run in JavaScript 12.0 s (reference.js)
+training run              32.4 s in the WebAssembly runtime: 5.38 ms per step, 168 us per character
+the same run in JavaScript 12.6 s (reference.js)
 loss                      3.336 at step 1, 2.153 at step 6018 (nats per character, one batch)
 
 loss, the mean of every 502 steps
@@ -24,12 +24,12 @@ loss, the mean of every 502 steps
   steps  5523 to  6018  2.004
 
 checks
-ok    compiler\train\out\brnfck-train-names-mlp-7k.bf: 2,955,820 characters, only the 8 commands (writing part 211,230; made in 0.0 s)
-ok    6018 steps, every line equal to the reference (129 ms to compile, 31.6 s to run)
+ok    compiler\train\out\brnfck-train-names-mlp-7k.bf: 2,956,550 characters, only the 8 commands (writing part 211,230; made in 0.0 s)
+ok    6018 steps, every line equal to the reference (83 ms to compile, 32.4 s to run)
 ok    the loss of every step: loss 3.336 at step 1, loss 2.153 at step 6018
 ok    every weight and velocity on the tape equals the reference (7,287 slots)
 ok    the printed child program equals the reference's (1,373,979 characters: weights 716,074, engine 657,905)
-ok    compiler\train\out\brnfck-names-mlp-7k.bf prints the reference's 30 names (32 ms to compile, 0.09 s to run)
+ok    compiler\train\out\brnfck-names-mlp-7k.bf prints the reference's 30 names (21 ms to compile, 0.07 s to run)
 
 names printed by the child
   addora

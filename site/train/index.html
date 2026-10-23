@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../ui/system.css?v=r7">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
-<link rel="stylesheet" href="train.css?v=r4">
+<link rel="stylesheet" href="train.css?v=r5">
 </head>
 <body>
 <script src="../site.js?v=r23" data-section="lab"></script>
@@ -93,12 +93,14 @@
       <div><dt>Loss on unseen text</dt><dd id="sh-st-held">&nbsp;</dd></div>
       <div><dt>Equal to the reference</dt><dd id="sh-st-same">&nbsp;</dd></div>
     </dl>
+    <p class="measured" id="sh-st-note" hidden></p>
 
     <figure class="fig" id="fig-sh-loss" aria-label="The loss over the whole run, and on the text kept apart after every pass">
       <canvas id="sh-loss" role="img" aria-describedby="sh-loss-said"></canvas>
+      <canvas id="sh-held" role="img" aria-label="The loss on the unseen text after every pass, on a scale that fits it"></canvas>
       <p class="key small" id="sh-loss-key"></p>
       <p class="tell" id="sh-loss-said" aria-live="polite">&nbsp;</p>
-      <p class="measured">The line: the loss the training program printed, in nats per character, the mean of the steps between two progress lines of the run (about every two minutes); the first 2,000 steps from the plain JavaScript version of the training, in groups of 20, which prints the same lines. The dots: the loss on the 10% kept apart, after each pass. The dashed lines are what simpler guesses score on that part: every character equally likely, how often each character comes, and the character before only. The steps are on a square-root scale, so that the first minutes, when it learns the most, are wide enough to see. Click to pick a pass.</p>
+      <p class="measured">The line: the loss the training program printed, in nats per character, the mean of the steps between two progress lines of the run (about every two minutes); the first 2,000 steps from the plain JavaScript version of the training, in groups of 20, which prints the same lines. The dots: the loss on the 10% kept apart, after each pass. The dashed lines are what simpler guesses score on that part: every character equally likely, how often each character comes, and the character before only. The steps are on a square-root scale, so that the first minutes, when it learns the most, are wide enough to see. Below it, the loss on the unseen text alone, after each pass, on a scale that fits those numbers. Click to pick a pass.</p>
     </figure>
 
     <h3 id="sh-pass-h">What each pass wrote</h3>
@@ -226,8 +228,8 @@ Now is the winter of our disconte</textarea></label>
         <thead><tr><th scope="col"></th><th scope="col">One letter back</th><th scope="col">Three letters back</th><th scope="col">With attention</th></tr></thead>
         <tbody>
           <tr><th scope="row">Weights</th><td>756</td><td>7,003</td><td>10,251</td></tr>
-          <tr><th scope="row">Training program</th><td>1,247,780 characters</td><td>2,958,308 characters</td><td>9,105,746 characters</td></tr>
-          <tr><th scope="row">Child program</th><td>348,772 characters</td><td>1,375,467 characters</td><td>3,513,174 characters</td></tr>
+          <tr><th scope="row">Training program</th><td>1,246,022 characters</td><td>2,956,550 characters</td><td>9,023,355 characters</td></tr>
+          <tr><th scope="row">Child program</th><td>347,284 characters</td><td>1,373,979 characters</td><td>3,510,735 characters</td></tr>
           <tr><th scope="row">Tape</th><td>11,774 cells</td><td>95,572 cells</td><td>140,867 cells</td></tr>
           <tr><th scope="row">Steps of 32 letters</th><td>902</td><td>6,018</td><td>6,018</td></tr>
           <tr><th scope="row">Training time</th><td>0.5 s</td><td>29.1 s</td><td>80.0 s</td></tr>
@@ -248,8 +250,8 @@ Now is the winter of our disconte</textarea></label>
     </ul>
   </section>
 </main>
-<script src="lib.js?v=r4"></script>
-<script src="train.js?v=r8"></script>
-<script src="shakespeare.js?v=r1"></script>
+<script src="lib.js?v=r5"></script>
+<script src="train.js?v=r9"></script>
+<script src="shakespeare.js?v=r3"></script>
 </body>
 </html>

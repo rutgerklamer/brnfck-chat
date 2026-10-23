@@ -2,7 +2,7 @@
 // compiler/train (lib.js), runs it on the names, and then runs the child program it prints; or
 // builds and runs a child of the Shakespeare run from its weights.
 'use strict';
-importScripts('../runtime/bfwasm.js?v=r8', 'lib.js?v=r4');
+importScripts('../runtime/bfwasm.js?v=r8', 'lib.js?v=r5');
 
 (function () {
   const BFWasm = self.BFWasm, T = self.Train, SL = 13;

@@ -9,7 +9,7 @@
   const num = (n) => Math.round(n).toLocaleString('en-US');
   const css = (name) => getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim();
   const DATA = {};
-  const load = (key) => DATA[key] || (DATA[key] = fetch('data/' + key + '.json?v=r3').then((r) => r.json()));
+  const load = (key) => DATA[key] || (DATA[key] = fetch('data/' + key + '.json?v=r4').then((r) => r.json()));
   const milli = (x) => Math.floor(x / 1000) + '.' + String(x % 1000).padStart(3, '0');
   const secs = (ms) => (ms < 10000 ? (ms / 1000).toFixed(1) : num(ms / 1000)) + ' s';
 
@@ -183,7 +183,7 @@
     $('train-go').textContent = 'Stop';
     $('train-model').querySelectorAll('button').forEach((b) => { b.disabled = true; });
     $('train-said').textContent = 'Building the training program…';
-    const wk = run.worker = new Worker('worker.js?v=r4');
+    const wk = run.worker = new Worker('worker.js?v=r5');
     let pending = false;
     const redraw = () => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; drawLoss(); drawTape(); }); };
     wk.onmessage = (ev) => {

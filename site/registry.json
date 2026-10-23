@@ -157,9 +157,17 @@
      "chars": 4221469653,
      "writer": 4152641778,
      "tape": 657597114
+    },
+    {
+     "n": 2,
+     "key": "9137c764ede219776fdc5c0c51656bd8dd204b011844cddd11c8cb05a96f4676",
+     "date": "2026-10-23 01:08",
+     "chars": 4221543730,
+     "writer": 4152715855,
+     "tape": 657597114
     }
    ],
-   "current": 1
+   "current": 2
   },
   {
    "id": "brnfck-smollm2-135m",
@@ -406,9 +414,201 @@
      "loss": 1.991,
      "held": 2.123,
      "equal": true
+    },
+    {
+     "n": 4,
+     "key": "pass-4",
+     "pass": 4,
+     "date": "2026-10-22 20:10",
+     "chars": 11928944,
+     "tape": 727231,
+     "steps": 125480,
+     "loss": 1.985,
+     "held": 2.117,
+     "equal": false
+    },
+    {
+     "n": 5,
+     "key": "pass-5",
+     "pass": 5,
+     "date": "2026-10-22 21:26",
+     "chars": 11928241,
+     "tape": 727231,
+     "steps": 156850,
+     "loss": 1.982,
+     "held": 2.121,
+     "equal": true
+    },
+    {
+     "n": 6,
+     "key": "pass-6",
+     "pass": 6,
+     "date": "2026-10-22 22:18",
+     "chars": 11935670,
+     "tape": 727231,
+     "steps": 188220,
+     "loss": 1.98,
+     "held": 2.117,
+     "equal": true
+    },
+    {
+     "n": 7,
+     "key": "pass-7",
+     "pass": 7,
+     "date": "2026-10-22 23:15",
+     "chars": 11939312,
+     "tape": 727231,
+     "steps": 219590,
+     "loss": 1.978,
+     "held": 2.116,
+     "equal": true
+    },
+    {
+     "n": 8,
+     "key": "pass-8",
+     "pass": 8,
+     "date": "2026-10-23 00:07",
+     "chars": 11944004,
+     "tape": 727231,
+     "steps": 250960,
+     "loss": 1.977,
+     "held": 2.117,
+     "equal": true
+    },
+    {
+     "n": 9,
+     "key": "pass-9",
+     "pass": 9,
+     "date": "2026-10-23 00:49",
+     "chars": 11945597,
+     "tape": 727231,
+     "steps": 282330,
+     "loss": 1.976,
+     "held": 2.117,
+     "equal": true
+    },
+    {
+     "n": 10,
+     "key": "pass-10",
+     "pass": 10,
+     "date": "2026-10-23 01:25",
+     "chars": 11947185,
+     "tape": 727231,
+     "steps": 313700,
+     "loss": 1.976,
+     "held": 2.117,
+     "equal": true
+    },
+    {
+     "n": 11,
+     "key": "pass-11",
+     "pass": 11,
+     "date": "2026-10-23 02:02",
+     "chars": 11947784,
+     "tape": 727231,
+     "steps": 345070,
+     "loss": 1.975,
+     "held": 2.115,
+     "equal": true
+    },
+    {
+     "n": 12,
+     "key": "pass-12",
+     "pass": 12,
+     "date": "2026-10-23 02:37",
+     "chars": 11948591,
+     "tape": 727231,
+     "steps": 376440,
+     "loss": 1.975,
+     "held": 2.114,
+     "equal": true
+    },
+    {
+     "n": 13,
+     "key": "pass-13",
+     "pass": 13,
+     "date": "2026-10-23 03:13",
+     "chars": 11949398,
+     "tape": 727231,
+     "steps": 407810,
+     "loss": 1.974,
+     "held": 2.112,
+     "equal": true
+    },
+    {
+     "n": 14,
+     "key": "pass-14",
+     "pass": 14,
+     "date": "2026-10-23 03:49",
+     "chars": 11951417,
+     "tape": 727231,
+     "steps": 439180,
+     "loss": 1.974,
+     "held": 2.111,
+     "equal": true
+    },
+    {
+     "n": 15,
+     "key": "pass-15",
+     "pass": 15,
+     "date": "2026-10-23 04:26",
+     "chars": 11953316,
+     "tape": 727231,
+     "steps": 470550,
+     "loss": 1.974,
+     "held": 2.112,
+     "equal": true
+    },
+    {
+     "n": 16,
+     "key": "pass-16",
+     "pass": 16,
+     "date": "2026-10-23 05:04",
+     "chars": 11954885,
+     "tape": 727231,
+     "steps": 501920,
+     "loss": 1.974,
+     "held": 2.112,
+     "equal": true
+    },
+    {
+     "n": 17,
+     "key": "pass-17",
+     "pass": 17,
+     "date": "2026-10-23 05:41",
+     "chars": 11955861,
+     "tape": 727231,
+     "steps": 533290,
+     "loss": 1.973,
+     "held": 2.112,
+     "equal": true
+    },
+    {
+     "n": 18,
+     "key": "pass-18",
+     "pass": 18,
+     "date": "2026-10-23 06:18",
+     "chars": 11955858,
+     "tape": 727231,
+     "steps": 564660,
+     "loss": 1.973,
+     "held": 2.11,
+     "equal": true
+    },
+    {
+     "n": 19,
+     "key": "pass-19",
+     "pass": 19,
+     "date": "2026-10-23 06:54",
+     "chars": 11956784,
+     "tape": 727231,
+     "steps": 596030,
+     "loss": 1.973,
+     "held": 2.112,
+     "equal": true
     }
    ],
-   "current": 3
+   "current": 18
   },
   {
    "id": "brnfck-names-attn-10k",
@@ -499,7 +699,7 @@
   }
  ],
  "made": "tools/registry.js",
- "updated": "2026-10-22",
+ "updated": "2026-10-23",
  "groups": [
   {
    "id": "chat",

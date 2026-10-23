@@ -1,0 +1,374 @@
+brnfck-shakespeare-attn-55k, trained inside brainfuck in 19 passes over the first 90% of data/shakespeare.txt
+
+weights                   54,513
+network                   attention over the last 16 characters, the last 4 characters into 128 hidden units
+learning                  momentum 7/8, learning-rate shift 4, weight decay 1/2^12 per step, 32 characters per step
+time                      13 h 52 min in the WebAssembly runtime
+
+pass   steps to   time          ms/char   loss    held apart   equal to the reference
+   1      31,370   35 min 38 s      2.13   2.057        2.147   yes
+   2      62,740   56 min 41 s      3.39   2.000        2.131   yes
+   3      94,110   47 min 45 s      2.85   1.991        2.123   yes
+   4     125,480   59 min 45 s      3.57   1.985        2.117   NO: step 100000 differs
+   5     156,850   1 h 04 min       3.84   1.982        2.121   yes
+   6     188,220   52 min 07 s      3.12   1.980        2.117   yes
+   7     219,590   56 min 11 s      3.36   1.978        2.116   yes
+   8     250,960   52 min 27 s      3.13   1.977        2.117   yes
+   9     282,330   42 min 04 s      2.51   1.976        2.117   yes
+  10     313,700   36 min 05 s      2.16   1.976        2.117   yes
+  11     345,070   36 min 18 s      2.17   1.975        2.115   yes
+  12     376,440   35 min 53 s      2.15   1.975        2.114   yes
+  13     407,810   35 min 44 s      2.14   1.974        2.112   yes
+  14     439,180   35 min 52 s      2.14   1.974        2.111   yes
+  15     470,550   36 min 35 s      2.19   1.974        2.112   yes
+  16     501,920   38 min 23 s      2.29   1.974        2.112   yes
+  17     533,290   36 min 31 s      2.18   1.973        2.112   yes
+  18     564,660   36 min 55 s      2.21   1.973        2.110   yes
+  19     596,030   36 min 46 s      2.20   1.973        2.112   yes
+
+the child of pass 1 wrote:
+  ABATRA$IANHIO: bruans modt nn, I tel net nomprine,, fut ene siee read,
+  And gestre, be wekn but Sdeng theo, setedsund prove see
+  live yoter fay seeew xrow slems:
+  Ther beit hadr, wer?
+  Hadend des! wsle kee snow sitS roat has ffet nor ness a the gio, you der ald;
+  'be a sa, and get ousd a der not heed she dupeovall we lo, neartr me will nes neay,
+  I will I way promes all nand seex meer.
+  
+  TRATBARIMT:
+  Wher would know sinfterstee day chall Verce, in haqfelend I wear
+  Ho live.
+  
+  HERTNA:
+  Say, nor was nop I chee, so he wend I ank doa yiu qustiemea ir lo, and resf bot on,
+  A'd det deeendiee .
+  
+  AO
+  TlANTI'l shin
+
+the child of pass 2 wrote:
+  ABATRA&I not trent no mugw ol nenj nen well you gfon you no sif;
+  Go Pe?
+  He, lovin'.
+  
+  KiLKin; prading then andns you menroung sAsith thaugh,
+  becally wott os soo serel bit ge will wecileat, gave yuu ale coodn, our st we.
+  
+  ARANiEANIO:
+  So, Grem in chseel hin fay .
+  
+  BAATA! I wall best, a der not hear sin by move thot knd le?
+  Wo reave not see cuse, the iels well five
+  If g seef ey meatlenkcau goner are pertune me, bor my how ged will by a the not heare, the steas er most heed soce's to me no sUnta Clare gereame
+  kelin manl and you rivel eriane, ter thee und sleed a bese wike prove g plan
+  To moo sarden
+
+the child of pass 3 wrote:
+  AAMINA I she trent no mugw nid and nemas in you ghol you no sif.
+  
+  KAATA:
+  I diston me my lor ung and do fre? Iquetten soor nobe
+  fou, thauld IA:
+  Ands wout nof to serel bove deve!,
+  Velk ensio, thest;
+  And and wither to weld I lew mine, so baue:
+  I omay so gre.
+  
+  ac Feac. Cape: I go isire Adee one gone, glads, su.
+  
+  BiT anW madest no will meien ay' now me ano well fit a van in they keer; not wall no bust dous fled seme.
+  Younot de will by a vind for deng hle Jut an is eround heireel, I will no s!com Hebee.
+  
+  QUCENANA:
+  KBaBQn:
+  Picuat'd wite than;
+  Go thil per, broth je.
+  
+  TAAnd lensir ge mo e
+  gold nes pere
+
+the child of pass 4 wrote:
+  AANTIA I she trent no mugw ol! Her nel uf intrel holdsund of in cond neand firet dead yeem.
+  Sin a none great yourse;
+  Koor noan with thaur fay seeew your noke; 'rell andT:
+  Hay lomin: I spela, O,'we agd and wither to weld I lew lit. For Maten in bewall hin fay A daS of nell ger prour Ald and degench madll su.
+  BTiT: te? I suvbee will mel of you not de my well five
+  In man bo.
+  You now so BuTfel wakld of word kjen-seeds.
+  Wot de will by a the men in so gree steWi, s gour gion some, Pot, noth s mon I chee, so he wend I ano don you river for in is thim nesecelend if I wees!
+  I frou he no g
+  To mon seldan
+
+the child of pass 5 wrote:
+  AANTIA I she tremy my loivan ancel man well you give yruch, shale no, ach a goot deaino hon wir bion signe, byourse:
+  Then so s wetikn apsim wele, yetiruch doun this bemond at it thee for ol thest:
+  And and you will,
+  Yfa;
+  And you mel. me are I me exell gre?
+  
+  fU?
+  AFA: I seen in a wore Aid and deing sir by inp lies and and sut no wngend see by ding meacer well fiug it nance?
+  By manes sof wall no bust dous fincecemed youree:
+  Cay I fay I whee him denee. ThAng an hibeence, llenked ser; in no s ouh Highin' steed thee anais bll you provieen' lleen wer hing merefed a bese will nour fe
+  So h tleer and ere
+
+the child of pass 6 wrote:
+  AANTIA I she tremy my lohy me neng neome noour, fis cuted nese feir and he firet, ned well but a sir, ind ar?I auve lived on s weth thaur fave bort wout nofele
+  UTisca, the aul wer ence.
+  Bif thest;
+  And and wither to weld I lew lleas os a the good you cer andee
+  AlT And of teme couss, Aid and deinf ole
+  As cove thou hid handss me will mef neawe ing?
+  
+  I SrGvent:
+  RubA, He me redy her, erou wall no bust dous for go preew ithee day diget all me, see for his and an gr.
+  
+  TRANINCENTIO:
+  And me no s, we Miend dequing thee anbes bos you riven friane, ter thee und snove a ang don me; sud dang h
+  ard that ress
+
+the child of pass 7 wrote:
+  AANTIA I she tremy my mokt no.
+  
+  NSAP:
+  Buand you ghol you no rece ple peand firet diee. Bet arin!
+  I let jusem!or yuuce.
+  SoARMARANIWeave you are dnoy wort nofare
+  air shate in your vedce stine thest.
+  
+  HARANIO:
+  Thou st we dian excefeee sshade
+  TEANII:HI well ancon a ca, I seel her provie
+  ANTAFTI ceardelI busiou noXn I wade
+  BowN in will nit of you not diano well fou ang nance?
+  By manes soe wall no bust dous fnigen thees.
+  Wnle day diget ais. I jo.
+  
+  GRANIO:
+  And an hibease.
+  
+  HARTRIOA:
+  To me no s?
+  ThA geneig tine I cor, if we?
+  GKinn oreeo, siand is thim nit noughine a nof will nour fe
+  Sn h to is and ere
+
+the child of pass 8 wrote:
+  AANTIA I she tremy my moks noge pran, apand you ghom you me siee rif make chendsa, alle my done bor do fre? Ill yuud ongende.
+  
+  TRURIO:
+  Will wele pwesteve this,
+  This begr eidrect unde.
+  
+  TRANCI:
+  Yy Tan; I pove.
+  To to weld I khy know cispa whe her hvede hos day Baid I base teg thereem 3eck not hee:
+  The buss yef at ang and swo'd as all cofe curdell me ano well fou ang nance?
+  By manes soe wall no bust dous for go, sirve?, sie!
+  What dur for fing feeece the ste s foad, since-for por to me no sI we PidKale steec senee
+  I hod po you rivef for is foor thee une sobe, a bese wigh nove in no g to hir seg? i
+
+the child of pass 9 wrote:
+  AANTIA I she tremy my moly noed or maper me you ghom you me siee rif make chendsa, ameid, ber sabed ereat ancus wrom orasion s&ont, thaur fave copwayllt noke: 'o sod dor he weit thee for quat huw be bleed wither to weld I lew lle: but a wen lences.
+  
+  BATNA:
+  Wh Mad And of teme couss, Aed and dek! hee,
+  As dove thou hid handss me will not of you not diano well gove
+  Is id der fy manes rou wall no bust dous for him, now ly: gee
+  so kedt Shme for ame ring.
+  
+  ARTAIS Po, soBe her to not to me no rent LUcQ
+  IPABWhen I ckee lavice sever oot secou hio s vasce?
+  Than or me a nof will nour fe
+  Po h to is and do 
+
+the child of pass 10 wrote:
+  AANTIA I she tremy no mogs in ner Sich tend you ghom you me siee sle of god morre me my lood. Yake sir.
+  IBAady.
+  Wull prove thiag youce wor! wele pwest?e
+  Sid, s uf's beit haflect unde:
+  So, cas exy ear nion-scinsiffoit has forr jook dof,
+  And Heng hur then aldeg aid I base tehar now se
+  And not hed in mair live thou hncame sut no will nno.
+  
+  BumTLer, anC wese, sher ang nance;
+  Axccelnoneme wall no bust dous flece?
+  Thatreeter be will by a vine'h, hce reep.
+  
+  PTACU!: Allend diole. for wisld no rent KI Since speed thee ancer and you rivee hou green wer hing mendence a nof will nour fe mian
+  To lle the th
+
+the child of pass 11 wrote:
+  AANTIA I she usast no moft me of sce nes me you give yuu hear be on, near.
+  
+  HGTre: a ruchel wir bion sill andou wrond rove shiandsS: day, gevel now wort nole; 'pepsice. I day my unde.
+  
+  TRANGR:
+  Wthe kee siougnet gou weld I lew lleTg'ta cater in bew, then aide.
+  
+  GAA: Hard.
+  
+  HARFNeste;
+  And not hece sin by mit no. Gang and swo, net dire see cur; is has hode our my a wan in seex.
+  
+  ISTANUI wall no buranckesine ind singse?. Yeaf you feve
+  Bur cime heecines ickind,
+  In hive in onger so to me no rent I sceame so gm: I si, I wail:
+  her sorZe:
+  Wh mike and and the sleed a bescerd; for vein or g steer and do 
+
+the child of pass 12 wrote:
+  AANTIA I she vorcuI wall yel bo.
+  ABAATAR:
+  I'st nino, you no rebe.
+  
+  GARAANI and you dent mundoup and do fre? Put yuuce.
+  Poor bo thvifge, to are dlex. wmy nongan
+  ULUTII my geave yiu did or no santy, Pear ondengesd st we.
+  
+  ARANk:
+  The bouP Io nand dew; then af yo, de.
+  
+  BATIANA:
+  Serny se cel not hee.
+  
+  GRAMIO:
+  Yaum we lo, nearut no will not of you mxfear it well gove
+  HoT And seex.
+  
+  ISTANUI wall no bust dous flece?
+  Thatreethea day dif yoo snood see his dold preas er is, sile.
+  
+  TRANI: rouinfr! I we Sid, feard.
+  
+  ATARTI SHTrA:
+  Nay wellder hno green wer hing mendence a nof will nour fe mian
+  To mor seill 
+
+the child of pass 13 wrote:
+  AANTIA I she voray ou'en yel bo.
+  ABAASAR:
+  I'st nino, you no rece ple peand firesh neces kng vor and do freat yourse:
+  Tllion.
+  
+  ATHYeas arrea,' relly wort nof. iCanis,
+  And ge: mer when eove get lyst ance sioule will!
+  Whe late.-
+  Hir of thadI pand dew? then agave
+  ANA:
+  Te then her provie
+  ARTANSINA:
+  O'ld I wheng nocn Whof ildetm noar, not see cur, not diano well gove
+  HoTA deen ey meatlenge
+  ice live you dous fio, shincese:. pead you deve frieg is deee: is eaur bo er is, sile.
+  
+  TRANI: por ino saroh Greed fare le this a bes, po't wellenk erg lor ser weffch melf, me a nod will nour fe
+  Pn;  nor that shin
+
+the child of pass 14 wrote:
+  ABATRA&I not tremy no lofuance.
+  Bo naper me you give yuu hear be on, near.
+  
+  HIRgeENFIO:
+  No?
+  Whib not sikna thut wrond rove shiandse, gever as mandy wort noee? 'rEst:
+  Ang he well wede for reat huw be bleed wither to weld I lew lle; and a wen lences.
+  ARATI cay Baid I base tee seest.
+  
+  ALARANIO:
+  Ke hin I wheng nocn Sis a dastian, will not of you my leg ou well gove
+  HoTA deen ey meatmende
+  ia rens as nonges;
+  Her the? ny myauce Lur fect.
+  
+  TRANIINA:
+  Iall the ste t miander in ongender wispands seep a seed fare le this a bet bot you rivel grlI shee vat hear meme; foo I weat and to dee
+  So h steer and ere
+
+the child of pass 15 wrote:
+  ABATRA&I not tremy no lofuance:
+  So nch, Lemestep, wedtse me siee sie, Sell gites, me my lor wir bion sill andou wrom or.
+  
+  PEPTARShing atrea wele! your ynuncell this belo.
+  
+  Bocer whde enree.
+  Feivsa Sid, plive: will' weld I keve sigh so:
+  And Hepon you desice we ce a sa.
+  
+  HRANIO:
+  Will Ald I preed one neave treed we lo, nearut no will nou reay'.
+  
+  TRAMI hode ous my a wan in seex:
+  Gor, so CrHer no as nongesale megend, yourded day diget amp not she good the ste s granis: feee, to no stof glvapary a pcine and in thee anagr and you pour, eriand llaveB heee nit ring I preat.
+  
+  JRTTRANI io g to hir seill 
+
+the child of pass 16 wrote:
+  ABATRA'I she'sleev no lofuance:
+  So ncf tend you give yuu hear be on, near.
+  
+  HIRen in my lood: nad ming hor weto wurd; out or sBots, thaur fave coow wort nod to save, bromad your wede for reat huw be bled our my eruat has fint, sing to bave I me fuor, is a dun a ca.
+  
+  BAMIO:
+  Hilless, Aed and defan.
+  
+  KABand!.
+  
+  PAYCALUA:
+  Aantr me will nou reay, now me anl well gove
+  Is ichall gy ghell priat goner as nongesU, dill snovs ivinZ PRouO:
+  GtLA: I hef ce:
+  The wel sre s grZer.
+  
+  HARTERTIO:
+  And me no rens a parged so gias ref ichna me you rivel for loqe;
+  Thim per meee? he baps copdeld; the 'll h steer and ere
+
+the child of pass 17 wrote:
+  ABATRA'I sio, whow my monvan, sell nel vand you ghoo wrold Pjone ona, I le, notme nnecuThin wis beee, nit bugut yuu goone: sen why fre wor$ welf ny wots nongAT
+  HSUTI'NSid, Ind you for not get lyst ance sinseorge? way hat in you in, spe as obe of you!
+  
+  TO TPot I bacia of teme, sut se
+  Bel me, giol she dur suHer we lo, nearut no will not of you not diano well gove
+  Ip jardI any me.
+  Ther BuTdenco, thee voug'ece shindey myou de? see friceard, for deneall kenr an frAendio, murefgeme to me no rens a peppecand je ulled lats bot you rivel grlVIO:
+  Ter weir vencione! I IToj will nour fe mian
+  So knock of n
+
+the child of pass 18 wrote:
+  ABATRA'I sio, whow my monvan, sell nel tend you give yuu in sifair ede che, must be dive yould I reper hos thut wrom rnow rhat why gre. so as meary wots nong; , for a sucg at lrave sheee. I walvor Oade
+  Till thou st wece Timer minda! sid wel me, ive then aide.
+  
+  GAA: Harcen her prove AYeid on giol. I I wille noGr I wade
+  Bown no will not of you not dhang well gove
+  Ip kancead you muse. gavall no buranBlowe, noor singsbeter be will by a vine, see his for Hive t! s grove girekele.
+  
+  TSANIENa'l ste I dise and in thee Whase dio wer sordiled Her io s.
+  
+  HERTIO:
+  Pir, I anf but in with f po'f
+  To mor seldan
+
+the child of pass 19 wrote:
+  AANTIA I she vorDuThe mudw le, and nel tend you give yuu in sifair eeie.
+  
+  BARTIWO
+  PGARXANTHAYce and do great yourse;
+  Lor, pravascures aspee wele, yethes or so.
+   Plove to geave yiu eqour.
+  
+  GATAAstee nen slepknit, su!,
+  Ban helw in for thade
+  TGANIA:PAdranje, Kup ald I basd teime out se
+  Bel me:
+  Her in mair mow nocn Sis a dasti:
+  May a rebn neay forFdien no well gove
+  Is jand seex-ed us not wall no bust dous gone shincesintrig, Ingce eve for ende.
+  
+  GRENIO:
+  And an ho her sifee, to pray, noomian oug I dirce so gias ref ichma, sever provielf.
+  
+  TIATANCIA:
+  Bold thee ne Xive you mereo;
+  A diNT
+  Hor that shin

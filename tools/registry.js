@@ -55,7 +55,9 @@ for (const c of CHAT) {
   const meta = read(`site/programs/${c.id}.meta.json`);
   const pages = [...(c.map ? [['Program map', `map/?m=${c.map}`]] : []), ...c.pages, ['Compare the models', 'compare/#eight']];
   const p = { id: c.id, group: 'chat', does: c.does, model: c.model, weights: c.weights || weightsOf(c.id), about: !!c.about, pages };
-  add(p, meta && { key: meta.sha256, date: firstDay(c.id), chars: meta.programBytes, writer: meta.writerBytes, tape: meta.tapeSize });
+  // a first version: the day the program first came up; a later one: when its meta file was written (the build)
+  const mf = path.join(ROOT, 'site', 'programs', c.id + '.meta.json');
+  add(p, meta && { key: meta.sha256, date: firstDay(c.id), later: dayOf(fs.statSync(mf).mtimeMs), chars: meta.programBytes, writer: meta.writerBytes, tape: meta.tapeSize });
 }
 
 // the training programs and the children of the names, from the generator and site/train/data/
@@ -102,7 +104,9 @@ for (const { p, version } of found) {
   if (!e) { e = { ...p, versions: [] }; reg.programs.push(e); news.push(p.id); }
   Object.assign(e, p, { versions: e.versions });
   if (version && !e.versions.some((v) => v.key === version.key)) {
-    const clean = Object.fromEntries(Object.entries(version).filter(([, v]) => v !== undefined));
+    const { later, ...rest } = version;
+    if (later && e.versions.length) rest.date = later;
+    const clean = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined));
     e.versions.push({ n: e.versions.length + 1, ...clean });
     news.push(`${p.id} version ${e.versions.length}`);
   }

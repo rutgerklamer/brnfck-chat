@@ -53,7 +53,8 @@
   // ---- the numbers of the run ----------------------------------------------------------------
 
   function stats() {
-    const n = shown(), last = D.passes[n - 1], eq = D.passes.filter((p) => p.equal).length;
+    // a pass whose only difference was a printed step number has equal weights, velocities and child
+    const n = shown(), last = D.passes[n - 1], eq = D.passes.filter((p) => p.equal || p.stepDigits).length, digits = D.passes.filter((p) => p.stepDigits);
     $('sh-st-passes').textContent = n + ' of ' + D.passesPlanned;
     $('sh-st-chars').textContent = num(n * D.charsPerPass);
     $('sh-st-time').textContent = n ? hm(D.passes.reduce((a, p) => a + p.seconds, 0)) : '–';
@@ -61,6 +62,10 @@
     const same = $('sh-st-same');
     same.textContent = n ? eq + ' of ' + n : '–';
     same.className = n && eq === n ? 'ok' : n ? 'no' : '';
+    if (digits.length) same.textContent += ' *';
+    const passes = digits.map((p) => p.pass), list = passes.length === 1 ? 'pass ' + passes[0] : 'passes ' + passes[0] + ' to ' + passes[passes.length - 1];
+    $('sh-st-note').hidden = !digits.length;
+    $('sh-st-note').textContent = '* In ' + list + ' the weights, the velocities and the child are equal to the reference, but not every line it printed: from step 100,000 on, the program printed only the last five digits of the step number (step 100000 came out as step 0). Its lines are not compared after the first wrong one. The generator was fixed after pass 4: seven digits.';
     const fill = { name: D.name, hidden: num(D.hidden), params: num(D.parameters), program: num(D.programChars) };
     document.querySelectorAll('#shakespeare [data-sh]').forEach((e) => { e.textContent = fill[e.dataset.sh]; });
   }
@@ -82,11 +87,16 @@
     g.font = '11px ' + css('mono'); g.lineWidth = 1;
     for (let l = 2; l <= 4; l += 0.5) { g.strokeStyle = css('line'); g.beginPath(); g.moveTo(x0, Y(l) + 0.5); g.lineTo(x1, Y(l) + 0.5); g.stroke(); g.fillStyle = css('muted'); g.fillText(l.toFixed(1), 6, Y(l) + 4); }
     // the passes, and the one picked
-    const every = Math.max(1, Math.ceil(n / Math.max(1, Math.floor((x1 - x0) / 46))));
+    // a pass number where there is room for it (the scale squeezes the later passes), the last one always
+    const lastX = X(n * per) - g.measureText('pass ' + n).width - 8;
+    let room = -1e9;
     for (let p = 0; p <= n; p++) {
       const x = Math.round(X(p * per)) + 0.5;
       g.strokeStyle = css('line'); g.beginPath(); g.moveTo(x, y0); g.lineTo(x, y1); g.stroke();
-      if (p && p % every === 0) { g.fillStyle = css('muted'); g.textAlign = 'center'; g.fillText(p === n ? 'pass ' + p : String(p), Math.min(x, x1 - 22), H - 10); g.textAlign = 'left'; }
+      g.fillStyle = css('muted');
+      if (p === n && n) { g.textAlign = 'right'; g.fillText('pass ' + p, x1, H - 10); }
+      else if (p && x - room > 26 && x < lastX) { g.textAlign = 'center'; g.fillText(String(p), x, H - 10); room = x; }
+      g.textAlign = 'left';
     }
     g.fillStyle = css('ink'); g.globalAlpha = 0.07; g.fillRect(X(Math.max(0, sel - 1) * per), y0, sel ? X(sel * per) - X((sel - 1) * per) : 3, y1 - y0); g.globalAlpha = 1;
     g.fillStyle = css('muted'); g.textAlign = 'center';
@@ -115,6 +125,43 @@
     });
     g.fillStyle = css('muted'); g.font = '11px ' + css('mono'); g.fillText('nats per character', 6, 14);
   }
+
+  // the loss on unseen text after every pass, on a scale that fits those numbers only
+  const heldCv = $('sh-held');
+  function drawHeld() {
+    if (!D || !heldCv) return;
+    const ps = D.passes, Wd = heldCv.parentElement.clientWidth, H = 170, g = fit(heldCv, Wd, H);
+    const padL = 44, padR = 14, padT = 18, padB = 26, x0 = padL, x1 = Wd - padR, y0 = padT, y1 = H - padB;
+    g.fillStyle = css('panel'); g.fillRect(0, 0, Wd, H);
+    if (!ps.length) return;
+    const vals = ps.map((d) => d.held), lo = Math.floor(Math.min(...vals) * 200) / 200 - 0.005, hi = Math.ceil(Math.max(...vals) * 200) / 200 + 0.005;
+    const X = (p) => x0 + ((p - 0.5) / ps.length) * (x1 - x0), Y = (v) => y1 - ((v - lo) / (hi - lo)) * (y1 - y0);
+    const best = ps.reduce((a, d) => (d.held < a.held ? d : a));
+    g.font = '11px ' + css('mono'); g.lineWidth = 1;
+    for (let v = Math.ceil(lo * 100) / 100; v <= hi + 1e-9; v += 0.01) { g.strokeStyle = css('line'); g.beginPath(); g.moveTo(x0, Math.round(Y(v)) + 0.5); g.lineTo(x1, Math.round(Y(v)) + 0.5); g.stroke(); g.fillStyle = css('muted'); g.fillText(v.toFixed(2), 4, Y(v) + 4); }
+    g.textAlign = 'center';
+    const step = Math.max(1, Math.ceil(ps.length / Math.max(1, Math.floor((x1 - x0) / 26))));
+    ps.forEach((d) => { if (d.pass % step === 0 || d.pass === 1) { g.fillStyle = css('muted'); g.fillText(String(d.pass), X(d.pass), H - 8); } });
+    g.strokeStyle = css('d2'); g.lineWidth = 2; g.beginPath();
+    ps.forEach((d, i) => (i ? g.lineTo(X(d.pass), Y(d.held)) : g.moveTo(X(d.pass), Y(d.held)))); g.stroke();
+    ps.forEach((d) => {
+      g.fillStyle = d.pass === sel ? css('ink') : css('d2'); g.beginPath(); g.arc(X(d.pass), Y(d.held), d.pass === sel ? 5 : 3.5, 0, 2 * Math.PI); g.fill();
+    });
+    g.font = '600 11px ' + css('mono'); g.fillStyle = css('ink');
+    // the first, the last, and the best (a ring; its number under it when the last is close by)
+    const last = ps[ps.length - 1], near = best !== last && X(last.pass) - X(best.pass) < 70;
+    g.strokeStyle = css('ink'); g.lineWidth = 1.5; g.beginPath(); g.arc(X(best.pass), Y(best.held), 8, 0, 2 * Math.PI); g.stroke();
+    g.textAlign = 'left'; g.fillText(ps[0].held.toFixed(3), X(1) + 8, Y(ps[0].held) - 6);
+    g.textAlign = 'right'; if (best !== last) g.fillText(last.held.toFixed(3), x1, Y(last.held) - 10);
+    g.textAlign = 'center'; g.fillText((best === last ? last.held.toFixed(3) + ', ' : '') + 'best ' + (best === last ? '' : best.held.toFixed(3)), X(best.pass), near || best === last ? Y(best.held) + 22 : Y(best.held) - 13);
+    g.textAlign = 'left'; g.font = '11px ' + css('mono'); g.fillStyle = css('muted'); g.fillText('loss on unseen text, after each pass', x0, 12);
+  }
+
+  if (heldCv) heldCv.addEventListener('click', (ev) => {
+    if (!D || !D.passes.length) return;
+    const r = heldCv.getBoundingClientRect(), f = (ev.clientX - r.left - 44) / (r.width - 58);
+    setPass(Math.max(1, Math.min(D.passes.length, Math.floor(f * D.passes.length) + 1)));
+  });
 
   function lossKey() {
     $('sh-loss-key').innerHTML = '<span><i class="sw" style="background:var(--d2)"></i>loss while training</span>' +
@@ -148,6 +195,7 @@
     $('sh-text').innerHTML = script(sampleOf(p));
     $('sh-rs-pass').textContent = String(p);
     drawLoss();
+    drawHeld();
     attention();
   }
   slider.addEventListener('input', () => setPass(+slider.value));
@@ -185,7 +233,7 @@
     $('sh-out').innerHTML = '';
     $('sh-run-said').textContent = 'Building the child of pass ' + p + ' from its weights…';
     $('sh-go').textContent = 'Stop';
-    const me = wk = new Worker('worker.js?v=r4');
+    const me = wk = new Worker('worker.js?v=r5');
     let text = '', built = 0, pending = false;
     const show = () => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; const o = $('sh-out'); o.innerHTML = script(text) + '<span class="cursor"></span>'; o.scrollTop = o.scrollHeight; }); };
     me.onmessage = (ev) => {
@@ -261,6 +309,6 @@
   }).catch(() => { $('sh-pass-said').textContent = 'The data of the run is not on this server (site/train/data/shakespeare.json).'; });
 
   let rt = 0;
-  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawLoss, 120); });
-  new MutationObserver(drawLoss).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawLoss(); drawHeld(); }, 120); });
+  new MutationObserver(() => { drawLoss(); drawHeld(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 })();

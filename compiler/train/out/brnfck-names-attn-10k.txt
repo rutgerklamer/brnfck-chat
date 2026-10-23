@@ -1,12 +1,12 @@
 brnfck-names-attn-10k, trained inside brainfuck by brnfck-train-names-attn-10k
 
 parameters                10,251
-training program          9,022,625 characters (writing part 313,770)
+training program          9,023,355 characters (writing part 313,770)
 child program             3,510,735 characters (weights 1,139,818, engine 2,370,917)
 tape                      140,867 cells of 32 bits
 training text             192,576 characters, batch 32, 6,018 steps
-training run              81.3 s in the WebAssembly runtime: 13.51 ms per step, 422 us per character
-the same run in JavaScript 33.2 s (reference.js)
+training run              96.0 s in the WebAssembly runtime: 15.95 ms per step, 499 us per character
+the same run in JavaScript 32.6 s (reference.js)
 loss                      3.311 at step 1, 2.003 at step 6018 (nats per character, one batch)
 
 loss, the mean of every 502 steps
@@ -31,12 +31,12 @@ attention of the trained head (per cent), predicting the next letter after the l
   .   3  .  14  .   3  .   1  .   0  e  24  m  40  m  15
 
 checks
-ok    compiler\train\out\brnfck-train-names-attn-10k.bf: 9,022,625 characters, only the 8 commands (writing part 313,770; made in 0.1 s)
-ok    6018 steps, every line equal to the reference (184 ms to compile, 81.3 s to run)
+ok    compiler\train\out\brnfck-train-names-attn-10k.bf: 9,023,355 characters, only the 8 commands (writing part 313,770; made in 0.1 s)
+ok    6018 steps, every line equal to the reference (177 ms to compile, 96.0 s to run)
 ok    the loss of every step: loss 3.311 at step 1, loss 2.003 at step 6018
 ok    every weight and velocity on the tape equals the reference (10,749 slots)
 ok    the printed child program equals the reference's (3,510,735 characters: weights 1,139,818, engine 2,370,917)
-ok    compiler\train\out\brnfck-names-attn-10k.bf prints the reference's 30 names (78 ms to compile, 0.11 s to run)
+ok    compiler\train\out\brnfck-names-attn-10k.bf prints the reference's 30 names (107 ms to compile, 0.15 s to run)
 
 names printed by the child
   addosa

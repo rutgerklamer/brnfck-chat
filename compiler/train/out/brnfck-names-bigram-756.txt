@@ -1,11 +1,11 @@
 brnfck-names-bigram-756, trained inside brainfuck by brnfck-train-names-bigram-756
 
 parameters                756
-training program          1,245,292 characters (writing part 28,637)
+training program          1,246,022 characters (writing part 28,637)
 child program             347,284 characters (weights 126,923, engine 220,361)
 tape                      11,774 cells of 32 bits
 training text             28,864 characters, batch 32, 902 steps
-training run              0.4 s in the WebAssembly runtime: 0.47 ms per step, 15 us per character
+training run              0.5 s in the WebAssembly runtime: 0.51 ms per step, 16 us per character
 the same run in JavaScript 0.2 s (reference.js)
 loss                      3.293 at step 1, 2.347 at step 902 (nats per character, one batch)
 
@@ -25,12 +25,12 @@ loss, the mean of every 75 steps
   steps   901 to   902  2.566
 
 checks
-ok    compiler\train\out\brnfck-train-names-bigram-756.bf: 1,245,292 characters, only the 8 commands (writing part 28,637; made in 0.0 s)
-ok    902 steps, every line equal to the reference (66 ms to compile, 0.4 s to run)
+ok    compiler\train\out\brnfck-train-names-bigram-756.bf: 1,246,022 characters, only the 8 commands (writing part 28,637; made in 0.0 s)
+ok    902 steps, every line equal to the reference (72 ms to compile, 0.5 s to run)
 ok    the loss of every step: loss 3.293 at step 1, loss 2.347 at step 902
 ok    every weight and velocity on the tape equals the reference (841 slots)
 ok    the printed child program equals the reference's (347,284 characters: weights 126,923, engine 220,361)
-ok    compiler\train\out\brnfck-names-bigram-756.bf prints the reference's 30 names (20 ms to compile, 0.02 s to run)
+ok    compiler\train\out\brnfck-names-bigram-756.bf prints the reference's 30 names (21 ms to compile, 0.02 s to run)
 
 names printed by the child
   a

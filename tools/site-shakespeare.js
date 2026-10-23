@@ -67,7 +67,10 @@ const passes = state.done.map((d) => {
   const file = path.join(RUN, `pass-${pad(d.pass)}.bf`), src = fs.readFileSync(file, 'latin1');
   writeBin(d.pass, parseChild(src));
   const sample = fs.readFileSync(path.join(RUN, `pass-${pad(d.pass)}.sample.txt`), 'latin1');
-  return { pass: d.pass, step: d.step, seconds: Math.round(d.seconds), msPerChar: +d.msPerChar.toFixed(3), loss: +d.loss.toFixed(4), held: +d.held.toFixed(4), equal: d.equal, sample, childChars: src.length };
+  // stepDigits: the only difference was a printed step number from 100,000 on, which the program printed
+  // with 5 digits until the fix after pass 4 (a difference in the weights, velocities or child adds its own note)
+  const stepDigits = !d.equal && /^step (\d+) differs$/.test(d.note || '') && +d.note.split(' ')[1] >= 100000;
+  return { pass: d.pass, step: d.step, seconds: Math.round(d.seconds), msPerChar: +d.msPerChar.toFixed(3), loss: +d.loss.toFixed(6), held: +d.held.toFixed(6), equal: d.equal, note: d.note || undefined, stepDigits: stepDigits || undefined, sample, childChars: src.length };
 });
 
 // the loss over the run, from the lines it printed every two minutes (mean of the steps since the last one)

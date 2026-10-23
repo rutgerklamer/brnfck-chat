@@ -950,7 +950,10 @@ function layout(m) {
   if (attn) {
     hid.TK = [...Array(T)].map((_, i) => off(sl.vp(i), LA));
     Object.assign(hid, { ATT: (i) => off(sl.vp(i), LB), DATT: (i) => off(sl.vt(i), LA), V8: (i) => off(sl.vt(i), LB) });
-  } else hid.TK = [LA, LB, S(7)].slice(0, T);           // in the header slot
+  } else {
+    if (T > 3) throw new Error(`a context of ${T} does not fit: without attention the header slot holds 3 tokens`);
+    hid.TK = [LA, LB, S(7)].slice(0, T);                 // in the header slot
+  }
   hid.TKm = hid.TK.slice(T - K);                         // the tokens the first layer reads
 
   const H = headArea(hid.END + SL + 4, V);
@@ -1537,7 +1540,8 @@ class Gen {
     e.shift(c(0), c(1), 9 + lb, 22 - lb, {}, range(2, 12).map(c));
     pt('step ');
     e.copy(hg.STEP, c(2), c(3));
-    e.printNumber(c(2), 5, range(12, 17).map(c), range(17, 20).map(c));
+    // up to 7 digits: a long run passes step 100,000 (the digits in c(12..18), its three free cells in c(23..25))
+    e.printNumber(c(2), 7, range(12, 19).map(c), range(23, 26).map(c));
     pt(' loss ');
     e.move(c(1), c(2));
     e.printNumber(c(2), 4, range(12, 17).map(c), range(17, 20).map(c), { point: true });

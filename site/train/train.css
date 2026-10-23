@@ -72,6 +72,7 @@ main.trn .trn-kids p { margin: var(--s2) 0 0; color: var(--muted); font-size: va
 
 /* ---- Shakespeare ---- */
 main.trn #sh-loss { display: block; width: 100%; height: auto; cursor: pointer; background: var(--panel); border: 1px solid var(--line); }
+main.trn #sh-held { display: block; width: 100%; height: auto; margin-top: var(--s2); background: var(--panel); border: 1px solid var(--line); }
 main.trn .sw.dot { border-radius: 50%; }
 main.trn .sw.dash { height: 2px; vertical-align: .25em; background: repeating-linear-gradient(90deg, var(--rule) 0 5px, transparent 5px 9px); }
 main.trn label.snap.sh-pass { display: flex; align-items: center; gap: var(--s3); flex: 1 1 18rem; }
