@@ -10,7 +10,7 @@
   // ---- where every square looks (data/look.json, data/look-<picture>.bin: compiler/qwen3.5/vision/record.js) ----
   (function () {
     var canvas = $('look-view'), said = $('look-said'), INDEX = null, cache = {}, pic = 'cat', layer = 4, sq = -1, ordering = null;
-    var img = {}, D = null;
+    var D = null;
     var lay = slider('Layer', 1, 12, layer, function (v) { return v + ' of 12'; });
     $('look-ctl').append(lay.label);
     function index() { if (!INDEX) INDEX = fetch('data/look.json?v=1').then(function (r) { if (!r.ok) throw new Error('no data'); return r.json(); }); return INDEX; }
