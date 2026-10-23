@@ -184,7 +184,7 @@
     $('train-go').textContent = 'Stop';
     $('train-model').querySelectorAll('button').forEach((b) => { b.disabled = true; });
     $('train-said').textContent = 'Building the training program…';
-    const wk = run.worker = new Worker('worker.js?v=r5');
+    const wk = run.worker = new Worker('worker.js?v=r6');
     if (window.LeaveGuard) LeaveGuard.set('train', true);
     let pending = false;
     const redraw = () => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; drawLoss(); drawTape(); }); };
