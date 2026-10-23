@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const { session, runPure, pieceTimes } = require('../../qwen/program/run');
 const { loadTokenizer } = require('../tokenizer/ref');
-const { FILES, TOK, questionBytes } = require('./build');
+const { FILES, questionBytes } = require('./build');
 const { PURE, sumsOf } = require('./build_pure');
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--')), want = (s) => !args.length || args[0] === s;

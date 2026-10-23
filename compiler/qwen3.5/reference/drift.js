@@ -42,7 +42,6 @@ function capture() {
 
 // ---------------------------------------------------------------- one layer, one setting
 
-const norm = (a) => Math.sqrt(a.reduce((s, v) => s + v * v, 0));
 function relErr(x, ref) {
   let d = 0, r = 0;
   for (let i = 0; i < ref.length; i++) { d += (x[i] - ref[i]) ** 2; r += ref[i] ** 2; }

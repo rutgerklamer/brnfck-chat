@@ -7,7 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const BFWasm = require('../../../site/runtime/bfwasm');
 const { loadTokenizer } = require('../tokenizer/ref');
-const { FILES, TOK, questionBytes } = require('./build');
+const { FILES, questionBytes } = require('./build');
 
 const now = () => Number(process.hrtime.bigint()) / 1e9, gib = (n) => (n / 2 ** 30).toFixed(2) + ' GiB';
 const meta = JSON.parse(fs.readFileSync(FILES.meta, 'utf8')), ref = JSON.parse(fs.readFileSync(FILES.ref, 'utf8')), tok = loadTokenizer();

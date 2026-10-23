@@ -3,7 +3,6 @@
 // spec.js against reference/vision.js on pictures/: the vision vectors, then ../engine/spec.js teacher forced and greedy.
 //   node compiler/qwen3.5/vision/check_spec.js [cat windmills ...] [--options '{"XB": [...]}']
 
-const fs = require('fs');
 const path = require('path');
 const F = require('../reference/float');
 const VR = require('../reference/vision');
