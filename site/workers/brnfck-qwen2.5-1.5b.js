@@ -1,6 +1,6 @@
 // The Web Worker of brnfck-qwen2.5-1.5b. Its tape is over 4 GiB, so it needs a 64-bit WebAssembly memory (memory64).
 'use strict';
-importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r9', '../program-source.js?v=r6');
+importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r10', '../program-source.js?v=r6');
 
 (function () {
   const BFWasm = self.BFWasm, RunCore = self.RunCore, Question = self.Question, ProgramSource = self.ProgramSource;

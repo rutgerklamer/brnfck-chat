@@ -1,7 +1,7 @@
 // The Web Worker of brnfck-qwen3.5-0.8b-vision: a 4.46 GiB tape in a 64-bit memory, as in brnfck-qwen2.5-1.5b's worker.
 // It reads the picture's 196,608 bytes of squares (home.js squaresOf), then the question.
 'use strict';
-importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r9', '../program-source.js?v=r6');
+importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r10', '../program-source.js?v=r6');
 
 (function () {
   const BFWasm = self.BFWasm, RunCore = self.RunCore, Question = self.Question, ProgramSource = self.ProgramSource;

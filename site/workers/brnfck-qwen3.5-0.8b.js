@@ -1,7 +1,7 @@
 // The Web Worker of brnfck-qwen3.5-0.8b. Its tape (3.98 GiB) fits a 32-bit memory, as that of brnfck-qwen2.5-0.5b.
 // Without restore ranges in its meta file, a second question loads the program again (home.js).
 'use strict';
-importScripts('../runtime/bfwasm.js?v=r8', '../runtime/runcore.js?v=r7', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r9', '../program-source.js?v=r6');
+importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../runtime/question.js?v=r7', '../runtime/peek.js?v=r10', '../program-source.js?v=r6');
 
 (function () {
   const BFWasm = self.BFWasm, RunCore = self.RunCore, Question = self.Question, ProgramSource = self.ProgramSource;
