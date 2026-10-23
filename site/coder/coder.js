@@ -270,7 +270,7 @@
     if (L.worker) return;
     $('live-go').disabled = true;
     stage('Getting memory for the program.', 0);
-    try { L.worker = new Worker('../workers/brnfck-qwen2.5-coder-0.5b.js?v=r1'); } catch (e) { return liveFail('Could not start the background worker (' + e.message + ').'); }
+    try { L.worker = new Worker('../workers/brnfck-qwen2.5-coder-0.5b.js?v=r2'); } catch (e) { return liveFail('Could not start the background worker (' + e.message + ').'); }
     L.worker.onmessage = function (ev) { onLive(ev.data); };
     L.worker.onerror = function (ev) { liveFail('The background worker stopped' + (ev && ev.message ? ' (' + ev.message + ')' : '') + '. The usual cause is too little free memory.'); };
     L.worker.postMessage(Object.assign({ type: 'load', again: false }, L.P.loadMessage()));
