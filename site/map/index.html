@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../ui/tools.css?v=r6">
 <link rel="stylesheet" href="../inside/inside.css?v=r9">
 <link rel="stylesheet" href="../program-download.css?v=r6">
-<link rel="stylesheet" href="../ui/progpick.css?v=r4">
+<link rel="stylesheet" href="../ui/progpick.css?v=r5">
 <link rel="stylesheet" href="map.css?v=r13">
 <script>
 (function () { var m = new URLSearchParams(location.search).get('m'); if (['small', '0.5b', '0.8b', '0.8b-vision', 'train-attn', 'train-mlp', 'train-bigram', 'train-shakespeare'].indexOf(m) < 0) m = '1.5b'; var d = document.documentElement; d.setAttribute('data-model', m); d.setAttribute('data-family', m === 'small' ? 'smol' : m === '0.8b' || m === '0.8b-vision' ? 'qwen3.5' : m.indexOf('train-') === 0 ? 'train' : 'qwen'); })();
@@ -19,7 +19,7 @@ window.InsideOptions = { light: true };
 </script>
 </head>
 <body class="mappage">
-<script src="../site.js?v=r24" data-page="map" data-wide></script>
+<script src="../site.js?v=r25" data-page="map" data-wide></script>
 <main class="doc mapapp tool" id="main">
   <div class="mbar" id="m-bar">
     <button type="button" class="quiet" id="m-panel-toggle" aria-expanded="true" aria-controls="m-panel"><span class="ico" aria-hidden="true">&#9776;</span><span id="m-panel-toggle-t">Hide panel</span></button>
@@ -234,9 +234,9 @@ window.InsideOptions = { light: true };
 <script src="../program-source.js?v=r6"></script>
 <script src="../program-start.js?v=r7"></script>
 <script src="../program-download.js?v=r6"></script>
-<script src="../inside/engine-sections.js?v=r12"></script>
-<script src="../inside/core.js?v=r20"></script>
-<script src="../inside/map.js?v=r19"></script>
-<script src="app.js?v=r16"></script>
+<script src="../inside/engine-sections.js?v=r13"></script>
+<script src="../inside/core.js?v=r21"></script>
+<script src="../inside/map.js?v=r20"></script>
+<script src="app.js?v=r17"></script>
 </body>
 </html>

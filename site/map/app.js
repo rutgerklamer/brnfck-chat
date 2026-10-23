@@ -418,7 +418,7 @@
   let tours = [], tour = null, tourTimer = 0;
   function makeTours() {
     const W = I.W, E = I.E, total = M.total, n = E.model, F = I.F, SEC = I.SEC;
-    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), place = (id) => flat.find((p) => p.id === id), Q35 = !!n.unit, LT = layerText(E);
+    const P = (id) => M.places.find((p) => p.id === id), sec = (id) => secOf(E, id), Q35 = !!n.unit, LT = layerText(E);
     const sample = W.samples.find((s) => s.id === 'w13') || W.samples[0];
     const wparts = M.names.filter((x) => x.tier === 1 && x.to <= W.program.writer).sort((a, b) => a.from - b.from), firstLayer = wparts.find((x) => /^Layer /.test(x.text));
     const stop = (title, text, view) => Object.assign({ title, text }, view), pic = picOf(E);
