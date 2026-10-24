@@ -22,7 +22,14 @@ How that works is on the site: https://brnfck.chat. This page says how to run it
 <td valign="top"><a href="https://brnfck.chat/train/"><img src="site/show/shakespeare.webp" alt="Where the child of brnfck-train-shakespeare-attn-55k looks in Now is the winter of our disconte, and its guesses"></a><br><b>Shakespeare, trained in brainfuck.</b> brnfck-train-shakespeare-attn-55k learned from random numbers inside brainfuck and printed a child program. Given "Now is the winter of our disconte", the child looks back over 16 characters and guesses r (53%).</td>
 </tr>
 <tr>
-<td valign="top"><a href="https://brnfck.chat/coder/"><img src="site/show/coder.webp" alt="The brainfuck program brnfck-qwen2.5-coder-0.5b wrote for Even or odd, coloured by command"></a><br><b>Brainfuck that writes brainfuck.</b> Asked in words for even or odd, brnfck-qwen2.5-coder-0.5b printed this program of 202 characters. It passes every test case.</td>
+<td valign="top"><a href="https://brnfck.chat/coder/"><img src="site/show/coder.webp" alt="The brainfuck program brnfck-qwen2.5-coder-0.5b wrote for The larger one, coloured by command"></a><br><b>Brainfuck that writes brainfuck.</b> Asked in words for the larger of two digits, brnfck-qwen2.5-coder-0.5b printed this program of 236 characters. It passes every test case.</td>
+</tr>
+<tr>
+<td width="42%" rowspan="2" valign="top"><a href="https://brnfck.chat/train/#generations"><img src="site/show/gen.webp" alt="The table of next letters the 20th generation of brnfck-train-names-bigram-756 holds, and its runs of + and −"></a><br><b>Each program prints the next.</b> brnfck-train-names-bigram-756 in 20 generations, each printed by the one before, with its weights written in. Left, the table the 20th learned; right, how its child holds one column of it: as runs of + and −.</td>
+<td valign="top"><a href="https://brnfck.chat/train/#fig-gen-parts"><img src="site/show/genparts.webp" alt="gen1 and gen2 of brnfck-train-names-attn-10k as bars to scale, part by part"></a><br><b>A program that prints itself.</b> gen1 of brnfck-train-names-attn-10k: its loss lines, its state, its body written as data, and the body, which reads that data to print gen2.</td>
+</tr>
+<tr>
+<td valign="top"><a href="https://brnfck.chat/train/#fig-gen-names"><img src="site/show/gennames.webp" alt="The names the child of each of 21 generations writes"></a><br><b>Names through the generations.</b> What the child of each of 21 generations of brnfck-train-names-attn-10k writes, from random letters to addosa, javie and rylit.</td>
 </tr>
 </table>
 
@@ -35,7 +42,7 @@ How that works is on the site: https://brnfck.chat. This page says how to run it
 | brnfck-qwen2.5-1.5b | Qwen2.5-1.5B-Instruct | 11,430,468,880 | about 8 GB | `1.5b` |
 | brnfck-qwen3.5-0.8b | Qwen3.5-0.8B | 7,709,034,855 | about 5 GB | `0.8b` |
 | brnfck-qwen3.5-0.8b-vision | Qwen3.5-0.8B with its part for pictures | 8,931,101,427 | about 7 GB | `0.8b-vision` |
-| brnfck-qwen2.5-coder-0.5b | Qwen2.5-Coder-0.5B-Instruct, taught to answer in brainfuck | 4,221,469,653 | about 4 GB | `coder-0.5b` |
+| brnfck-qwen2.5-coder-0.5b | Qwen2.5-Coder-0.5B-Instruct, taught to answer in brainfuck | 4,221,543,730 | about 4 GB | `coder-0.5b` |
 
 ## What you need
 
@@ -385,6 +392,14 @@ To go on by hand: run a generation on text to get the next one, or on nothing to
 node compiler/train/run.js compiler/train/out/brnfck-train-names-mlp-7k-gen3.bf compiler/train/out/brnfck-train-names-mlp-7k.input > gen4.bf
 node compiler/train/run.js gen4.bf > child.bf
 node compiler/train/run.js child.bf
+```
+
+The page "Trained in brainfuck" shows brnfck-train-names-bigram-756 and brnfck-train-names-attn-10k in 20 generations,
+each checked the same way, with the table and the names of every generation's child. This writes its data,
+`site/train/data/generations.json`, in about 7 minutes:
+
+```
+node tools/site-generations.js
 ```
 
 ### Shakespeare, in a long run
