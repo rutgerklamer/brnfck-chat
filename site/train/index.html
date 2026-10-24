@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="../site.css?v=r12">
 <link rel="stylesheet" href="../ui/system.css?v=r7">
 <link rel="stylesheet" href="../ui/article.css?v=r8">
-<link rel="stylesheet" href="train.css?v=r5">
+<link rel="stylesheet" href="train.css?v=r6">
 </head>
 <body>
 <script src="../site.js?v=r25" data-section="lab"></script>
@@ -22,7 +22,7 @@
   <header class="plain">
     <p class="kicker crumbs"><a href="../train/">Lab</a><span>Trained in brainfuck</span></p>
     <h1>Trained in brainfuck</h1>
-    <p class="lead">The chat programs on this site run models that were trained elsewhere, on graphics cards. brnfck-train-names-bigram-756, brnfck-train-names-mlp-7k and brnfck-train-names-attn-10k learn themselves. Each starts from random numbers, reads a list of 1,402 names through its comma command, and learns from it, one step after another: it guesses the next letter, measures how wrong it was, and moves every weight a little. When it is done, it prints a second brainfuck program, its child, which holds what it learned and makes up new names. brnfck-train-shakespeare-attn-55k, larger, learned Shakespeare overnight.</p>
+    <p class="lead">The chat programs on this site run models that were trained elsewhere, on graphics cards. brnfck-train-names-bigram-756, brnfck-train-names-mlp-7k and brnfck-train-names-attn-10k learn themselves. Each starts from random numbers, reads a list of 1,402 names through its comma command, and learns from it, one step after another: it guesses the next letter, measures how wrong it was, and moves every weight a little. When it is done, it prints a second brainfuck program, its child, which holds what it learned and makes up new names. Another kind prints itself, with what it learned written in, so that the next program trains on. brnfck-train-shakespeare-attn-55k, larger, learned Shakespeare overnight.</p>
     <div class="top-nav">
       <nav id="contents" aria-labelledby="contents-h">
         <p class="label" id="contents-h">Contents</p>
@@ -33,6 +33,7 @@
           <li><a href="#map">The program to scale</a></li>
           <li><a href="#attention">Where the attention looks</a></li>
           <li><a href="#names">Names they made up</a></li>
+          <li><a href="#generations">It prints its next generation</a></li>
           <li><a href="#checked">How it was checked</a></li>
           <li><a href="#cost">What it costs</a></li>
           <li><a href="#shakespeare">Shakespeare, overnight</a></li>
@@ -136,6 +137,32 @@
     <h2 id="names-h">Names they made up</h2>
     <p>Each child program prints 30 names, drawn letter by letter with its own random numbers. The more a network sees of a name, the more the names it makes up sound like names. Names that are in the list it learned from are marked.</p>
     <div class="trn-kids" id="kids"></div>
+  </section>
+
+  <section id="generations" aria-labelledby="generations-h">
+    <h2 id="generations-h">It prints its next generation</h2>
+    <p>Brainfuck has no files, and nothing on the tape outlives the run. A program that has learned something can keep it only one way: by printing it, as a new program. The training programs above print a child that can only make up names. A second kind prints itself: the same training program, with the weights it ended with, their momentum, its step count and the last letters it read written into it. Run that program on more names and it trains on from where the last one stopped, then prints the next. A generation that is fed nothing prints the child.</p>
+    <p>Below, brnfck-train-names-bigram-756 in 20 generations: each trains on a twentieth of the names and prints the next. The table is read from the programs themselves. Every generation, fed nothing, prints a child, and the child holds each weight as a run of + or −.</p>
+    <figure class="fig" id="fig-gen" aria-label="The table of next letters that each of 20 generations holds, read from the programs they printed">
+      <div class="ctl picks">
+        <button type="button" id="gen-play">Play</button>
+        <label class="gen-at"><span id="gen-name">gen20</span><input type="range" id="gen-k" min="0" max="20" value="20" aria-label="Generation"></label>
+      </div>
+      <p class="tell" id="gen-said" aria-live="polite">&nbsp;</p>
+      <canvas id="gen-view" role="img" aria-label="The chance of each next letter after each letter, and the runs of + or − of the column for the end of a name"></canvas>
+      <div class="trn-names"><p class="label">Its child, fed nothing, writes</p><p class="names" id="gen-names"></p></div>
+      <p class="measured">Every state is a program that the one before it printed: gen1 to gen20 come from <code>tools/site-generations.js</code>, which runs each generation in the WebAssembly runtime and checks every loss line and every printed program against <code>compiler/train/reference.js</code>; the child of gen20 equals the child of one run over all the names. Left, the chance of each next letter after each letter, as the child computes it; right, the run the child holds for the end of a name after each letter, in characters.</p>
+    </figure>
+    <p>What a generation is made of, here gen1 and gen2 of brnfck-train-names-attn-10k, to scale. Most of it is the body written out as data: that is what lets the body print itself, character for character, behind the new weights.</p>
+    <figure class="fig" id="fig-gen-parts" aria-label="gen1 and gen2 of brnfck-train-names-attn-10k, part by part, to scale">
+      <div id="gen-parts"></div>
+      <p class="measured">The parts measured in the printed programs themselves; the first characters of each part as they stand in gen1 (the loss lines: gen2). The loss lines and the two walks along the tape are drawn at least 3 pixels wide.</p>
+    </figure>
+    <p>brnfck-train-names-attn-10k in 20 generations, and the names the child of each one writes. On the right, the loss of the steps that the generation before it trained.</p>
+    <figure class="fig" id="fig-gen-names" aria-label="The names the child of each of 21 generations writes">
+      <div class="gen-rows" id="gen-rows"></div>
+      <p class="measured">Printed by each generation's child when it ran in the WebAssembly runtime: the first ten of its 30 names, cut at 18 letters. The child of gen0 has random weights.</p>
+    </figure>
   </section>
 
   <section id="checked" aria-labelledby="checked-h">
@@ -254,5 +281,6 @@ Now is the winter of our disconte</textarea></label>
 <script src="lib.js?v=r7"></script>
 <script src="train.js?v=r10"></script>
 <script src="shakespeare.js?v=r5"></script>
+<script src="generations.js?v=r1"></script>
 </body>
 </html>

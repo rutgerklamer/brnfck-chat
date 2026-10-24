@@ -70,6 +70,27 @@ main.trn .trn-kids li.known { color: var(--muted); }
 main.trn .trn-kids li.known::after { content: " \2713"; }
 main.trn .trn-kids p { margin: var(--s2) 0 0; color: var(--muted); font-size: var(--fs-small); }
 
+/* ---- it prints its next generation ---- */
+main.trn .gen-at { display: flex; align-items: center; gap: var(--s3); flex: 1 1 16rem; }
+main.trn .gen-at span { min-width: 4.5rem; font: 700 var(--fs-ui)/1.4 var(--mono); }
+main.trn .gen-at input { flex: 1 1 auto; }
+main.trn #gen-view { display: block; width: 100%; height: auto; background: var(--panel); border: 1px solid var(--line); }
+main.trn #gen-names { overflow-wrap: anywhere; }
+main.trn .gen-bar { display: flex; height: 2rem; margin: 0 0 var(--s3); border: 1px solid var(--line); }
+main.trn .gen-bar i { display: block; height: 100%; min-width: 0; }
+main.trn .gen-parts { margin: var(--s3) 0 0; max-width: none; }
+main.trn .gen-parts > div { padding: var(--s2) 0; border-top: 1px solid var(--line); }
+main.trn .gen-parts dt { font: 700 var(--fs-ui)/1.5 var(--mono); }
+main.trn .gen-parts dt span:last-child { margin-left: var(--s3); font-weight: 400; color: var(--muted); }
+main.trn .gen-parts dd { margin: var(--s1) 0 0; }
+main.trn .gen-parts code { display: block; padding: var(--s1) var(--s2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; background: var(--sunk); font: 500 .875rem/1.6 var(--mono); }
+main.trn .gen-parts code .nl { color: var(--muted); }
+main.trn .gen-rows { font: 500 .9375rem/1.5 var(--mono); }
+main.trn .gen-row { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr) 3.75rem; gap: var(--s2); padding: .3rem 0; border-top: 1px solid var(--line); }
+main.trn .gen-row > span:first-child { color: var(--c-out); font-weight: 700; }
+main.trn .gen-row > span:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+main.trn .gen-row > span:last-child { color: var(--muted); text-align: right; }
+
 /* ---- Shakespeare ---- */
 main.trn #sh-loss { display: block; width: 100%; height: auto; cursor: pointer; background: var(--panel); border: 1px solid var(--line); }
 main.trn #sh-held { display: block; width: 100%; height: auto; margin-top: var(--s2); background: var(--panel); border: 1px solid var(--line); }
