@@ -62,12 +62,12 @@ function poolMatvec(M, x, rows, y = new Float64Array(rows)) {
 const tick = () => new Promise((r) => setTimeout(r, 0)); // lets a stop message in
 
 async function bytes(from, to) {
-  const r = await fetch(MODEL + 'model.safetensors', { headers: { Range: `bytes=${from}-${to - 1}` } });
+  const r = await fetch(MODEL + WEIGHTS, { headers: { Range: `bytes=${from}-${to - 1}` } });
   if (r.status !== 206) throw new Error('the server does not send parts of files');
   return r.arrayBuffer();
 }
 
-let F, DN, src, m, tok, lin, MODEL;
+let F, DN, src, m, tok, lin, MODEL, WEIGHTS;
 const nets = {};      // whole-number DeltaNet layers per setting
 let stopping = false;
 
@@ -175,10 +175,10 @@ async function ask(question, setting, maxNew) {
   say({ type: 'done', promptTokens: ids.length, tokens: out.length, promptMs: t1 - t0, ms: performance.now() - t1 });
 }
 
-// { type: 'start', model }: model is the folder with config.json, tokenizer.json and model.safetensors
+// { type: 'start', model, weights }: model is the folder with config.json and tokenizer.json, weights the file name in it
 onmessage = (e) => {
   const msg = e.data;
   if (msg.type === 'ask') ask(msg.question, msg.setting, msg.maxNew).catch((err) => say({ type: 'error', text: String(err.stack || err) }));
   if (msg.type === 'stop') stopping = true;
-  if (msg.type === 'start') { MODEL = msg.model; start().catch((err) => say({ type: 'error', text: String(err.stack || err) })); }
+  if (msg.type === 'start') { MODEL = msg.model; WEIGHTS = msg.weights || 'model.safetensors'; start().catch((err) => say({ type: 'error', text: String(err.stack || err) })); }
 };

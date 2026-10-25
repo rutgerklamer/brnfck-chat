@@ -5,7 +5,7 @@
   var A = window.Article, el = A.el, fmt = A.fmt;
   var $ = function (id) { return document.getElementById(id); };
   var ASK = [['france', 'What is the capital of France?'], ['nl', 'Wat is de hoofdstad van Nederland?'], ['colours', 'Name three primary colors.']];
-  var V = 'r4';                      // the version of data/*.json and live/*.js: raise it when one of them changes
+  var V = 'r5';                     // the version of data/*.json and live/*.js: raise it when one of them changes
 
   // ---- the recordings ------------------------------------------------------------------
   // record.js: per word piece and head of the 18 DeltaNet layers, table size, half-life, write strength, scale, folds
@@ -711,7 +711,8 @@
   // live/worker.js runs Qwen3.5-0.8B and sends the size of every table after every word piece
   (function () {
     var fig = $('fig-live'); if (!fig) return;
-    var MODEL = new URL('../models/qwen3.5-0.8b/', location.href).href, LO = -2.5, HI = 1.5;   // LO, HI: log10 colour scale of the recordings
+    // Qwen3.5-0.8B as Qwen publishes it on Hugging Face, at a fixed revision; LO, HI: log10 colour scale of the recordings
+    var MODEL = 'https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/', WEIGHTS = 'model.safetensors-00001-of-00001.safetensors', LO = -2.5, HI = 1.5;
     var q = fig.querySelector('.lv-q'), go = fig.querySelector('.lv-go'), stop = fig.querySelector('.lv-stop'), meter = fig.querySelector('.lv-meter');
     var status = fig.querySelector('.lv-status'), asked = fig.querySelector('.lv-asked'), answer = fig.querySelector('.lv-answer'), modes = fig.querySelector('.lv-mode'), io = fig.querySelector('.lv-io');
     var map = fig.querySelector('.dn-map'), hist = fig.querySelector('.dn-hist'), who = fig.querySelector('.dn-who'), said = fig.querySelector('.dn-said');
@@ -721,12 +722,12 @@
     var GB = function (n) { return (n / 1e9).toFixed(2) + ' GB'; };
     var f = function (v) { return v > 0 ? Math.max(0, Math.min(1, (Math.log10(v) - LO) / (HI - LO))) : null; };
 
-    // are the files on this site? (the worker reads only the text part of the file: 1.50 of its 1.75 GB)
-    fetch(MODEL + 'model.safetensors', { method: 'HEAD' }).then(function (r) {
+    // can the files be reached? (the worker reads only the text part of the file: 1.50 of its 1.75 GB)
+    fetch(MODEL + WEIGHTS, { method: 'HEAD' }).then(function (r) {
       if (!r.ok) throw new Error('missing');
       go.disabled = false; go.textContent = 'Load Qwen3.5-0.8B (1.50 GB)';
       status.textContent = 'Nothing is downloaded until you press Load.';
-    }).catch(function () { status.textContent = 'The files of Qwen3.5-0.8B are not on this site, so it cannot run here.'; });
+    }).catch(function () { status.textContent = 'The files of Qwen3.5-0.8B on Hugging Face cannot be reached right now, so it cannot run here.'; });
 
     function draw() {
       if (!info) return;
@@ -773,7 +774,7 @@
       status.textContent = 'Starting';
       worker = new Worker('live/worker.js?v=' + V);   // the worker hands the same version on to the files it loads
       worker.onmessage = function (e) { on(e.data); };
-      worker.postMessage({ type: 'start', model: MODEL });
+      worker.postMessage({ type: 'start', model: MODEL, weights: WEIGHTS });
     }
     function ask() {
       var text = q.value.trim(); if (!text || busy) return;
