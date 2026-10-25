@@ -40,3 +40,7 @@ each released into the public domain (CC0 1.0), cut to their middle square and s
                  https://commons.wikimedia.org/wiki/File:Bicycle_02.jpg
   apples.png     Apples fruit, by safaritravelplus
                  https://commons.wikimedia.org/wiki/File:Apples_fruit.jpg
+
+The fonts in site/fonts/ are IBM Plex Mono and IBM Plex Sans, Copyright 2017 IBM Corp., as IBM publishes
+them (the npm packages @ibm/plex-mono and @ibm/plex-sans), under the SIL Open Font License 1.1: see
+site/fonts/OFL.txt.
