@@ -1,5 +1,5 @@
 /* The styles every page shares: tokens, the bar and the footer, and the parts of a page. */
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+@import url("fonts/plex.css?v=r1");
 
 :root {
   color-scheme: light;
