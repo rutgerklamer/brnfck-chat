@@ -266,17 +266,8 @@ node compiler/qwen3.5/vision/verify_pure.js ask 0 1 2 3 4 5
 node compiler/qwen3.5/vision/answers.js
 ```
 
-The page "Compare the models" (`site/compare/`) runs Qwen3.5-0.8B in the browser. Put its files in
-`site/models/qwen3.5-0.8b/`:
-
-```
-mkdir -p site/models/qwen3.5-0.8b
-cd site/models/qwen3.5-0.8b
-curl -L -O https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/main/config.json
-curl -L -O https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/main/tokenizer.json
-curl -L -o model.safetensors https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/main/model.safetensors-00001-of-00001.safetensors
-cd ../../..
-```
+The page "Compare the models" (`site/compare/`) runs Qwen3.5-0.8B in the browser, read in parts straight
+from Hugging Face (`Qwen/Qwen3.5-0.8B`).
 
 The page runs `site/compare/live/float.js` and `site/compare/live/deltanet.js`, copies of the files in
 `compiler/qwen3.5/`. After a change there, run `node tools/site-qwen3.5.js`.
@@ -313,10 +304,9 @@ start page offers as a download.
 `dist/<name>/` on the site itself. An address means another host, which must allow other sites to
 read from it. `site/inside/data-hosts.json` does the same for the data of step 5.
 
-For the page "Compare the models", upload `site/models/` as well. The host sends the paths `/compare/`
-and `/models/` with the headers `Cross-Origin-Opener-Policy: same-origin` and
-`Cross-Origin-Embedder-Policy: credentialless`, and sends `model.safetensors` in byte ranges and
-uncompressed. `tools/serve.py` does both.
+For the page "Compare the models", the host sends the path `/compare/` with the headers
+`Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: credentialless`.
+`tools/serve.py` does that.
 
 ## 7. Train a network inside brainfuck
 
