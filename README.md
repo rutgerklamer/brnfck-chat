@@ -376,6 +376,19 @@ make -C Brainfuck/tritium
 node tools/bench-tritium.js --bfi Brainfuck/tritium/bfi.out    # or one program: bigram, mlp, attn or shakespeare
 ```
 
+brnfck-smollm2-135m, asked "Hello", against bf2run from the same repository (built by `zig cc`, its program
+array grown by doubling in `testmem` of `bf2run.c`):
+
+| Program | WebAssembly runtime | bf2run | Same output |
+|---|---|---|---|
+| brnfck-smollm2-135m | 19.7 s | 507 s | yes |
+
+```
+make -C Brainfuck/bf2any bf2run
+printf 'Hello\n' | Brainfuck/bf2any/bf2run -z -M188013813 site/programs/brnfck-smollm2-135m.bf
+node compiler/smollm/pure/ask.js Hello
+```
+
 ### A training program that prints its next generation
 
 This training program prints its own next generation instead of a child. gen0 trains on what it reads,
