@@ -355,13 +355,14 @@ node compiler/train/run.js compiler/train/out/brnfck-names-mlp-7k.bf
 
 ### Against Tritium
 
-The runtime of the site, `site/runtime/bfwasm.js`, is built for these programs. It folds runs of
-`+ - < >`, runs every loop that adds to its neighbours and counts its own cell down as one
-multiplication, and compiles the rest to WebAssembly. Tritium (https://github.com/rdebath/Brainfuck),
-an optimising brainfuck interpreter, runs the same training programs with `bfi -b32 -z`. Both print
-the same, byte for byte. On an AMD Ryzen 7 8700F, Windows 11, Node 24, with Tritium built by `zig cc`:
+The brnfck runtime (`site/runtime/bfwasm.js`, `site/runtime/runcore.js`) is built for these programs.
+It runs the part that writes the weights while the program still comes in, from the download or the disk,
+and compiles the engine to WebAssembly, with runs of `+ - < >` folded and loops that add to their
+neighbours run as one multiplication. Tritium (https://github.com/rdebath/Brainfuck), an optimising
+brainfuck interpreter, runs the same training programs with `bfi -b32 -z`. Both print the same, byte
+for byte. On an AMD Ryzen 7 8700F, Windows 11, Node 24, with Tritium built by `zig cc`:
 
-| Training program | Input | WebAssembly runtime (compile + run) | Tritium (load + run) | Same output |
+| Training program | Input | brnfck runtime (compile + run) | Tritium (load + run) | Same output |
 |---|---|---|---|---|
 | brnfck-train-names-bigram-756 | 28,864 characters | 0.12 s + 0.57 s | 2.31 s + 3.32 s | yes |
 | brnfck-train-names-mlp-7k | 192,576 characters | 0.16 s + 39.0 s | 10.8 s + 189.0 s | yes |
@@ -379,7 +380,7 @@ node tools/bench-tritium.js --bfi Brainfuck/tritium/bfi.out    # or one program:
 brnfck-smollm2-135m, asked "Hello", against bf2run from the same repository (built by `zig cc`, its program
 array grown by doubling in `testmem` of `bf2run.c`):
 
-| Program | WebAssembly runtime | bf2run | Same output |
+| Program | brnfck runtime | bf2run | Same output |
 |---|---|---|---|
 | brnfck-smollm2-135m | 19.7 s | 507 s | yes |
 
