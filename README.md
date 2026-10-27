@@ -353,6 +353,29 @@ node compiler/train/run.js compiler/train/out/brnfck-train-names-mlp-7k.bf compi
 node compiler/train/run.js compiler/train/out/brnfck-names-mlp-7k.bf
 ```
 
+### Against Tritium
+
+The runtime of the site, `site/runtime/bfwasm.js`, is built for these programs. It folds runs of
+`+ - < >`, runs every loop that adds to its neighbours and counts its own cell down as one
+multiplication, and compiles the rest to WebAssembly. Tritium (https://github.com/rdebath/Brainfuck),
+an optimising brainfuck interpreter, runs the same training programs with `bfi -b32 -z`. Both print
+the same, byte for byte. On an AMD Ryzen 7 8700F, Windows 11, Node 24, with Tritium built by `zig cc`:
+
+| Training program | Input | WebAssembly runtime (compile + run) | Tritium (load + run) | Same output |
+|---|---|---|---|---|
+| brnfck-train-names-bigram-756 | 28,864 characters | 0.12 s + 0.57 s | 2.31 s + 3.32 s | yes |
+| brnfck-train-names-mlp-7k | 192,576 characters | 0.16 s + 39.0 s | 10.8 s + 189.0 s | yes |
+| brnfck-train-names-attn-10k | 192,576 characters | 0.30 s + 94.9 s | 77.2 s + 507.3 s | yes |
+| brnfck-train-shakespeare-attn-55k | 20,000 characters | 0.41 s + 54.3 s | 329.0 s + 284.5 s | yes |
+
+To run the comparison yourself:
+
+```
+git clone https://github.com/rdebath/Brainfuck.git
+make -C Brainfuck/tritium
+node tools/bench-tritium.js --bfi Brainfuck/tritium/bfi.out    # or one program: bigram, mlp, attn or shakespeare
+```
+
 ### A training program that prints its next generation
 
 This training program prints its own next generation instead of a child. gen0 trains on what it reads,
@@ -464,3 +487,4 @@ recordings in `site/compare/data/` and the data in `site/vision/data/` hold valu
 - The photos in `compiler/qwen3.5/vision/pictures/` and `site/vision/pictures/` are from Wikimedia Commons, released
   into the public domain (CC0): see `NOTICE`.
 - Brainfuck was designed by Urban Müller in 1993.
+- Tritium, the brainfuck interpreter in the comparison of step 7, by Robert de Bath.
