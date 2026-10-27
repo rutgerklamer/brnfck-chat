@@ -1,5 +1,5 @@
 'use strict';
-// Runs each training program in the WebAssembly runtime and in Tritium (bfi -b32 -z) on the same input: time and output.
+// Runs each training program in the brnfck runtime and in Tritium (bfi -b32 -z) on the same input: time and output.
 //   node tools/bench-tritium.js [bigram mlp attn shakespeare] [--bfi path/to/bfi] [--chars 20000]
 
 const fs = require('fs');
@@ -20,7 +20,7 @@ const now = () => Number(process.hrtime.bigint()) / 1e9;
 const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
 const sec = (s) => `${s.toFixed(s < 10 ? 2 : 1)} s`;
 
-console.log('| Training program | Input | WebAssembly runtime (compile + run) | Tritium (load + run) | Same output |');
+console.log('| Training program | Input | brnfck runtime (compile + run) | Tritium (load + run) | Same output |');
 console.log('|---|---|---|---|---|');
 let allSame = true;
 for (const key of keys) {
