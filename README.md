@@ -1,6 +1,19 @@
-# brnfck.chat
+<h1 align="center">brnfck.chat</h1>
 
-Type a question. A program written in brainfuck prints the answer.
+<p align="center">
+  <b>A chatbot written in eight characters: <code>&gt; &lt; + - [ ] , .</code></b><br>
+  Type a question. A program written in brainfuck prints the answer.
+</p>
+
+<p align="center">
+  <img alt="Node 24" src="https://img.shields.io/badge/node-24-3c873a">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-3776ab">
+  <img alt="no packages" src="https://img.shields.io/badge/packages-none-blue">
+  <img alt="6 chat programs" src="https://img.shields.io/badge/chat%20programs-6-e0a000">
+  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-lightgrey">
+</p>
+
+<p align="center"><a href="https://brnfck.chat"><img src="site/show/home.png" alt="The brnfck.chat home page" width="820"></a></p>
 
 Brainfuck has eight commands. They move along a row of memory cells, change the numbers in them,
 and read or print characters. Here those commands run a language model. Each program is one text
