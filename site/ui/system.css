@@ -59,8 +59,3 @@ body { -webkit-font-smoothing: antialiased; }
 .dest a > span { grid-column: 1 / -1; margin-top: var(--s2); color: var(--ink-2); font: var(--fs-ui)/1.5 var(--sans); }
 .dest a:hover { transform: translate(-2px, -2px); box-shadow: var(--drop); }
 .dest a:focus-visible { outline-offset: 2px; }
-
-/* ---- the bar and the footer (site.js): a lower sub-bar, wider footer columns ---- */
-.top .sub nav a { min-height: 2.5rem; }
-.foot .in { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
-.foot a { min-height: 2rem; }
