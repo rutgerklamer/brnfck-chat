@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brainfuck compiled to WebAssembly · brnfck.chat</title>
+<meta name="description" content="brnfck-qwen2.5-1.5b, Qwen2.5-1.5B-Instruct written out as one brainfuck program of 11,430,468,880 characters, runs in the browser as WebAssembly. How the program is compiled, how much faster that is than a brainfuck interpreter, and why it needs 64-bit memory.">
+<meta property="og:title" content="An LLM written in brainfuck, compiled to WebAssembly">
+<meta property="og:description" content="Qwen2.5-1.5B as one brainfuck program of 11.4 billion characters. Its engine becomes 16 MB of WebAssembly with 7.3 GB of memory, and answers in your browser.">
+<meta property="og:type" content="video.other">
+<meta property="og:site_name" content="brnfck.chat">
+<meta property="og:url" content="https://brnfck.chat/wasm/">
+<meta property="og:image" content="https://brnfck.chat/wasm/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:video" content="https://brnfck.chat/wasm/film.mp4">
+<meta property="og:video:type" content="video/mp4">
+<meta property="og:video:width" content="1080">
+<meta property="og:video:height" content="1350">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://brnfck.chat/wasm/card.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<link rel="stylesheet" href="../site.css?v=r13">
+<link rel="stylesheet" href="../ui/article.css?v=r8">
+<style>
+  #fig-film video { display: block; width: 100%; max-width: 540px; max-height: 82vh; margin: 0 auto; aspect-ratio: 1080 / 1350; background: #121316; }
+</style>
+</head>
+<body>
+<script src="../site.js?v=r26"></script>
+<main class="doc article" id="main">
+  <header class="plain">
+    <p class="kicker crumbs"><a href="../how/">Insights</a><span>Compiled to WebAssembly</span></p>
+    <h1>Brainfuck compiled to WebAssembly</h1>
+    <p class="lead">Every program on this site runs in your browser as WebAssembly. The film shows brnfck-qwen2.5-1.5b, Qwen2.5-1.5B-Instruct written out as one brainfuck program, answering a question.</p>
+  </header>
+
+  <figure id="fig-film" aria-labelledby="cap-film">
+    <video src="film.mp4" poster="poster.webp" controls playsinline muted preload="metadata"></video>
+    <figcaption id="cap-film">brnfck-qwen2.5-1.5b: 11,430,468,880 characters of brainfuck, folded into one square, with its five parts named. Then its engine is compiled to WebAssembly and answers &ldquo;What is 12 + 30?&rdquo; in 460,967,591,585 brainfuck steps. The film is sped up: in a desktop browser the program is ready in about two and a half minutes and prints a word piece about every 9 seconds.</figcaption>
+  </figure>
+
+  <section id="parts" aria-labelledby="partsHead">
+    <h2 id="partsHead">Two parts of one program</h2>
+    <p>The first 11,334,697,744 characters only write numbers into memory: the weights of the model. The runtime recognises them and writes the numbers while the file downloads, instead of running them one command at a time.</p>
+    <p>The last 95,771,136 characters are the engine. They read the question, do the sums and print the answer. The runtime turns them into 346,359 operations, with runs of the same command folded into one and loops that only move a value turned into a multiplication, and those into one WebAssembly module of 16,376,367 bytes with 137 functions.</p>
+  </section>
+
+  <section id="race" aria-labelledby="raceHead">
+    <h2 id="raceHead">Compiled against interpreted</h2>
+    <p>The same file, brnfck-smollm2-135m (SmolLM2-135M), asked &ldquo;Hello&rdquo; on one computer. Both printed the same answer, byte for byte: &ldquo;Hello! How can I help you today?&rdquo;</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Run by</th><th scope="col" class="n">Time</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">bf2run, a brainfuck interpreter in C (<a href="https://github.com/rdebath/Brainfuck">rdebath/Brainfuck</a>)</th><td class="n">10 min 22.0 s</td></tr>
+          <tr><th scope="row">the brnfck runtime, compiled to WebAssembly (Node.js)</th><td class="n">24.8 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Compiled, it is about 25 times faster.</p>
+  </section>
+
+  <section id="memory" aria-labelledby="memoryHead">
+    <h2 id="memoryHead">More than 4 GB of memory</h2>
+    <p>The tape of brnfck-qwen2.5-1.5b is 1,827,870,014 cells of 4 bytes: 7,311,480,056 bytes, or 111,597 pages of 64 KiB. Memory with 32-bit addresses ends at 4 GiB, so for this program the runtime asks for 64-bit memory (memory64, part of WebAssembly 3.0). The tape of brnfck-smollm2-135m is 188,012,789 cells and fits in 32-bit memory. That is why brnfck-qwen2.5-1.5b needs a current desktop browser and about 8 GB of free memory.</p>
+  </section>
+
+  <section id="more" aria-labelledby="moreHead">
+    <h2 id="moreHead">Try it</h2>
+    <ul>
+      <li><a href="../?m=1.5b">Ask brnfck-qwen2.5-1.5b a question</a>, or <a href="../?m=small">brnfck-smollm2-135m</a>, which runs on a phone too.</li>
+      <li><a href="../how/">How it works</a>: the route from the question to the answer.</li>
+      <li>The runtime is <a href="https://github.com/rutgerklamer/brnfck-chat/blob/main/site/runtime/bfwasm.js">site/runtime/bfwasm.js</a> in <a href="https://github.com/rutgerklamer/brnfck-chat">the repository</a>.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
