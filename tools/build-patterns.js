@@ -12,7 +12,7 @@ const { esc, fmt } = V;
 // the ?v= of the files the pages load: site.css and site.js as the start page has them, so they never fall behind
 const HOME = fs.readFileSync(path.join(__dirname, '..', 'site', 'index.html'), 'utf8');
 const versionOf = (file) => HOME.match(new RegExp(file.replace('.', '\\.') + '\\?v=(\\w+)'))[1];
-const VERSION = { siteCss: versionOf('site.css'), siteJs: versionOf('site.js'), system: 'r7', article: 'r8', patterns: 'r7', articleJs: 'r8', own: 'r7' };
+const VERSION = { siteCss: versionOf('site.css'), siteJs: versionOf('site.js'), system: 'r8', article: 'r8', patterns: 'r7', articleJs: 'r8', own: 'r7' };
 const ICON ="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E";
 const groupOf = (p) => data.GROUPS.find((g) => g.id === p.group);
 const bitsOf = (v) => core.widths(v)[0];
