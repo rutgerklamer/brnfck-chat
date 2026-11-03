@@ -7,7 +7,7 @@
   const size = ProgramStart.size;
 
   const MODELS = {
-    small: { name: 'small', label: 'brnfck-smollm2-135m', model: 'SmolLM2-135M-Instruct', worker: 'workers/brnfck-smollm2-135m.js?v=r10',
+    small: { name: 'small', label: 'brnfck-smollm2-135m', model: 'SmolLM2-135M-Instruct', worker: 'workers/brnfck-smollm2-135m.js?v=r11',
       manifestUrl: 'dist/small/manifest.json', metaUrl: 'programs/brnfck-smollm2-135m.meta.json', fileUrl: 'programs/brnfck-smollm2-135m.bf',
       needGB: 1.5, download: '180 MB', startup: '9 to 16 s', perPiece: '0.6 to 1.0 s' },
     '0.5b': { name: '0.5b', label: 'brnfck-qwen2.5-0.5b', model: 'Qwen2.5-0.5B-Instruct', worker: 'workers/brnfck-qwen2.5-0.5b.js?v=r10',
@@ -36,6 +36,8 @@
   const CODE_INPUT = { [CODE_EXAMPLES[1]]: 'ab', [CODE_EXAMPLES[2]]: 'a b c', [CODE_EXAMPLES[3]]: '38' };
   const examples = () => (model.picture ? PICTURE_EXAMPLES : model.code ? CODE_EXAMPLES : EXAMPLES);
 
+  const phone = document.documentElement.dataset.device === 'phone';   // set in index.html: only brnfck-smollm2-135m runs
+  for (const el of document.querySelectorAll(phone ? '.not-phone' : '.phone-only')) el.hidden = true;   // before site.js lists the parts of the page
   let loadStart = 0, state = 'finding', model = null, P = null, worker = null, run = null, pending = null, last = '', nextId = 1, lastStep = '', noStore = false, env = null;
 
   // ---- what the page says ----
@@ -50,11 +52,11 @@
 
   function describe() {
     const loaded = state === 'loading' || state === 'ready' || state === 'running';
-    $('go').textContent = loaded || whole() || state === 'unfit' ? 'Ask' : `Ask · loads ${loadSize()}`;
+    $('go').textContent = loaded || whole() ? 'Ask' : `Ask · loads ${loadSize()}`;
     let line;
-    if (state === 'unfit') line = 'Nothing has been downloaded.';
-    else if (state === 'loading') line = 'Your question is waiting for the program. A new question replaces it.';
+    if (state === 'loading') line = 'Your question is waiting for the program. A new question replaces it.';
     else if (loaded) line = `One question at a time, at most ${$('q').maxLength} characters. It does not remember earlier questions, and its answers can be wrong.`;
+    else if (phone) line = `${whole() ? 'The program is stored in this browser, so nothing is downloaded.' : `Your first question downloads the program (${loadSize()}, Wi-Fi is best) and keeps it in this browser.`} A phone needs about 1 GB of free memory for it: on an older phone the page may reload, and then shows what to do.`;
     else if (whole()) line = `The program is stored in this browser, so nothing is downloaded. Starting it needs about ${model.needGB} GB of free memory.`;
     else if (P && P.mode === 'file') line = `Your first question loads the program (${loadSize()}) from the server this page came from. It needs about ${model.needGB} GB of free memory.`;
     else line = `Your first question downloads the program (${loadSize()}) and keeps it in this browser. It needs about ${model.needGB} GB of free memory. The model is loaded only when you run a question.`;
@@ -89,10 +91,10 @@
     }
   }
   const previews = fetch('home-source.json').then(r => r.ok ? r.json() : null).catch(() => null);
-  // the window shows the chosen program (brnfck-qwen2.5-1.5b when none can be chosen), if the excerpt's SHA-256 matches
+  // the window shows the chosen program, if the excerpt's SHA-256 matches
   async function showSource(name, meta) {
     const all = await previews, sample = all && all[name];
-    if (choice && model && model.name !== name) return;      // another model was chosen in the meantime
+    if (model && model.name !== name) return;      // another model was chosen in the meantime
     if (!sample || sample.sha256 !== meta.sha256) { $('programWindow').hidden = true; return; }
     $('fieldHead').textContent = `Inside ${MODELS[name].label}`;
     paint($('sourcePreview'), sample.text);
@@ -103,16 +105,16 @@
   const AT = { finding: [',', 'waits for your question'], idle: [',', 'waits for your question'], ready: [',', 'waits for your question'],
     loading: ['+', 'writes the model into memory'], running: [',', 'reads your question'] };
 
-  const WORD = { finding: 'finding the program', idle: 'nothing loaded', loading: 'loading', ready: 'ready', running: 'running', unfit: 'not on this device', failed: 'stopped on an error' };
+  const WORD = { finding: 'finding the program', idle: 'nothing loaded', loading: 'loading', ready: 'ready', running: 'running', failed: 'stopped on an error' };
   function setState(s) {
     state = s;
     if (window.LeaveGuard) LeaveGuard.set('chat', s === 'loading' || s === 'running');   // leaving would lose the load or the answer
+    if (phone) cutMark(s === 'loading' || s === 'running');
     $('main').dataset.state = s;
     $('figState').textContent = WORD[s] || '';
     point(...(AT[s] || ['', '']));
     const can = s === 'idle' || s === 'loading' || s === 'ready';
     $('go').disabled = !can;
-    $('q').disabled = s === 'unfit';
     for (const b of $('chips').children) b.disabled = !can;
     $('stop').hidden = s !== 'loading' && s !== 'running';
     $('bar').hidden = s !== 'loading';
@@ -120,6 +122,19 @@
     for (const r of document.getElementsByName('model')) r.disabled = s === 'loading' || s === 'running';
     describe();
   }
+
+  // ---- a phone that ran out of memory: iOS then reloads the page, which finds the note of the load it cut off ----
+  const CUT = 'brnfck.cut';
+  function cutMark(on) {
+    try {
+      if (on) localStorage.setItem(CUT, JSON.stringify({ at: Date.now(), q: last }));
+      else localStorage.removeItem(CUT);
+    } catch (e) { }
+  }
+  function cutNote() {
+    try { const n = JSON.parse(localStorage.getItem(CUT)); localStorage.removeItem(CUT); return n && Date.now() - n.at < 15 * 60e3 ? n : null; } catch (e) { return null; }
+  }
+  window.addEventListener('pagehide', () => cutMark(false));   // left on purpose: not a crash
 
   // ---- what you see happening
   function setStep(n, now = true) {
@@ -227,7 +242,7 @@
   async function select(name) {
     if (worker) { worker.terminate(); worker = null; }
     model = MODELS[name]; P = null; noStore = false;
-    $('error').hidden = true; $('unfit').hidden = true; $('memBox').hidden = true;
+    $('error').hidden = true; $('memBox').hidden = true;
     setState('finding');
     let found;
     try {
@@ -249,15 +264,6 @@
     if (pending) startWorker();
   }
 
-  function unfit() {
-    model = MODELS.small;
-    $('unfitText').textContent = env.phone
-      ? 'A phone or a tablet cannot run this: the program needs at least 1.5 GB of free memory in one browser tab, so please come back on a desktop or laptop computer.'
-      : 'This computer seems to have too little memory to run this: the program needs at least 1.5 GB of free memory in one browser tab.';
-    $('unfit').hidden = false;
-    setState('unfit');
-  }
-
   // ---- the worker: loads the program, keeps its tape, runs it per question ----
   const has64 = () => { try { return WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 5, 3, 1, 4, 1])); } catch (e) { return false; } };
   function startWorker() {
@@ -271,7 +277,7 @@
     const w = worker;
     w.onmessage = (ev) => { if (w === worker) onMessage(ev.data); };
     w.onerror = (ev) => { if (w === worker) fail('worker', `The background worker stopped by itself${ev && ev.message ? ` (${ev.message})` : ''}`); };
-    w.postMessage({ type: 'load', ...P.loadMessage(), again: false });
+    w.postMessage({ type: 'load', ...P.loadMessage(), again: false, phone });
     watch(w);
   }
 
@@ -292,7 +298,7 @@
         }
         status(text); step(verb);
       } else {
-        const text = { memory: 'Getting memory for the tape', compile: 'Compiling the engine', copy: 'Keeping a copy of the tape' }[m.stage];
+        const text = { memory: 'Getting memory for the tape', compile: 'Compiling the engine', copy: 'Keeping a copy of what a question changes' }[m.stage];
         if (m.stage !== 'memory') { drawTape(1, '100%'); explain(WHY.engine); }
         if (text) { status(text); step(text); }
       }
@@ -486,6 +492,7 @@
     showQuestion(text);
     $('q').value = '';
     count();
+    if (phone) { $('q').blur(); $('ask').scrollIntoView({ block: 'start', behavior: 'smooth' }); }   // the keyboard goes; the question, its answer and the program at work fill the screen
     if (state === 'ready') return send(text);
     pending = text;                                          // sent as soon as the program is ready
     if (state === 'idle') startWorker();
@@ -509,7 +516,6 @@
   $('ask').addEventListener('submit', (ev) => { ev.preventDefault(); ask($('q').value); });
   $('stop').addEventListener('click', stop);
   $('retry').addEventListener('click', () => { if (last && !$('thread').hidden) { pending = last; showQuestion(last); } select(model.name); });
-  $('anyway').addEventListener('click', () => select('small'));
   $('better').addEventListener('click', () => { pending = last; showQuestion(last); select('0.5b'); });
   $('removeStored').addEventListener('click', async () => {
     try { await ProgramSource.remove(P.manifest); } catch (e) { }
@@ -585,16 +591,23 @@
   // ---- start ----
   const stored = [];
   try { for (const k of await caches.keys()) { const m = /^bf-program:([^:]+):/.exec(k); if (m && MODELS[m[1]] && !stored.includes(m[1])) stored.push(m[1]); } } catch (e) { }
-  const d = ProgramStart.device(MODELS.small.needGB);
-  env = { stored, phone: !!d && d.kind === 'phone' };
+  env = { stored };
   const asked = new URLSearchParams(location.search).get('m');
   let saved = null;
   try { saved = localStorage.getItem('brnfck.model'); } catch (e) { }
-  const choice = MODELS[asked] ? asked : MODELS[saved] ? saved : env.phone ? null : 'small';
+  const choice = phone ? 'small' : MODELS[asked] ? asked : MODELS[saved] ? saved : 'small';
   const given = new URLSearchParams(location.search).get('q');
   if (given) { $('q').value = given.replace(/\s+/g, ' ').trim().slice(0, $('q').maxLength); count(); }
-  if (choice) { select(choice); $('q').focus({ preventScroll: true }); } else unfit();
-  if (!choice) { const big = MODELS['1.5b'];
-    ProgramStart.find({ name: big.name, manifestUrl: big.manifestUrl, metaUrl: big.metaUrl, fileUrl: big.fileUrl, hostsUrl: 'program-hosts.json' })
-      .then((f) => showSource(big.name, f.meta), () => {}); }
+  const cut = phone ? cutNote() : null;
+  select(choice);
+  if (!phone) $('q').focus({ preventScroll: true });       // on a phone the keyboard would cover the page
+  if (cut) {
+    $('cut').hidden = false; $('emptyOutput').hidden = true;
+    $('cutAgain').addEventListener('click', () => { $('cut').hidden = true; $('emptyOutput').hidden = false; if (cut.q) ask(cut.q); else $('q').focus(); });
+    $('cutSend').addEventListener('click', async () => {
+      const url = 'https://brnfck.chat/';
+      try { if (navigator.share) await navigator.share({ title: 'brnfck.chat', text: 'A chatbot written in eight characters', url }); else { await navigator.clipboard.writeText(url); $('cutSend').textContent = 'Link copied'; } }
+      catch (e) { }
+    });
+  }
 })();

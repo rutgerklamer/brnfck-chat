@@ -115,10 +115,10 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 .memBox .grid { display: block; width: 100%; height: calc(var(--layers, 24) * 5px); }
 #memSay { margin: var(--s2) 0 0; }
 
-.home[data-state="unfit"] :is(.askbox, .under, #emptyOutput) { display: none; }
-.home[data-state="unfit"] .screen { max-height: none; padding-top: 0; border-top: 0; overflow: visible; }
-.home #unfit { margin: 0; padding-top: 0; border: 0; font: var(--fs-ui)/1.55 var(--sans); }
-.home #unfit > h3 { margin-bottom: var(--s2); font-size: .875rem; }
+/* a phone (data-device, set in index.html): the chat on brnfck-smollm2-135m, no figures that animate */
+.phone-only { display: none; }
+:root[data-device="phone"] .phone-only { display: block; }
+:root[data-device="phone"] .not-phone { display: none; }
 
 /* which program answers */
 .modelLine { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s3); margin: 0 0 var(--s2); font-family: var(--mono); }
@@ -146,6 +146,15 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 #storeLine { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin: var(--s2) 0 0; }
 #removeStored { text-align: right; }
 .rig details.q > summary { font: var(--ctl); }
+
+/* the six chat programs to scale, on a phone: name and characters, then a bar as long as the program */
+.pocket { display: grid; gap: var(--s3); margin: 0; padding: var(--s4) var(--pad); list-style: none; }
+.pocket li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px var(--s2); margin: 0; padding: 0; font: .75rem/1.3 var(--mono); }
+.pocket b { font-weight: 600; overflow-wrap: anywhere; }
+.pocket span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.pocket i { grid-column: 1 / -1; width: var(--w); min-width: 3px; height: .625rem; background: var(--line); }
+.pocket .here i { background: var(--c-in); box-shadow: inset 0 0 0 var(--edge) var(--ink); }
+.pocket .here span { color: var(--ink); font-weight: 600; }
 
 /* ---- the small machine ---- */
 #fig-keys { border-width: var(--edge); }
@@ -342,3 +351,42 @@ main.home { --now: var(--c-in); max-width: var(--wide); margin: 0 auto; padding:
 #where .lab-pic canvas { cursor: crosshair; touch-action: none; }
 #where .lab-pic canvas:focus-visible { outline-offset: 2px; }
 #where .lab-pic input[type="range"] { width: 100%; }
+
+/* ---- a phone (data-device, index.html): the page reads like a chat, and the rows below swipe sideways ---- */
+:root[data-device="phone"] { overflow-anchor: none; }   /* else the browser scrolls the page down as the program's tape grows */
+:root[data-device="phone"] .title { padding: var(--s4); }
+:root[data-device="phone"] .chat-head { gap: var(--s2); padding: var(--s2) var(--s3); white-space: nowrap; }
+:root[data-device="phone"] .chat-head .state { font-size: .625rem; }
+/* no scroll box inside the page: the answer stays under the question, then its buttons, then the program at work */
+:root[data-device="phone"] .screen { min-height: 0; max-height: none; overflow: visible; }
+:root[data-device="phone"] #thread:not([hidden]) { display: flex; flex-direction: column; }
+:root[data-device="phone"] #thread > .after { order: 1; padding-left: 2.25rem; }
+:root[data-device="phone"] #thread > #status { order: 2; }
+:root[data-device="phone"] #thread > .process { order: 3; margin-top: var(--s4); }
+:root[data-device="phone"] #thread > .memBox { order: 4; }
+:root[data-device="phone"] .home .exchange.io { font-size: 1.125rem; }
+:root[data-device="phone"] #emptyOutput .chips { flex-wrap: nowrap; margin-right: calc(-1 * var(--s3) - var(--edge)); padding-right: var(--s3); overflow-x: auto; scrollbar-width: none; }
+:root[data-device="phone"] #emptyOutput .chips button { flex: 0 0 auto; white-space: nowrap; }
+:root[data-device="phone"] .home:is([data-state="loading"], [data-state="running"]) #thread > .process { display: flex; flex-direction: column; }
+:root[data-device="phone"] .process > #explain { order: 2; font-size: var(--fs-small); color: var(--ink-2); }
+:root[data-device="phone"] #steps > li > span { padding: 4px 6px; font-size: .6875rem; line-height: 1.25; text-align: center; white-space: normal; }
+/* one program here: its name and size, no picker and no 1 GB download */
+:root[data-device="phone"] :is(#models, .rig details.q) { display: none; }
+:root[data-device="phone"] .modelLine { margin-bottom: var(--s1); }
+/* the note after the phone stopped the tab: what happened, two ways on, and recorded answers */
+.home #cut { margin: 0 0 var(--s4); padding-top: 0; border-top: 0; }
+.home #cut > h3 { margin-bottom: var(--s2); font-size: .9375rem; }
+.home #cut .row { margin: var(--s3) 0 var(--s4); }
+.home #cut .row button { flex: 1 1 100%; min-height: var(--target); }
+.home #cut .exchange.io { font-size: 1rem; }
+/* the Lab and the nine figures: a row each, a card and a peek of the next */
+:root[data-device="phone"] #where :is(.labrow, .show) { display: flex; gap: var(--s3); margin-left: calc(-1 * var(--gutter)); margin-right: calc(-1 * var(--gutter)); padding: 0 var(--gutter) var(--s3); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); overscroll-behavior-x: contain; scrollbar-width: none; }
+:root[data-device="phone"] #where :is(.labrow, .show)::-webkit-scrollbar { display: none; }
+:root[data-device="phone"] #where .labrow > li { flex: 0 0 86%; scroll-snap-align: start; }
+:root[data-device="phone"] #where .show > li { flex: 0 0 72%; scroll-snap-align: start; }
+:root[data-device="phone"] #where .show .pic { height: 9rem; }
+:root[data-device="phone"] #where .show a > span:last-child { display: block; }
+:root[data-device="phone"] #where .dest { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+:root[data-device="phone"] #where .dest a { gap: var(--s1) var(--s2); padding: var(--s3); }
+:root[data-device="phone"] #where .dest a > i { min-width: 2.25rem; height: 2.25rem; font-size: 1rem; }
+:root[data-device="phone"] #where .dest a > span { display: none; }

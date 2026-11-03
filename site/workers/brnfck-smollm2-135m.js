@@ -6,7 +6,32 @@ importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../run
   const BFWasm = self.BFWasm, RunCore = self.RunCore, Question = self.Question, ProgramSource = self.ProgramSource;
   const now = () => performance.now();
   const PIECE_GAP_MS = 20;                                      // output after a pause this long starts a new word piece
-  let view = null, ex = null, exe = null, meta = null, backup = null, startPointer = 0, dirty = false;
+  let view = null, ex = null, exe = null, meta = null, copies = null, putBack = null, startPointer = 0, dirty = false;
+
+  // the cells a question writes (memory slots and work areas, from the program's writer.json), or null when unknown
+  async function writable() {
+    try {
+      const inside = new URL('../inside/', self.location.href).href;
+      const hosts = await fetch(inside + 'data-hosts.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+      const base = hosts && typeof hosts.small === 'string' && hosts.small ? new URL(hosts.small, inside).href : inside + 'data/small/';
+      const W = await fetch(base + 'writer.json').then((r) => (r.ok ? r.json() : null));
+      if (!W || W.program.sha256 !== meta.sha256) return null;
+      return W.regions.filter((r) => r.kind === 'slots' || r.kind === 'work' || r.kind === 'glob').map((r) => [r.from, r.to]);
+    } catch (e) { return null; }
+  }
+  // puts the copies back, then checks every piece of the tape against the SHA-256 sums the build noted
+  async function restore() {
+    for (const [from, cells] of copies) ex.tape.set(cells, from);
+    const P = meta.pieceCells;
+    for (let i = 0; i < meta.tapeSums.length; i++) {
+      const at = i * P, n = Math.min(P, meta.tapeSize - at);
+      const d = new Uint8Array(await crypto.subtle.digest('SHA-256', new Uint8Array(ex.tape.buffer, ex.tape.byteOffset + at * 4, n * 4)));
+      let hex = '';
+      for (const b of d) hex += (b < 16 ? '0' : '') + b.toString(16);
+      if (hex !== meta.tapeSums[i]) return false;
+    }
+    return true;
+  }
 
   // the memory slots as they are now, for the page (runtime/peek.js); view comes with a 'watch' message
   const filled = () => { try { return view && view.cols ? Peek.fill(ex.tape, meta.tapeSize, view.cols) : null; } catch (e) { return null; } };
@@ -58,10 +83,11 @@ importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../run
       exe = new BFWasm.Program(new WebAssembly.Module(g.bytes), { cellBits: g.cellBits, tapeSize: g.tapeSize, stats: g.stats, pages: g.pages }, ex.memory);
       startPointer = ex.pointer;
 
-      // a copy of the whole tape, put back before a second question
+      // a copy of what a question changes, put back after each answer; a phone keeps no copy of the whole tape
       self.postMessage({ type: 'progress', stage: 'copy' });
-      try { backup = new Uint32Array(meta.tapeSize); backup.set(ex.tape); } catch (e) { backup = null; }
-      dirty = false;
+      const ranges = await writable();
+      try { copies = ranges ? ranges.map(([a, b]) => [a, ex.tape.slice(a, b)]) : m.phone ? null : [[0, ex.tape.slice()]]; } catch (e) { copies = null; }
+      dirty = false; putBack = null;
       self.postMessage({ type: 'ready', source: src.source, storing: src.storing });
       sendSlots(0);
     } catch (e) {
@@ -70,14 +96,14 @@ importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../run
     }
   }
 
-  function ask(m) {
+  async function ask(m) {
     try {
       if (!exe) throw new Error('the program is not loaded');
       if (dirty) {
-        if (!backup) throw new Error('the tape has been used and there is no copy: load the program again');
-        ex.tape.set(backup);
+        if (!copies) throw new Error('the tape has been used and there is no copy: load the program again');
+        if (!(await putBack)) throw new Error('the tape could not be put back as it was: load the program again');
       }
-      dirty = true;
+      dirty = true; putBack = null;
       const q = Question.questionBytes(m.question, meta.maxQuestionBytes);
       let pieces = 0, last = -Infinity;
       const onOutput = (bytes) => {
@@ -90,7 +116,8 @@ importScripts('../runtime/bfwasm.js?v=r9', '../runtime/runcore.js?v=r8', '../run
       };
       exe.run(q, { keep: true, pointer: startPointer, collect: false, flushEvery: 1, onOutput });
       sendSlots(m.id);
-      self.postMessage({ type: 'done', id: m.id, pieces, reusable: !!backup });
+      self.postMessage({ type: 'done', id: m.id, pieces, reusable: !!copies });
+      if (copies) { putBack = restore(); putBack.catch(() => {}); }   // while the answer is read
     } catch (e) {
       exe = null;                                              // the tape may be in the middle of a step
       self.postMessage({ type: 'error', stage: 'ask', id: m.id, message: String((e && e.message) || e) });

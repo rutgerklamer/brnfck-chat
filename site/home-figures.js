@@ -2,6 +2,7 @@
 // work, the programs answering one question, and runs by hand. Each starts when it scrolls into view.
 (function () {
   'use strict';
+  if (document.documentElement.dataset.device === 'phone') return;     // the start page on a phone shows none of them
   const $ = (id) => document.getElementById(id);
   const fmt = (n) => Math.round(n).toLocaleString('en-US');
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
