@@ -1,5 +1,5 @@
 # Teaches Qwen2.5-Coder-0.5B-Instruct to answer tasks in brainfuck; writes downloads/qwen2.5-coder-0.5b-brainfuck/.
-#   .venv/Scripts/python compiler/coder/train.py [--epochs 2] [--lr 2e-5] [--resume] [--src DIR] [--dst DIR] [--plain FILE]
+#   .venv/Scripts/python compiler/coder/train.py [--epochs 2] [--lr 2e-5] [--resume] [--src DIR] [--dst DIR] [--plain FILE] [--data DIR]
 
 import argparse, json, math, os, random, shutil, time
 import torch
@@ -8,7 +8,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 DOWNLOADS = os.path.join(ROOT, 'compiler', 'downloads')
-DATA = os.path.join(os.path.dirname(__file__), 'out')
 # The chat as the brainfuck program builds it (compiler/qwen/tokenizer/ref.js), with the answer after it.
 PREFIX = '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\n'
 SUFFIX = '<|im_end|>\n<|im_start|>assistant\n'
@@ -27,7 +26,9 @@ a.add_argument('--src', default=os.path.join(DOWNLOADS, 'qwen2.5-coder-0.5b'))
 a.add_argument('--dst', default=os.path.join(DOWNLOADS, 'qwen2.5-coder-0.5b-brainfuck'))
 a.add_argument('--plain')
 a.add_argument('--snap', type=int, default=1000)  # steps between out/snap-<step>.safetensors (0: none)
+a.add_argument('--data', default=os.path.join(os.path.dirname(__file__), 'out'))  # train.jsonl, test.jsonl; checkpoint and snapshots go here too
 args = a.parse_args()
+DATA = args.data
 SRC, DST = args.src, args.dst
 random.seed(args.seed)
 torch.manual_seed(args.seed)

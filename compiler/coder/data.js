@@ -1,7 +1,7 @@
 'use strict';
 
 // Training examples for brnfck-qwen2.5-coder-0.5b: a task in words and a brainfuck program, checked on random inputs.
-//   node compiler/coder/data.js [count] [seed]   ->  compiler/coder/out/train.jsonl, test.jsonl
+//   node compiler/coder/data.js [count] [seed] [--out DIR]   ->  compiler/coder/out/train.jsonl, test.jsonl
 
 const fs = require('fs');
 const path = require('path');
@@ -9,7 +9,8 @@ global.self = global;
 require('../../site/challenges/engine.js');
 const BF = self.BFEngine;
 
-const OUT = path.join(__dirname, 'out');
+const at = process.argv.indexOf('--out');
+const OUT = at > 0 ? path.resolve(process.argv.splice(at, 2)[1]) : path.join(__dirname, 'out');
 const MAX_QUESTION = 200; // the program reads at most this many bytes of a question
 
 // ---- random numbers from a seed (mulberry32)
@@ -20,8 +21,16 @@ const pick = (a) => a[Math.floor(rnd() * a.length)];
 const chance = (p) => rnd() < p;
 
 // ---- pieces of programs
-const set = (d) => (d >= 0 ? '+'.repeat(d) : '-'.repeat(-d));
-const printText = (s) => { let at = 0, code = ''; for (const ch of s) { const c = ch.charCodeAt(0); code += set(c - at) + '.'; at = c; } return code; };
+const run = (d) => (d >= 0 ? '+'.repeat(d) : '-'.repeat(-d));
+// A constant in decimal, its tens counted on the cell to the right (left zero): 72 is >+++++++[<++++++++++>-]<++
+// 32 and 48 stay runs, as one token each.
+const set = (d) => {
+  const a = Math.abs(d), s = d > 0 ? '+' : '-';
+  if (a < 10 || a === 32 || a === 48) return run(d);
+  return '>' + '+'.repeat(Math.floor(a / 10)) + '[<' + s.repeat(10) + '>-]<' + s.repeat(a % 10);
+};
+// every character from zero, so the program spells the decimal codes: Hi is 72, 105
+const printText = (s) => [...s].map((ch) => set(ch.charCodeAt(0)) + '.').join('[-]');
 const code = (ch) => ch.charCodeAt(0);
 
 // ---- words for tasks
@@ -35,26 +44,38 @@ const WORDS = ('cat dog sun moon tree star book code bird fish rain snow wind fi
 const NUMBER = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
 const times = (n) => (n === 1 ? 'once' : n === 2 ? pick(['twice', 'two times']) : (n <= 12 && chance(0.5) ? NUMBER[n] : String(n)) + ' times');
 const count = (n) => (n <= 12 && chance(0.5) ? NUMBER[n] : String(n));
+// symbols by their English names, singular and plural
+const SYMBOL = { '!': ['exclamation mark', 'exclamation marks'], '?': ['question mark', 'question marks'], '@': ['at sign', 'at signs'], '#': ['hash sign', 'hash signs'],
+  '=': ['equals sign', 'equals signs'], '-': ['dash', 'dashes'], '+': ['plus sign', 'plus signs'], '*': ['star', 'stars'], '.': ['period', 'periods'], ',': ['comma', 'commas'],
+  ':': ['colon', 'colons'], ';': ['semicolon', 'semicolons'], '_': ['underscore', 'underscores'], '/': ['slash', 'slashes'], '&': ['ampersand', 'ampersands'],
+  '%': ['percent sign', 'percent signs'], '$': ['dollar sign', 'dollar signs'], '^': ['caret', 'carets'], '~': ['tilde', 'tildes'], '|': ['vertical bar', 'vertical bars'] };
 const name = (ch, bare) => {
   if (ch === ' ') return bare ? 'space' : pick(['a space', 'the space character']);
   if (ch === '\n') return bare ? 'line break' : pick(['a line break', 'a newline', 'the character 10']);
+  if (SYMBOL[ch] && chance(0.35)) return bare ? SYMBOL[ch][0] : (/^[aeiou]/.test(SYMBOL[ch][0]) ? 'an ' : 'a ') + SYMBOL[ch][0];
   return pick([`\`${ch}\``, `"${ch}"`, `'${ch}'`, ch]);
 };
+// n of a character: "15 equals signs", "seven stars" or "12 copies of `x`"
+const many = (n, ch) => (SYMBOL[ch] && chance(0.6) ? `${count(n)} ${SYMBOL[ch][1]}` : `${count(n)} ${pick(['copies of ', ''])}${name(ch)}${pick(['', "'s"])}`.replace(/^(\S+) (a|an) /, '$1 '));
 const quote = (s) => pick([`\`${s}\``, `"${s}"`, s]);
-const NO_INPUT = ['', '', ' There is no input.', ' No input.', ' It reads nothing.'];
-const EMPTY_OK = ['', '', ' The input can be empty.', ' The input may be empty.'];
-const lead = () => pick(['', '', '', 'Write a brainfuck program to ', 'Write a program to ', 'Brainfuck: ', 'In brainfuck, ', 'Using brainfuck, ']);
+const NO_INPUT = ['', '', ' There is no input.', ' No input.', ' It reads nothing.', ' Nothing is read.', ' It takes no input.'];
+const EMPTY_OK = ['', '', ' The input can be empty.', ' The input may be empty.', ' Empty input is possible.'];
+const lead = () => pick(['', '', '', '', 'Write a brainfuck program to ', 'Write a program to ', 'Brainfuck: ', 'In brainfuck, ', 'Using brainfuck, ',
+  'Write brainfuck code to ', 'Task: ', 'Write a short program to ', 'Please write a program to ', 'Can you write a program to ']);
 // The first letter in capitals when the sentence starts the question.
 const sentence = (pre, rest) => (pre ? pre + rest[0].toLowerCase() + rest.slice(1) : rest[0].toUpperCase() + rest.slice(1));
 
 function randomText(maxLen) {
-  const kind = int(0, 5);
+  const kind = int(0, 8);
   if (kind === 0) return pick(WORDS);
   if (kind === 1) { const w = pick(WORDS); return w[0].toUpperCase() + w.slice(1) + pick(['', '!', '.', '?']); }
   if (kind === 2) return Array.from({ length: int(1, maxLen) }, () => pick(UPPER)).join('');
   if (kind === 3) return Array.from({ length: int(1, maxLen) }, () => pick(PRINTABLE)).join('').trim() || 'x';
   if (kind === 4) return pick(WORDS) + pick([' ', ', ', '-']) + pick(WORDS);
-  return Array.from({ length: int(1, maxLen) }, () => pick(LOWER + DIGITS + PUNCT)).join('');
+  if (kind === 5) return Array.from({ length: int(1, maxLen) }, () => pick(LOWER + DIGITS + PUNCT)).join('');
+  if (kind === 6) { const w = [pick(WORDS), pick(WORDS), pick(WORDS)].slice(0, int(2, 3)).join(' '); return (chance(0.5) ? w[0].toUpperCase() + w.slice(1) : w) + pick(['', '.', '!', '?']); }
+  if (kind === 7) return String(int(0, 99999));
+  return pick(WORDS).toUpperCase() + pick(['', '!', '?', '.']);
 }
 const randomInput = (alphabet, maxLen, minLen = 0) => Array.from({ length: int(minLen, maxLen) }, () => pick(alphabet)).join('');
 
@@ -65,6 +86,21 @@ F.text = () => {
   const s = randomText(10);
   const q = s.length === 1 && /[A-Z]/.test(s) ? pick([`Print the capital letter ${quote(s)}.`, `Print the letter ${quote(s)}.`])
     : pick([`Print ${quote(s)}.`, `print ${quote(s)}`, `Print the text ${quote(s)}.`, `Output ${quote(s)}.`, `Print ${quote(s)} exactly, with no line break at the end.`]);
+  return { q: sentence(lead(), q) + (q.endsWith('.') ? pick(NO_INPUT) : ''), code: printText(s), f: () => s, inputs: [''] };
+};
+
+// texts with line breaks, or characters named one by one
+F.textLines = () => {
+  const kind = int(0, 2);
+  let s, q;
+  if (kind === 0) { s = randomText(6) + '\n'; q = pick([`Print ${quote(s.slice(0, -1))} followed by a newline.`, `Output the text ${quote(s.slice(0, -1))} and then a line break.`, `Print ${quote(s.slice(0, -1))} on a line of its own, ending with a newline.`]); }
+  else if (kind === 1) { const a = pick(WORDS), b = pick(WORDS); s = a + '\n' + b; q = pick([`Print ${quote(a)}, a newline, then ${quote(b)}.`, `Print ${quote(a)} on one line and ${quote(b)} on the next, with no newline at the end.`]); }
+  else {
+    const cs = Array.from({ length: int(2, 5) }, () => pick(Object.keys(SYMBOL).concat([...UPPER.slice(0, 8)])));
+    s = cs.join('');
+    const said = cs.map((c) => (SYMBOL[c] && chance(0.7) ? (/^[aeiou]/.test(SYMBOL[c][0]) ? 'an ' : 'a ') + SYMBOL[c][0] : quote(c)));
+    q = pick([`Print ${said.slice(0, -1).join(', ')} and ${said[said.length - 1]}, in that order.`, `Output ${said.slice(0, -1).join(', ')} followed by ${said[said.length - 1]}.`]);
+  }
   return { q: sentence(lead(), q) + pick(NO_INPUT), code: printText(s), f: () => s, inputs: [''] };
 };
 
@@ -72,7 +108,7 @@ F.repeat = () => {
   const ch = pick(PRINTABLE.replace(' ', '') + '*****'), n = int(2, 40);
   const s = ch.repeat(n);
   const body = n <= 8 ? set(code(ch)) + '.'.repeat(n) : set(code(ch)) + '>' + set(n) + '[<.>-]';
-  const q = pick([`Print ${name(ch)} ${times(n)}.`, `Print ${count(n)} ${ch === '*' ? 'stars' : 'copies of ' + name(ch)}.`, `Print a row of ${count(n)} ${ch === '*' ? 'stars' : name(ch) + "'s"}: ${quote(s)}.`]);
+  const q = pick([`Print ${name(ch)} ${times(n)}.`, `Print ${many(n, ch)}.`, `Print ${many(n, ch)} in a row.`, `Print a row of ${many(n, ch)}: ${quote(s)}.`, `Print ${count(n)} ${pick(['', 'of the character '])}${quote(ch)}: ${quote(s)}.`]);
   return { q: sentence(lead(), q) + pick(NO_INPUT), code: body, f: () => s, inputs: [''] };
 };
 
@@ -130,7 +166,7 @@ F.order = () => {
   const n = int(2, 5), rev = chance(0.6);
   const perm = rev ? Array.from({ length: n }, (_, i) => n - 1 - i) : (() => { const p = Array.from({ length: n }, (_, i) => i); for (let i = n - 1; i > 0; i--) { const j = int(0, i); [p[i], p[j]] = [p[j], p[i]]; } return p; })();
   let body = ',' + '>,'.repeat(n - 1), at = n - 1;
-  for (const i of perm) { body += set(i - at).replace(/\+/g, '>').replace(/-/g, '<') + '.'; at = i; }
+  for (const i of perm) { body += run(i - at).replace(/\+/g, '>').replace(/-/g, '<') + '.'; at = i; }
   const ord = ['first', 'second', 'third', 'fourth', 'fifth'];
   const q = rev ? pick([`Read ${count(n)} characters and print them in reverse order.`, `Read ${count(n)} characters and print them backwards.`])
     : `Read ${count(n)} characters and print them in this order: ${perm.map((i) => ord[i]).join(', ')}.`;
@@ -303,7 +339,7 @@ F.replace = () => {
   const from = pick([' ', '.', ',', 'a', 'e', '-']), to = pick(['_', '*', '#', '+', '-', '.']);
   if (from === to) return null;
   const q = `Print the input with every ${name(from, true)} replaced by ${name(to)}. All other characters stay as they are.`;
-  const body = ',[' + set(-code(from)) + '>+<[' + set(code(from)) + '.[-]>-<]>[>' + set(code(to)) + '.[-]<-]<,]';
+  const body = ',[' + set(-code(from)) + '>+<[' + run(code(from)) + '.[-]>-<]>[>' + set(code(to)) + '.[-]<-]<,]';
   const al = 'bcdxyz' + from + from;
   return { q: sentence(lead(), q), code: body, f: (x) => x.split(from).join(to), inputs: ['', from, randomInput(al, 9, 1), randomInput(al, 6, 1)] };
 };
@@ -319,8 +355,8 @@ F.remove = () => {
 // divmod: n d 0 0 -> 0 d-n%d n%d n/d
 const DM = '[->-[>+>>]>[+[-<+>]>+>>]<<<<<]';
 // the cell (0..255) in decimal without leading zeros; needs the 9 cells to its right zero, leaves them zero
-const PRINTNUM = '>' + set(10) + '<' + DM + '>[-]>>>' + set(10) + '<' + DM + '>[-]>>[' + set(48) + '.[-]>+<]' +
-  '<[->>>+>+<<<<]>>>>[-<<<<+>>>>]<[[-]<+>]<[<<' + set(48) + '.[-]>>[-]]<<<<<' + set(48) + '.[-]<<';
+const PRINTNUM = '>' + run(10) + '<' + DM + '>[-]>>>' + run(10) + '<' + DM + '>[-]>>[' + run(48) + '.[-]>+<]' +
+  '<[->>>+>+<<<<]>>>>[-<<<<+>>>>]<[[-]<+>]<[<<' + run(48) + '.[-]>>[-]]<<<<<' + run(48) + '.[-]<<';
 const TWO = ',' + set(-48) + '>,' + set(-48) + '<';                     // two digits as numbers in cells 0 and 1
 const MUL = '[->[->+>+<<]>>[-<<+>>]<<<]>[-]>';                         // cell 0 times cell 1 into cell 2
 const DIGIT_PAIRS = Array.from({ length: 100 }, (_, i) => String(i).padStart(2, '0'));
@@ -369,7 +405,7 @@ F.charCode = () => {
 
 F.readNumber = () => {
   const q = pick(['The input is a number from 32 to 126, written in digits. Print the character with that number.', 'Read a number in decimal digits and print the character with that ASCII code (32 to 126).']);
-  return { q: sentence(lead(), q), code: '>,[' + set(-48) + '<[->++++++++++<]>[-<+>],]<.', f: (x) => String.fromCharCode(+x), inputs: Array.from({ length: 5 }, () => String(int(32, 126))) };
+  return { q: sentence(lead(), q), code: '>,[' + run(-48) + '<[->++++++++++<]>[-<+>],]<.', f: (x) => String.fromCharCode(+x), inputs: Array.from({ length: 5 }, () => String(int(32, 126))) };
 };
 
 F.countDown = () => {
@@ -379,23 +415,64 @@ F.countDown = () => {
 
 F.rotate = () => {
   const q = pick(['The input is made of small letters a to z only. Replace every letter by the next one in the alphabet, and z by a.', 'Move every small letter of the input one place on in the alphabet, z going round to a.']);
-  return { q: sentence(lead(), q) + pick(EMPTY_OK), code: ',[' + set(-122) + '>+<[' + set(123) + '.[-]>-<]>[>' + set(97) + '.[-]<-]<,]', f: (x) => [...x].map((c) => (c === 'z' ? 'a' : String.fromCharCode(code(c) + 1))).join(''), inputs: ['', 'z', 'buzz', randomInput(LOWER, 8, 1)] };
+  return { q: sentence(lead(), q) + pick(EMPTY_OK), code: ',[' + set(-122) + '>+<[' + run(123) + '.[-]>-<]>[>' + set(97) + '.[-]<-]<,]', f: (x) => [...x].map((c) => (c === 'z' ? 'a' : String.fromCharCode(code(c) + 1))).join(''), inputs: ['', 'z', 'buzz', randomInput(LOWER, 8, 1)] };
 };
 
 F.noPlus = () => {
   const ch = pick(UPPER + LOWER + DIGITS + '!?*');
   const q = `Print ${name(ch)} without using the command + anywhere.`;
-  return { q: sentence(lead(), q) + pick(NO_INPUT), code: set(code(ch) - 256) + '.', f: () => ch, inputs: [''] };
+  return { q: sentence(lead(), q) + pick(NO_INPUT), code: run(code(ch) - 256) + '.', f: () => ch, inputs: [''] };
 };
 
 F.balanced = () => {
   const [y, n] = pick([['Y', 'N'], ['Y', 'N'], ['1', '0'], ['T', 'F']]);
   const q = `The input is made of the characters [ and ] only. Print ${name(y)} if the brackets match, and ${name(n)} if they do not.`;
-  const body = ',[' + set(-91) + '>>>+<<<[[-]>>>-<<' + '[->>>+>+<<<<]>>>>[-<<<<+>>>>]<' + '>>+<<' + '[[-]<<<->>>>>-<<]' + '>>[-<<<<+>>>>]' + '<<<<<<]' +
+  const body = ',[' + run(-91) + '>>>+<<<[[-]>>>-<<' + '[->>>+>+<<<<]>>>>[-<<<<+>>>>]<' + '>>+<<' + '[[-]<<<->>>>>-<<]' + '>>[-<<<<+>>>>]' + '<<<<<<]' +
     '>>>[-<<+>>]<<<,]' + '>>[-<+>]<' + '>+<[>-<[-]>>' + set(code(n)) + '.[-]<<]>[>' + set(code(y)) + '.[-]<-]';
   const ok = (x) => { let d = 0; for (const c of x) { d += c === '[' ? 1 : -1; if (d < 0) return false; } return d === 0; };
   const r = () => Array.from({ length: int(0, 10) }, () => pick('[]')).join('');
   return { q: sentence(lead(), q), code: body, f: (x) => (ok(x) ? y : n), inputs: ['', '[]', '][', '[[]]', '[', r(), r(), r()] };
+};
+
+F.dropLast = () => {
+  const q = pick(['Print the input without its last character.', 'Print all but the last character of the input.', 'Leave out the final character of the input and print the rest.']);
+  return { q: sentence(lead(), q) + pick(EMPTY_OK) + pick(['', ' It never holds the character 0.']), code: '>>,[>,]<[-]<[<]>[.>]', f: (x) => x.slice(0, -1), inputs: ['', 'a', 'ab', randomInput(PRINTABLE, 9, 1)] };
+};
+
+F.smaller = () => {
+  const body = TWO + '>[->>>+>+<<<<]>>>>[-<<<<+>>>>]<<<<<' + '[->[->+>+<<]>>[-<<+>>]<[[-]<->]<<]' + '>[->>>-<<<]>>>' + run(48) + '.';
+  const q = pick(['Read two digits and print the smaller of the two.', 'Print the smaller of the two digits in the input.', 'The input is two digits. Print the lower one; if they are equal, print it once.', 'Two digits in, the smallest of them out.']);
+  return { q: sentence(lead(), q), code: body, f: (x) => String(Math.min(+x[0], +x[1])), inputs: somePairs(() => true) };
+};
+
+F.sumNumber = () => {
+  const q = pick(['Read two digits and print their sum in ordinary digits: 58 gives 13.', 'Add the two digits of the input and print the sum in decimal, which can have two digits.', 'Two digits come in. Print their total as a decimal number (0 to 18).']);
+  return { q: sentence(lead(), q), code: ',>,[<+>-]<' + set(-96) + PRINTNUM, f: (x) => String(+x[0] + +x[1]), inputs: somePairs(() => true) };
+};
+
+F.digitSum = () => {
+  const q = pick(['The input is made of digits only. Print the sum of all of them in decimal.', 'Add up every digit of the input and print the total as a decimal number.', 'Print the total of the digits in the input, in ordinary digits. It holds only digits and can be empty.']);
+  return { q: sentence(lead(), q), code: ',[' + run(-48) + '[->+<],]>' + PRINTNUM, f: (x) => String([...x].reduce((s, c) => s + +c, 0)), inputs: ['', '7', digits(int(2, 5)), digits(int(6, 12))] };
+};
+
+F.modulo = () => {
+  const k = int(2, 7);
+  const q = pick([`Read one digit and print the remainder after dividing it by ${k}.`, `Print the input digit modulo ${k}.`, `Read a digit n and print n mod ${k}.`]);
+  return { q: sentence(lead(), q), code: ',' + run(-48) + '>' + set(k) + '<' + DM + '>>' + run(48) + '.', f: (x) => String(+x % k), inputs: [...DIGITS] };
+};
+
+F.charLines = () => {
+  const ch = pick(['*', '#', '+', '-', '=', 'o', 'x', '@', '.']), m = chance(0.6) ? 1 : int(2, 5);
+  const what = m === 1 ? (SYMBOL[ch] && chance(0.6) ? `a single ${SYMBOL[ch][0]}` : `one ${name(ch)}`) : many(m, ch);
+  const q = pick([`Read one digit and print that many lines, each with ${what}.`, `Read a digit n and print n lines of ${what}, every line ending in a newline.`, `Given a digit, print that many lines holding ${what} each.`]);
+  return { q: sentence(lead(), q), code: ',' + run(-48) + '>' + set(code(ch)) + '>' + run(10) + '<<[>' + '.'.repeat(m) + '>.<<-]', f: (x) => (ch.repeat(m) + '\n').repeat(+x), inputs: ['0', '1', '3', pick(DIGITS)] };
+};
+
+F.wordTimes = () => {
+  const w = chance(0.7) ? pick(WORDS) : randomText(5), n = int(2, 9), line = chance(0.4);
+  const s = (w + (line ? '\n' : '')).repeat(n);
+  const q = line ? pick([`Print ${quote(w)} on ${count(n)} lines.`, `Print ${count(n)} lines that each say ${quote(w)}.`]) : pick([`Print ${quote(w)} ${times(n)}.`, `Print the word ${quote(w)} ${times(n)} in a row.`]);
+  return { q: sentence(lead(), q) + pick(NO_INPUT), code: set(n) + '[>' + printText(w + (line ? '\n' : '')) + '[-]<-]', f: () => s, inputs: [''] };
 };
 
 // ---- tasks made of parts: the program is put together from pieces, and so is the question
@@ -443,8 +520,8 @@ F.phases = () => {
   }
   if (!usesInput || steps.length < 2) return null;
   const PH = {
-    fwd: (k) => '<[<]>[' + set(k) + '.' + set(-k) + '>]',
-    back: (k) => '<[' + set(k) + '.' + set(-k) + '<]>[>]',
+    fwd: (k) => '<[<]>[' + run(k) + '.' + run(-k) + '>]',
+    back: (k) => '<[' + run(k) + '.' + run(-k) + '<]>[>]',
     text: (s) => printText(s) + '[-]',
     len: () => '<[[-]>[-<+>]<+<]>' + set(48) + '.',
   };
@@ -470,7 +547,7 @@ F.phases = () => {
 // ---- rewording: another verb, or "a program that ..."
 const VERB = { Print: 'prints', Read: 'reads', Copy: 'copies', Reverse: 'reverses', Count: 'counts', Swap: 'swaps', Add: 'adds', Multiply: 'multiplies', Subtract: 'subtracts',
   Convert: 'converts', Halve: 'halves', Move: 'moves', Repeat: 'repeats', Echo: 'echoes', Make: 'makes', Replace: 'replaces', Output: 'outputs', Go: 'goes', For: null, Behave: 'behaves', The: null };
-const SAME = { Print: ['Output', 'Show', 'Display', 'Write out', 'Produce'], Read: ['Take', 'Read in'], Copy: ['Echo'], Reverse: ['Flip'], Count: ['Tally'] };
+const SAME = { Print: ['Output', 'Show', 'Display', 'Write out', 'Produce', 'Emit', 'Type out', 'Write'], Read: ['Take', 'Read in', 'Get'], Copy: ['Echo'], Reverse: ['Flip', 'Turn around'], Count: ['Tally'], Add: ['Sum'] };
 function reword(q) {
   const m = /^([A-Z][a-z]+) /.exec(q);
   if (!m || !(m[1] in VERB)) return q;
@@ -479,15 +556,19 @@ function reword(q) {
   if (r < 0.8 && VERB[m[1]]) {
     // later verbs of the first sentence follow: 'reads one digit and counts down'
     const rest = q.slice(m[1].length).replace(/^([^.]*)/, (first) => first.replace(/(and|then) ([a-z]+)/g, (w, j, v) => { const V = VERB[v[0].toUpperCase() + v.slice(1)]; return V ? j + ' ' + V : w; }));
-    return pick(['Write a program that ', 'Make a program that ', 'I need a program that ', 'Create a brainfuck program that ', 'Code that ', 'A program that ']) + VERB[m[1]] + rest;
+    return pick(['Write a program that ', 'Make a program that ', 'I need a program that ', 'Create a brainfuck program that ', 'Code that ', 'A program that ',
+      'Give me a program that ', 'Write brainfuck that ', 'Write some code that ', 'A brainfuck program that ', 'Build a program that ']) + VERB[m[1]] + rest;
   }
   return q[0].toLowerCase() + q.slice(1).replace(/\.$/, '');
 }
-const WEIGHT = { perChar: 4, phases: 4 };
+const WEIGHT = { perChar: 4, phases: 4, text: 4, textLines: 2, repeat: 2, wordTimes: 2, lines: 2 };
 
 // ---- making and checking examples
-// The questions of blind.js (the test) and check.js (snapshot choice) are never used.
-const BLIND = new Set([...require('./blind').BLIND, ...require('./check').CHECK].map((t) => t.question.toLowerCase()));
+// The questions of blind.js (the test), check.js (snapshot choice) and the challenges are never used, nor a question holding one.
+const plain = (q) => q.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+require('../../site/challenges/data.js');
+const HELD = [...require('./blind').BLIND, ...require('./check').CHECK, ...self.BFData.CHALLENGES.map((c) => ({ question: c.text }))].map((t) => plain(t.question));
+const held = (q) => { const p = plain(q); return HELD.some((h) => p.includes(h) || h.includes(p)); };
 function check(ex) {
   for (const input of ex.inputs) {
     const r = BF.run(ex.code, { input, bits: 8, eof: 0 });
@@ -505,7 +586,7 @@ function make(n, families, skip = new Set()) {
     for (let tries = 0; rows.length < each && tries < each * 30; tries++) {
       const ex = families[fam]();
       if (ex && chance(0.45)) ex.q = reword(ex.q);
-      if (!ex || Buffer.byteLength(ex.q) > MAX_QUESTION || BLIND.has(ex.q.toLowerCase())) continue;
+      if (!ex || Buffer.byteLength(ex.q) > MAX_QUESTION || held(ex.q)) continue;
       const bad = check(ex);
       if (bad) throw new Error(`family ${fam}: ${ex.q}\n${ex.code}\n${bad}`);
       const key = ex.q + '\u0000' + ex.code;
