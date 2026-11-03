@@ -9,12 +9,19 @@
 <meta property="og:description" content="A real chat model, written out as one brainfuck program of billions of characters. Eight commands, nothing else. Ask it a question: it runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="brnfck.chat">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://brnfck.chat/">
+<meta property="og:image" content="https://brnfck.chat/share/home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://brnfck.chat/share/home.png">
 <script>try { document.documentElement.dataset.theme = localStorage.getItem('brnfck.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { document.documentElement.dataset.theme = 'light'; }</script>
+<!-- a phone or tablet gets the light page: only brnfck-smollm2-135m fits in its memory (same test as ProgramStart.device) -->
+<script>if ((navigator.userAgentData && navigator.userAgentData.mobile) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '') || (/Macintosh/.test(navigator.userAgent || '') && navigator.maxTouchPoints > 1)) document.documentElement.dataset.device = 'phone';</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e10'/%3E%3Cg font-size='17' font-family='monospace' font-weight='700' text-anchor='middle'%3E%3Ctext x='6' y='22' fill='%23cc79a7'%3E[%3C/text%3E%3Ctext x='16' y='22' fill='%23e69f00'%3E+%3C/text%3E%3Ctext x='26' y='22' fill='%23cc79a7'%3E]%3C/text%3E%3C/g%3E%3C/svg%3E">
 <link rel="stylesheet" href="site.css?v=r13">
 <link rel="stylesheet" href="program-download.css?v=r6">
-<link rel="stylesheet" href="home.css?v=r30">
+<link rel="stylesheet" href="home.css?v=r36">
 </head>
 <body>
 <script src="site.js?v=r26" data-section="chat"></script>
@@ -59,6 +66,15 @@
           </fieldset>
 
           <section class="screen" id="chatWorkspace" aria-label="Conversation" tabindex="-1">
+            <section id="cut" class="callout" hidden aria-labelledby="cutHead">
+              <h3 id="cutHead">The phone ran out of memory</h3>
+              <p>The page reloaded while the program was running: the phone stopped this tab to free memory. brnfck-smollm2-135m needs about 1 GB, which an older phone may not have. Closing other apps and tabs makes room.</p>
+              <p class="row"><button id="cutAgain" type="button" class="primary">Try again</button><button id="cutSend" type="button" class="quiet">Send this page to a computer</button></p>
+              <p class="label">What it answers on a phone with room</p>
+              <p class="exchange io"><span class="q">What is the capital of France?</span><span class="a">The capital of France is Paris.</span></p>
+              <p class="exchange io"><span class="q">Hello</span><span class="a">Hello! How can I help you today?</span></p>
+              <p>On every phone: <a href="#play">three commands to try</a> and the Lab further down, <a href="brainfuck/">the lessons</a> and <a href="playground/">the Playground</a>. On a computer all six programs answer.</p>
+            </section>
             <div id="emptyOutput">
               <p class="label">Or try one of these</p>
               <div class="chips" id="chips" role="group" aria-label="Example questions"></div>
@@ -106,15 +122,6 @@
               </div>
             </section>
 
-            <section id="unfit" class="callout" hidden aria-labelledby="unfitHead">
-              <h3 id="unfitHead">Not on this device</h3>
-              <p id="unfitText"></p>
-              <p class="exchange io"><span class="q">What is the capital of France?</span><span class="a">The capital of France is Paris.</span></p>
-              <p class="exchange io"><span class="q">What is 12 + 30?</span><span class="a">12 + 30 equals 42.</span></p>
-              <p class="small muted">Recorded answers from brnfck-qwen2.5-0.5b, on a desktop computer.</p>
-              <p>What works here: the eight commands below, <a href="how/">how it works</a>, <a href="map/">the program map</a> and <a href="brainfuck/">the lessons</a>.</p>
-              <button id="anyway" type="button" class="quiet">Try brnfck-smollm2-135m here anyway</button>
-            </section>
 
             <section id="error" class="callout warn" role="alert" hidden>
               <h3>This did not work</h3>
@@ -128,7 +135,8 @@
           <h2 class="label nonum" id="rig-prog">Which program answers</h2>
           <p class="modelLine"><b id="modelText"></b><span class="muted small" id="programSize"></span></p>
           <fieldset class="picklist" id="models"><legend class="sr-only">Six programs: four that read text, brnfck-qwen3.5-0.8b-vision, which also reads a picture, and brnfck-qwen2.5-coder-0.5b, which answers with a brainfuck program</legend></fieldset>
-          <p class="small muted">A bigger model answers better, and you wait longer for it.</p>
+          <p class="small muted not-phone">A bigger model answers better, and you wait longer for it.</p>
+          <p class="small muted phone-only">The five larger programs need 4 to 8 GB of memory in one tab, more than a phone gives a page. They answer on a computer.</p>
           <p id="storeLine" class="small muted" hidden><span id="storeText"></span> <button id="removeStored" type="button" class="link">Remove it</button></p>
           <details class="q nonum"><summary>Download this program (.bf)</summary><div class="a" id="download"></div></details>
         </section>
@@ -136,6 +144,23 @@
     </figure>
   </div>
   <p id="live" class="sr-only" role="status"></p>
+
+  <section id="pocket" class="phone-only" aria-labelledby="pocketHead">
+    <h2 id="pocketHead">A billion characters on a phone</h2>
+    <p>Each chatbot here is one brainfuck program. brnfck-smollm2-135m, the one above, is the smallest: 1,030,902,380 characters, and the only one a phone has room for. The other five answer on a computer.</p>
+    <figure class="frame full" id="fig-pocket" aria-labelledby="cap-pocket">
+      <p class="frame-head"><b>The six chat programs</b><span>in characters, to scale</span></p>
+      <ol class="frame-body pocket">
+        <li class="here" style="--w: 9.02%"><b>brnfck-smollm2-135m</b><span>1,030,902,380</span><i></i></li>
+        <li style="--w: 36.48%"><b>brnfck-qwen2.5-0.5b</b><span>4,169,659,608</span><i></i></li>
+        <li style="--w: 36.93%"><b>brnfck-qwen2.5-coder-0.5b</b><span>4,221,543,730</span><i></i></li>
+        <li style="--w: 67.44%"><b>brnfck-qwen3.5-0.8b</b><span>7,709,034,855</span><i></i></li>
+        <li style="--w: 78.13%"><b>brnfck-qwen3.5-0.8b-vision</b><span>8,931,101,427</span><i></i></li>
+        <li style="--w: 100%"><b>brnfck-qwen2.5-1.5b</b><span>11,430,468,880</span><i></i></li>
+      </ol>
+      <figcaption id="cap-pocket">Each bar is as long as its program. In green the one that runs here, in about 1.5 GB of memory; the others need 4 to 8 GB in one browser tab. On a computer this page also shows how the program is built and races the programs on one question.</figcaption>
+    </figure>
+  </section>
 
   <section id="where" aria-labelledby="whereHead">
     <h2 id="whereHead">Try the Lab here</h2>
@@ -160,7 +185,7 @@
         <div class="tape joined lc-tape" id="lcTape" aria-hidden="true"></div>
         <div class="row"><label class="stacked">Input <input id="lcIn" value="38" autocomplete="off" spellcheck="false"></label><button type="button" id="lcGo">Run it</button></div>
         <p class="coderesult small" id="lcOut" role="status"></p>
-        <p class="row"><button type="button" class="quiet" id="lcAsk">Give it a task of your own</button></p>
+        <p class="row not-phone"><button type="button" class="quiet" id="lcAsk">Give it a task of your own</button></p>
       </li>
       <li class="lab-pic" id="labPic">
         <h4><span class="nb">brnfck-qwen3.5-0.8b-vision</span></h4>
@@ -216,7 +241,7 @@
     <p class="row"><a class="btn go" href="brainfuck/">Learn the eight commands</a><a class="btn quiet go" href="playground/">Write your own program</a></p>
   </section>
 
-  <section id="method" aria-labelledby="methodHead">
+  <section id="method" class="not-phone" aria-labelledby="methodHead">
     <h2 id="methodHead">Numbers first, then words</h2>
     <p>The program has two parts. The first writes the model's numbers into memory. In brnfck-qwen2.5-1.5b, the largest program, that is 11,334,697,744 of its 11,430,468,880 characters. It reads nothing and prints nothing.</p>
     <figure class="frame interactive full" id="fig-zoom" aria-labelledby="cap-zoom">
@@ -257,7 +282,7 @@
     <p class="row"><a class="btn go" href="inside/">Look inside the program</a></p>
   </section>
 
-  <section id="programs" aria-labelledby="programsHead">
+  <section id="programs" class="not-phone" aria-labelledby="programsHead">
     <h2 id="programsHead">Five programs, five costs</h2>
     <p>There are four programs of text. brnfck-smollm2-135m loads quickest and often gets simple questions wrong. The larger ones need more memory and take longer for every piece of an answer. A fifth, brnfck-qwen3.5-0.8b-vision, is brnfck-qwen3.5-0.8b with the part of its model that looks at pictures: it reads a photo before the question. <a href="vision/">Looking at a picture</a> shows how. A sixth, brnfck-qwen2.5-coder-0.5b, answers with a brainfuck program of its own, which runs under its answer: <a href="coder/">Brainfuck that writes brainfuck</a>.</p>
     <p>brnfck-qwen3.5-0.8b runs Qwen3.5-0.8B, a newer generation than Qwen2.5. It has the same kind of layers as Qwen3.8-27B, a much larger model: 18 of its 24 layers are Gated DeltaNet, a memory of fixed size, and the other 6 look back at every earlier word piece, one after every three DeltaNet layers. <a href="compare/">Compare the models</a> explains that kind of layer. <a href="compare/#live">Ask it yourself</a> on that page runs the model in floating point with its DeltaNet layers in whole numbers: close to the program, but not what it computes. The program follows its own whole-number recipe exactly.</p>
@@ -296,7 +321,7 @@
       <li><b>Answers can be wrong.</b> These are small models, and running one in brainfuck does not make it smarter.</li>
       <li><b>Each question starts fresh.</b> A question is at most 200 characters. The program does not remember earlier ones; the list on the page is only a record of this visit. brnfck-qwen3.5-0.8b cannot yet clear its memory after an answer, so the Chatbot loads it again for each question.</li>
       <li><b>The numbers were rounded.</b> Brainfuck has whole numbers only, so each model was converted to whole-number arithmetic. brnfck-smollm2-135m, brnfck-qwen2.5-0.5b and brnfck-qwen2.5-1.5b then pick the same next piece of text as the original model in 94.8%, 96.6% and 97.2% of the tested cases. For brnfck-qwen3.5-0.8b it is 95.1%: its whole-number version, which the program follows exactly, against the original at 225 positions of its answers. That measures agreement with the original, not whether an answer is true.</li>
-      <li><b>It is heavy.</b> The first question downloads the program, and the tab needs the memory in the table. No phone can run any of the five.</li>
+      <li><b>It is heavy.</b> The first question downloads the program, and the tab needs the memory listed for that program. Of the six, only brnfck-smollm2-135m runs on a phone.</li>
     </ul>
   </section>
 
@@ -318,9 +343,9 @@
 <script src="command-play.js?v=r6"></script>
 <script src="ui/tapeview.js?v=r10"></script>
 <script src="challenges/engine.js?v=r6"></script>
-<script src="home.js?v=r24"></script>
+<script src="home.js?v=r28"></script>
 <script src="home-lab.js?v=r6"></script>
 <script src="inside/engine-sections.js?v=r13"></script>
-<script src="home-figures.js?v=r27"></script>
+<script src="home-figures.js?v=r28"></script>
 </body>
 </html>
